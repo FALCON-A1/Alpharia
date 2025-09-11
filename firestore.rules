@@ -1,9 +1,32 @@
 rules_version = '2';
 service cloud.firestore {
   match /databases/{database}/documents {
-    // Development mode - allow all access
+    // Allow read access to tests for authenticated users
+    match /tests/{testId} {
+      allow read: if request.auth != null;
+      allow write: if request.auth != null && 
+                   request.auth.token.role == 'teacher';
+    }
+    
+    // Allow users to read and write their own user data
+    match /users/{userId} {
+      allow read, update: if request.auth != null && 
+                         request.auth.uid == userId;
+      allow create: if request.auth != null;
+    }
+    
+    // Allow students to submit test attempts
+    match /test_attempts/{attemptId} {
+      allow create: if request.auth != null && 
+                   request.auth.token.role == 'student';
+      allow read: if request.auth != null && 
+                  (request.auth.uid == resource.data.studentId || 
+                   request.auth.token.role == 'teacher');
+    }
+    
+    // Default deny all other access
     match /{document=**} {
-      allow read, write: if true;
+      allow read, write: if false;
     }
   }
 }

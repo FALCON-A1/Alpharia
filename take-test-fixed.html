@@ -1,0 +1,3540 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Take Test - Alpharia</title>
+    
+    <!-- Google Fonts -->
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    
+    <!-- Font Awesome Icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    
+    <!-- Custom CSS -->
+    <link rel="stylesheet" href="css/student-dashboard-clean.css">
+    <link rel="stylesheet" href="css/test-taking.css">
+    <link rel="stylesheet" href="css/dashboard.css">
+    
+    <style>
+        /* Question Container Styles */
+        .question-container {
+            background: linear-gradient(145deg, #ffffff, #f8f9fa);
+            border-radius: 16px;
+            padding: 3rem 3.5rem;
+            margin: 2rem auto;
+            box-shadow: 0 8px 30px rgba(0, 0, 0, 0.1);
+            position: relative;
+            border: none;
+            max-width: 1100px;
+            width: 95%;
+            transition: all 0.3s ease;
+        }
+        
+        .question-container:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 12px 40px rgba(0, 0, 0, 0.15);
+        }
+        
+        .question-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 2.5rem;
+            padding-bottom: 1.2rem;
+            border-bottom: 2px solid rgba(74, 111, 165, 0.1);
+        }
+        
+        .question-title {
+            font-size: 2rem;
+            font-weight: 700;
+            color: #1a2b4a;
+            margin: 0;
+            letter-spacing: -0.5px;
+            text-transform: uppercase;
+            position: relative;
+            padding-left: 1.2rem;
+        }
+        
+        .question-title:before {
+            content: '';
+            position: absolute;
+            left: 0;
+            top: 0;
+            height: 100%;
+            width: 5px;
+            background: linear-gradient(to bottom, #4a6fa5, #6a8cbf);
+            border-radius: 3px;
+        }
+        
+        .question-points {
+            background: linear-gradient(135deg, #4a6fa5, #6a8cbf);
+            color: white;
+            padding: 0.5rem 1.2rem;
+            border-radius: 50px;
+            font-size: 1.1rem;
+            font-weight: 600;
+            box-shadow: 0 4px 15px rgba(74, 111, 165, 0.3);
+            min-width: 100px;
+            text-align: center;
+        }
+        
+        .prompt-text {
+            font-size: 6rem;
+            font-weight: 700;
+            text-align: center;
+            margin: 3rem 0;
+            color: #1a2b4a;
+            line-height: 1.1;
+            min-height: 250px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.1);
+            letter-spacing: 3px;
+            position: relative;
+            padding: 3rem;
+            background: rgba(255, 255, 255, 0.7);
+            border-radius: 16px;
+            border: 1px solid rgba(0, 0, 0, 0.05);
+            max-width: 100%;
+            word-break: break-word;
+        }
+        
+        @media (max-width: 1200px) {
+            .question-container {
+                max-width: 95%;
+                padding: 2.5rem 2rem;
+            }
+            
+            .prompt-text {
+                font-size: 5rem;
+                min-height: 200px;
+                padding: 2.5rem;
+            }
+        }
+        
+        @media (max-width: 768px) {
+            .question-container {
+                padding: 2rem 1.5rem;
+                margin: 1rem 0.5rem;
+                max-width: 100%;
+                width: 100%;
+                border-radius: 0;
+            }
+            
+            .question-title {
+                font-size: 1.5rem;
+            }
+            
+            .prompt-text {
+                font-size: 3.5rem;
+                min-height: 150px;
+                padding: 1.5rem;
+                letter-spacing: 2px;
+            }
+            
+            .question-points {
+                font-size: 0.9rem;
+                padding: 0.4rem 0.8rem;
+                min-width: 80px;
+            }
+        }
+        
+        /* Section Complete Modal Styles */
+        #section-complete-modal .modal-content {
+            border-radius: 10px;
+            box-shadow: 0 5px 20px rgba(0, 0, 0, 0.15);
+            padding: 30px;
+            text-align: center;
+        }
+        
+        #section-complete-modal .fa-check-circle {
+            color: #28a745;
+            font-size: 64px;
+            margin-bottom: 20px;
+        }
+        
+        #section-complete-modal h3 {
+            color: #2c3e50;
+            margin-bottom: 10px;
+        }
+        
+        #section-complete-modal p {
+            color: #6c757d;
+            margin-bottom: 25px;
+        }
+        
+        #section-complete-buttons {
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+            margin-top: 20px;
+        }
+        
+        #section-complete-buttons .btn {
+            padding: 10px 20px;
+            border-radius: 6px;
+            font-weight: 500;
+            transition: all 0.3s ease;
+        }
+        
+        #section-complete-buttons .btn-primary {
+            background-color: #4a6fa5;
+            border-color: #4a6fa5;
+        }
+        
+        #section-complete-buttons .btn-outline-primary {
+            color: #4a6fa5;
+            border-color: #4a6fa5;
+        }
+        
+        #section-complete-buttons .btn-outline-primary:hover {
+            background-color: #4a6fa5;
+            color: white;
+        }
+        
+        /* Test Summary Modal Styles */
+        #test-summary-modal .modal-content {
+            border-radius: 10px;
+            box-shadow: 0 5px 30px rgba(0, 0, 0, 0.15);
+            max-width: 700px;
+            width: 90%;
+            margin: 30px auto;
+        }
+        
+        #test-summary-modal .modal-header {
+            border-bottom: 1px solid #eee;
+            padding: 20px 30px;
+            text-align: center;
+        }
+        
+        #test-summary-modal .modal-body {
+            padding: 25px 30px;
+        }
+        
+        #test-summary-modal .summary-stats {
+            background-color: #f8f9fa;
+            border-radius: 8px;
+            padding: 20px;
+            margin-bottom: 25px;
+        }
+        
+        #test-summary-modal .summary-stats h4 {
+            font-size: 28px;
+            font-weight: 700;
+            margin-bottom: 5px;
+            color: #2c3e50;
+        }
+        
+        #test-summary-modal .summary-stats p {
+            color: #6c757d;
+            margin-bottom: 0;
+            font-size: 14px;
+        }
+        
+        #test-summary-modal .section-results {
+            margin-bottom: 25px;
+        }
+        
+        #test-summary-modal .section-result-item {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 15px 0;
+            border-bottom: 1px solid #eee;
+        }
+        
+        #test-summary-modal .section-result-item:last-child {
+            border-bottom: none;
+        }
+        
+        #test-summary-modal .section-title {
+            font-weight: 500;
+            color: #2c3e50;
+        }
+        
+        #test-summary-modal .section-score {
+            font-weight: 600;
+            color: #4a6fa5;
+        }
+        
+        #test-summary-modal .progress {
+            height: 8px;
+            border-radius: 4px;
+            background-color: #e9ecef;
+            margin-top: 8px;
+        }
+        
+        #test-summary-modal .progress-bar {
+            background-color: #4a6fa5;
+            border-radius: 4px;
+        }
+        
+        #test-summary-modal .modal-footer {
+            display: flex;
+            justify-content: space-between;
+            padding: 20px 30px;
+            border-top: 1px solid #eee;
+        }
+        
+        #test-summary-modal .btn {
+            padding: 10px 20px;
+            border-radius: 6px;
+            font-weight: 500;
+            transition: all 0.3s ease;
+        }
+        
+        #test-summary-modal .btn-outline-secondary {
+            border-color: #6c757d;
+            color: #6c757d;
+        }
+        
+        #test-summary-modal .btn-outline-secondary:hover {
+            background-color: #6c757d;
+            color: white;
+        }
+        
+        #test-summary-modal .btn-primary {
+            background-color: #4a6fa5;
+            border-color: #4a6fa5;
+        }
+        
+        #test-summary-modal .btn-primary:hover {
+            background-color: #3a5a80;
+            border-color: #3a5a80;
+        }
+        
+        /* Test Completion Modal Styles */
+        #test-completion-modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background-color: rgba(0, 0, 0, 0.5);
+            z-index: 1000;
+            justify-content: center;
+            align-items: center;
+            padding: 20px;
+        }
+        
+        #test-completion-modal .modal-content {
+            background-color: white;
+            border-radius: 12px;
+            width: 100%;
+            max-width: 800px;
+            max-height: 90vh;
+            overflow-y: auto;
+            padding: 2rem;
+            position: relative;
+            box-shadow: 0 5px 30px rgba(0, 0, 0, 0.3);
+        }
+        
+        /* Modal Styles */
+        #result-modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0, 0, 0, 0.7);
+            z-index: 1000;
+            justify-content: center;
+            align-items: center;
+            opacity: 0;
+            transition: opacity 0.3s ease;
+        }
+        
+        #result-modal.visible {
+            display: flex;
+            opacity: 1;
+        }
+        
+        .modal-visible {
+            display: flex !important;
+            visibility: visible !important;
+            opacity: 1 !important;
+        }
+        
+        .modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0, 0, 0, 0.5);
+            z-index: 1000;
+            align-items: center;
+            justify-content: center;
+            opacity: 0;
+            transition: opacity 0.2s ease;
+            pointer-events: none;
+        }
+        
+        .modal.show {
+            display: flex;
+            opacity: 1;
+            pointer-events: auto;
+        }
+        
+        .modal-content {
+            transform: translateY(-20px);
+            transition: transform 0.2s ease, opacity 0.2s ease;
+            opacity: 0;
+        }
+        
+        .modal.show .modal-content {
+            transform: translateY(0);
+            opacity: 1;
+        }
+        
+        .modal-content {
+            background: white;
+            padding: 20px;
+            border-radius: 8px;
+            max-width: 90%;
+            max-height: 90vh;
+            overflow-y: auto;
+            position: relative;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+        }
+        
+        #result-modal.visible .modal-content {
+            transform: translateY(0);
+            opacity: 1;
+        }
+        
+        .recognized-text {
+            background-color: #f8f9fa;
+            padding: 5px 10px;
+            border-radius: 4px;
+            border-left: 4px solid #007bff;
+            font-family: monospace;
+            display: inline-block;
+            margin: 5px 0;
+        }
+        
+        .expected-answer {
+            color: #28a745;
+            font-weight: bold;
+            background-color: #f0fff4;
+            padding: 2px 6px;
+            border-radius: 4px;
+            border-left: 3px solid #28a745;
+        }
+        
+        .modal-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 1.5rem;
+            padding-bottom: 1rem;
+            border-bottom: 1px solid #eee;
+        }
+        
+        .modal-header h3 {
+            margin: 0;
+            font-size: 1.5rem;
+        }
+        
+        .close-modal {
+            background: none;
+            border: none;
+            font-size: 1.5rem;
+            cursor: pointer;
+            color: #666;
+        }
+        
+        .modal-body {
+            margin-bottom: 1.5rem;
+        }
+        
+        .modal-footer {
+            display: flex;
+            justify-content: flex-end;
+            padding-top: 1.5rem;
+            border-top: 1px solid #eee;
+        }
+        /* Test Item Styles */
+        .test-item-container {
+            background: #fff;
+            border-radius: 10px;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+            padding: 2rem;
+            max-width: 800px;
+            margin: 2rem auto;
+        }
+        
+        .item-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 2rem;
+            padding-bottom: 1rem;
+            border-bottom: 1px solid #eee;
+        }
+        
+        .item-header h3 {
+            margin: 0;
+            color: #333;
+            font-size: 1.5rem;
+        }
+        
+        .item-progress {
+            background: #f0f4f8;
+            padding: 0.5rem 1rem;
+            border-radius: 20px;
+            font-weight: 500;
+            color: #4a6fa5;
+        }
+        
+        .item-content {
+            text-align: center;
+            padding: 1rem 0;
+        }
+        
+        .item-prompt {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 0.5rem;
+            margin-bottom: 1.5rem;
+            color: #666;
+            font-size: 1.1rem;
+        }
+        
+        .item-prompt i {
+            color: #4a6fa5;
+        }
+        
+        .item-text {
+            font-size: 2rem;
+            font-weight: bold;
+            margin: 2rem 0;
+            line-height: 1.4;
+            min-height: 100px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 2rem;
+            background: #f9fafc;
+            border-radius: 8px;
+            border-left: 4px solid #4a6fa5;
+        }
+        
+        .speech-controls {
+            margin: 2rem 0;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 1rem;
+        }
+        
+        #start-speech-btn {
+            padding: 0.75rem 2rem;
+            font-size: 1.1rem;
+            border-radius: 30px;
+            transition: all 0.3s ease;
+        }
+        
+        #start-speech-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+        }
+        
+        #start-speech-btn.btn-danger {
+            background-color: #dc3545;
+            border-color: #dc3545;
+        }
+        
+        .speech-status {
+            font-size: 0.9rem;
+            color: #666;
+            min-height: 1.5rem;
+            margin-top: 0.5rem;
+        }
+        
+        .speech-status.status-reading {
+            color: #4a6fa5;
+            font-weight: 500;
+        }
+        
+        .speech-status.status-complete {
+            color: #28a745;
+        }
+        
+        .speech-status.status-error {
+            color: #dc3545;
+        }
+        
+        .speech-status.status-stopped {
+            color: #6c757d;
+        }
+        
+        /* Responsive adjustments */
+        @media (max-width: 768px) {
+            .test-item-container {
+                padding: 1.5rem;
+                margin: 1rem;
+            }
+            
+            .item-text {
+                font-size: 1.5rem;
+                padding: 1.5rem;
+            }
+            
+            .navigation-buttons {
+                flex-direction: column;
+                gap: 1rem;
+            }
+            
+            .navigation-buttons .btn {
+                width: 100%;
+            }
+        }
+    .test-container {
+        max-width: 1100px;
+        margin: 0 auto;
+        padding: 0 20px;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+    }
+    .word-display {
+        font-size: 3rem;
+        font-weight: bold;
+        color: #4a6cf7;
+        margin: 2rem 0;
+        text-align: center;
+        min-height: 4.5rem;
+    }
+    .result-container {
+        margin: 2rem 0;
+        padding: 1.5rem;
+        border-radius: 8px;
+        text-align: center;
+        transition: all 0.3s ease;
+        opacity: 0;
+        transform: translateY(10px);
+        height: 0;
+        overflow: hidden;
+    }
+    .result-container.show {
+        opacity: 1;
+        transform: translateY(0);
+        height: auto;
+        padding: 1.5rem;
+        margin: 2rem 0;
+    }
+    .correct {
+        background-color: #d4edda;
+        border: 1px solid #c3e6cb;
+        color: #155724;
+    }
+    .incorrect {
+        background-color: #f8d7da;
+        border: 1px solid #f5c6cb;
+        color: #721c24;
+    }
+    .correction {
+        font-size: 1.5rem;
+        margin: 1rem 0;
+        font-weight: bold;
+    }
+    .microphone-btn {
+        padding: 1rem 2rem;
+        font-size: 1.25rem;
+        border-radius: 50px;
+        transition: all 0.3s ease;
+    }
+    .microphone-btn.listening {
+        background-color: #dc3545;
+        transform: scale(1.05);
+        box-shadow: 0 0 15px rgba(220, 53, 69, 0.3);
+    }
+    .attempts {
+        margin-top: 1.5rem;
+        color: #6c757d;
+    }
+    .attempts span {
+        font-weight: bold;
+        color: #4a6cf7;
+    }
+    .speech-status {
+        margin-top: 1rem;
+        padding: 0.5rem;
+        border-radius: 4px;
+        text-align: center;
+        min-height: 24px;
+    }
+    .listening-indicator {
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        gap: 4px;
+        height: 24px;
+    }
+    .listening-indicator span {
+        display: inline-block;
+        width: 8px;
+        height: 8px;
+        background-color: #007bff;
+        border-radius: 50%;
+        animation: bounce 1.5s infinite ease-in-out;
+    }
+    .listening-indicator span:nth-child(1) { animation-delay: 0s; }
+    .listening-indicator span:nth-child(2) { animation-delay: 0.2s; }
+    .listening-indicator span:nth-child(3) { animation-delay: 0.4s; }
+    @keyframes bounce {
+        0%, 100% { transform: translateY(0); }
+        50% { transform: translateY(-8px); }
+    }
+    
+    /* Navigation Buttons */
+    .navigation-buttons {
+        width: 100%;
+        max-width: 800px;
+        margin: 40px auto 0;
+        padding: 0 20px;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        gap: 15px;
+        flex-wrap: wrap;
+    }
+    
+    .nav-btn {
+        padding: 12px 24px;
+        font-size: 1.1rem;
+        font-weight: 500;
+        border-radius: 8px;
+        border: none;
+        cursor: pointer;
+        transition: all 0.2s ease;
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        gap: 8px;
+        min-width: 120px;
+        white-space: nowrap;
+    }
+    
+    .nav-btn.btn-primary {
+        background-color: #4a6fa5;
+        color: white;
+    }
+    
+    .nav-btn.btn-secondary {
+        background-color: #6c757d;
+        color: white;
+    }
+    
+    .nav-btn.btn-danger {
+        background-color: #dc3545;
+        color: white;
+    }
+    
+    .nav-btn:disabled {
+        opacity: 0.6;
+        cursor: not-allowed;
+    }
+    
+    .nav-btn:not(:disabled):hover {
+        transform: translateY(-2px);
+        box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+    }
+    
+    .navigation-buttons .btn:disabled {
+        opacity: 0.6;
+        cursor: not-allowed;
+    }
+    
+    .navigation-buttons .btn-primary {
+        background-color: #4a6fa5;
+        border-color: #4a6fa5;
+    }
+    
+    .navigation-buttons .btn-primary:hover {
+        background-color: #3a5a80;
+        border-color: #3a5a80;
+    }
+    
+    .navigation-buttons .btn-outline-primary {
+        color: #4a6fa5;
+        border-color: #4a6fa5;
+    }
+    
+    .navigation-buttons .btn-outline-primary:hover {
+        background-color: #4a6fa5;
+        color: white;
+    }
+        
+        /* Buttons */
+        .btn {
+            padding: 10px 24px;
+            border: none;
+            border-radius: 6px;
+            cursor: pointer;
+            font-weight: 500;
+            transition: all 0.3s ease;
+            font-size: 15px;
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+        }
+        
+        .btn i {
+            font-size: 14px;
+        }
+        
+        .btn-primary {
+            background-color: #4a6fa5;
+            color: white;
+            box-shadow: 0 2px 4px rgba(74, 111, 165, 0.3);
+        }
+        
+        .btn-primary:hover {
+            background-color: #3a5a8c;
+            transform: translateY(-1px);
+            box-shadow: 0 4px 8px rgba(74, 111, 165, 0.4);
+        }
+        
+        .btn-secondary {
+            background-color: #6c757d;
+            color: white;
+        }
+        
+        .btn-secondary:hover {
+            background-color: #5a6268;
+            transform: translateY(-1px);
+        }
+        
+        .btn-outline-primary {
+            background: transparent;
+            border: 1px solid #4a6fa5;
+            color: #4a6fa5;
+        }
+        
+        .btn-outline-primary:hover {
+            background-color: #4a6fa5;
+            color: white;
+        }
+        
+        .btn-danger {
+            background-color: #dc3545;
+            color: white;
+        }
+        
+        .btn-danger:hover {
+            background-color: #c82333;
+        }
+        
+        /* Speech Status */
+        .speech-status {
+            margin: 15px 0;
+            padding: 12px 20px;
+            border-radius: 6px;
+            text-align: center;
+            font-weight: 500;
+            transition: all 0.3s ease;
+        }
+        
+        .status-listening {
+            background-color: #e8f4fd;
+            color: #0d6efd;
+            border-left: 4px solid #0d6efd;
+        }
+        
+        .status-success {
+            background-color: #e8f5e9;
+            color: #198754;
+            border-left: 4px solid #198754;
+        }
+        
+        .status-error {
+            background-color: #fde8e8;
+            color: #dc3545;
+            border-left: 4px solid #dc3545;
+        }
+        
+        .status-reading {
+            color: #4a6fa5;
+            font-weight: 500;
+        }
+        
+        /* Test Item Styles */
+        .test-item-container {
+            background: #fff;
+            border-radius: 12px;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.08);
+            padding: 30px;
+            margin: 25px auto;
+            max-width: 800px;
+        }
+        
+        .item-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 25px;
+            padding-bottom: 15px;
+            border-bottom: 1px solid #eee;
+        }
+        
+        .item-header h3 {
+            margin: 0;
+            color: #2c3e50;
+            font-size: 1.5rem;
+            font-weight: 600;
+        }
+        
+        .item-progress {
+            background: #f0f4f8;
+            padding: 8px 16px;
+            border-radius: 20px;
+            font-weight: 500;
+            color: #4a6fa5;
+            font-size: 0.9rem;
+        }
+        
+        .item-content {
+            text-align: center;
+            padding: 20px 0;
+        }
+        
+        .item-prompt {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 10px;
+            margin-bottom: 20px;
+            color: #4a6fa5;
+            font-size: 1.1rem;
+            font-weight: 500;
+        }
+        
+        .item-text {
+            font-size: 2rem;
+            font-weight: 600;
+            margin: 25px 0;
+            line-height: 1.5;
+            min-height: 120px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 30px;
+            background: #f9fafc;
+            border-radius: 10px;
+            border-left: 5px solid #4a6fa5;
+            box-shadow: inset 0 2px 4px rgba(0, 0, 0, 0.05);
+        }
+        
+        /* Speech Controls */
+        .speech-controls {
+            margin: 30px 0;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 15px;
+        }
+        
+        #start-speech-btn {
+            padding: 14px 32px;
+            font-size: 1.1rem;
+            font-weight: 500;
+            border-radius: 8px;
+            background: linear-gradient(135deg, #4a6fa5 0%, #3a5a8c 100%);
+            color: white;
+            border: none;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            transition: all 0.3s ease;
+            box-shadow: 0 4px 12px rgba(74, 111, 165, 0.3);
+        }
+        
+        #start-speech-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 15px rgba(74, 111, 165, 0.4);
+        }
+        
+        #start-speech-btn:active {
+            transform: translateY(0);
+            box-shadow: 0 2px 6px rgba(74, 111, 165, 0.3);
+        }
+        
+        #start-speech-btn.listening {
+            background: linear-gradient(135deg, #dc3545 0%, #c82333 100%);
+            animation: pulse 1.5s infinite;
+        }
+        
+        @keyframes pulse {
+            0% { transform: scale(1); }
+            50% { transform: scale(1.05); }
+            100% { transform: scale(1); }
+        }
+        
+        /* Test Completion Modal Styles */
+        .sections-summary {
+            max-height: 400px;
+            overflow-y: auto;
+            margin: 15px 0;
+            padding-right: 10px;
+        }
+        
+        .section-summary-item {
+            background: #f8f9fa;
+            border-radius: 8px;
+            padding: 15px;
+            margin-bottom: 15px;
+            border-left: 4px solid #4a6fa5;
+        }
+        
+        .section-summary-header {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 10px;
+            font-weight: 600;
+        }
+        
+        .section-summary-details {
+            display: flex;
+            justify-content: space-between;
+            color: #6c757d;
+            font-size: 0.9em;
+        }
+        
+        .section-summary-score {
+            font-weight: bold;
+            color: #4a6fa5;
+        }
+        
+        .test-total {
+            background: #f1f8ff;
+            padding: 15px;
+            border-radius: 8px;
+            text-align: center;
+            margin-top: 20px;
+        }
+        
+        #test-percentage {
+            font-size: 1.5em;
+            font-weight: bold;
+            color: #4a6fa5;
+            margin: 10px 0 0;
+        }
+        
+        /* Modal Styles */
+        .modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0, 0, 0, 0.7);
+            z-index: 2000;
+            justify-content: center;
+            align-items: center;
+            opacity: 0;
+            transition: opacity 0.3s ease;
+            backdrop-filter: blur(3px);
+        }
+        
+        .modal.visible {
+            display: flex;
+            opacity: 1;
+        }
+        
+        .modal-visible {
+            display: flex !important;
+            visibility: visible !important;
+            opacity: 1 !important;
+        }
+        
+        .modal-content {
+            background: white;
+            border-radius: 12px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2);
+            width: 90%;
+            max-width: 600px;
+            max-height: 90vh;
+            overflow-y: auto;
+            position: relative;
+            transform: translateY(20px);
+            transition: transform 0.3s ease, opacity 0.3s ease;
+            opacity: 0;
+        }
+        
+        .modal.visible .modal-content {
+            transform: translateY(0);
+            opacity: 1;
+        }
+        
+        .modal-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 20px 25px;
+            border-bottom: 1px solid #eee;
+        }
+        
+        .modal-header h3 {
+            margin: 0;
+            font-size: 1.5rem;
+            color: #2c3e50;
+            font-weight: 600;
+        }
+        
+        .close-modal {
+            background: none;
+            border: none;
+            font-size: 1.8rem;
+            cursor: pointer;
+            color: #6c757d;
+            padding: 5px;
+            line-height: 1;
+            transition: color 0.2s ease;
+        }
+        
+        .close-modal:hover {
+            color: #495057;
+        }
+        
+        .modal-body {
+            padding: 25px;
+            line-height: 1.6;
+            color: #495057;
+        }
+        
+        .modal-footer {
+            display: flex;
+            justify-content: flex-end;
+            padding: 15px 25px;
+            border-top: 1px solid #eee;
+            gap: 10px;
+        }
+        
+        /* Section Complete Modal */
+        #section-complete-modal .modal-content {
+            max-width: 500px;
+            text-align: center;
+            padding: 30px;
+        }
+        
+        #section-complete-modal .fa-check-circle {
+            color: #28a745;
+            font-size: 64px;
+            margin-bottom: 20px;
+        }
+        
+        #section-complete-message {
+            color: #2c3e50;
+            font-size: 1.5rem;
+            margin-bottom: 10px;
+        }
+        
+        #section-complete-details {
+            color: #6c757d;
+            font-size: 1.1rem;
+            margin-bottom: 25px;
+        }
+        
+        /* Responsive Adjustments */
+        /* Test Metadata Styles */
+        .test-metadata {
+            background-color: #f8f9fa;
+            border-radius: 8px;
+            padding: 15px 20px;
+            margin: 15px 0 25px;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
+        }
+        
+        .metadata-container {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 15px 30px;
+            align-items: center;
+        }
+        
+        .metadata-item {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            font-size: 0.95rem;
+            color: #4a4a4a;
+        }
+        
+        .metadata-item i {
+            color: #4a6fa5;
+            width: 18px;
+            text-align: center;
+        }
+        
+        /* Section Summary Modal */
+        .summary-stats {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(120px, 1fr));
+            gap: 15px;
+            margin-bottom: 25px;
+            text-align: center;
+        }
+        
+        .summary-stat {
+            background: #f8f9fa;
+            padding: 15px;
+            border-radius: 8px;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.05);
+        }
+        
+        .stat-value {
+            font-size: 1.8rem;
+            font-weight: bold;
+            color: #4a6fa5;
+            margin-bottom: 5px;
+        }
+        
+        .stat-label {
+            font-size: 0.9rem;
+            color: #6c757d;
+        }
+        
+        .answers-list {
+            margin-top: 20px;
+            max-height: 300px;
+            overflow-y: auto;
+            padding-right: 10px;
+        }
+        
+        .answer-item {
+            padding: 12px 15px;
+            margin-bottom: 10px;
+            border-radius: 6px;
+            background: #f8f9fa;
+            border-left: 4px solid #ddd;
+        }
+        
+        .answer-item.correct {
+            border-left-color: #28a745;
+            background-color: #f0fff4;
+        }
+        
+        .answer-item.incorrect {
+            border-left-color: #dc3545;
+            background-color: #fff0f0;
+        }
+        
+        .answer-question {
+            font-weight: 500;
+            margin-bottom: 5px;
+        }
+        
+        .answer-user {
+            color: #6c757d;
+            font-size: 0.9rem;
+        }
+        
+        .answer-correct {
+            color: #28a745;
+            font-size: 0.9rem;
+            margin-top: 3px;
+            display: none;
+        }
+        
+        .answer-item.incorrect .answer-correct {
+            display: block;
+        }
+        
+        /* Feedback Modal */
+        #feedback-modal .modal-content,
+        #section-summary-modal .modal-content {
+            max-width: 500px;
+            margin: 100px auto;
+            background: white;
+            border-radius: 12px;
+            overflow: hidden;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2);
+        }
+        
+        #section-summary-modal .modal-content {
+            max-width: 700px;
+        }
+
+        #feedback-modal .modal-header {
+            padding: 20px 24px;
+            border-bottom: 1px solid #e9ecef;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        #feedback-modal .modal-header h3 {
+            margin: 0;
+            font-size: 1.5rem;
+            color: #333;
+        }
+
+        #feedback-modal .close-modal {
+            background: none;
+            border: none;
+            font-size: 1.8rem;
+            cursor: pointer;
+            color: #6c757d;
+            padding: 0;
+            line-height: 1;
+        }
+
+        #feedback-modal .modal-body {
+            padding: 24px;
+            text-align: center;
+        }
+
+        #feedback-modal .feedback-icon {
+            font-size: 4rem;
+            margin-bottom: 20px;
+        }
+
+        #feedback-modal .feedback-icon .success {
+            color: #28a745;
+        }
+
+        #feedback-modal .feedback-icon .error {
+            color: #dc3545;
+        }
+
+        #feedback-modal .feedback-message {
+            font-size: 1.25rem;
+            font-weight: 500;
+            margin-bottom: 16px;
+            color: #333;
+        }
+
+        #feedback-modal .feedback-answer {
+            background: #f8f9fa;
+            border-radius: 8px;
+            padding: 12px;
+            margin: 16px 0;
+            font-size: 1.1rem;
+            border-left: 4px solid #6c757d;
+        }
+
+        #feedback-modal .feedback-answer.correct {
+            border-left-color: #28a745;
+            background-color: #e8f5e9;
+        }
+
+        #feedback-modal .feedback-answer.incorrect {
+            border-left-color: #dc3545;
+            background-color: #ffebee;
+        }
+
+        #feedback-modal .feedback-points {
+            font-size: 1.2rem;
+            font-weight: 600;
+            color: #28a745;
+            margin: 16px 0;
+        }
+
+        #feedback-modal .feedback-actions {
+            margin-top: 24px;
+            display: flex;
+            justify-content: center;
+        }
+
+        #feedback-modal .feedback-actions .btn {
+            min-width: 120px;
+            padding: 10px 24px;
+            font-size: 1rem;
+            border-radius: 6px;
+        }
+
+        /* Timer */
+        .timer {
+            background: #f0f4f8;
+            padding: 6px 12px;
+            border-radius: 20px;
+            font-weight: 500;
+            color: #4a6fa5;
+            font-size: 0.95rem;
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+        }
+        
+        .timer i {
+            font-size: 0.9em;
+        }
+        
+        @media (max-width: 768px) {
+            .test-item-container {
+                padding: 20px 15px;
+                margin: 15px 10px;
+            }
+            
+            .metadata-container {
+                gap: 12px 20px;
+            }
+            
+            .metadata-item {
+                font-size: 0.85rem;
+            }
+            
+
+            .item-text {
+                font-size: 1.5rem;
+                padding: 20px 15px;
+                min-height: 100px;
+            }
+            
+            .modal-content {
+                width: 95%;
+                margin: 10px;
+            }
+            
+            .navigation-buttons {
+                flex-direction: column;
+                gap: 15px;
+            }
+            
+            .navigation-buttons > div {
+                display: flex;
+                gap: 10px;
+                width: 100%;
+            }
+            
+            .navigation-buttons .btn {
+                flex: 1;
+                text-align: center;
+                justify-content: center;
+            }
+        }
+        
+        /* Animation for speech recognition */
+        @keyframes recording {
+            0% { opacity: 0.6; }
+            50% { opacity: 1; }
+            100% { opacity: 0.6; }
+        }
+        
+        .recording-indicator {
+            display: inline-block;
+            width: 12px;
+            height: 12px;
+            border-radius: 50%;
+            background-color: #dc3545;
+            margin-right: 8px;
+            animation: recording 1.5s infinite;
+        }
+    </style>
+</head>
+<body class="student-dashboard">
+    <div class="dashboard-container">
+        <!-- Sidebar -->
+        <aside class="sidebar">
+            <div class="logo">
+                <h2>Alpharia</h2>
+            </div>
+            
+            <nav>
+                <ul class="nav-menu">
+                    <li class="nav-item">
+                        <a href="student-dashboard-clean.html" class="nav-link">
+                            <i class="fas fa-home"></i>
+                            <span>Overview</span>
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a href="take-test.html" class="nav-link active">
+                            <i class="fas fa-tasks"></i>
+                            <span>My Tests</span>
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a href="student-progress.html" class="nav-link">
+                            <i class="fas fa-chart-line"></i>
+                            <span>Progress</span>
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a href="#" class="nav-link">
+                            <i class="fas fa-book"></i>
+                            <span>Resources</span>
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a href="student-settings.html" class="nav-link">
+                            <i class="fas fa-cog"></i>
+                            <span>Settings</span>
+                        </a>
+                    </li>
+                </ul>
+            </nav>
+            
+            <!-- User Profile Section -->
+            <div class="user-profile">
+                <div class="user-avatar">
+                    <img id="user-avatar" src="https://ui-avatars.com/api/?name=U" alt="User">
+                </div>
+                <div class="user-info">
+                    <h4 id="user-name">User</h4>
+                    <small id="user-grade">Grade: --</small>
+                </div>
+                <a href="#" class="sign-out" id="sign-out-btn">
+                    <i class="fas fa-sign-out-alt"></i>
+                </a>
+            </div>
+        </aside>
+        
+        <!-- Main Content -->
+        <main class="main-content">
+            <header class="top-bar">
+                <h1 id="test-title">Reading Test</h1>
+                <div class="test-info">
+                    <div class="d-flex align-items-center gap-2">
+                        <div class="timer" id="test-timer">00:00</div>
+                    </div>
+                    <button id="submit-test-btn" class="btn btn-primary">
+                        <i class="fas fa-paper-plane"></i> Submit Test
+                    </button>
+                </div>
+            </header>
+
+            <!-- Test Metadata -->
+            <section class="test-metadata" id="test-metadata">
+                <div class="metadata-container">
+                    <div class="metadata-item">
+                        <i class="fas fa-user-graduate"></i>
+                        <span id="test-grade">Grade: --</span>
+                    </div>
+                    <div class="metadata-item">
+                        <i class="fas fa-clock"></i>
+                        <span id="test-time-limit">Time Limit: -- minutes</span>
+                    </div>
+                    <div class="metadata-item">
+                        <i class="fas fa-tasks"></i>
+                        <span id="test-sections">Sections: --</span>
+                    </div>
+                </div>
+            </section>
+            
+            <div class="test-container">
+                <div id="test-content">
+                    <!-- Test content will be loaded here -->
+                    <div class="loading-state">
+                        <div class="spinner"></div>
+                        <p>Loading test...</p>
+                    </div>
+                </div>
+                
+                <div class="navigation-buttons">
+                    <button id="prev-item-btn" class="nav-btn btn-secondary" disabled>
+                        <i class="fas fa-arrow-left"></i> Previous
+                    </button>
+                    <button id="record-btn" class="nav-btn btn-primary">
+                        <i class="fas fa-microphone"></i> Record Answer
+                    </button>
+                    <button id="next-item-btn" class="nav-btn btn-primary">
+                        Next <i class="fas fa-arrow-right"></i>
+                    </button>
+                    <button id="submit-test-btn" class="nav-btn btn-danger" style="display: none;">
+                        <i class="fas fa-paper-plane"></i> Submit Test
+                    </button>
+                </div>
+                
+                <div id="speech-status" class="speech-status"></div>
+            </div>
+            
+            <!-- Test Summary Modal -->
+            <div id="test-summary-modal" class="modal">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <h3><i class="fas fa-clipboard-check text-primary"></i> Test Summary</h3>
+                        <button class="close-modal">&times;</button>
+                    </div>
+                    <div class="modal-body">
+                        <div id="test-summary-content">
+                            <!-- Summary content will be loaded here -->
+                        </div>
+                    </div>
+                    <div class="modal-footer">
+                        <button id="close-summary-btn" class="btn btn-secondary">Close</button>
+                        <button id="submit-confirm-btn" class="btn btn-primary">Submit Test</button>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Result Modal -->
+            <div id="result-modal" class="modal">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <h3 id="modal-title">Result</h3>
+                        <button class="close-modal">&times;</button>
+                    </div>
+                    <div class="modal-body" id="modal-body">
+                        <!-- Result content will be loaded here -->
+                    </div>
+                    <div class="modal-footer">
+                        <button id="close-result-btn" class="btn btn-primary">Close</button>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Section Complete Modal -->
+            <div id="section-complete-modal" class="modal">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <h3><i class="fas fa-check-circle text-success"></i> Section Complete</h3>
+                        <button class="close-modal">&times;</button>
+                    </div>
+                    <div class="modal-body text-center">
+                        <div class="mb-4">
+                            <i class="fas fa-check-circle text-success" style="font-size: 4rem;"></i>
+                            <h4 class="mt-3">Great job!</h4>
+                            <p>You've completed this section of the test.</p>
+                        </div>
+                        <div id="section-complete-buttons" class="d-flex flex-column gap-2">
+                            <!-- Buttons will be added dynamically -->
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Speech Modal -->
+            <div id="speech-modal" class="modal">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <h3><i class="fas fa-microphone"></i> Speak Now</h3>
+                        <button class="close-modal">&times;</button>
+                    </div>
+                    <div class="modal-body text-center">
+                        <div class="speech-animation mb-3">
+                            <div class="sound-wave">
+                                <span></span>
+                                <span></span>
+                                <span></span>
+                                <span></span>
+                                <span></span>
+                            </div>
+                        </div>
+                        <p class="mb-0">Listening for your response...</p>
+                        <div id="speech-status" class="mt-2"></div>
+                    </div>
+                    <div class="modal-footer">
+                        <button id="stop-recording-btn" class="btn btn-danger">
+                            <i class="fas fa-stop"></i> Stop Recording
+                        </button>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Section Complete Modal -->
+            <div id="section-complete-modal" class="modal">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <h3>Section Complete</h3>
+                        <button class="close-modal">&times;</button>
+                    </div>
+                    <div class="modal-body">
+                        <div class="text-center">
+                            <div class="success-animation">
+                                <i class="fas fa-check-circle"></i>
+                            </div>
+                            <h4>Great job!</h4>
+                            <p>You've completed this section of the test.</p>
+                        </div>
+                    </div>
+                    <div class="modal-footer">
+                        <button id="continue-to-next-section" class="btn btn-primary">
+                            Continue to Next Section
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </main>
+    </div>
+
+    <!-- Test Completion Modal -->
+    <div id="test-completion-modal" class="modal">
+        <div class="modal-content">
+            <span class="close-modal">&times;</span>
+            <h2>Test Completion</h2>
+            <div id="sections-summary">
+                <!-- Section summaries will be added here -->
+            </div>
+            <div class="test-total">
+                <h3>Total Score: <span id="test-total-score">0</span> / <span id="test-total-possible">0</span></h3>
+                <p>Percentage: <span id="test-percentage">0%</span></p>
+            </div>
+            <div class="modal-actions" style="display: flex; justify-content: center; gap: 1rem; margin-top: 2rem;">
+                <button id="close-test-summary" class="btn btn-secondary">Review Answers</button>
+                <button id="submit-test-attempt" class="btn btn-primary">Send Attempt</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Feedback Modal -->
+    <div id="feedback-modal" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3 id="feedback-title">Feedback</h3>
+                <button class="close-modal">&times;</button>
+            </div>
+            <div class="modal-body">
+                <div class="feedback-icon" id="feedback-icon">
+                    <i class="fas fa-check-circle success"></i>
+                </div>
+                <div class="feedback-message" id="feedback-message"></div>
+                <div class="feedback-answer" id="feedback-answer"></div>
+                <div class="feedback-points" id="feedback-points"></div>
+                <div class="feedback-actions">
+                    <button id="feedback-ok-btn" class="btn btn-primary">OK</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Section Summary Modal -->
+    <div id="section-summary-modal" class="modal">
+        <div class="modal-content" style="max-width: 800px;">
+            <div class="modal-header">
+                <h3 id="section-summary-title">Section Complete!</h3>
+                <button class="close-modal">&times;</button>
+            </div>
+            <div class="modal-body">
+                <div class="summary-stats">
+                    <div class="summary-stat">
+                        <div class="stat-value" id="correct-answers-count">0</div>
+                        <div class="stat-label">Correct Answers</div>
+                    </div>
+                    <div class="summary-stat">
+                        <div class="stat-value" id="total-questions-count">0</div>
+                        <div class="stat-label">Total Questions</div>
+                    </div>
+                    <div class="summary-stat">
+                        <div class="stat-value" id="points-earned">0</div>
+                        <div class="stat-label">Points Earned</div>
+                    </div>
+                    <div class="summary-stat">
+                        <div class="stat-value" id="percentage-score">0%</div>
+                        <div class="stat-label">Score</div>
+                    </div>
+                </div>
+                
+                <div class="answers-list">
+                    <h4>Your Answers:</h4>
+                    <div id="answers-container">
+                        <!-- Answers will be inserted here by JavaScript -->
+                    </div>
+                </div>
+                
+                <div class="modal-footer">
+                    <button id="continue-to-next-section" class="btn btn-primary">Continue to Next Section</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Firebase and App Scripts -->
+    <script type="module">
+        // Global variables
+        let currentUser = null;
+        
+        // Import Firebase functions
+        import { initializeApp } from 'https://www.gstatic.com/firebasejs/9.22.0/firebase-app.js';
+        import { 
+            getAuth, 
+            onAuthStateChanged,
+            signOut 
+        } from 'https://www.gstatic.com/firebasejs/9.22.0/firebase-auth.js';
+        import { 
+            getFirestore, 
+            doc, 
+            getDoc, 
+            setDoc, 
+            updateDoc, 
+            arrayUnion, 
+            serverTimestamp, 
+            collection,
+            query,
+            where,
+            getDocs,
+            orderBy,
+            limit,
+            startAfter,
+            deleteDoc,
+            addDoc
+        } from 'https://www.gstatic.com/firebasejs/9.22.0/firebase-firestore.js';
+        
+        // Firebase configuration
+        const firebaseConfig = {
+            apiKey: "AIzaSyAtOedXLBC4eigzqmBpYFciN-W5Mi2Cpmc",
+            authDomain: "alpharia-c6a39.firebaseapp.com",
+            projectId: "alpharia-c6a39",
+            storageBucket: "alpharia-c6a39.firebasestorage.app",
+            messagingSenderId: "85322759772",
+            appId: "1:85322759772:web:d5c7a528fd61c9d2373099",
+            measurementId: "G-KEC7MGMVE8"
+        };
+        
+        // Initialize Firebase
+        const app = initializeApp(firebaseConfig);
+        const db = getFirestore(app);
+        const auth = getAuth(app);
+        
+        // Speech recognition and synthesis variables
+        let speechSynthesis = window.speechSynthesis;
+        let currentUtterance = null;
+        let recognition = null;
+        
+        // Test state variables
+        let currentTest = null;
+        let currentSectionIndex = 0;
+        let currentItemIndex = 0;
+        let userResponses = [];
+        let isRecording = false;
+        let timeLeft = 0;
+        let timerInterval = null;
+        let autoAdvance = true;
+        let isListening = false;
+        let currentAttempts = 0;
+        const MAX_ATTEMPTS = 3;
+        
+        // DOM Elements
+        const submitTestBtn = document.getElementById('submit-test-btn');
+        const timeDisplay = document.getElementById('test-timer');
+        const speechStatus = document.getElementById('speech-status');
+        const testGrade = document.getElementById('test-grade');
+        const testTimeLimit = document.getElementById('test-time-limit');
+        const testSections = document.getElementById('test-sections');
+        const testTitle = document.getElementById('test-title');
+        const testContent = document.getElementById('test-content');
+        const prevBtn = document.getElementById('prev-item-btn');
+        const nextBtn = document.getElementById('next-item-btn');
+        const recordBtn = document.getElementById('record-btn');
+        
+        // Initialize event listeners for navigation
+        function initializeNavigation() {
+            // Previous button
+            prevBtn.addEventListener('click', () => {
+                if (currentItemIndex > 0) {
+                    currentItemIndex--;
+                    renderCurrentItem();
+                } else if (currentSectionIndex > 0) {
+                    currentSectionIndex--;
+                    currentItemIndex = currentTest.sections[currentSectionIndex].items.length - 1;
+                    renderCurrentItem();
+                }
+            });
+            
+            // Next/Submit button
+            nextBtn.addEventListener('click', () => {
+                const currentSection = currentTest.sections[currentSectionIndex];
+                const isLastSection = currentSectionIndex === currentTest.sections.length - 1;
+                const isLastItem = currentItemIndex === currentSection.items.length - 1;
+                
+                if (isLastSection && isLastItem) {
+                    // Show confirmation modal instead of directly submitting
+                    showModal('submit-confirm-modal');
+                } else if (currentItemIndex < currentSection.items.length - 1) {
+                    currentItemIndex++;
+                    renderCurrentItem();
+                } else {
+                    currentSectionIndex++;
+                    currentItemIndex = 0;
+                    renderCurrentItem();
+                }
+            });
+            
+            // Record button
+            if (recordBtn) {
+                recordBtn.addEventListener('click', startStudentRecording);
+            }
+            
+            // Submit test button
+            if (submitTestBtn) {
+                submitTestBtn.addEventListener('click', submitTest);
+            }
+        }
+        
+        // Create question counter elements
+        const questionCounter = document.createElement('div');
+        questionCounter.className = 'question-counter';
+        document.querySelector('.test-info').prepend(questionCounter);
+        
+        // Function to update question counter display
+        function updateQuestionCounterDisplay(current, total) {
+            questionCounter.textContent = `Question ${current} of ${total}`;
+        }
+        
+
+        
+        // Function to load and display user data with detailed debugging
+        async function loadUserData() {
+            console.log('=== START loadUserData() ===');
+            
+            // Get the current user from auth
+            const user = auth.currentUser;
+            console.log('Current auth user:', user);
+            
+            if (!user) {
+                console.log('No authenticated user found');
+                console.log('=== END loadUserData() - No user ===');
+                return null;
+            }
+            
+            try {
+                console.log('Fetching user document from Firestore...');
+                const userDocRef = doc(db, 'users', user.uid);
+                console.log('User document reference:', userDocRef);
+                
+                const userDoc = await getDoc(userDocRef);
+                console.log('User document snapshot:', userDoc);
+                
+                if (!userDoc.exists()) {
+                    console.warn('No user document found for uid:', user.uid);
+                    console.log('=== END loadUserData() - No document ===');
+                    return null;
+                }
+                
+                const userData = userDoc.data();
+                console.log('User data from Firestore:', userData);
+                
+                // Log all available user data fields for debugging
+                console.log('All user data fields:', Object.keys(userData));
+                
+                // Get UI elements
+                const userNameEl = document.getElementById('user-name');
+                const userGradeEl = document.getElementById('user-grade');
+                const userAvatarEl = document.getElementById('user-avatar');
+                
+                console.log('UI Elements:', { 
+                    userNameEl, 
+                    userGradeEl, 
+                    userAvatarEl,
+                    userNameExists: !!userNameEl,
+                    userGradeExists: !!userGradeEl,
+                    userAvatarExists: !!userAvatarEl
+                });
+                
+                if (userNameEl) {
+                    const displayName = userData.name || userData.displayName || userData.email || 'User';
+                    console.log('Setting display name:', displayName);
+                    userNameEl.textContent = displayName;
+                }
+                
+                if (userGradeEl) {
+                    // Use gradeLevel field from Firestore document
+                    const grade = userData.gradeLevel || userData.grade || userData.Grade || '--';
+                    
+                    console.log('Setting grade:', grade);
+                    // Only show grade if it's not empty or undefined
+                    if (grade && grade !== '--') {
+                        userGradeEl.textContent = `Grade: ${grade}`;
+                    } else {
+                        // If no grade is found, you might want to hide or show a different message
+                        userGradeEl.textContent = 'Grade: Not Set';
+                        // Or hide it completely
+                        // userGradeEl.style.display = 'none';
+                    }
+                }
+                
+                if (userAvatarEl) {
+                    const firstLetter = (userData.name || userData.email || 'U').charAt(0).toUpperCase();
+                    const avatarUrl = `https://ui-avatars.com/api/?name=${firstLetter}&background=4a6fa5&color=fff`;
+                    console.log('Setting avatar URL:', avatarUrl);
+                    userAvatarEl.src = avatarUrl;
+                }
+                
+                console.log('=== END loadUserData() - Success ===');
+                return userData;
+                
+            } catch (error) {
+                console.error('Error in loadUserData:', error);
+                console.log('=== END loadUserData() - Error ===');
+                throw error;
+            }
+        }
+        
+        // Show toast notification
+        function showToast(message, type = 'info') {
+            const toast = document.createElement('div');
+            toast.className = `toast-notification ${type}`;
+            toast.textContent = message;
+            document.body.appendChild(toast);
+            
+            // Auto remove after 3 seconds
+            setTimeout(() => {
+                toast.classList.add('show');
+                setTimeout(() => {
+                    toast.remove();
+                }, 3000);
+            }, 100);
+        }
+        
+        // Update test metadata display
+        function updateTestMetadata() {
+            if (!currentTest) return;
+            
+            // Update grade
+            if (currentTest.grade) {
+                testGrade.textContent = `Grade: ${currentTest.grade}`;
+            }
+            
+            // Update time limit
+            if (currentTest.timeLimit) {
+                const hours = Math.floor(currentTest.timeLimit / 60);
+                const minutes = currentTest.timeLimit % 60;
+                let timeText = '';
+                
+                if (hours > 0) {
+                    timeText += `${hours} hour${hours > 1 ? 's' : ''}`;
+                }
+                if (minutes > 0) {
+                    if (timeText) timeText += ' ';
+                    timeText += `${minutes} minute${minutes > 1 ? 's' : ''}`;
+                }
+                
+                testTimeLimit.textContent = `Time Limit: ${timeText}`;
+            }
+            
+            // Update sections count
+            if (currentTest.sections) {
+                const sectionCount = currentTest.sections.length;
+                const questionCount = currentTest.sections.reduce(
+                    (total, section) => total + (section.items ? section.items.length : 0), 0
+                );
+                
+                testSections.textContent = `${sectionCount} Section${sectionCount !== 1 ? 's' : ''} • ${questionCount} Question${questionCount !== 1 ? 's' : ''}`;
+            }
+        }
+
+        // Initialize the application when the DOM is fully loaded
+        document.addEventListener('DOMContentLoaded', async () => {
+            console.log('DOM fully loaded, initializing application...');
+            
+            try {
+                // Initialize Firebase
+                await initializeFirebase();
+                
+                // Initialize auth state change listener
+                onAuthStateChanged(auth, async (user) => {
+                    if (user) {
+                        console.log('User is signed in:', user.uid);
+                        try {
+                            // Load user data
+                            await loadUserData();
+                            
+                            // Load test data from URL parameters
+                            const urlParams = new URLSearchParams(window.location.search);
+                            const testId = urlParams.get('testId');
+                            
+                            if (testId) {
+                                await loadTest(testId);
+                            } else {
+                                showError('No test ID provided');
+                            }
+                            
+                            // Initialize UI components
+                            initializeModalEventListeners();
+                            initializeEventListeners();
+                            
+                            console.log('Application initialized successfully');
+                        } catch (error) {
+                            console.error('Error initializing application:', error);
+                            showError('Failed to initialize application. Please try again.');
+                        }
+                    } else {
+                        console.log('No user is signed in');
+                        // Redirect to login or show sign-in UI
+                        window.location.href = 'login.html';
+                    }
+                });
+            } catch (error) {
+                console.error('Error initializing application:', error);
+                showError('Failed to initialize application. Please try again.');
+            }
+        });
+        
+        // Initialize Firebase
+        async function initializeFirebase() {
+            return new Promise((resolve) => {
+                const unsubscribe = onAuthStateChanged(auth, (user) => {
+                    unsubscribe();
+                    if (user) {
+                        currentUser = user;
+                        resolve();
+                    } else {
+                        // Redirect to login if not authenticated
+                        window.location.href = 'login.html';
+                    }
+                });
+            });
+        }
+        
+        // Load user profile
+        async function loadUserProfile() {
+            try {
+                const userDoc = await getDoc(doc(db, 'users', currentUser.uid));
+                if (userDoc.exists()) {
+                    const userData = userDoc.data();
+                    document.getElementById('user-name').textContent = userData.displayName || 'User';
+                    document.getElementById('user-grade').textContent = `Grade: ${userData.grade || '--'}`;
+                    
+                    // Update avatar with user's first letter
+                    const firstName = userData.displayName ? userData.displayName.charAt(0).toUpperCase() : 'U';
+                    document.getElementById('user-avatar').src = `https://ui-avatars.com/api/?name=${firstName}&background=4a6fa5&color=fff`;
+                }
+            } catch (error) {
+                console.error('Error loading user profile:', error);
+            }
+        }
+        
+        // Process test sections and items
+        function processSections(sections) {
+            return sections.map(section => ({
+                id: section.id || `section-${Date.now()}`,
+                title: section.title || 'Test Section',
+                type: section.type || 'letters',
+                instructions: section.instructions || '',
+                items: (section.items || []).map(item => ({
+                    id: item.id || `item-${Date.now()}`,
+                    type: item.type || 'letter',
+                    content: item.content || '',
+                    answer: item.answer || '',
+                    points: typeof item.points === 'number' ? item.points : 1,
+                    attempts: []
+                }))
+            }));
+        }
+        
+        // Load test data from Firestore
+        async function loadTest(testId) {
+            try {
+                console.log(`Loading test with ID: ${testId}`);
+                
+                // Show loading state
+                testContent.innerHTML = `
+                    <div class="text-center py-5">
+                        <div class="spinner-border text-primary" role="status">
+                            <span class="visually-hidden">Loading...</span>
+                        </div>
+                        <p class="mt-3">Loading test...</p>
+                    </div>
+                `;
+                
+                // Get test document from Firestore
+                const testDoc = await getDoc(doc(db, 'tests', testId));
+                
+                if (!testDoc.exists()) {
+                    throw new Error('Test not found');
+                }
+                
+                const testData = testDoc.data();
+                
+                // Process test data
+                currentTest = {
+                    id: testDoc.id,
+                    title: testData.title || 'Untitled Test',
+                    description: testData.description || '',
+                    grade: testData.grade || 'N/A',
+                    subject: testData.subject || 'General',
+                    timeLimit: testData.timeLimit || 30,
+                    sections: processSections(testData.sections || [])
+                };
+                
+                console.log('Test loaded:', currentTest);
+                
+                if (currentTest.sections.length === 0) {
+                    throw new Error('This test has no sections');
+                }
+                
+                // Initialize test UI
+                initializeTestUI();
+                
+                // Initialize user responses
+                userResponses = initializeUserResponses();
+                
+                // Set up timer
+                timeLeft = currentTest.timeLimit * 60; // Convert to seconds
+                startTimer();
+                
+                // Start the test
+                startTest();
+                
+            } catch (error) {
+                console.error('Error loading test:', error);
+                showError('Failed to load test: ' + (error.message || 'Please try again later.'));
+            }
+        }
+        
+        // Initialize test UI elements
+        function initializeTestUI() {
+            if (!currentTest) return;
+            
+            // Update test title
+            if (testTitle) {
+                testTitle.textContent = currentTest.title || 'Untitled Test';
+            }
+            
+            // Update test metadata
+            updateTestMetadata();
+            
+            // Initialize UI state
+            if (testContent) {
+                testContent.innerHTML = ''; // Clear loading state
+            }
+            
+            // Initialize navigation buttons
+            updateNavigationButtons();
+            
+            console.log('Test UI initialized');
+        }
+        
+        // Function to shuffle array in place using Fisher-Yates algorithm
+        function shuffleArray(array) {
+            for (let i = array.length - 1; i > 0; i--) {
+                const j = Math.floor(Math.random() * (i + 1));
+                [array[i], array[j]] = [array[j], array[i]];
+            }
+            return array;
+        }
+        
+        // Randomize questions within each section
+        function randomizeTestSections() {
+            if (!currentTest?.sections) return;
+            
+            currentTest.sections.forEach(section => {
+                if (section.items && section.items.length > 0) {
+                    // Create a copy of the items to avoid modifying the original order
+                    section.originalItems = [...section.items];
+                    // Shuffle the items
+                    section.items = shuffleArray([...section.items]);
+                }
+            });
+            
+            console.log('Questions randomized within each section');
+        }
+        
+        // Initialize user responses structure
+        function initializeUserResponses() {
+            if (!currentTest?.sections) return [];
+            
+            return currentTest.sections.map(section => ({
+                sectionId: section.id,
+                sectionTitle: section.title,
+                items: section.items.map(item => ({
+                    itemId: item.id,
+                    type: item.type,
+                    attempts: [],
+                    isCorrect: false,
+                    score: 0,
+                    startTime: new Date().toISOString(),
+                    endTime: null
+                }))
+            }));
+        }
+        
+        // Start the test
+        function startTest() {
+            currentSectionIndex = 0;
+            currentItemIndex = 0;
+            randomizeTestSections();
+            renderCurrentItem();
+        }
+        
+        // Reset speech recognition button state
+        function resetSpeechButton() {
+            const startBtn = document.getElementById('start-speech-btn');
+            if (startBtn) {
+                startBtn.disabled = false;
+                startBtn.innerHTML = '<i class="fas fa-microphone"></i> Start Speaking';
+                startBtn.classList.remove('recording');
+            }
+            updateSpeechStatus('Click to start speaking', 'info');
+        }
+        
+        // Move to the next test item
+        function nextItem() {
+            const currentSection = currentTest.sections[currentSectionIndex];
+            
+            // Save end time for current item
+            if (userResponses[currentSectionIndex]?.items[currentItemIndex]) {
+                userResponses[currentSectionIndex].items[currentItemIndex].endTime = new Date().toISOString();
+            }
+            
+            // Move to next item or section
+            if (currentItemIndex < currentSection.items.length - 1) {
+                // Move to next question in current section
+                currentItemIndex++;
+                renderCurrentItem();
+            } else {
+                // Show section summary for current section
+                showSectionSummary(currentSectionIndex);
+            }
+        }
+        
+        // Render the current test item
+        function renderCurrentItem() {
+            if (!currentTest || !currentTest.sections || currentTest.sections.length === 0) {
+                showError('No test sections found');
+                return;
+            }
+            
+            // Check if we've reached the end of the current section
+            const currentSection = currentTest.sections[currentSectionIndex];
+            const currentItem = currentSection.items[currentItemIndex];
+            
+            if (!currentItem) {
+                // Move to next section or complete test if no more items
+                if (currentSectionIndex < currentTest.sections.length - 1) {
+                    showSectionCompleteModal();
+                } else {
+                    submitTest();
+                }
+                return;
+            }
+            
+            // Update question counter
+            updateQuestionCounter();
+            
+            // Render the current item based on its type
+            let itemHtml = '';
+            
+            switch (currentItem.type) {
+                case 'letter':
+                case 'word':
+                case 'sentence':
+                    itemHtml = `
+                        <div class="question-container">
+                            <div class="question-header">
+                                <h2 class="question-title">${getItemPrompt(currentItem.type)}</h2>
+                                ${currentItem.points ? `<span class="question-points">${currentItem.points} ${currentItem.points === 1 ? 'point' : 'points'}</span>` : ''}
+                            </div>
+                            <div class="prompt-text">${currentItem.content}</div>
+                        </div>
+                    `;
+                    break;
+                    
+                case 'multiple-choice':
+                    itemHtml = `
+                        <div class="question-container">
+                            <h3>${currentItem.question}</h3>
+                            <div class="options">
+                                ${currentItem.options.map((option, index) => `
+                                    <div class="form-check">
+                                        <input class="form-check-input" type="radio" name="mc-option" 
+                                               id="option-${index}" value="${option}">
+                                        <label class="form-check-label" for="option-${index}">
+                                            ${option}
+                                        </label>
+                                    </div>
+                                `).join('')}
+                            </div>
+                        </div>
+                    `;
+                    break;
+                    
+                default:
+                    itemHtml = `
+                        <div class="alert alert-warning">
+                            Unsupported question type: ${currentItem.type}
+                        </div>
+                    `;
+            }
+            
+            testContent.innerHTML = itemHtml;
+            
+            // Update navigation buttons
+            updateNavigationButtons();
+        }
+        
+        // Get item prompt text based on type
+        function getItemPrompt(type) {
+            const prompts = {
+                'letter': 'Read this letter:',
+                'word': 'Read this word:',
+                'sentence': 'Read this sentence:',
+                'paragraph': 'Read this paragraph:'
+            };
+            
+            return prompts[type] || 'Read the following:';
+        }
+        
+        // Update question counter
+        function updateQuestionCounter() {
+            if (!currentTest?.sections) return;
+            
+            let totalItems = 0;
+            let currentItemNumber = 0;
+            
+            // Calculate total items and current position
+            for (let i = 0; i < currentTest.sections.length; i++) {
+                const section = currentTest.sections[i];
+                
+                if (!section.items) continue;
+                
+                if (i < currentSectionIndex) {
+                    currentItemNumber += section.items.length;
+                } else if (i === currentSectionIndex) {
+                    currentItemNumber += currentItemIndex + 1;
+                }
+                
+                totalItems += section.items.length;
+            }
+            
+            // Update the question counter display
+            updateQuestionCounterDisplay(currentItemNumber, totalItems);
+        }
+        
+        // Update navigation buttons state
+        function updateNavigationButtons() {
+            // Previous button
+            if (currentItemIndex === 0 && currentSectionIndex === 0) {
+                prevBtn.disabled = true;
+            } else {
+                prevBtn.disabled = false;
+            }
+            
+            // Next button text
+            const isLastSection = currentSectionIndex === currentTest.sections.length - 1;
+            const isLastQuestion = currentItemIndex === currentTest.sections[currentSectionIndex].items.length - 1;
+            
+            // Show/hide submit button
+            const submitBtn = document.getElementById('submit-test-btn');
+            if (isLastSection && isLastQuestion) {
+                submitBtn.style.display = 'block';
+                nextBtn.style.display = 'none';
+            } else {
+                submitBtn.style.display = 'none';
+                nextBtn.style.display = 'block';
+                nextBtn.textContent = isLastQuestion ? 'Next Section' : 'Next';
+                nextBtn.classList.remove('btn-danger');
+            }
+        }
+        
+        function startStudentRecording() {
+            if (!('webkitSpeechRecognition' in window) && !('SpeechRecognition' in window)) {
+                updateSpeechStatus('Speech recognition not supported in this browser', 'error');
+                return;
+            }
+            
+            // Stop any ongoing recognition
+            if (recognition && isListening) {
+                recognition.stop();
+                isListening = false;
+                return;
+            }
+            
+            // Get current item
+            const section = currentTest.sections[currentSectionIndex];
+            const item = section.items[currentItemIndex];
+            
+            // Check max attempts
+            const response = userResponses[currentSectionIndex].items[currentItemIndex];
+            if (response.attempts.length >= MAX_ATTEMPTS) {
+                updateSpeechStatus('Maximum attempts reached', 'error');
+                return;
+            }
+            
+            // Reset UI
+            const btn = document.getElementById('start-speech-btn');
+            if (btn) {
+                btn.innerHTML = '<i class="fas fa-stop"></i> Stop';
+                btn.classList.add('btn-danger');
+                btn.classList.remove('btn-primary');
+            }
+            
+            // Show listening indicator
+            updateSpeechStatus('Listening... Speak now', 'listening');
+            
+            // Initialize recognition
+            const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
+            recognition = new SpeechRecognition();
+            recognition.continuous = false;
+            recognition.interimResults = false;
+            recognition.lang = 'en-US';
+            
+            // Event handlers
+            recognition.onresult = (event) => {
+                recognition._resultHandled = true;
+                const spokenText = event.results[0][0].transcript.trim();
+                handleSpeechResult(spokenText);
+            };
+            
+            recognition.onerror = (event) => {
+                console.error('Speech recognition error:', event.error);
+                updateSpeechStatus(`Error: ${event.error}`, 'error');
+                resetSpeechButton();
+            };
+            
+            recognition.onend = () => {
+                isListening = false;
+                if (!recognition._resultHandled) {
+                    resetSpeechButton();
+                }
+            };
+            
+            // Start recognition
+            try {
+                recognition.start();
+                isListening = true;
+                currentAttempts++;
+            } catch (error) {
+                console.error('Error starting speech recognition:', error);
+                updateSpeechStatus('Error starting speech recognition', 'error');
+                resetSpeechButton();
+            }
+        }
+        
+        // Function to check if the user's answer is correct
+        function checkAnswer(userAnswer, correctAnswer) {
+            console.log('checkAnswer called with:', { userAnswer, correctAnswer });
+            
+            if (!userAnswer || !correctAnswer) {
+                console.log('Missing userAnswer or correctAnswer');
+                return false;
+            }
+            
+            // Convert both to lowercase, trim whitespace, and remove punctuation
+            userAnswer = userAnswer.toString().toLowerCase().replace(/[.,:;'"!?]/g, '').trim();
+            correctAnswer = correctAnswer.toString().toLowerCase().replace(/[.,:;'"!?]/g, '').trim();
+            
+            console.log('Normalized answers:', { userAnswer, correctAnswer });
+            
+            // Check for direct match first (most common case)
+            if (userAnswer === correctAnswer) {
+                console.log('Direct match found');
+                return true;
+            }
+            
+            // For single letter questions, check if the user said the letter name
+            if (correctAnswer.length === 1 && userAnswer.length <= 3) {
+                console.log('Checking single letter answer...');
+                // Check if the user's answer contains the correct letter
+                if (userAnswer.includes(correctAnswer)) {
+                    console.log('Letter found in answer');
+                    return true;
+                }
+                
+                // Check for common letter pronunciations
+                const letterPronunciations = {
+                    'a': ['ay', 'ei'],
+                    'b': ['bee', 'be'],
+                    'c': ['see', 'cee'],
+                    'd': ['dee'],
+                    'e': ['ee', 'ea'],
+                    'f': ['ef', 'eff'],
+                    'g': ['gee', 'jee'],
+                    'h': ['aitch', 'haitch'],
+                    'i': ['eye', 'ai'],
+                    'j': ['jay', 'jai'],
+                    'k': ['kay', 'kayy', 'key', 'ok'],
+                    'l': ['el', 'ell'],
+                    'm': ['em', 'emm'],
+                    'n': ['en', 'enn'],
+                    'o': ['oh', 'owe'],
+                    'p': ['pee', 'pea'],
+                    'q': ['cue', 'queue', 'q'],
+                    'r': ['are', 'arr'],
+                    's': ['ess', 'es'],
+                    't': ['tee', 'tea'],
+                    'u': ['you', 'yew'],
+                    'v': ['vee', 've'],
+                    'w': ['double u', 'double you'],
+                    'x': ['ex', 'ecks'],
+                    'y': ['why', 'wye'],
+                    'z': ['zee', 'zed']
+                };
+                
+                const possiblePronunciations = letterPronunciations[correctAnswer] || [];
+                console.log('Possible pronunciations:', possiblePronunciations);
+                
+                if (possiblePronunciations.some(pronunciation => userAnswer.includes(pronunciation))) {
+                    console.log('Matched pronunciation');
+                    return true;
+                }
+            }
+            
+            // For words, check for close matches (fuzzy matching)
+            if (correctAnswer.length > 1 && userAnswer.length > 1) {
+                console.log('Checking word answer...');
+                // Simple similarity check - if 80% of characters match, consider it correct
+                const similarity = (str1, str2) => {
+                    const set1 = new Set(str1);
+                    const set2 = new Set(str2);
+                    const intersection = new Set([...set1].filter(x => set2.has(x)));
+                    return intersection.size / Math.max(set1.size, set2.size);
+                };
+                
+                const similarityScore = similarity(userAnswer, correctAnswer);
+                console.log('Similarity score:', similarityScore);
+                
+                if (similarityScore >= 0.8) {
+                    console.log('Similarity match found');
+                    return true;
+                }
+            }
+            
+            console.log('No matches found');
+            return false;
+        }
+        
+        // Function to show feedback in a modal
+        function showFeedbackModal(isCorrect, message, userAnswer, correctAnswer, points) {
+            console.log('Showing feedback modal', { isCorrect, message, userAnswer, correctAnswer, points });
+            const modal = document.getElementById('feedback-modal');
+            const icon = document.querySelector('#feedback-icon i');
+            const title = document.getElementById('feedback-title');
+            const messageEl = document.getElementById('feedback-message');
+            const answerEl = document.getElementById('feedback-answer');
+            const pointsEl = document.getElementById('feedback-points');
+            const okBtn = document.getElementById('feedback-ok-btn');
+            
+            // Remove any existing event listeners to prevent duplicates
+            const newOkBtn = okBtn.cloneNode(true);
+            okBtn.parentNode.replaceChild(newOkBtn, okBtn);
+            
+            // Close any open modals first
+            document.querySelectorAll('.modal.show').forEach(m => m.classList.remove('show'));
+            
+            // Common letter pronunciations that might be used
+            const letterPronunciations = {
+                'a': ['a', 'ay', 'eh'],
+                'b': ['b', 'bee', 'be', 'bea'],
+                'c': ['c', 'cee', 'see', 'sea'],
+                'd': ['d', 'dee', 'de'],
+                'e': ['e', 'ee', 'ea', 'yee'],
+                'f': ['f', 'ef', 'eff'],
+                'g': ['g', 'gee', 'je', 'jee'],
+                'h': ['h', 'aitch', 'haitch'],
+                'i': ['i', 'eye', 'aye', 'y'],
+                'j': ['j', 'jay', 'jai', 'jayy'],
+                'k': ['k', 'kay', 'key', 'kei', 'ok', 'okay'],
+                'l': ['l', 'el', 'ell'],
+                'm': ['m', 'em', 'emm'],
+                'n': ['n', 'en', 'enn'],
+                'o': ['o', 'oh', 'owe', 'ow'],
+                'p': ['p', 'pee', 'pea', 'pia'],
+                'q': ['q', 'cue', 'queue', 'que'],
+                'r': ['r', 'ar', 'are', 'arr'],
+                's': ['s', 'es', 'ess', 'ass'],
+                't': ['t', 'tee', 'tea', 'tee'],
+                'u': ['u', 'you', 'yoo', 'ewe'],
+                'v': ['v', 'vee', 've', 'vee'],
+                'w': ['w', 'double u', 'double you', 'dubya'],
+                'x': ['x', 'ex', 'axe', 'ecks'],
+                'y': ['y', 'why', 'wye', 'yee'],
+                'z': ['z', 'zed', 'zee', 'zee']
+            };
+            
+            // Function to get the actual letter if the answer is a pronunciation
+            const getDisplayLetter = (answer, correct) => {
+                // Clean up the answer by removing any punctuation and extra whitespace
+                const cleanAnswer = answer.replace(/[.,:;!?]/g, '').trim().toLowerCase();
+                
+                // If it's already a single letter, return it in uppercase
+                if (cleanAnswer.length === 1) return cleanAnswer.toUpperCase();
+                
+                // If we don't have a correct answer or it's not a single letter, return the original answer
+                if (!correct || correct.length !== 1) return answer;
+                
+                const lowerCorrect = correct.toLowerCase();
+                
+                // Check if the cleaned answer matches any pronunciation
+                if (letterPronunciations[lowerCorrect] && 
+                    letterPronunciations[lowerCorrect].includes(cleanAnswer)) {
+                    return correct.toUpperCase();
+                }
+                
+                // If no match, return the original answer
+            };
+            
+            // Update modal content based on correctness
+            if (isCorrect) {
+                const displayLetter = getDisplayLetter(userAnswer, correctAnswer);
+                icon.className = 'fas fa-check-circle success';
+                title.textContent = 'Correct!';
+                messageEl.textContent = message || 'Great job!';
+                answerEl.innerHTML = `You said: <strong>${displayLetter}</strong>`;
+                answerEl.className = 'feedback-answer correct';
+                pointsEl.textContent = `+${points} point${points !== 1 ? 's' : ''} earned!`;
+                pointsEl.style.display = 'block';
+            } else {
+                icon.className = 'fas fa-times-circle error';
+                title.textContent = 'Try Again';
+                messageEl.textContent = message || 'That\'s not quite right.';
+                answerEl.innerHTML = `
+                    <div class="user-answer">You said: <strong>${userAnswer}</strong></div>
+                    <div class="correct-answer">Correct answer: <strong>${correctAnswer}</strong></div>
+                `;
+                answerEl.className = 'feedback-answer incorrect';
+                pointsEl.style.display = 'none';
+            }
+            
+            // Show the modal
+            modal.classList.add('show');
+            
+            // Set up event listener for the OK button
+            newOkBtn.onclick = function() {
+                console.log('OK button clicked');
+                modal.classList.remove('show');
+                // Auto-advance to next question if answer was correct and auto-advance is enabled
+                if (isCorrect && autoAdvance) {
+                    nextItem();
+                }
+            };
+            
+            // Also close when clicking outside the modal content
+            const handleOutsideClick = function(event) {
+                if (event.target === modal) {
+                    modal.classList.remove('show');
+                    modal.removeEventListener('click', handleOutsideClick);
+                    if (isCorrect && autoAdvance) {
+                        nextItem();
+                    }
+                }
+            };
+            
+            // Add the new event listener
+            modal.addEventListener('click', handleOutsideClick);
+            
+            // Close button in header
+            const closeBtn = document.querySelector('#feedback-modal .close-modal');
+            closeBtn.onclick = function(e) {
+                e.stopPropagation();
+                modal.classList.remove('show');
+                modal.removeEventListener('click', handleOutsideClick);
+                if (isCorrect && autoAdvance) {
+                    nextItem();
+                }
+            };
+            
+            console.log('Modal should now be visible');
+        }
+        
+        // Function to show section summary
+        function showSectionSummary(sectionIndex) {
+            const section = currentTest.sections[sectionIndex];
+            const sectionResponses = userResponses[sectionIndex];
+            
+            if (!section || !sectionResponses) {
+                console.error('Section data not found');
+                return;
+            }
+            
+            // Calculate statistics
+            const totalQuestions = sectionResponses.items.length;
+            const correctAnswers = sectionResponses.items.filter(item => item.isCorrect).length;
+            const totalPoints = sectionResponses.items.reduce((sum, item) => sum + (item.score || 0), 0);
+            const percentage = Math.round((correctAnswers / totalQuestions) * 100);
+            
+            // Update the modal with statistics
+            document.getElementById('section-summary-title').textContent = `${section.title} Complete!`;
+            document.getElementById('correct-answers-count').textContent = correctAnswers;
+            document.getElementById('total-questions-count').textContent = totalQuestions;
+            document.getElementById('points-earned').textContent = totalPoints;
+            document.getElementById('percentage-score').textContent = `${percentage}%`;
+            
+            // Populate answers list
+            const answersContainer = document.getElementById('answers-container');
+            answersContainer.innerHTML = ''; // Clear previous answers
+            
+            sectionResponses.items.forEach((item, index) => {
+                const question = section.items[index];
+                const answerItem = document.createElement('div');
+                answerItem.className = `answer-item ${item.isCorrect ? 'correct' : 'incorrect'}`;
+                
+                answerItem.innerHTML = `
+                    <div class="answer-question">
+                        <strong>${index + 1}.</strong> ${question.content || 'Question ' + (index + 1)}
+                    </div>
+                    <div class="answer-user">
+                        <strong>Your answer:</strong> ${item.answer || 'No answer'}
+                    </div>
+                    ${!item.isCorrect ? `
+                        <div class="answer-correct">
+                            <strong>Correct answer:</strong> ${question.content}
+                        </div>
+                    ` : ''}
+                `;
+                
+                answersContainer.appendChild(answerItem);
+            });
+            
+            // Show the modal
+            const modal = document.getElementById('section-summary-modal');
+            modal.classList.add('show');
+            
+            // Set up event listener for the continue button
+            const continueBtn = document.getElementById('continue-to-next-section');
+            const newContinueBtn = continueBtn.cloneNode(true);
+            
+            // Update button text if this is the last section
+            if (currentSectionIndex >= currentTest.sections.length - 1) {
+                newContinueBtn.textContent = 'Return to Test';
+                // Hide the submit button in the navigation
+                document.getElementById('submit-test-btn').style.display = 'block';
+            }
+            
+            continueBtn.parentNode.replaceChild(newContinueBtn, continueBtn);
+            
+            newContinueBtn.onclick = function() {
+                modal.classList.remove('show');
+                // If not the last section, move to next section
+                if (currentSectionIndex < currentTest.sections.length - 1) {
+                    currentSectionIndex++;
+                    currentItemIndex = 0;
+                    renderCurrentItem();
+                }
+                // If it's the last section, just close the modal
+                // The submit button will be visible for manual submission
+            };
+            
+            // Close button in header
+            const closeBtn = modal.querySelector('.close-modal');
+            closeBtn.onclick = function(e) {
+                e.stopPropagation();
+                modal.classList.remove('show');
+                // Auto-advance to next section or finish test
+                if (currentSectionIndex < currentTest.sections.length - 1) {
+                    currentSectionIndex++;
+                    currentItemIndex = 0;
+                    renderCurrentItem();
+                } else {
+                    showTestCompletion();
+                }
+            };
+            
+            // Close when clicking outside
+            modal.onclick = function(e) {
+                if (e.target === modal) {
+                    modal.classList.remove('show');
+                    // Auto-advance to next section or finish test
+                    if (currentSectionIndex < currentTest.sections.length - 1) {
+                        currentSectionIndex++;
+                        currentItemIndex = 0;
+                        renderCurrentItem();
+                    } else {
+                        showTestCompletion();
+                    }
+                }
+            };
+        }
+        
+        // Function to show test completion
+        function showTestCompletion() {
+            // Calculate total score
+            const totalPoints = userResponses.reduce((sum, section) => {
+                return sum + section.items.reduce((sectionSum, item) => sectionSum + (item.score || 0), 0);
+            }, 0);
+            
+            // Calculate total possible points
+            const totalPossiblePoints = currentTest.sections.reduce((sum, section) => {
+                return sum + section.items.reduce((sectionSum, item) => sectionSum + (item.points || 1), 0);
+            }, 0);
+            
+            // Show completion message (you can customize this further)
+            alert(`Test completed! You scored ${totalPoints} out of ${totalPossiblePoints} points.`);
+            
+            // You can add more test completion logic here, like saving the results
+        }
+
+        // Function to handle speech recognition results
+        function handleSpeechResult(transcript) {
+            if (!currentTest || !currentTest.sections || currentTest.sections.length === 0) {
+                console.error('No test data available');
+                return;
+            }
+            
+            const section = currentTest.sections[currentSectionIndex];
+            const item = section.items[currentItemIndex];
+            const response = userResponses[currentSectionIndex].items[currentItemIndex];
+            
+            if (!item) {
+                console.error('No current item found');
+                return;
+            }
+            
+            // Update the response with the recognized speech
+            response.answer = transcript;
+            response.timestamp = new Date().toISOString();
+            
+            // Check the answer and update UI
+            const isCorrect = checkAnswer(transcript, item.content);
+            response.isCorrect = isCorrect;
+            
+            // Show feedback in the modal
+            const correctedAnswer = window.currentSpeechResult?.correctedAnswer;
+            // If the answer was a letter pronunciation, show the actual letter in uppercase
+            const displayAnswer = correctedAnswer || (transcript.length === 1 ? transcript.toUpperCase() : transcript);
+            const feedbackMessage = isCorrect ? 'Well done!' : 'Please try again.';
+            const points = item.points || 1;
+            
+            showFeedbackModal(
+                isCorrect,
+                feedbackMessage,
+                displayAnswer,
+                item.content,
+                points
+            );
+            
+            // Log the speech result
+            console.log('Speech result:', {
+                spoken: transcript,
+                correct: item.content,
+                isCorrect: isCorrect
+            });
+            
+            // Update user response
+            response.attempts.push({
+                attempt: response.attempts.length + 1,
+                isCorrect: isCorrect,
+                transcript: transcript,
+                timestamp: new Date().toISOString()
+            });
+            
+            if (isCorrect) {
+                response.isCorrect = true;
+                response.score = item.points || 1;
+                
+                // Update UI for correct answer
+                const btn = document.getElementById('start-speech-btn');
+                if (btn) {
+                    btn.innerHTML = '<i class="fas fa-check"></i> Correct';
+                    btn.classList.remove('btn-danger');
+                    btn.classList.add('btn-success');
+                    btn.disabled = true;
+                }
+                
+                // Auto-advance is now handled in the feedback modal's OK button click handler
+            } else {
+                const remainingAttempts = MAX_ATTEMPTS - response.attempts.length;
+                if (remainingAttempts > 0) {
+                    updateSpeechStatus(`Try again (${remainingAttempts} ${remainingAttempts === 1 ? 'attempt' : 'attempts'} left)`, 'warning');
+                } else {
+                    updateSpeechStatus('Maximum attempts reached', 'error');
+                    const btn = document.getElementById('start-speech-btn');
+                    if (btn) {
+                        btn.disabled = true;
+                        btn.innerHTML = '<i class="fas fa-times"></i> Try Again';
+                        btn.classList.remove('btn-danger');
+                        btn.classList.add('btn-secondary');
+                    }
+                }
+            }
+        }
+        
+        // Modal Functions
+        function showModal(modalId) {
+            const modal = document.getElementById(modalId);
+            if (modal) {
+                modal.style.display = 'block';
+                document.body.style.overflow = 'hidden';
+                
+                // Add animation
+                setTimeout(() => {
+                    modal.classList.add('show');
+                }, 10);
+            }
+        }
+        
+        function closeModal(modalId = null) {
+            const modals = modalId ? [document.getElementById(modalId)] : document.querySelectorAll('.modal');
+            
+            modals.forEach(modal => {
+                if (!modal) return;
+                
+                // Add fade out animation
+                modal.classList.remove('show');
+                
+                // Wait for animation to complete before hiding
+                setTimeout(() => {
+                    modal.style.display = 'none';
+                    document.body.style.overflow = '';
+                }, 300);
+            });
+        }
+        
+        // Show section complete modal
+        function showSectionCompleteModal() {
+            const modal = document.getElementById('section-complete-modal');
+            const nextSectionBtn = document.getElementById('continue-to-next-section');
+            
+            if (!modal || !nextSectionBtn) return;
+            
+            // Update button text based on whether there are more sections
+            const isLastSection = currentSectionIndex >= currentTest.sections.length - 1;
+            nextSectionBtn.textContent = isLastSection ? 'View Results' : 'Continue to Next Section';
+            
+            // Update message
+            const message = document.getElementById('section-complete-message');
+            const details = document.getElementById('section-complete-details');
+            
+            if (message) {
+                message.textContent = isLastSection 
+                    ? 'You\'ve completed the test!' 
+                    : `Section ${currentSectionIndex + 1} Complete!`;
+            }
+            
+            if (details) {
+                details.textContent = isLastSection
+                    ? 'Great job! You\'ve completed all sections of the test.'
+                    : `You've finished section ${currentSectionIndex + 1} of ${currentTest.sections.length}.`;
+            }
+            
+            // Show the modal
+            showModal('section-complete-modal');
+            
+            // Set up the continue button
+            nextSectionBtn.onclick = function() {
+                closeModal('section-complete-modal');
+                
+                if (isLastSection) {
+                    submitTest();
+                } else {
+                    // Move to next section
+                    currentSectionIndex++;
+                    currentItemIndex = 0;
+                    renderCurrentItem();
+                }
+            };
+        }
+        
+        // Initialize modal event listeners
+        function initializeModalEventListeners() {
+            // Close modal when clicking outside content
+            document.addEventListener('click', (e) => {
+                if (e.target.classList.contains('modal')) {
+                    closeModal(e.target.id);
+                }
+            });
+            
+            // Close modal with escape key
+            document.addEventListener('keydown', (e) => {
+                if (e.key === 'Escape') {
+                    closeModal();
+                }
+            });
+            
+            // Close buttons
+            document.querySelectorAll('.close-modal').forEach(btn => {
+                btn.addEventListener('click', () => {
+                    const modal = btn.closest('.modal');
+                    if (modal) closeModal(modal.id);
+                });
+            });
+            
+            // Try Again button
+            const tryAgainBtn = document.getElementById('try-again-btn');
+            if (tryAgainBtn) {
+                tryAgainBtn.addEventListener('click', () => {
+                    closeModal('result-modal');
+                    const speechBtn = document.getElementById('start-speech-btn');
+                    if (speechBtn) {
+                        speechBtn.disabled = false;
+                        speechBtn.innerHTML = '<i class=\'fas fa-microphone\'></i> Try Again';
+                        speechBtn.classList.remove('btn-success', 'btn-danger');
+                        speechBtn.classList.add('btn-primary');
+                    }
+                });
+            }
+            
+            // Next Item button
+            const nextItemBtn = document.getElementById('next-item-modal-btn');
+            if (nextItemBtn) {
+                nextItemBtn.addEventListener('click', () => {
+                    closeModal('result-modal');
+                    // Move to next question or section
+                    if (currentItemIndex < currentTest.sections[currentSectionIndex].items.length - 1) {
+                        currentItemIndex++;
+                    } else if (currentSectionIndex < currentTest.sections.length - 1) {
+                        currentSectionIndex++;
+                        currentItemIndex = 0;
+                    }
+                    renderCurrentItem();
+                });
+            }
+        }
+        
+        // Initialize speech synthesis
+        function initializeSpeechSynthesis() {
+            if (!window.speechSynthesis) {
+                console.warn('Speech synthesis not supported');
+                return;
+            }
+            
+            // This function will be called when voices are loaded
+            const onVoicesChanged = () => {
+                const voices = window.speechSynthesis.getVoices();
+                if (voices.length > 0) {
+                    console.log('Voices loaded:', voices);
+                    // Remove the event listener after voices are loaded
+                    window.speechSynthesis.onvoiceschanged = null;
+                }
+            };
+            
+            // Set up the voices changed event
+            window.speechSynthesis.onvoiceschanged = onVoicesChanged;
+            
+            // Try to get voices immediately (might work on some browsers)
+            onVoicesChanged();
+        }
+        
+        // Function to show test completion modal with summary
+        function showTestCompletionModal() {
+            const modal = document.getElementById('test-completion-modal');
+            const sectionsContainer = document.getElementById('sections-summary');
+            
+            if (!modal || !sectionsContainer) {
+                console.error('Test completion modal elements not found');
+                return;
+            }
+            
+            // Debug: Log the entire userResponses object
+            console.log('User Responses:', JSON.stringify(userResponses, null, 2));
+            console.log('Current Test Sections:', currentTest.sections);
+            
+            // Clear previous content
+            sectionsContainer.innerHTML = '';
+            
+            let totalScore = 0;
+            let totalPossible = 0;
+            let totalQuestions = 0;
+            let answeredQuestions = 0;
+            
+            // Process each section
+            userResponses.forEach((sectionResponse, sectionIndex) => {
+                if (!sectionResponse || !sectionResponse.items) {
+                    console.warn(`No valid section response found for section ${sectionIndex}`);
+                    return;
+                }
+                
+                // Calculate section score from responses
+                const sectionScore = sectionResponse.items.reduce((sum, item) => {
+                    return sum + (item.isCorrect ? (item.score || 1) : 0);
+                }, 0);
+                
+                // Calculate total possible points for section
+                const sectionItems = currentTest.sections[sectionIndex]?.items || [];
+                const sectionPossible = sectionItems.length;  // Assuming 1 point per question
+                
+                const sectionQuestions = sectionItems.length;
+                const sectionAnswered = sectionResponse.items.filter(item => item.answer).length;
+                const percentage = Math.round((sectionScore / sectionPossible) * 100) || 0;
+                
+                totalScore += sectionScore;
+                totalQuestions += sectionQuestions;
+                answeredQuestions += sectionAnswered;
+                totalPossible += sectionPossible;
+                
+                // Create section summary HTML
+                const sectionTitle = sectionResponse.sectionTitle || `Section ${sectionIndex + 1}`;
+                const sectionHTML = `
+                    <div class="section-summary-item">
+                        <h4>${sectionTitle}</h4>
+                        <div class="progress-container">
+                            <div class="progress" style="width: ${percentage}%;"></div>
+                        </div>
+                        <div class="section-stats">
+                            <span class="score">${sectionScore} / ${sectionPossible} pts</span>
+                            <span class="answered">${sectionAnswered} of ${sectionQuestions} questions</span>
+                            <span class="percentage">${percentage}%</span>
+                        </div>
+                    </div>
+                `;
+                
+                sectionsContainer.insertAdjacentHTML('beforeend', sectionHTML);
+            });
+            
+            // Update total scores
+            const totalPercentage = Math.round((totalScore / totalPossible) * 100) || 0;
+            document.getElementById('test-total-score').textContent = totalScore;
+            document.getElementById('test-total-possible').textContent = totalPossible;
+            document.getElementById('test-percentage').textContent = `${totalPercentage}%`;
+            
+            // Update total scores
+            document.getElementById('test-total-score').textContent = totalScore;
+            document.getElementById('test-total-possible').textContent = totalPossible;
+            document.getElementById('test-percentage').textContent = 
+                `${Math.round((totalScore / totalPossible) * 100 || 0)}%`;
+            
+            // Show the modal
+            showModal('test-completion-modal');
+        }
+        
+        // Function to submit test results to Firestore
+        async function submitTestResults() {
+            try {
+                // Show loading state
+                const submitBtn = document.getElementById('submit-test-attempt');
+                const originalBtnText = submitBtn.innerHTML;
+                submitBtn.disabled = true;
+                submitBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Sending...';
+                
+                // Prepare test results data
+                const testResults = {
+                    testId: currentTest.id,
+                    testTitle: currentTest.title,
+                    studentId: currentUser.uid,
+                    studentName: currentUser.displayName || 'Student',
+                    submittedAt: serverTimestamp(),
+                    sections: [],
+                    totalScore: 0,
+                    maxPossibleScore: 0,
+                    percentage: 0
+                };
+
+                // Calculate scores for each section
+                currentTest.sections.forEach((section, sectionIndex) => {
+                    const sectionResponses = userResponses[sectionIndex] || [];
+                    const sectionScore = sectionResponses.reduce((sum, response) => 
+                        sum + (response?.isCorrect ? (currentTest.sections[sectionIndex]?.items[response.itemIndex]?.points || 1) : 0), 0);
+                    
+                    const sectionPossible = section.items.reduce((sum, item) => 
+                        sum + (item.points || 1), 0);
+                    
+                    testResults.sections.push({
+                        sectionId: section.id,
+                        sectionName: section.name,
+                        score: sectionScore,
+                        maxPossibleScore: sectionPossible,
+                        percentage: (sectionScore / sectionPossible) * 100 || 0
+                    });
+                    
+                    testResults.totalScore += sectionScore;
+                    testResults.maxPossibleScore += sectionPossible;
+                });
+                
+                testResults.percentage = (testResults.totalScore / testResults.maxPossibleScore) * 100 || 0;
+
+                // Save test results to student's testAttempts subcollection
+                const studentRef = doc(db, 'students', currentUser.uid);
+                const testAttemptsRef = collection(studentRef, 'testAttempts');
+                
+                // Add test attempt to subcollection
+                const resultRef = await addDoc(testAttemptsRef, {
+                    ...testResults,
+                    // Add additional metadata
+                    testId: currentTest.id,
+                    testTitle: currentTest.title,
+                    submittedAt: serverTimestamp(),
+                    status: 'completed',
+                    // Store the full test data if needed for future reference
+                    testData: {
+                        sections: currentTest.sections.map(section => ({
+                            id: section.id,
+                            name: section.name,
+                            description: section.description,
+                            itemCount: section.items.length
+                        }))
+                    }
+                });
+                
+                console.log('Test attempt saved with ID: ', resultRef.id);
+                
+                // Show success message and redirect
+                alert('Your test has been submitted successfully!');
+                window.location.href = 'student-dashboard-clean.html';
+                
+            } catch (error) {
+                console.error('Error submitting test:', error);
+                alert('Failed to submit test. Please try again.');
+                submitBtn.disabled = false;
+                submitBtn.innerHTML = originalBtnText;
+            }
+        }
+        
+        // Main submit test function
+        async function submitTest() {
+            // Show the test completion modal instead of confirmation dialog
+            showTestCompletionModal();
+        }
+        
+        // Handle test submission
+        document.getElementById('submit-test-attempt')?.addEventListener('click', async function() {
+            const submitButton = this;
+            const originalText = submitButton.innerHTML;
+            
+            try {
+                console.log('Starting test submission...');
+                
+                // Disable button and show loading state
+                submitButton.disabled = true;
+                submitButton.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Sending...';
+                
+                // Verify userResponses exists and has data
+                console.log('User responses:', JSON.stringify(userResponses, null, 2));
+                if (!userResponses || userResponses.length === 0) {
+                    throw new Error('No test responses found');
+                }
+                
+                // Calculate total score and percentage
+                const totalScore = userResponses.reduce((sum, section) => {
+                    return sum + (section.items || []).reduce((sectionSum, item) => {
+                        return sectionSum + (item.isCorrect ? (item.score || 1) : 0);
+                    }, 0);
+                }, 0);
+                
+                const totalPossible = userResponses.reduce((sum, section) => {
+                    return sum + (section.items?.length || 0);
+                }, 0);
+                
+                // Get current user
+                const user = auth.currentUser;
+                if (!user) {
+                    throw new Error('No authenticated user found');
+                }
+                
+                // Calculate percentage with proper rounding
+                const percentage = Math.round((totalScore / Math.max(1, totalPossible)) * 100) || 0;
+                
+                // Prepare test results with percentage in multiple formats for compatibility
+                const testResults = {
+                    testId: currentTest.id,
+                    testTitle: currentTest.title || 'Untitled Test',
+                    studentId: user.uid,
+                    studentName: user.displayName || 'Student',
+                    timestamp: new Date().toISOString(),
+                    sections: userResponses,
+                    totalScore: totalScore,
+                    score: totalScore,  // Duplicate for compatibility
+                    maxPossibleScore: totalPossible,
+                    percentage: percentage,
+                    scorePercentage: percentage,  // Duplicate for compatibility
+                    status: 'completed',
+                    submittedAt: new Date().toISOString(),
+                    // Add metadata for better querying
+                    testData: {
+                        sections: currentTest.sections?.map(section => ({
+                            id: section.id,
+                            name: section.name,
+                            itemCount: section.items?.length || 0
+                        })) || []
+                    }
+                };
+                
+                console.log('Prepared test results:', JSON.stringify(testResults, null, 2));
+                
+                try {
+                    // Save test results to student's subcollection
+                    console.log('Creating document reference...');
+                    const studentRef = doc(db, 'students', user.uid);
+                    const testAttemptsRef = collection(studentRef, 'testAttempts');
+                    
+                    console.log('Adding document to Firestore...');
+                    const resultRef = await addDoc(testAttemptsRef, testResults);
+                    console.log('Test attempt saved with ID:', resultRef.id);
+                    
+                    // Show success message and redirect
+                    alert('Your test has been submitted successfully!');
+                    window.location.href = 'student-dashboard-clean.html';
+                    
+                } catch (firestoreError) {
+                    console.error('Firestore error:', firestoreError);
+                    console.error('Error details:', {
+                        code: firestoreError.code,
+                        message: firestoreError.message,
+                        stack: firestoreError.stack
+                    });
+                    throw firestoreError;
+                }
+                
+            } catch (error) {
+                console.error('Error in test submission:', {
+                    name: error.name,
+                    message: error.message,
+                    stack: error.stack
+                });
+                alert(`Error: ${error.message || 'Failed to submit test. Please try again.'}`);
+                submitButton.disabled = false;
+                submitButton.innerHTML = originalText;
+            }      });      
+        
+        // Hide modal
+        function hideModal(modalId) {
+            const modal = document.getElementById(modalId);
+            if (!modal) return;
+            
+            modal.classList.remove('visible');
+            setTimeout(() => {
+                modal.style.display = 'none';
+            }, 300);
+        }
+        
+        // Function to update speech recognition status in the UI
+        function updateSpeechStatus(status, isError = false) {
+            const statusElement = document.getElementById('speech-status');
+            if (statusElement) {
+                statusElement.textContent = status;
+                statusElement.className = 'speech-status';
+                if (isError) {
+                    statusElement.classList.add('error');
+                }
+            }
+            console.log('Speech Status:', status);
+        }
+        
+        // Show speech status
+        function showSpeechStatus(message, type = '') {
+            if (!speechStatus) return;
+            
+            speechStatus.textContent = message;
+            speechStatus.className = 'speech-status';
+            
+            if (type) {
+                speechStatus.classList.add(`status-${type}`);
+            }
+        }
+        
+        // Show error message
+        function showError(message) {
+            testContent.innerHTML = `
+                <div class="alert alert-danger">
+                    <i class="fas fa-exclamation-circle me-2"></i>
+                    ${message}
+                </div>
+                <div class="text-center mt-3">
+                    <a href="student-dashboard-clean.html" class="btn btn-primary">
+                        Back to Dashboard
+                    </a>
+                </div>
+            `;
+        }
+        
+        // Timer functions
+        function startTimer() {
+            if (timerInterval) clearInterval(timerInterval);
+            
+            timerInterval = setInterval(() => {
+                if (timeLeft <= 0) {
+                    stopTimer();
+                    submitTest();
+                    return;
+                }
+                
+                timeLeft--;
+                updateTimerDisplay();
+            }, 1000);
+        }
+        
+        function stopTimer() {
+            if (timerInterval) {
+                clearInterval(timerInterval);
+                timerInterval = null;
+            }
+        }
+        
+        function updateTimerDisplay() {
+            if (!timeDisplay) return;
+            
+            const minutes = Math.floor(timeLeft / 60);
+            const seconds = timeLeft % 60;
+            timeDisplay.textContent = `${minutes.toString().padStart(2, '0')}:${seconds.toString().padStart(2, '0')}`;
+            
+            // Add warning class when time is running low
+            if (timeLeft <= 300) { // 5 minutes
+                timeDisplay.classList.add('text-warning');
+            }
+            if (timeLeft <= 60) { // 1 minute
+                timeDisplay.classList.remove('text-warning');
+                timeDisplay.classList.add('text-danger');
+            }
+        }
+        
+        // Text-to-speech function
+        function speakText(text) {
+            if ('speechSynthesis' in window) {
+                const utterance = new SpeechSynthesisUtterance(text);
+                utterance.lang = 'en-US';
+                speechSynthesis.speak(utterance);
+            } else {
+                showSpeechStatus('Text-to-speech is not supported in your browser', 'error');
+            }
+        }
+        
+        // Initialize event listeners
+        function initializeEventListeners() {
+            // Navigation buttons
+            prevBtn.addEventListener('click', () => {
+                if (currentItemIndex > 0) {
+                    currentItemIndex--;
+                } else if (currentSectionIndex > 0) {
+                    currentSectionIndex--;
+                    const prevSection = currentTest.sections[currentSectionIndex];
+                    currentItemIndex = prevSection.items.length - 1;
+                }
+                
+                renderCurrentItem();
+            });
+            
+            nextBtn.addEventListener('click', () => {
+                const currentSection = currentTest.sections[currentSectionIndex];
+                
+                if (currentItemIndex < currentSection.items.length - 1) {
+                    currentItemIndex++;
+                    renderCurrentItem();
+                } else if (currentSectionIndex < currentTest.sections.length - 1) {
+                    // Show section complete modal if there are more sections
+                    showSectionCompleteModal();
+                } else {
+                    // Last item of the last section - submit the test
+                    submitTest();
+                }
+            });
+            
+            // Record button
+            recordBtn.addEventListener('click', startStudentRecording);
+            
+            // Submit test button
+            submitTestBtn.addEventListener('click', submitTest);
+            
+            // Close modal buttons
+            document.querySelectorAll('.close-modal').forEach(btn => {
+                btn.addEventListener('click', () => {
+                    const modal = btn.closest('.modal');
+                    if (modal) {
+                        hideModal(modal.id);
+                    }
+                });
+            });
+            
+            // Sign out button
+            const signOutBtn = document.getElementById('sign-out-btn');
+            if (signOutBtn) {
+                signOutBtn.addEventListener('click', async (e) => {
+                    e.preventDefault();
+                    try {
+                        await signOut(auth);
+                        window.location.href = 'login.html';
+                    } catch (error) {
+                        console.error('Error signing out:', error);
+                        alert('Failed to sign out. Please try again.');
+                    }
+                });
+            }
+            
+            // Stop recording button in speech modal
+            const stopRecordingBtn = document.getElementById('stop-recording-btn');
+            if (stopRecordingBtn) {
+                stopRecordingBtn.addEventListener('click', () => {
+                    if (recognition) {
+                        recognition.stop();
+                    }
+                    hideModal('speech-modal');
+                });
+            }
+        }
+        
+        // Expose functions to global scope for inline event handlers
+        window.speakText = speakText;
+        
+        // Initialize the application
+        console.log('Test taking application initialized');
+    </script>
+</body>
+</html>

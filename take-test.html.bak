@@ -1,0 +1,887 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Take Test - Alpharia</title>
+    
+    <!-- Google Fonts -->
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    
+    <!-- Font Awesome Icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    
+    <!-- Custom CSS -->
+    <link rel="stylesheet" href="css/student-dashboard-clean.css">
+    <link rel="stylesheet" href="css/test-taking.css">
+    <link rel="stylesheet" href="css/dashboard.css">
+</head>
+<body class="student-dashboard">
+    <div class="dashboard-container">
+        <!-- Sidebar -->
+        <aside class="sidebar">
+            <div class="logo">
+                <h2>Alpharia</h2>
+            </div>
+            
+            <nav>
+                <ul class="nav-menu">
+                    <li class="nav-item">
+                        <a href="student-dashboard-clean.html" class="nav-link">
+                            <i class="fas fa-home"></i>
+                            <span>Overview</span>
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a href="take-test.html" class="nav-link active">
+                            <i class="fas fa-tasks"></i>
+                            <span>My Tests</span>
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a href="student-progress.html" class="nav-link">
+                            <i class="fas fa-chart-line"></i>
+                            <span>Progress</span>
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a href="#" class="nav-link">
+                            <i class="fas fa-book"></i>
+                            <span>Resources</span>
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a href="student-settings.html" class="nav-link">
+                            <i class="fas fa-cog"></i>
+                            <span>Settings</span>
+                        </a>
+                    </li>
+                </ul>
+            </nav>
+            
+            <div class="user-profile">
+                <div class="user-avatar">
+                    <img src="https://ui-avatars.com/api/?name=Student" alt="Student">
+                </div>
+                <div class="user-info">
+                    <h4>Student Name</h4>
+                    <small>Grade 5</small>
+                </div>
+                <a href="#" class="sign-out">
+                    <i class="fas fa-sign-out-alt"></i>
+                </a>
+            </div>
+        </aside>
+        
+        <!-- Main Content -->
+        <main class="main-content">
+            <header class="top-bar">
+                <h1 id="test-title">Reading Test</h1>
+                <div class="test-info">
+                    <div class="timer" id="test-timer">30:00</div>
+                    <button id="submit-test-btn" class="btn btn-primary">
+                        <i class="fas fa-paper-plane"></i> Submit Test
+                    </button>
+                </div>
+            </header>
+            
+            <!-- Test Instructions -->
+            <section class="card test-instructions">
+                <div class="card-header">
+                    <h3><i class="fas fa-info-circle"></i> Instructions</h3>
+                </div>
+                <div class="card-body">
+                    <p id="test-instructions">Read each word/sentence clearly when prompted. You will have 3 attempts per item.</p>
+                    <div class="test-metadata">
+                        <div class="metadata-item">
+                            <i class="fas fa-book"></i>
+                            <span id="test-grade">Grade: 3</span>
+                        </div>
+                        <div class="metadata-item">
+                            <i class="fas fa-clock"></i>
+                            <span id="test-time-limit">Time Limit: 30 minutes</span>
+                        </div>
+                        <div class="metadata-item">
+                            <i class="fas fa-tasks"></i>
+                            <span id="test-sections">Sections: 3</span>
+                        </div>
+                    </div>
+                </div>
+            </section>
+            
+            <!-- Test Content -->
+            <div id="test-content">
+                <!-- Test Section for Speech Recognition -->
+                <section class="test-section" data-section-id="test-1">
+                    <div class="section-header">
+                        <h2><i class="fas fa-spell-check"></i> Test Word</h2>
+                    </div>
+                    <div class="section-instructions">
+                        <p>Please speak the word below clearly when prompted. You will have 3 attempts to get it right.</p>
+                    </div>
+                    <div class="test-items">
+                        <div class="test-item" data-item-id="test-word-1">
+                            <div class="item-prompt">
+                                <i class="fas fa-volume-up"></i>
+                                <span>Speak this word:</span>
+                            </div>
+                            <div class="item-content">
+                                <strong>"Elephant"</strong>
+                            </div>
+                            <div class="item-actions">
+                                <button class="btn btn-primary start-recording" data-item-id="test-word-1">
+                                    <i class="fas fa-microphone"></i> Record Response
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                </section>
+            </div>
+            
+            <!-- Test Navigation -->
+            <div class="test-navigation">
+                <button id="prev-section-btn" class="btn btn-outline" disabled>
+                    <i class="fas fa-arrow-left"></i> Previous
+                </button>
+                <div class="progress-container">
+                    <div class="progress-bar" id="test-progress"></div>
+                    <div class="progress-text" id="progress-text">1/15</div>
+                </div>
+                <button id="next-section-btn" class="btn btn-primary">
+                    Next <i class="fas fa-arrow-right"></i>
+                </button>
+            </div>
+            
+            <!-- Speech Recognition Modal -->
+            <div class="modal" id="speech-modal">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <h3>Speak Now</h3>
+                        <button class="close-modal">&times;</button>
+                    </div>
+                    <div class="modal-body">
+                        <div class="prompt-text" id="speech-prompt">
+                            Say the word: <strong>"Apple"</strong>
+                        </div>
+                        <div class="recording-indicator" id="recording-indicator">
+                            <div class="pulse"></div>
+                            <span>Listening...</span>
+                        </div>
+                        <div class="recording-visualizer">
+                            <div class="bar"></div>
+                            <div class="bar"></div>
+                            <div class="bar"></div>
+                            <div class="bar"></div>
+                            <div class="bar"></div>
+                        </div>
+                        <div class="speech-result" id="speech-result">
+                            <div class="attempts">
+                                <span class="attempt-label">Attempts:</span>
+                                <div class="attempt-dots">
+                                    <span class="dot active"></span>
+                                    <span class="dot"></span>
+                                    <span class="dot"></span>
+                                </div>
+                            </div>
+                            <div class="result-text">
+                                <span>You said:</span>
+                                <strong id="recognized-text">"apple"</strong>
+                            </div>
+                            <div class="result-feedback" id="result-feedback">
+                                <i class="fas fa-check-circle success"></i>
+                                <span>Correct! Well done!</span>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="modal-footer">
+                        <button id="try-again-btn" class="btn btn-outline">
+                            <i class="fas fa-redo"></i> Try Again
+                        </button>
+                        <button id="next-item-btn" class="btn btn-primary">
+                            Next <i class="fas fa-arrow-right"></i>
+                        </button>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Test Submission Modal -->
+            <div class="modal" id="submit-modal">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <h3>Submit Test</h3>
+                        <button class="close-modal">&times;</button>
+                    </div>
+                    <div class="modal-body">
+                        <p>Are you sure you want to submit your test? You won't be able to make changes after submission.</p>
+                        <div class="submission-summary">
+                            <div class="summary-item">
+                                <span>Completed:</span>
+                                <strong id="completed-count">12/15</strong>
+                            </div>
+                            <div class="summary-item">
+                                <span>Time Spent:</span>
+                                <strong id="time-spent">12:45</strong>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="modal-footer">
+                        <button id="cancel-submit-btn" class="btn btn-outline">
+                            <i class="fas fa-times"></i> Cancel
+                        </button>
+                        <button id="confirm-submit-btn" class="btn btn-primary">
+                            <i class="fas fa-paper-plane"></i> Submit Test
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </main>
+    </div>
+
+    <!-- Firebase SDK -->
+    <script type="module">
+        // Import the functions you need from the SDKs you need
+        import { initializeApp } from 'https://www.gstatic.com/firebasejs/9.22.0/firebase-app.js';
+        import { 
+            getAuth, 
+            onAuthStateChanged,
+            signOut 
+        } from 'https://www.gstatic.com/firebasejs/9.22.0/firebase-auth.js';
+        import { 
+            getFirestore, 
+            doc, 
+            getDoc,
+            collection,
+            query,
+            where,
+            getDocs,
+            orderBy,
+            limit,
+            addDoc,
+            updateDoc,
+            serverTimestamp
+        } from 'https://www.gstatic.com/firebasejs/9.22.0/firebase-firestore.js';
+
+        // Your web app's Firebase configuration
+        const firebaseConfig = {
+            apiKey: "AIzaSyAtOedXLBC4eigzqmBpYFciN-W5Mi2Cpmc",
+            authDomain: "alpharia-c6a39.firebaseapp.com",
+            projectId: "alpharia-c6a39",
+            storageBucket: "alpharia-c6a39.firebasestorage.app",
+            messagingSenderId: "85322759772",
+            appId: "1:85322759772:web:d5c7a528fd61c9d2373099",
+            measurementId: "G-KEC7MGMVE8"
+        };
+
+        // Initialize Firebase
+        const app = initializeApp(firebaseConfig);
+        const auth = getAuth(app);
+        const db = getFirestore(app);
+        
+        // Make Firebase instances globally available
+        window.auth = auth;
+        window.db = db;
+    </script>
+    <style>
+    .test-container {
+        max-width: 600px;
+        margin: 2rem auto;
+        padding: 2rem;
+        text-align: center;
+    }
+    .word-display {
+        font-size: 3rem;
+        font-weight: bold;
+        color: #4a6cf7;
+        margin: 2rem 0;
+        text-align: center;
+        min-height: 4.5rem;
+    }
+    .result-container {
+        margin: 2rem 0;
+        padding: 1.5rem;
+        border-radius: 8px;
+        text-align: center;
+        transition: all 0.3s ease;
+        opacity: 0;
+        transform: translateY(10px);
+        height: 0;
+        overflow: hidden;
+    }
+    .result-container.show {
+        opacity: 1;
+        transform: translateY(0);
+        height: auto;
+        padding: 1.5rem;
+        margin: 2rem 0;
+    }
+    .correct {
+        background-color: #d4edda;
+        border: 1px solid #c3e6cb;
+        color: #155724;
+    }
+    .incorrect {
+        background-color: #f8d7da;
+        border: 1px solid #f5c6cb;
+        color: #721c24;
+    }
+    .correction {
+        font-size: 1.5rem;
+        margin: 1rem 0;
+        font-weight: bold;
+    }
+    .microphone-btn {
+        padding: 1rem 2rem;
+        font-size: 1.25rem;
+        border-radius: 50px;
+        transition: all 0.3s ease;
+    }
+    .microphone-btn.listening {
+        background-color: #dc3545;
+        transform: scale(1.05);
+        box-shadow: 0 0 15px rgba(220, 53, 69, 0.3);
+    }
+    .attempts {
+        margin-top: 1.5rem;
+        color: #6c757d;
+    }
+    .attempts span {
+        font-weight: bold;
+        color: #4a6cf7;
+    }
+    </style>
+
+    <script>
+    document.addEventListener('DOMContentLoaded', async function() {
+        const testContent = document.getElementById('test-content');
+        
+        // Get test ID from URL
+        const urlParams = new URLSearchParams(window.location.search);
+        const testId = urlParams.get('id');
+        
+        if (!testId) {
+            testContent.innerHTML = `
+                <div class="alert alert-danger">
+                    <h4>Error: No Test Specified</h4>
+                    <p>No test ID provided. Please access this page from the tests list.</p>
+                    <a href="student-dashboard.html" class="btn btn-primary">Back to Dashboard</a>
+                </div>
+            `;
+            return;
+        }
+        
+        let currentTest = null;
+        let currentSectionIndex = 0;
+        let currentItemIndex = 0;
+        let attempts = 0;
+        let isListening = false;
+        
+        // Load test data from Firestore
+        async function loadTest(testId) {
+            try {
+                testContent.innerHTML = `
+                    <div class="text-center py-5">
+                        <div class="spinner-border text-primary" role="status">
+                            <span class="visually-hidden">Loading...</span>
+                        </div>
+                        <p class="mt-3">Loading test...</p>
+                    </div>
+                `;
+                
+                // Get test data from Firestore
+                const testDoc = await firebase.firestore().collection('tests').doc(testId).get();
+                
+                if (!testDoc.exists) {
+                    throw new Error('Test not found');
+                }
+                
+                currentTest = {
+                    id: testDoc.id,
+                    ...testDoc.data(),
+                    // Ensure sections and items exist
+                    sections: testDoc.data().sections || []
+                };
+                
+                if (currentTest.sections.length === 0) {
+                    throw new Error('This test has no sections');
+                }
+                
+                // Render the current test item
+                renderCurrentItem();
+                
+            } catch (error) {
+                console.error('Error loading test:', error);
+                testContent.innerHTML = `
+                    <div class="alert alert-danger">
+                        <h4>Error Loading Test</h4>
+                        <p>${error.message || 'Failed to load test. Please try again later.'}</p>
+                        <a href="student-dashboard.html" class="btn btn-primary mt-2">Back to Dashboard</a>
+                    </div>
+                `;
+            }
+        }
+        
+        // Render the current test item
+        function renderCurrentItem() {
+            if (!currentTest) return;
+            
+            const section = currentTest.sections[currentSectionIndex];
+            const item = section.items[currentItemIndex];
+            const isLastSection = currentSectionIndex === currentTest.sections.length - 1;
+            const isLastItem = currentItemIndex === section.items.length - 1;
+            
+            // Calculate progress
+            const totalItems = currentTest.sections.reduce((sum, sec) => sum + sec.items.length, 0);
+            let completedItems = 0;
+            
+            // Count completed items
+            for (let i = 0; i < currentTest.sections.length; i++) {
+                const sec = currentTest.sections[i];
+                for (let j = 0; j < sec.items.length; j++) {
+                    if (i < currentSectionIndex || (i === currentSectionIndex && j < currentItemIndex)) {
+                        completedItems++;
+                    }
+                }
+            }
+            
+            const progress = Math.round((completedItems / totalItems) * 100);
+            
+            testContent.innerHTML = `
+                <div class="test-container">
+                    <div class="card">
+                        <div class="card-header">
+                            <h3>${currentTest.title || 'Speaking Test'}</h3>
+                            <div class="progress mt-2" style="height: 5px;">
+                                <div class="progress-bar" role="progressbar" style="width: ${progress}%" 
+                                    aria-valuenow="${progress}" aria-valuemin="0" aria-valuemax="100"></div>
+                            </div>
+                            <small class="text-muted">${completedItems} of ${totalItems} items completed</small>
+                        </div>
+                        <div class="card-body">
+                            <div class="mb-4">
+                                <h4>${section.title || 'Section ' + (currentSectionIndex + 1)}</h4>
+                                <p class="text-muted">${section.instructions || 'Please speak the following:'}</p>
+                            </div>
+                            
+                            <div class="word-display">
+                                ${item.text || item.content || 'No content'}
+                            </div>
+                            
+                            <div class="text-center mt-4">
+                                <button id="startTestBtn" class="btn btn-primary microphone-btn" style="min-width: 200px;">
+                                    <i class="fas fa-microphone"></i> Click to Speak
+                                </button>
+                                
+                                <div class="attempts mt-3">Attempts: <span>0</span></div>
+                                
+                                <div id="resultContainer" class="result-container">
+                                    <div id="resultIcon" style="font-size: 2.5rem; margin-bottom: 1rem;"></div>
+                                    <div id="resultText" class="correction"></div>
+                                    <p id="resultMessage"></p>
+                                </div>
+                                
+                                <div class="mt-4">
+                                    ${currentSectionIndex > 0 || currentItemIndex > 0 ? `
+                                        <button id="prevBtn" class="btn btn-outline" style="margin-right: 1rem;">
+                                            <i class="fas fa-arrow-left"></i> Previous
+                                        </button>
+                                    ` : ''}
+                                    
+                                    ${!isLastSection || !isLastItem ? `
+                                        <button id="nextBtn" class="btn btn-primary">
+                                            Next <i class="fas fa-arrow-right"></i>
+                                        </button>
+                                    ` : `
+                                        <button id="submitBtn" class="btn btn-success">
+                                            <i class="fas fa-check"></i> Submit Test
+                                        </button>
+                                    `}
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            `;
+            
+            // Add event listeners
+            const nextBtn = document.getElementById('nextBtn');
+            const prevBtn = document.getElementById('prevBtn');
+            const submitBtn = document.getElementById('submitBtn');
+            
+            if (nextBtn) {
+                nextBtn.addEventListener('click', () => {
+                    // Move to next item or section
+                    if (currentItemIndex < section.items.length - 1) {
+                        currentItemIndex++;
+                    } else if (currentSectionIndex < currentTest.sections.length - 1) {
+                        currentSectionIndex++;
+                        currentItemIndex = 0;
+                    }
+                    attempts = 0;
+                    renderCurrentItem();
+                });
+            }
+            
+            if (prevBtn) {
+                prevBtn.addEventListener('click', () => {
+                    // Move to previous item or section
+                    if (currentItemIndex > 0) {
+                        currentItemIndex--;
+                    } else if (currentSectionIndex > 0) {
+                        currentSectionIndex--;
+                        currentItemIndex = currentTest.sections[currentSectionIndex].items.length - 1;
+                    }
+                    attempts = 0;
+                    renderCurrentItem();
+                });
+            }
+            
+            if (submitBtn) {
+                submitBtn.addEventListener('click', () => {
+                    if (confirm('Are you sure you want to submit your test? You cannot change your answers after submitting.')) {
+                        submitTest();
+                    }
+                });
+            }
+            
+            // Initialize speech recognition
+            initializeSpeechButton();
+        }
+        
+        // Initialize speech recognition button
+        function initializeSpeechButton() {
+            const startButton = document.getElementById('startTestBtn');
+            if (!startButton) return;
+            
+            // Remove any existing event listeners
+            const newButton = startButton.cloneNode(true);
+            startButton.parentNode.replaceChild(newButton, startButton);
+            
+            // Add new event listener
+            newButton.addEventListener('click', function() {
+                if (isListening) {
+                    recognition.stop();
+                    return;
+                }
+                
+                // Reset UI
+                const resultContainer = document.getElementById('resultContainer');
+                if (resultContainer) {
+                    resultContainer.className = 'result-container';
+                }
+                
+                newButton.classList.add('listening');
+                newButton.innerHTML = '<i class="fas fa-microphone-slash"></i> Listening...';
+                
+                // Start recognition
+                recognition.start();
+                isListening = true;
+            });
+        }
+        
+        // Submit the test
+        async function submitTest() {
+            try {
+                // Show loading state
+                testContent.innerHTML = `
+                    <div class="text-center py-5">
+                        <div class="spinner-border text-primary" role="status">
+                            <span class="visually-hidden">Submitting test...</span>
+                        </div>
+                        <p class="mt-3">Submitting your test...</p>
+                    </div>
+                `;
+                
+                // Here you would typically save the test attempt to Firestore
+                // For now, we'll just show a success message
+                
+                // Calculate score
+                let totalItems = 0;
+                let correctItems = 0;
+                
+                currentTest.sections.forEach(section => {
+                    section.items.forEach(item => {
+                        totalItems++;
+                        if (item.attempts && item.attempts.some(attempt => attempt.isCorrect)) {
+                            correctItems++;
+                        }
+                    });
+                });
+                
+                const score = Math.round((correctItems / totalItems) * 100);
+                
+                // In a real app, you would save this to Firestore:
+                /*
+                await firebase.firestore().collection('testAttempts').add({
+                    testId: currentTest.id,
+                    studentId: firebase.auth().currentUser.uid,
+                    timestamp: new Date().toISOString(),
+                    score: score,
+                    sections: currentTest.sections,
+                    completed: true
+                });
+                */
+                
+                // Show success message
+                testContent.innerHTML = `
+                    <div class="text-center py-5">
+                        <div class="mb-4">
+                            <i class="fas fa-check-circle text-success" style="font-size: 5rem;"></i>
+                        </div>
+                        <h3>Test Submitted Successfully!</h3>
+                        <div class="score-display mt-4">
+                            <h1 class="display-4">${score}%</h1>
+                            <p class="text-muted">You got ${correctItems} out of ${totalItems} items correct</p>
+                        </div>
+                        <div class="mt-4">
+                            <a href="student-dashboard.html" class="btn btn-primary">
+                                <i class="fas fa-tachometer-alt"></i> Back to Dashboard
+                            </a>
+                        </div>
+                    </div>
+                `;
+                
+            } catch (error) {
+                console.error('Error submitting test:', error);
+                testContent.innerHTML = `
+                    <div class="alert alert-danger">
+                        <h4>Error Submitting Test</h4>
+                        <p>There was an error submitting your test. Please try again later.</p>
+                        <div class="mt-3">
+                            <button onclick="window.location.reload()" class="btn btn-warning">
+                                <i class="fas fa-sync"></i> Try Again
+                            </button>
+                            <a href="student-dashboard.html" class="btn btn-outline-secondary">
+                                <i class="fas fa-home"></i> Back to Dashboard
+                            </a>
+                        </div>
+                    </div>
+                `;
+            }
+        }
+        
+        // Initialize the test
+        if (testId) {
+            loadTest(testId);
+        }
+        
+        const resultContainer = document.getElementById('resultContainer');
+        const resultIcon = document.getElementById('resultIcon');
+        const resultText = document.getElementById('resultText');
+        const resultMessage = document.getElementById('resultMessage');
+        const attemptsDisplay = document.querySelector('.attempts span');
+        const startButton = document.getElementById('startTestBtn');
+        
+        // Initialize speech recognition
+        if (!('webkitSpeechRecognition' in window)) {
+            startButton.disabled = true;
+            startButton.innerHTML = '<i class="fas fa-microphone-slash"></i> Speech not supported';
+            return;
+        }
+        
+        const recognition = new webkitSpeechRecognition();
+        recognition.continuous = false;
+        recognition.interimResults = false;
+        
+        // Handle button click
+        startButton.addEventListener('click', function() {
+            if (isListening) {
+                recognition.stop();
+                return;
+            }
+            
+            // Reset UI
+            resultContainer.className = 'result-container';
+            startButton.classList.add('listening');
+            startButton.innerHTML = '<i class="fas fa-microphone-slash"></i> Listening...';
+            
+            // Start recognition
+            recognition.start();
+            isListening = true;
+        });
+        
+        // Helper function to normalize text for comparison
+        function normalizeText(text) {
+            return text.toLowerCase()
+                      .trim()
+                      .replace(/[^a-z0-9 ]/g, '') // Remove punctuation
+                      .replace(/\s+/g, ' ');      // Normalize spaces
+        }
+        
+        // Handle recognition result
+        recognition.onresult = function(event) {
+            if (!currentTest) return;
+            
+            const section = currentTest.sections[currentSectionIndex];
+            const item = section.items[currentItemIndex];
+            
+            const speechResult = normalizeText(event.results[0][0].transcript);
+            const target = normalizeText(item.text || item.content || '');
+            const isCorrect = speechResult === target;
+            
+            // For debugging
+            console.log('Heard:', speechResult);
+            console.log('Expected:', target);
+            console.log('Match:', isCorrect);
+            
+            // Update attempts
+            attempts++;
+            const attemptsSpan = document.querySelector('.attempts span');
+            if (attemptsSpan) {
+                attemptsSpan.textContent = attempts;
+            }
+            
+            // Get or create result elements
+            const resultContainer = document.getElementById('resultContainer');
+            const resultIcon = document.getElementById('resultIcon');
+            const resultText = document.getElementById('resultText');
+            const resultMessage = document.getElementById('resultMessage');
+            
+            if (!resultContainer) {
+                console.error('Result container not found');
+                return;
+            }
+            
+            // Update UI
+            resultContainer.className = `result-container show ${isCorrect ? 'correct' : 'incorrect'}`;
+            
+            if (isCorrect) {
+                resultIcon.innerHTML = '✅';
+                resultText.textContent = 'Correct!';
+                resultMessage.textContent = `You said: "${speechResult}"`;
+                
+                const startButton = document.getElementById('startTestBtn');
+                if (startButton) {
+                    startButton.innerHTML = '<i class="fas fa-check"></i> Correct!';
+                    startButton.classList.add('btn-success');
+                    startButton.classList.remove('btn-primary');
+                    startButton.classList.remove('listening');
+                }
+                
+                // Save this attempt (you would typically save to Firestore here)
+                if (!item.attempts) item.attempts = [];
+                item.attempts.push({
+                    attempt: attempts,
+                    isCorrect: true,
+                    transcript: speechResult,
+                    timestamp: new Date().toISOString()
+                });
+                
+                // Auto-advance to next question after a short delay
+                const nextBtn = document.getElementById('nextBtn');
+                if (nextBtn) {
+                    setTimeout(() => {
+                        nextBtn.click();
+                    }, 1500);
+                }
+            } else {
+                resultIcon.innerHTML = '❌';
+                resultText.textContent = `Incorrect. Try again!`;
+                resultMessage.textContent = `You said: "${speechResult}"`;
+                
+                const startButton = document.getElementById('startTestBtn');
+                if (startButton) {
+                    startButton.innerHTML = '<i class="fas fa-microphone"></i> Try Again';
+                    startButton.classList.remove('btn-success');
+                    startButton.classList.add('btn-primary');
+                    startButton.classList.remove('listening');
+                }
+                
+                // Save this attempt (you would typically save to Firestore here)
+                if (!item.attempts) item.attempts = [];
+                item.attempts.push({
+                    attempt: attempts,
+                    isCorrect: false,
+                    transcript: speechResult,
+                    timestamp: new Date().toISOString()
+                });
+            }
+            
+            isListening = false;
+        };
+        
+        recognition.onerror = function(event) {
+            console.error('Speech recognition error', event.error);
+            resultContainer.className = 'result-container show incorrect';
+            resultIcon.innerHTML = '⚠️';
+            resultText.textContent = 'Error';
+            resultMessage.textContent = 'There was an error with speech recognition. Please try again.';
+            startButton.innerHTML = '<i class="fas fa-microphone"></i> Try Again';
+            startButton.classList.remove('listening');
+            isListening = false;
+        };
+        
+        recognition.onend = function() {
+            if (isListening) {
+                // Only reset if we didn't get a result
+                startButton.classList.remove('listening');
+                startButton.innerHTML = '<i class="fas fa-microphone"></i> Try Again';
+                isListening = false;
+            }
+        };
+    });
+    </script>
+    <!-- Load Firebase SDKs from CDN -->
+    <script type="module">
+        // Import the functions you need from the CDN
+        import { initializeApp } from 'https://www.gstatic.com/firebasejs/9.22.0/firebase-app.js';
+        import { 
+            getAuth, 
+            onAuthStateChanged,
+            signOut 
+        } from 'https://www.gstatic.com/firebasejs/9.22.0/firebase-auth.js';
+        import { 
+            getFirestore, 
+            doc, 
+            getDoc,
+            collection,
+            query,
+            where,
+            getDocs,
+            orderBy,
+            limit,
+            addDoc,
+            updateDoc,
+            serverTimestamp
+        } from 'https://www.gstatic.com/firebasejs/9.22.0/firebase-firestore.js';
+
+        // Your web app's Firebase configuration
+        const firebaseConfig = {
+            apiKey: "AIzaSyAtOedXLBC4eigzqmBpYFciN-W5Mi2Cpmc",
+            authDomain: "alpharia-c6a39.firebaseapp.com",
+            projectId: "alpharia-c6a39",
+            storageBucket: "alpharia-c6a39.firebasestorage.app",
+            messagingSenderId: "85322759772",
+            appId: "1:85322759772:web:d5c7a528fd61c9d2373099",
+            measurementId: "G-KEC7MGMVE8"
+        };
+
+        // Initialize Firebase
+        const app = initializeApp(firebaseConfig);
+        const auth = getAuth(app);
+        const db = getFirestore(app);
+
+        // Make available globally
+        window.auth = auth;
+        window.db = db;
+        window.firebaseModules = {
+            getDoc, getDocs, doc, collection, query, where, orderBy, limit,
+            addDoc, updateDoc, serverTimestamp, onAuthStateChanged, signOut
+        };
+
+        console.log('Firebase initialized successfully');
+
+        // Now load test-taking.js
+        const script = document.createElement('script');
+        script.type = 'module';
+        script.onerror = function() {
+            console.error('Failed to load test-taking.js');
+            const error = document.createElement('div');
+            error.style.cssText = 'color: red; padding: 20px; margin: 20px; border: 2px solid red;';
+            error.textContent = 'Error: Failed to load test functionality. Please refresh the page.';
+            document.body.prepend(error);
+        };
+        script.src = 'js/test-taking.js';
+        document.body.appendChild(script);
+    </script>
+</body>
+</html>

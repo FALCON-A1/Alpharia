@@ -6,7 +6,7 @@
     <title>Settings - Alpharia Student</title>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/css/bootstrap.min.css" rel="stylesheet">
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css" rel="stylesheet">
-    <link href="css/student-dashboard.css" rel="stylesheet">
+    <link href="css/student-dashboard-clean.css" rel="stylesheet">
     <link href="css/student-styles.css" rel="stylesheet">
     <style>
         .settings-card { border: none; border-radius: 10px; box-shadow: 0 0.15rem 1.75rem 0 rgba(58, 59, 69, 0.15); margin-bottom: 1.5rem; }
@@ -77,15 +77,9 @@
                                 <div class="tab-pane fade show active" id="profile">
                                     <h5 class="mb-4">Personal Information</h5>
                                     <form>
-                                        <div class="row mb-3">
-                                            <div class="col-md-6 mb-3">
-                                                <label class="form-label">First Name</label>
-                                                <input type="text" class="form-control" id="firstName" placeholder="Enter first name">
-                                            </div>
-                                            <div class="col-md-6">
-                                                <label class="form-label">Last Name</label>
-                                                <input type="text" class="form-control" id="lastName" placeholder="Enter last name">
-                                            </div>
+                                        <div class="mb-3">
+                                            <label class="form-label">Full Name</label>
+                                            <input type="text" class="form-control" id="fullName" placeholder="Enter your full name">
                                         </div>
                                         <div class="mb-3">
                                             <label class="form-label">Email Address</label>
@@ -181,29 +175,14 @@
         </div>
     </div>
 
+    <!-- Firebase SDK -->
+    <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-auth-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-firestore-compat.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/js/bootstrap.bundle.min.js"></script>
     <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
-    <script type="module">
-        // Import Firebase functions
-        import { initializeApp } from 'https://www.gstatic.com/firebasejs/9.22.0/firebase-app.js';
-        import { 
-            getAuth, 
-            onAuthStateChanged,
-            signOut,
-            updatePassword,
-            EmailAuthProvider,
-            reauthenticateWithCredential
-        } from 'https://www.gstatic.com/firebasejs/9.22.0/firebase-auth.js';
-        import { 
-            getFirestore, 
-            doc, 
-            getDoc,
-            updateDoc,
-            setDoc,
-            serverTimestamp
-        } from 'https://www.gstatic.com/firebasejs/9.22.0/firebase-firestore.js';
-
-        // Firebase configuration - using the same as in firebase.js
+    <script>
+        // Firebase configuration
         const firebaseConfig = {
             apiKey: "AIzaSyAtOedXLBC4eigzqmBpYFciN-W5Mi2Cpmc",
             authDomain: "alpharia-c6a39.firebaseapp.com",
@@ -214,17 +193,18 @@
         };
 
         // Initialize Firebase
-        const app = initializeApp(firebaseConfig);
-        const auth = getAuth(app);
-        const db = getFirestore(app);
+        if (!firebase.apps.length) {
+            firebase.initializeApp(firebaseConfig);
+        }
+        
+        const auth = firebase.auth();
+        const db = firebase.firestore();
         
         // Set auth persistence
-        import { setPersistence, browserLocalPersistence } from 'https://www.gstatic.com/firebasejs/9.22.0/firebase-auth.js';
-        setPersistence(auth, browserLocalPersistence);
-
+        auth.setPersistence(firebase.auth.Auth.Persistence.LOCAL);
+        
         // DOM Elements
-        const firstNameInput = document.getElementById('firstName');
-        const lastNameInput = document.getElementById('lastName');
+        const fullNameInput = document.getElementById('fullName');
         const emailInput = document.getElementById('email');
         const gradeSelect = document.getElementById('gradeLevel');
         const languageLevelSelect = document.getElementById('languageLevel');
@@ -240,7 +220,7 @@
         const profilePic = document.querySelector('.profile-pic');
         const usernameDisplay = document.querySelector('.username');
         const userAvatar = document.querySelector('.user-avatar');
-
+        
         let currentUser = null;
         let userData = {};
 
@@ -255,9 +235,13 @@
             
             // Update profile section
             if (userData) {
-                // Update name fields
-                firstNameInput.value = userData.firstName || '';
-                lastNameInput.value = userData.lastName || '';
+                // Update name field
+                if (userData.name) {
+                    fullNameInput.value = userData.name;
+                } else if (userData.firstName || userData.lastName) {
+                    // For backward compatibility with old data
+                    fullNameInput.value = `${userData.firstName || ''} ${userData.lastName || ''}`.trim();
+                }
                 
                 // Update email (from auth user)
                 if (user && user.email) {
@@ -285,41 +269,61 @@
                     progressReports.checked = userData.notifications.progressReports !== false;
                 }
                 
-                // Update profile picture
-                if (user && user.photoURL) {
-                    profilePic.src = user.photoURL;
-                } else if (userData.photoURL) {
-                    profilePic.src = userData.photoURL;
-                } else if (userData.firstName || userData.lastName || user.displayName) {
-                    const name = userData.firstName && userData.lastName ? 
-                        `${userData.firstName} ${userData.lastName}` : 
-                        (userData.firstName || userData.lastName || user.displayName || 'S');
-                    profilePic.src = `https://ui-avatars.com/api/?name=${encodeURIComponent(name)}&background=4e73df&color=fff&size=150`;
+                // Update profile picture with error handling
+                const setProfilePicture = (url) => {
+                    if (!url) return false;
+                    
+                    // Create a test image to check if the URL is valid
+                    const img = new Image();
+                    img.onload = () => {
+                        profilePic.src = url;
+                        return true;
+                    };
+                    img.onerror = () => {
+                        console.warn('Failed to load profile picture from URL:', url);
+                        return false;
+                    };
+                    img.src = url;
+                    return true;
+                };
+                
+                // Try to set profile picture from available sources
+                const userPhotoURL = user?.photoURL;
+                const userDataPhotoURL = userData?.photoURL;
+                const placeholderURL = 'https://ui-avatars.com/api/?name=' + 
+                    encodeURIComponent(userData?.name || 'User') + 
+                    '&background=4e73df&color=fff&size=150';
+                
+                // Try user.photoURL first, then userData.photoURL, then fallback to placeholder
+                if (!(userPhotoURL && setProfilePicture(userPhotoURL)) &&
+                    !(userDataPhotoURL && setProfilePicture(userDataPhotoURL))) {
+                    profilePic.src = placeholderURL;
                 }
                 
-                // Update username display in top bar and profile
-                let displayName = 'Student';
-                if (userData.firstName || userData.lastName) {
-                    displayName = formatFullName(userData.firstName, userData.lastName);
-                } else if (user.displayName) {
-                    displayName = user.displayName;
+                // Get the user's display name (with fallbacks)
+                const displayName = userData.name || formatFullName(userData.firstName, userData.lastName) || 'Student';
+                
+                // Update profile name in the settings card
+                const profileName = document.getElementById('profileName');
+                if (profileName) {
+                    profileName.textContent = displayName;
                 }
                 
-                // Update top bar username
+                // Update username display in the top bar
                 const topBarUsername = document.getElementById('topBarUsername');
                 if (topBarUsername) {
                     topBarUsername.textContent = displayName;
                 }
                 
-                // Update profile name display
-                const profileName = document.getElementById('profileName');
-                if (profileName) {
-                    if (userData.firstName || userData.lastName) {
-                        profileName.textContent = formatFullName(userData.firstName, userData.lastName);
-                    } else if (user.displayName) {
-                        profileName.textContent = user.displayName;
-                    } else {
-                        profileName.textContent = 'Student';
+                // Update user avatar
+                if (userAvatar) {
+                    if (userData.name) {
+                        const nameParts = userData.name.split(' ');
+                        userAvatar.textContent = (nameParts[0][0] + (nameParts[1] ? nameParts[1][0] : '')).toUpperCase();
+                    } else if (userData.firstName || userData.lastName) {
+                        const initials = (userData.firstName ? userData.firstName[0] : '') + 
+                                       (userData.lastName ? userData.lastName[0] : '');
+                        userAvatar.textContent = initials.toUpperCase();
                     }
                 }
                 
@@ -338,19 +342,19 @@
             try {
                 console.log('Loading user data for:', user.uid);
                 
-                // Get user document
-                const userDoc = await getDoc(doc(db, 'users', user.uid));
-                const studentDoc = await getDoc(doc(db, 'students', user.uid));
+                // Get user document using compat syntax
+                const userDoc = await db.collection('users').doc(user.uid).get();
+                const studentDoc = await db.collection('students').doc(user.uid).get();
                 
-                console.log('User doc exists:', userDoc.exists());
-                console.log('Student doc exists:', studentDoc.exists());
+                console.log('User doc exists:', userDoc.exists);
+                console.log('Student doc exists:', studentDoc.exists);
                 
-                if (userDoc.exists()) {
+                if (userDoc.exists) {
                     userData = { ...userDoc.data() };
                     console.log('User data loaded:', userData);
                 }
                 
-                if (studentDoc.exists()) {
+                if (studentDoc.exists) {
                     const studentData = studentDoc.data();
                     userData = { 
                         ...userData, 
@@ -379,29 +383,53 @@
         // Save profile changes to Firestore
         async function saveProfileChanges() {
             try {
-                const updates = {
-                    firstName: firstNameInput.value.trim(),
-                    lastName: lastNameInput.value.trim(),
+                const name = fullNameInput.value.trim();
+                if (!name) {
+                    showAlert('Please enter your full name', 'warning');
+                    return;
+                }
+
+                // Prepare updates for users collection
+                const userUpdates = {
+                    name: name,
                     gradeLevel: gradeSelect.value,
                     languageLevel: languageLevelSelect.value,
-                    updatedAt: serverTimestamp()
+                    updatedAt: firebase.firestore.FieldValue.serverTimestamp()
+                };
+                
+                // Prepare updates for students collection
+                const studentUpdates = {
+                    name: name,
+                    grade: gradeSelect.value,
+                    level: languageLevelSelect.value,
+                    updatedAt: firebase.firestore.FieldValue.serverTimestamp()
                 };
                 
                 // Update user document
-                await updateDoc(doc(db, 'users', currentUser.uid), updates);
+                await db.collection('users').doc(currentUser.uid).update(userUpdates);
                 
                 // Update student document
-                await updateDoc(doc(db, 'students', currentUser.uid), {
-                    grade: gradeSelect.value,
-                    level: languageLevelSelect.value,
-                    updatedAt: serverTimestamp()
-                });
+                await db.collection('students').doc(currentUser.uid).update(studentUpdates);
                 
                 // Update user data in memory
-                userData = { ...userData, ...updates };
+                userData = { 
+                    ...userData, 
+                    ...userUpdates,
+                    // For backward compatibility
+                    firstName: name.split(' ')[0],
+                    lastName: name.split(' ').slice(1).join(' ')
+                };
                 
                 // Update UI
-                usernameDisplay.textContent = formatFullName(updates.firstName, updates.lastName);
+                if (usernameDisplay) {
+                    usernameDisplay.textContent = name;
+                }
+                
+                // Update top bar username if it exists
+                const topBarUsername = document.getElementById('topBarUsername');
+                if (topBarUsername) {
+                    topBarUsername.textContent = name;
+                }
                 
                 showAlert('Profile updated successfully!', 'success');
             } catch (error) {
@@ -434,13 +462,13 @@
             
             try {
                 const user = auth.currentUser;
-                const credential = EmailAuthProvider.credential(user.email, currentPassword);
+                const credential = firebase.auth.EmailAuthProvider.credential(user.email, currentPassword);
                 
-                // Re-authenticate user
-                await reauthenticateWithCredential(user, credential);
+                // Re-authenticate user using compat syntax
+                await user.reauthenticateWithCredential(credential);
                 
-                // Update password
-                await updatePassword(user, newPassword);
+                // Update password using compat syntax
+                await user.updatePassword(newPassword);
                 
                 // Clear password fields
                 currentPasswordInput.value = '';
@@ -455,7 +483,7 @@
                     showAlert('Incorrect current password. Please try again.', 'danger');
                 } else if (error.code === 'auth/requires-recent-login') {
                     showAlert('Your session has expired. Please sign in again to change your password.', 'danger');
-                    signOut(auth).then(() => {
+                    auth.signOut().then(() => {
                         window.location.href = 'auth/login-fixed.html';
                     });
                 } else {
@@ -471,12 +499,13 @@
                     email: emailNotifications.checked,
                     testReminders: testReminders.checked,
                     progressReports: progressReports.checked,
-                    updatedAt: serverTimestamp()
+                    updatedAt: firebase.firestore.FieldValue.serverTimestamp()
                 };
                 
-                await updateDoc(doc(db, 'users', currentUser.uid), {
+                // Update user document using compat syntax
+                await db.collection('users').doc(currentUser.uid).update({
                     notifications: preferences,
-                    updatedAt: serverTimestamp()
+                    updatedAt: firebase.firestore.FieldValue.serverTimestamp()
                 });
                 
                 // Update user data in memory
@@ -520,49 +549,38 @@
         document.addEventListener('DOMContentLoaded', function() {
             // Initialize Bootstrap tooltips
             const tooltipTriggerList = [].slice.call(document.querySelectorAll('[data-bs-toggle="tooltip"]'));
-            tooltipTriggerList.map(function (tooltipTriggerEl) {
+            tooltipTriggerList.map(function(tooltipTriggerEl) {
                 return new bootstrap.Tooltip(tooltipTriggerEl);
             });
             
-            // Check auth state
-            onAuthStateChanged(auth, async (user) => {
+            // Check if user is logged in
+            auth.onAuthStateChanged(async (user) => {
                 if (user) {
                     currentUser = user;
                     await loadUserData(user);
                     
-                    // Set up event listeners after data is loaded
-                    setupEventListeners();
+                    // Set up event listeners after user data is loaded
+                    saveChangesBtn.addEventListener('click', saveProfileChanges);
+                    changePasswordBtn.addEventListener('click', changePassword);
+                    savePreferencesBtn.addEventListener('click', saveNotificationPreferences);
+                    
+                    // The top bar username is now updated in the updateUI function
                 } else {
-                    // User is signed out, redirect to login
+                    // Redirect to login if not authenticated
                     window.location.href = 'auth/login-fixed.html';
                 }
             });
-            
-            function setupEventListeners() {
-                // Save profile changes
-                if (saveChangesBtn) {
-                    saveChangesBtn.addEventListener('click', saveProfileChanges);
-                }
-                
-                // Change password
-                if (changePasswordBtn) {
-                    changePasswordBtn.addEventListener('click', changePassword);
-                }
-                
-                // Save notification preferences
-                if (savePreferencesBtn) {
-                    savePreferencesBtn.addEventListener('click', saveNotificationPreferences);
-                }
-                
-                // Handle profile picture upload (placeholder - would need a storage solution)
-                const changePhotoBtn = document.querySelector('.btn-outline-primary');
-                if (changePhotoBtn) {
-                    changePhotoBtn.addEventListener('click', (e) => {
-                        e.preventDefault();
-                        // This would open a file picker and handle the upload
-                        showAlert('Profile picture upload would be handled here with Firebase Storage', 'info');
-                    });
-                }
+        });
+
+        // Handle profile picture upload (placeholder - would need a storage solution)
+        document.addEventListener('DOMContentLoaded', function() {
+            const changePhotoBtn = document.querySelector('.btn-outline-primary');
+            if (changePhotoBtn) {
+                changePhotoBtn.addEventListener('click', (e) => {
+                    e.preventDefault();
+                    // This would open a file picker and handle the upload
+                    showAlert('Profile picture upload would be handled here with Firebase Storage', 'info');
+                });
             }
         });
     </script>

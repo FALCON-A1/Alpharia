@@ -506,28 +506,6 @@ function getAuthErrorMessage(errorCode) {
     return messages[errorCode] || 'An error occurred. Please try again.';
 }
 
-// Check authentication state
-function checkAuthState() {
-    window.alphariaFirebase.onAuthStateChanged(window.alphariaFirebase.auth, async (user) => {
-        if (user) {
-            // User is signed in, get their profile
-            try {
-                const userProfile = await window.alphariaFirebase.getUserProfile(user.uid);
-                if (userProfile) {
-                    // Redirect based on role
-                    if (userProfile.isAdmin) {
-                        window.location.href = '../dashboard/teacher.html';
-                    } else {
-                        window.location.href = '../dashboard/student.html';
-                    }
-                }
-            } catch (error) {
-                console.error('Error checking auth state:', error);
-            }
-        }
-    });
-}
-
 // Initialize the authentication page
 document.addEventListener('DOMContentLoaded', () => {
     // Check if user is already logged in

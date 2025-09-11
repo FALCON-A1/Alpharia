@@ -11,73 +11,299 @@
     <!-- Google Fonts -->
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
     <!-- Custom CSS -->
-    <link rel="stylesheet" href="css/admin-dashboard.css">
+    <link rel="stylesheet" href="css/teacher-dashboard.css">
     <style>
+        /* Main Content Styles */
+        .main-content {
+            padding: 1.5rem 2rem;
+            background-color: #f5f7fb;
+            min-height: 100vh;
+        }
+        
+        /* Card Styles */
+        .card {
+            border: none;
+            border-radius: 10px;
+            box-shadow: 0 0.125rem 0.25rem rgba(0, 0, 0, 0.075);
+            margin-bottom: 1.5rem;
+            transition: all 0.3s ease;
+        }
+        
+        .card:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 0.5rem 1rem rgba(0, 0, 0, 0.1);
+        }
+        
+        .card-header {
+            background-color: #fff;
+            border-bottom: 1px solid rgba(0, 0, 0, 0.05);
+            padding: 1.25rem 1.5rem;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+        }
+        
+        .card-header h4 {
+            margin: 0;
+            font-size: 1.25rem;
+            font-weight: 600;
+            color: #2d3748;
+        }
+        
+        .card-body {
+            padding: 1.5rem;
+        }
+        
+        /* Test Card Styles */
         .test-card {
-            transition: transform 0.2s ease, box-shadow 0.2s ease;
-            border: 1px solid #e0e0e0;
+            transition: all 0.3s ease;
+            border: 1px solid #e2e8f0;
             border-radius: 8px;
             overflow: hidden;
             height: 100%;
+            background: #fff;
         }
+        
         .test-card:hover {
             transform: translateY(-4px);
-            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+            box-shadow: 0 10px 20px rgba(0, 0, 0, 0.08);
+            border-color: #cbd5e0;
         }
+        
         .test-card .card-body {
-            padding: 1.25rem;
+            padding: 1.5rem;
+            display: flex;
+            flex-direction: column;
+            height: 100%;
         }
+        
+        .test-card .card-header {
+            padding: 1rem 1.5rem;
+            background-color: #f8fafc;
+            border-bottom: 1px solid #edf2f7;
+        }
+        
         .test-card .card-title {
             font-size: 1.1rem;
             font-weight: 600;
-            margin-bottom: 0.5rem;
+            margin: 0 0 0.75rem 0;
             color: #2d3748;
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-start;
         }
+        
         .test-meta {
             font-size: 0.85rem;
-            color: #718096;
-            margin-bottom: 1rem;
+            color: #64748b;
+            margin-bottom: 1.25rem;
+            flex-grow: 1;
         }
+        
         .test-stats {
             display: flex;
-            gap: 1rem;
-            margin-top: 1rem;
-            padding-top: 0.75rem;
+            gap: 1.5rem;
+            margin: 1.25rem 0;
+            padding: 1rem 0;
             border-top: 1px solid #edf2f7;
+            border-bottom: 1px solid #edf2f7;
         }
+        
         .stat-item {
             display: flex;
+            flex-direction: column;
             align-items: center;
-            gap: 0.5rem;
-            font-size: 0.85rem;
-            color: #4a5568;
+            gap: 0.25rem;
         }
-        .badge-status {
+        
+        .stat-item i {
+            font-size: 1.25rem;
+            color: #4a6cf7;
+        }
+        
+        .stat-item .stat-value {
+            font-weight: 600;
+            color: #2d3748;
+        }
+        
+        .stat-item .stat-label {
             font-size: 0.75rem;
-            padding: 0.25rem 0.5rem;
-            border-radius: 1rem;
+            color: #64748b;
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
         }
+        
+        .badge-status {
+            font-size: 0.7rem;
+            padding: 0.25rem 0.75rem;
+            border-radius: 1rem;
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+        }
+        
+        .badge-status.published {
+            background-color: #e6f7ee;
+            color: #10b981;
+        }
+        
+        .badge-status.draft {
+            background-color: #eef2ff;
+            color: #4f46e5;
+        }
+        
+        .badge-status.archived {
+            background-color: #fef2f2;
+            color: #ef4444;
+        }
+        
         .actions {
             display: flex;
-            gap: 0.5rem;
-            margin-top: 1rem;
+            gap: 0.75rem;
+            margin-top: auto;
+            padding-top: 1rem;
         }
+        
+        .btn {
+            border-radius: 6px;
+            font-weight: 500;
+            padding: 0.5rem 1rem;
+            font-size: 0.85rem;
+            transition: all 0.2s ease;
+        }
+        
         .btn-sm {
-            padding: 0.25rem 0.5rem;
+            padding: 0.35rem 0.75rem;
             font-size: 0.8rem;
         }
-        .search-box {
-            max-width: 300px;
-            margin-bottom: 1.5rem;
+        
+        .btn-outline-primary {
+            border-color: #4a6cf7;
+            color: #4a6cf7;
         }
+        
+        .btn-outline-primary:hover {
+            background-color: #4a6cf7;
+            border-color: #4a6cf7;
+        }
+        
+        .btn-outline-danger {
+            border-color: #ef4444;
+            color: #ef4444;
+        }
+        
+        .btn-outline-danger:hover {
+            background-color: #ef4444;
+            border-color: #ef4444;
+        }
+        
+        /* Search and Filter Styles */
+        .search-filter-container {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 1.5rem;
+            flex-wrap: wrap;
+            gap: 1rem;
+        }
+        
+        .search-box {
+            max-width: 350px;
+            position: relative;
+            flex: 1;
+            min-width: 250px;
+        }
+        
+        .search-box .form-control {
+            padding-left: 2.5rem;
+            border-radius: 6px;
+            border: 1px solid #e2e8f0;
+            height: 42px;
+        }
+        
+        .search-box i {
+            position: absolute;
+            left: 1rem;
+            top: 50%;
+            transform: translateY(-50%);
+            color: #94a3b8;
+        }
+        
         .filters {
             display: flex;
             gap: 1rem;
-            margin-bottom: 1.5rem;
             flex-wrap: wrap;
         }
+        
         .filter-group {
-            min-width: 200px;
+            min-width: 180px;
+        }
+        
+        .filter-group .form-label {
+            font-size: 0.8rem;
+            font-weight: 500;
+            color: #64748b;
+            margin-bottom: 0.25rem;
+        }
+        
+        .form-select {
+            border-radius: 6px;
+            border-color: #e2e8f0;
+            height: 42px;
+            font-size: 0.9rem;
+            padding: 0.5rem 1rem;
+        }
+        
+        /* Pagination Styles */
+        .pagination {
+            margin-top: 2rem;
+            justify-content: center;
+        }
+        
+        .page-link {
+            border: 1px solid #e2e8f0;
+            color: #4a6cf7;
+            margin: 0 0.25rem;
+            border-radius: 6px !important;
+            min-width: 36px;
+            height: 36px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        
+        .page-item.active .page-link {
+            background-color: #4a6cf7;
+            border-color: #4a6cf7;
+        }
+        
+        .page-item.disabled .page-link {
+            color: #cbd5e0;
+        }
+        
+        /* Responsive Adjustments */
+        @media (max-width: 768px) {
+            .main-content {
+                padding: 1rem;
+            }
+            
+            .search-filter-container {
+                flex-direction: column;
+                align-items: stretch;
+            }
+            
+            .search-box {
+                max-width: 100%;
+            }
+            
+            .filters {
+                width: 100%;
+            }
+            
+            .filter-group {
+                flex: 1;
+                min-width: 0;
+            }
         }
     </style>
 </head>
@@ -153,7 +379,7 @@
                 <div class="user-profile">
                     <img src="https://ui-avatars.com/api/?name=Admin&background=4a6cf7&color=fff" alt="User" class="user-avatar" id="user-avatar-sidebar">
                     <div class="user-info">
-                        <h4 class="user-name" id="sidebar-admin-name">Loading...</h4>
+                        <h4 class="user-name" id="sidebar-admin-name">Admin</h4>
                         <span class="user-role">Administrator</span>
                     </div>
                     <button class="sign-out" id="logout-btn" title="Sign Out">
@@ -202,69 +428,62 @@
             </header>
 
             <!-- Main Content -->
-            <div class="dashboard-content">
-                <div class="d-flex justify-content-between align-items-center mb-4">
-                    <h3 class="mb-0">Test Management</h3>
-                    <a href="admin-create-test.html" class="btn btn-primary">
-                        <i class="fas fa-plus me-2"></i>Create New Test
-                    </a>
-                </div>
-
-                <!-- Search and Filters -->
-                <div class="card mb-4">
+            <div class="container-fluid py-4">
+                <div class="card">
+                    <div class="card-header">
+                        <h4>Test Management</h4>
+                        <a href="admin-create-test.html" class="btn btn-primary">
+                            <i class="fas fa-plus me-2"></i>Create New Test
+                        </a>
+                    </div>
                     <div class="card-body">
-                        <div class="row">
-                            <div class="col-md-6">
-                                <div class="search-box">
-                                    <div class="input-group">
-                                        <span class="input-group-text bg-white"><i class="fas fa-search text-muted"></i></span>
-                                        <input type="text" class="form-control" id="searchInput" placeholder="Search tests...">
-                                    </div>
-                                </div>
+                        <!-- Search and Filters -->
+                        <div class="search-filter-container">
+                            <div class="search-box">
+                                <i class="fas fa-search"></i>
+                                <input type="text" class="form-control" id="searchInput" placeholder="Search tests by name or description...">
                             </div>
-                            <div class="col-md-6">
-                                <div class="filters">
-                                    <div class="filter-group">
-                                        <label class="form-label small text-muted mb-1">Status</label>
-                                        <select class="form-select form-select-sm" id="statusFilter">
-                                            <option value="">All Statuses</option>
-                                            <option value="draft">Draft</option>
-                                            <option value="published">Published</option>
-                                            <option value="archived">Archived</option>
-                                        </select>
-                                    </div>
-                                    <div class="filter-group">
-                                        <label class="form-label small text-muted mb-1">Sort By</label>
-                                        <select class="form-select form-select-sm" id="sortBy">
-                                            <option value="newest">Newest First</option>
-                                            <option value="oldest">Oldest First</option>
-                                            <option value="name_asc">Name (A-Z)</option>
-                                            <option value="name_desc">Name (Z-A)</option>
-                                        </select>
-                                    </div>
+                            <div class="filters">
+                                <div class="filter-group">
+                                    <label class="form-label">Status</label>
+                                    <select class="form-select" id="statusFilter">
+                                        <option value="">All Statuses</option>
+                                        <option value="draft">Draft</option>
+                                        <option value="published">Published</option>
+                                        <option value="archived">Archived</option>
+                                    </select>
+                                </div>
+                                <div class="filter-group">
+                                    <label class="form-label">Sort By</label>
+                                    <select class="form-select" id="sortBy">
+                                        <option value="newest">Newest First</option>
+                                        <option value="oldest">Oldest First</option>
+                                        <option value="name_asc">Name (A-Z)</option>
+                                        <option value="name_desc">Name (Z-A)</option>
+                                    </select>
                                 </div>
                             </div>
                         </div>
-                    </div>
-                </div>
 
-                <!-- Tests Grid -->
-                <div class="row" id="testsContainer">
-                    <!-- Test cards will be dynamically inserted here -->
-                    <div class="col-12 text-center py-5">
-                        <div class="spinner-border text-primary" role="status">
-                            <span class="visually-hidden">Loading...</span>
+                        <!-- Tests Grid -->
+                        <div class="row g-4" id="testsContainer">
+                            <!-- Test cards will be dynamically inserted here -->
+                            <div class="col-12 text-center py-5">
+                                <div class="spinner-border text-primary" role="status">
+                                    <span class="visually-hidden">Loading...</span>
+                                </div>
+                                <p class="mt-3 text-muted">Loading tests...</p>
+                            </div>
                         </div>
-                        <p class="mt-2 text-muted">Loading tests...</p>
+
+                        <!-- Pagination -->
+                        <nav aria-label="Test pagination" class="mt-5">
+                            <ul class="pagination justify-content-center" id="pagination">
+                                <!-- Pagination will be dynamically inserted here -->
+                            </ul>
+                        </nav>
                     </div>
                 </div>
-
-                <!-- Pagination -->
-                <nav aria-label="Test pagination" class="mt-4">
-                    <ul class="pagination justify-content-center" id="pagination">
-                        <!-- Pagination will be dynamically inserted here -->
-                    </ul>
-                </nav>
             </div>
         </main>
     </div>
@@ -272,17 +491,45 @@
     <!-- jQuery and Bootstrap JS -->
     <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/js/bootstrap.bundle.min.js"></script>
+    
+    <!-- Sidebar Toggle Script -->
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            const sidebar = document.getElementById('sidebar');
+            const sidebarToggle = document.getElementById('sidebar-toggle');
+            const mainContent = document.querySelector('.main-content');
+            
+            // Toggle sidebar on button click
+            if (sidebarToggle && sidebar) {
+                sidebarToggle.addEventListener('click', () => {
+                    sidebar.classList.toggle('collapsed');
+                    mainContent.classList.toggle('expanded');
+                    // Save state to localStorage
+                    localStorage.setItem('sidebarCollapsed', sidebar.classList.contains('collapsed'));
+                });
+                
+                // Load saved state
+                if (localStorage.getItem('sidebarCollapsed') === 'true') {
+                    sidebar.classList.add('collapsed');
+                    mainContent.classList.add('expanded');
+                }
+            }
+            
+            // Close dropdown when clicking outside
+            document.addEventListener('click', (e) => {
+                const dropdowns = document.querySelectorAll('.dropdown-menu');
+                dropdowns.forEach(dropdown => {
+                    if (!dropdown.contains(e.target) && !dropdown.previousElementSibling.contains(e.target)) {
+                        dropdown.classList.remove('show');
+                    }
+                });
+            });
+        });
+    </script>
     <!-- Firebase SDK -->
     <script type="module">
         // Import Firebase modules
         import { initializeApp } from 'https://www.gstatic.com/firebasejs/12.1.0/firebase-app.js';
-        import { 
-            getAuth, 
-            signOut, 
-            onAuthStateChanged,
-            setPersistence,
-            browserLocalPersistence
-        } from 'https://www.gstatic.com/firebasejs/12.1.0/firebase-auth.js';
         import { 
             getFirestore, 
             collection, 
@@ -291,10 +538,7 @@
             orderBy,
             where,
             limit,
-            startAfter,
-            doc,
-            getDoc,
-            updateDoc
+            startAfter
         } from 'https://www.gstatic.com/firebasejs/12.1.0/firebase-firestore.js';
 
         // Firebase configuration
@@ -309,39 +553,23 @@
         };
 
         // Initialize Firebase
-        const app = initializeApp(firebaseConfig, 'admin-tests');
-        const auth = getAuth(app);
+        const app = initializeApp({
+            apiKey: "AIzaSyAtOedXLBC4eigzqmBpYFciN-W5Mi2Cpmc",
+            authDomain: "alpharia-c6a39.firebaseapp.com",
+            projectId: "alpharia-c6a39",
+            storageBucket: "alpharia-c6a39.appspot.com",
+            messagingSenderId: "1234567890",
+            appId: "1:1234567890:web:abcdef123456",
+            measurementId: "G-KEC7MGMVE8"
+        });
+        
         const db = getFirestore(app);
         
-        // Set persistence to LOCAL to maintain session
-        let isInitialized = false;
-        
-        try {
-            await setPersistence(auth, browserLocalPersistence);
-            console.log('Persistence set to LOCAL');
-            
-            // Check if user is already signed in
-            onAuthStateChanged(auth, (user) => {
-                if (!isInitialized) {
-                    isInitialized = true;
-                    if (!user) {
-                        console.log('No user found, redirecting to login');
-                        window.location.href = 'auth/login-fixed.html';
-                    } else {
-                        console.log('User is signed in:', user.email);
-                        initApp();
-                    }
-                }
-            });
-            
-        } catch (error) {
-            console.error('Error initializing auth:', error);
-            // If there's an error with persistence, still try to initialize
-            if (!isInitialized) {
-                isInitialized = true;
-                initApp();
-            }
-        }
+        // Initialize the app
+        document.addEventListener('DOMContentLoaded', () => {
+            console.log('DOM loaded, initializing app...');
+            initApp();
+        });
 
         // DOM Elements
         const testsContainer = document.getElementById('testsContainer');
@@ -349,7 +577,6 @@
         const statusFilter = document.getElementById('statusFilter');
         const sortBy = document.getElementById('sortBy');
         const pagination = document.getElementById('pagination');
-        const logoutButton = document.getElementById('logout-button');
         const sidebarToggle = document.getElementById('sidebar-toggle');
         const sidebar = document.getElementById('sidebar');
         const mainContent = document.querySelector('.main-content');
@@ -365,38 +592,16 @@
         // Initialize the app
         function initApp() {
             console.log('Initializing app...');
-            initAuthState();
             initEventListeners();
             loadTests();
-        }
-
-        // Start initialization when DOM is loaded
-        document.addEventListener('DOMContentLoaded', () => {
-            console.log('DOM loaded, starting initialization...');
-            // The rest of the initialization is handled by the auth state change listener
-        });
-
-        // Initialize authentication state
-        function initAuthState() {
-            onAuthStateChanged(auth, (user) => {
-                if (user) {
-                    // User is signed in
-                    document.getElementById('user-name').textContent = user.displayName || 'Admin';
-                    document.getElementById('sidebar-admin-name').textContent = user.displayName || 'Admin';
-                } else {
-                    // User is signed out, redirect to login
-                    window.location.href = 'auth/login-fixed.html';
-                }
-            });
+            
+            // Set default user display name
+            document.getElementById('user-name').textContent = 'Admin';
+            document.getElementById('sidebar-admin-name').textContent = 'Admin';
         }
 
         // Initialize event listeners
         function initEventListeners() {
-            // Logout
-            if (logoutButton) {
-                logoutButton.addEventListener('click', handleLogout);
-            }
-
             // Search input
             let searchTimeout;
             searchInput?.addEventListener('input', (e) => {
@@ -543,47 +748,52 @@
             }
 
             testsContainer.innerHTML = tests.map(test => `
-                <div class="col-md-6 col-lg-4 col-xl-3 mb-4">
+                <div class="col-md-6 col-lg-4 col-xl-3">
                     <div class="card test-card h-100">
-                        <div class="card-body d-flex flex-column">
-                            <div class="d-flex justify-content-between align-items-start mb-2">
-                                <h5 class="card-title text-truncate" title="${test.title}">${test.title}</h5>
-                                <span class="badge ${getStatusBadgeClass(test.status)}">${test.status || 'draft'}</span>
-                            </div>
-                            
-                            ${test.description ? `<p class="small text-muted mb-3">${test.description.substring(0, 100)}${test.description.length > 100 ? '...' : ''}</p>` : ''}
-                            
-                            <div class="test-meta">
-                                <div class="mb-1">
-                                    <i class="far fa-calendar-alt me-2"></i>
-                                    Created: ${test.createdAt ? new Date(test.createdAt.seconds * 1000).toLocaleDateString() : 'N/A'}
+                        <div class="card-body">
+                            <div class="card-title">
+                                <div class="d-flex justify-content-between align-items-start">
+                                    <h5 class="text-truncate mb-0" title="${test.title}">${test.title}</h5>
+                                    <span class="badge-status ${test.status || 'draft'}">
+                                        <i class="fas ${test.status === 'published' ? 'fa-check-circle' : test.status === 'archived' ? 'fa-archive' : 'fa-edit'} me-1"></i>
+                                        ${test.status || 'draft'}
+                                    </span>
                                 </div>
-                                <div>
-                                    <i class="far fa-user me-2"></i>
-                                    Created by: ${test.createdByName || 'Unknown'}
+                                <div class="text-muted small mt-1">
+                                    <i class="far fa-user me-1"></i> ${test.createdByName || 'Unknown'} • 
+                                    <i class="far fa-calendar-alt ms-2 me-1"></i> ${test.createdAt ? new Date(test.createdAt.seconds * 1000).toLocaleDateString() : 'N/A'}
                                 </div>
                             </div>
                             
-                            <div class="test-stats mt-auto">
+                            ${test.description ? `<p class="test-meta">${test.description.substring(0, 120)}${test.description.length > 120 ? '...' : ''}</p>` : ''}
+                            
+                            <div class="test-stats">
                                 <div class="stat-item">
-                                    <i class="far fa-list-alt"></i>
-                                    ${test.sections ? test.sections.length : 0} sections
+                                    <i class="fas fa-layer-group"></i>
+                                    <span class="stat-value">${test.sections ? test.sections.length : 0}</span>
+                                    <span class="stat-label">Sections</span>
                                 </div>
                                 <div class="stat-item">
-                                    <i class="far fa-question-circle"></i>
-                                    ${test.totalQuestions || 0} questions
+                                    <i class="fas fa-question-circle"></i>
+                                    <span class="stat-value">${test.totalQuestions || 0}</span>
+                                    <span class="stat-label">Questions</span>
+                                </div>
+                                <div class="stat-item">
+                                    <i class="fas fa-user-graduate"></i>
+                                    <span class="stat-value">${test.attempts || 0}</span>
+                                    <span class="stat-label">Attempts</span>
                                 </div>
                             </div>
                             
-                            <div class="actions mt-3">
+                            <div class="actions">
                                 <a href="test-details.html?id=${test.id}" class="btn btn-sm btn-outline-primary">
-                                    <i class="far fa-eye"></i> View
+                                    <i class="fas fa-eye me-1"></i> View
                                 </a>
                                 <a href="admin-edit-test.html?id=${test.id}" class="btn btn-sm btn-outline-secondary">
-                                    <i class="far fa-edit"></i> Edit
+                                    <i class="fas fa-pencil-alt me-1"></i> Edit
                                 </a>
-                                <button class="btn btn-sm btn-outline-danger ms-auto" onclick="confirmDelete('${test.id}')">
-                                    <i class="far fa-trash-alt"></i>
+                                <button class="btn btn-sm btn-outline-danger ms-auto" onclick="confirmDelete('${test.id}')" title="Delete Test">
+                                    <i class="fas fa-trash-alt"></i>
                                 </button>
                             </div>
                         </div>
@@ -633,17 +843,6 @@
                     }
                 });
             });
-        }
-
-        // Handle logout
-        async function handleLogout() {
-            try {
-                await signOut(auth);
-                window.location.href = 'login.html';
-            } catch (error) {
-                console.error('Error signing out:', error);
-                alert('Error signing out. Please try again.');
-            }
         }
 
         // Make confirmDelete available globally

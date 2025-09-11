@@ -1911,47 +1911,34 @@
     </div>
 </div>
 
-<!-- Firebase and other scripts -->
+<!-- Firebase SDK -->
 <script type="module">
-    // Firebase App (the core Firebase SDK) is always required and must be listed first
-    import { initializeApp } from 'https://www.gstatic.com/firebasejs/9.22.0/firebase-app.js';
-    import { 
-        getFirestore, 
-        collection, 
-        doc, 
-        getDoc, 
-        updateDoc, 
-        arrayUnion, 
-        arrayRemove, 
-        Timestamp, 
-        serverTimestamp 
-    } from 'https://www.gstatic.com/firebasejs/9.22.0/firebase-firestore.js';
-    import { 
-        getAuth, 
-        onAuthStateChanged, 
-        signOut 
-    } from 'https://www.gstatic.com/firebasejs/9.22.0/firebase-auth.js';
+    // Import the centralized Firebase configuration
+    import { app, auth, db } from './firebase.js';
+    import { onAuthStateChanged, signOut, setPersistence, browserLocalPersistence, browserSessionPersistence } from 'https://www.gstatic.com/firebasejs/12.1.0/firebase-auth.js';
+    import { doc, getDoc, collection, query, where, getDocs, updateDoc, deleteDoc, addDoc, onSnapshot, orderBy, limit, serverTimestamp } from 'https://www.gstatic.com/firebasejs/12.1.0/firebase-firestore.js';
 
-    // Your web app's Firebase configuration
-    const firebaseConfig = {
-        apiKey: "AIzaSyAtOedXLBC4eigzqmBpYFciN-W5Mi2Cpmc",
-        authDomain: "alpharia-c6a39.firebaseapp.com",
-        projectId: "alpharia-c6a39",
-        storageBucket: "alpharia-c6a39.appspot.com",
-        messagingSenderId: "85322759772",
-        appId: "1:85322759772:web:d5c7a528fd61c9d2373099",
-        measurementId: "G-KEC7MGMVE8"
-    };
-
-    // Initialize Firebase
-    const firebaseApp = initializeApp(firebaseConfig);
-    const db = getFirestore(firebaseApp);
-    const auth = getAuth(firebaseApp);
+    // Use centralized Firebase configuration
+    console.log('Using centralized Firebase configuration');
+    
+    // Set persistence
+    try {
+        await setPersistence(auth, browserLocalPersistence);
+        console.log('Persistence set to LOCAL');
+    } catch (error) {
+        console.error('Error setting persistence:', error);
+        try {
+            await setPersistence(auth, browserSessionPersistence);
+            console.log('Falling back to SESSION persistence');
+        } catch (fallbackError) {
+            console.error('Error setting session persistence:', fallbackError);
+        }
+    }
 
     // Make Firebase instances available globally for debugging
-    window.firebaseApp = firebaseApp;
-    window.firestoreDb = db;
+    window.firebaseApp = app;
     window.firebaseAuth = auth;
+    window.firestoreDb = db;
 
     // Get test ID from URL
     const urlParams = new URLSearchParams(window.location.search);

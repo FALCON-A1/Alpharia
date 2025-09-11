@@ -34,44 +34,78 @@
         .sidebar {
             width: 250px;
             background: #fff;
-            box-shadow: 0 0.15rem 1.75rem 0 rgba(58, 59, 69, 0.15);
-            z-index: 10;
+            box-shadow: 0 0 30px rgba(0, 0, 0, 0.1);
+            padding: 1.5rem 0;
+            height: 100vh;
+            position: fixed;
+            left: 0;
+            top: 0;
+            z-index: 1000;
+            transition: all 0.3s ease;
         }
-        
-        .sidebar-header {
-            padding: 1.5rem 1.5rem 1rem;
-            border-bottom: 1px solid #e3e6f0;
+
+        .logo {
+            padding: 0 1.5rem 1.5rem;
+            border-bottom: 1px solid #f0f0f0;
+            margin-bottom: 1rem;
         }
-        
-        .sidebar-header h3 {
+
+        .logo h2 {
             margin: 0;
+            color: #2c3e50;
             font-size: 1.5rem;
             font-weight: 700;
-            color: var(--primary);
         }
-        
-        .nav {
-            padding: 1rem 0;
+
+        .nav-menu {
+            list-style: none;
+            padding: 0;
+            margin: 0;
         }
-        
+
+        .nav-item {
+            margin-bottom: 0.25rem;
+        }
+
         .nav-link {
-            color: #6e707e;
-            padding: 0.75rem 1.5rem;
             display: flex;
             align-items: center;
-            transition: all 0.3s;
+            padding: 0.75rem 1.5rem;
+            color: #6c757d;
+            text-decoration: none;
+            transition: all 0.2s ease;
+            font-weight: 500;
         }
-        
+
         .nav-link i {
             width: 24px;
-            margin-right: 0.5rem;
+            margin-right: 0.75rem;
+            font-size: 1.1rem;
             text-align: center;
+            color: #6c757d;
         }
-        
-        .nav-link:hover, .nav-link.active {
-            color: var(--primary);
-            background-color: #f8f9fc;
-            border-left: 3px solid var(--primary);
+
+        .nav-link span {
+            font-size: 0.95rem;
+        }
+
+        .nav-link:hover {
+            background-color: #f8f9fa;
+            color: #2c3e50;
+        }
+
+        .nav-link:hover i {
+            color: #4e73df;
+        }
+
+        .nav-link.active {
+            background-color: #f0f4ff;
+            color: #4e73df;
+            border-left: 3px solid #4e73df;
+        }
+
+        .nav-link.active i {
+            color: #4e73df;
         }
         
         /* Main Content */
@@ -80,6 +114,10 @@
             display: flex;
             flex-direction: column;
             min-width: 0;
+            margin-left: 250px; /* Match sidebar width */
+            padding: 1.5rem;
+            min-height: 100vh;
+            background-color: #f8f9fc;
         }
         
         /* Top Bar */
@@ -372,38 +410,46 @@
 </head>
 <body class="dashboard-layout">
     <!-- Sidebar -->
-    <div class="sidebar">
-        <div class="sidebar-header">
-            <h3>Alpharia</h3>
+    <aside class="sidebar">
+        <div class="logo">
+            <h2>Alpharia</h2>
         </div>
-        <ul class="nav flex-column">
-            <li class="nav-item">
-                <a href="student-dashboard-clean.html" class="nav-link">
-                    <i class="fas fa-home"></i> Overview
-                </a>
-            </li>
-            <li class="nav-item">
-                <a href="take-test.html" class="nav-link">
-                    <i class="fas fa-tasks"></i> My Tests
-                </a>
-            </li>
-            <li class="nav-item active">
-                <a href="student-progress.html" class="nav-link active">
-                    <i class="fas fa-chart-line"></i> Progress
-                </a>
-            </li>
-            <li class="nav-item">
-                <a href="#" class="nav-link">
-                    <i class="fas fa-book"></i> Resources
-                </a>
-            </li>
-            <li class="nav-item">
-                <a href="student-settings.html" class="nav-link">
-                    <i class="fas fa-cog"></i> Settings
-                </a>
-            </li>
-        </ul>
-    </div>
+        
+        <nav>
+            <ul class="nav-menu">
+                <li class="nav-item">
+                    <a href="student-dashboard-clean.html" class="nav-link">
+                        <i class="fas fa-home"></i>
+                        <span>Overview</span>
+                    </a>
+                </li>
+                <li class="nav-item">
+                    <a href="take-test-fixed.html" class="nav-link">
+                        <i class="fas fa-tasks"></i>
+                        <span>My Tests</span>
+                    </a>
+                </li>
+                <li class="nav-item">
+                    <a href="student-progress.html" class="nav-link active">
+                        <i class="fas fa-chart-line"></i>
+                        <span>Progress</span>
+                    </a>
+                </li>
+                <li class="nav-item">
+                    <a href="#" class="nav-link">
+                        <i class="fas fa-book"></i>
+                        <span>Resources</span>
+                    </a>
+                </li>
+                <li class="nav-item">
+                    <a href="student-settings.html" class="nav-link">
+                        <i class="fas fa-cog"></i>
+                        <span>Settings</span>
+                    </a>
+                </li>
+            </ul>
+        </nav>
+    </aside>
 
     <!-- Main Content -->
     <div class="main-content">
@@ -440,7 +486,7 @@
                             <div class="d-flex justify-content-between align-items-center">
                                 <div>
                                     <h6 class="text-muted">Tests Completed</h6>
-                                    <h3 class="mb-0">24</h3>
+                                    <h3 class="mb-0" id="tests-completed">0</h3>
                                 </div>
                                 <div class="stat-icon bg-primary-light">
                                     <i class="fas fa-check-circle text-primary"></i>
@@ -458,7 +504,7 @@
                             <div class="d-flex justify-content-between align-items-center">
                                 <div>
                                     <h6 class="text-muted">Average Score</h6>
-                                    <h3 class="mb-0">87%</h3>
+                                    <h3 class="mb-0" id="average-score">0%</h3>
                                 </div>
                                 <div class="stat-icon bg-success-light">
                                     <i class="fas fa-chart-line text-success"></i>
@@ -476,7 +522,7 @@
                             <div class="d-flex justify-content-between align-items-center">
                                 <div>
                                     <h6 class="text-muted">Words Mastered</h6>
-                                    <h3 class="mb-0">156</h3>
+                                    <h3 class="mb-0" id="words-mastered">0</h3>
                                 </div>
                                 <div class="stat-icon bg-warning-light">
                                     <i class="fas fa-star text-warning"></i>
@@ -546,27 +592,99 @@
     <script src="https://www.gstatic.com/firebasejs/9.0.2/firebase-app-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/9.0.2/firebase-auth-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/9.0.2/firebase-firestore-compat.js"></script>
-    <script src="js/firebase-config.js"></script>
+    <script>
+        // Firebase configuration
+        const firebaseConfig = {
+            apiKey: "AIzaSyAtOedXLBC4eigzqmBpYFciN-W5Mi2Cpmc",
+            authDomain: "alpharia-c6a39.firebaseapp.com",
+            projectId: "alpharia-c6a39",
+            storageBucket: "alpharia-c6a39.firebasestorage.app",
+            messagingSenderId: "85322759772",
+            appId: "1:85322759772:web:d5c7a528fd61c9d2373099",
+            measurementId: "G-KEC7MGMVE8"
+        };
+
+        // Initialize Firebase
+        if (!firebase.apps.length) {
+            firebase.initializeApp(firebaseConfig);
+        }
+    </script>
     <script src="js/auth.js"></script>
     <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
     <script src="https://cdn.datatables.net/1.11.5/js/jquery.dataTables.min.js"></script>
     <script src="https://cdn.datatables.net/1.11.5/js/dataTables.bootstrap5.min.js"></script>
-    <script src="js/student.js"></script>
     <script>
+        // Global variables
+        let performanceChart;
+        let testAttempts = [];
+
+        // Format date to display
+        function formatDate(timestamp) {
+            if (!timestamp) return '';
+            const date = timestamp.toDate ? timestamp.toDate() : new Date(timestamp);
+            return date.toLocaleDateString('en-US', { 
+                year: 'numeric', 
+                month: 'short', 
+                day: 'numeric',
+                hour: '2-digit',
+                minute: '2-digit'
+            });
+        }
+
+        // Calculate time ago
+        function timeAgo(timestamp) {
+            if (!timestamp) return '';
+            const date = timestamp.toDate ? timestamp.toDate() : new Date(timestamp);
+            const seconds = Math.floor((new Date() - date) / 1000);
+            
+            let interval = Math.floor(seconds / 31536000);
+            if (interval > 1) return interval + ' years ago';
+            if (interval === 1) return '1 year ago';
+            
+            interval = Math.floor(seconds / 2592000);
+            if (interval > 1) return interval + ' months ago';
+            if (interval === 1) return '1 month ago';
+            
+            interval = Math.floor(seconds / 86400);
+            if (interval > 1) return interval + ' days ago';
+            if (interval === 1) return '1 day ago';
+            
+            interval = Math.floor(seconds / 3600);
+            if (interval > 1) return interval + ' hours ago';
+            if (interval === 1) return '1 hour ago';
+            
+            interval = Math.floor(seconds / 60);
+            if (interval > 1) return interval + ' minutes ago';
+            
+            return 'Just now';
+        }
+
         // Initialize chart
-        document.addEventListener('DOMContentLoaded', function() {
+        function initializeChart(labels = [], scores = []) {
             const ctx = document.getElementById('performanceChart').getContext('2d');
-            const chart = new Chart(ctx, {
+            
+            if (performanceChart) {
+                performanceChart.destroy();
+            }
+            
+            performanceChart = new Chart(ctx, {
                 type: 'line',
                 data: {
-                    labels: ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul'],
+                    labels: labels,
                     datasets: [{
                         label: 'Test Scores',
-                        data: [65, 75, 80, 81, 84, 85, 87],
+                        data: scores,
                         borderColor: '#4e73df',
                         backgroundColor: 'rgba(78, 115, 223, 0.05)',
                         tension: 0.3,
-                        fill: true
+                        fill: true,
+                        pointBackgroundColor: '#4e73df',
+                        pointBorderColor: '#fff',
+                        pointHoverRadius: 5,
+                        pointHoverBackgroundColor: '#4e73df',
+                        pointHitRadius: 10,
+                        pointBorderWidth: 2,
+                        pointRadius: 3
                     }]
                 },
                 options: {
@@ -575,30 +693,203 @@
                     plugins: {
                         legend: {
                             display: false
+                        },
+                        tooltip: {
+                            callbacks: {
+                                label: function(context) {
+                                    return `Score: ${context.parsed.y}%`;
+                                }
+                            }
                         }
                     },
                     scales: {
                         y: {
                             beginAtZero: true,
                             max: 100,
+                            grid: {
+                                color: 'rgba(0, 0, 0, 0.05)'
+                            },
                             ticks: {
                                 callback: function(value) {
                                     return value + '%';
                                 }
                             }
+                        },
+                        x: {
+                            grid: {
+                                display: false
+                            }
                         }
                     }
                 }
             });
+        }
 
-            // Load user data
-            firebase.auth().onAuthStateChanged(user => {
-                if (user) {
-                    document.querySelector('.username').textContent = user.displayName || 'Student';
-                    // Load user progress data from Firestore
-                    // This is a placeholder - implement actual data loading
-                } else {
+        // Update stats cards
+        function updateStats(attempts) {
+            if (!attempts || attempts.length === 0) return;
+            
+            // Calculate total tests completed
+            const totalTests = attempts.length;
+            
+            // Calculate average score
+            const totalScore = attempts.reduce((sum, attempt) => {
+                return sum + (parseFloat(attempt.percentage) || 0);
+            }, 0);
+            const averageScore = Math.round(totalScore / totalTests);
+            
+            // Count unique words mastered (assuming each test has a wordsMastered field)
+            const wordsMastered = new Set();
+            attempts.forEach(attempt => {
+                if (attempt.wordsMastered && Array.isArray(attempt.wordsMastered)) {
+                    attempt.wordsMastered.forEach(word => wordsMastered.add(word));
+                }
+            });
+            
+            // Update the DOM
+            document.getElementById('tests-completed').textContent = totalTests;
+            document.getElementById('average-score').textContent = `${averageScore}%`;
+            document.getElementById('words-mastered').textContent = wordsMastered.size;
+            
+            // Remove the "from last month" text as we don't have that data
+            document.querySelectorAll('.stat-card .mt-3').forEach(el => {
+                el.style.display = 'none';
+            });
+        }
+
+        // Update recent activity
+        function updateRecentActivity(attempts) {
+            const activityContainer = document.querySelector('.list-group');
+            if (!activityContainer) return;
+            
+            // Sort attempts by date (newest first)
+            const sortedAttempts = [...attempts].sort((a, b) => {
+                const dateA = a.submittedAt ? (a.submittedAt.toDate ? a.submittedAt.toDate() : new Date(a.submittedAt)) : new Date(0);
+                const dateB = b.submittedAt ? (b.submittedAt.toDate ? b.submittedAt.toDate() : new Date(b.submittedAt)) : new Date(0);
+                return dateB - dateA;
+            }).slice(0, 5); // Show only the 5 most recent
+            
+            // Clear existing activities
+            activityContainer.innerHTML = '';
+            
+            if (sortedAttempts.length === 0) {
+                activityContainer.innerHTML = `
+                    <div class="list-group-item text-center text-muted">
+                        No test attempts found. Complete a test to see your progress here.
+                    </div>
+                `;
+                return;
+            }
+            
+            // Add each attempt as an activity
+            sortedAttempts.forEach(attempt => {
+                const date = attempt.submittedAt ? formatDate(attempt.submittedAt) : 'Unknown date';
+                const timeAgoText = attempt.submittedAt ? timeAgo(attempt.submittedAt) : '';
+                const score = attempt.percentage ? `${Math.round(attempt.percentage)}%` : 'N/A';
+                const testTitle = attempt.testTitle || 'Untitled Test';
+                
+                const activityItem = document.createElement('div');
+                activityItem.className = 'list-group-item';
+                activityItem.innerHTML = `
+                    <div class="d-flex w-100 justify-content-between">
+                        <h6 class="mb-1">Completed: ${testTitle}</h6>
+                        <small class="text-muted">${timeAgoText}</small>
+                    </div>
+                    <p class="mb-1">Score: ${score} - ${getScoreFeedback(attempt.percentage)}</p>
+                    <small class="text-muted">${date}</small>
+                `;
+                activityContainer.appendChild(activityItem);
+            });
+        }
+        
+        // Get feedback based on score
+        function getScoreFeedback(percentage) {
+            if (!percentage && percentage !== 0) return 'No score available';
+            if (percentage >= 90) return 'Excellent work!';
+            if (percentage >= 80) return 'Great job!';
+            if (percentage >= 70) return 'Good effort!';
+            if (percentage >= 60) return 'Keep practicing!';
+            return 'You can do better with more practice!';
+        }
+
+        // Load user data and test attempts
+        document.addEventListener('DOMContentLoaded', async function() {
+            // Initialize an empty chart first
+            initializeChart([], []);
+            
+            // Set up auth state listener
+            firebase.auth().onAuthStateChanged(async (user) => {
+                if (!user) {
                     window.location.href = '/auth/login-fixed.html';
+                    return;
+                }
+                
+                try {
+                    // Get user data from Firestore
+                    const userDoc = await firebase.firestore()
+                        .collection('students')
+                        .doc(user.uid)
+                        .get();
+                    
+                    if (!userDoc.exists) {
+                        console.error('Student document not found');
+                        return;
+                    }
+                    
+                    const userData = userDoc.data();
+                    
+                    // Update user profile
+                    const displayName = userData.displayName || userData.name || 'Student';
+                    document.querySelector('.username').textContent = displayName;
+                    
+                    // Get test attempts
+                    const attemptsSnapshot = await firebase.firestore()
+                        .collection('students')
+                        .doc(user.uid)
+                        .collection('testAttempts')
+                        .orderBy('submittedAt', 'desc')
+                        .get();
+                    
+                    testAttempts = attemptsSnapshot.docs.map(doc => ({
+                        id: doc.id,
+                        ...doc.data()
+                    }));
+                    
+                    // Update stats cards
+                    updateStats(testAttempts);
+                    
+                    // Update recent activity
+                    updateRecentActivity(testAttempts);
+                    
+                    // Prepare data for the chart (last 10 attempts)
+                    const recentAttempts = [...testAttempts]
+                        .sort((a, b) => {
+                            const dateA = a.submittedAt ? (a.submittedAt.toDate ? a.submittedAt.toDate() : new Date(a.submittedAt)) : new Date(0);
+                            const dateB = b.submittedAt ? (b.submittedAt.toDate ? b.submittedAt.toDate() : new Date(b.submittedAt)) : new Date(0);
+                            return dateA - dateB;
+                        })
+                        .slice(-10); // Last 10 attempts
+                    
+                    const chartLabels = recentAttempts.map((attempt, index) => {
+                        if (!attempt.submittedAt) return `Test ${index + 1}`;
+                        const date = attempt.submittedAt.toDate ? attempt.submittedAt.toDate() : new Date(attempt.submittedAt);
+                        return date.toLocaleDateString('en-US', { month: 'short', day: 'numeric' });
+                    });
+                    
+                    const chartScores = recentAttempts.map(attempt => 
+                        Math.round(parseFloat(attempt.percentage) || 0)
+                    );
+                    
+                    // Update the chart with real data
+                    initializeChart(chartLabels, chartScores);
+                    
+                } catch (error) {
+                    console.error('Error loading student data:', error);
+                    // Show error message to user
+                    const errorContainer = document.createElement('div');
+                    errorContainer.className = 'alert alert-danger';
+                    errorContainer.textContent = 'Error loading your progress data. Please try again later.';
+                    document.querySelector('.container-fluid').prepend(errorContainer);
                 }
             });
         });
