@@ -1,5 +1,47 @@
-import { getTestById, saveTestAttempt } from './testService.js';
-import { auth } from './firebase.js';
+// Wait for Firebase to be fully initialized
+if (!window.alphariaFirebase) {
+    throw new Error('Firebase not initialized. Make sure alphariaFirebase is available in the global scope.');
+}
+
+// Access Firebase instances from the global alphariaFirebase object
+const { auth, db, firestore, authMethods } = window.alphariaFirebase;
+const { 
+    doc, getDoc, collection, query, where, getDocs, orderBy, limit,
+    addDoc, updateDoc, serverTimestamp
+} = firestore;
+
+const { onAuthStateChanged, signOut } = authMethods;
+
+// Debug: Log when test-taking.js starts executing
+console.log('Debug: test-taking.js is executing');
+console.log('Debug: Firebase instances available:', { 
+    auth: !!auth, 
+    db: !!db,
+    firebaseModules: !!firebaseModules 
+});
+
+// Show error if Firebase is not available
+if (!auth || !db || !firebaseModules) {
+    const error = new Error('Firebase not properly initialized');
+    console.error('Firebase initialization error:', error);
+    
+    const errorElement = document.createElement('div');
+    errorElement.style.cssText = `
+        color: white;
+        background-color: #ef4444;
+        padding: 20px;
+        margin: 20px;
+        border-radius: 8px;
+        font-family: Arial, sans-serif;
+    `;
+    errorElement.innerHTML = `
+        <h3 style="margin: 0 0 10px 0;">Error: Application Initialization Failed</h3>
+        <p style="margin: 0 0 10px 0;">${error.message || 'Unable to initialize required services.'}</p>
+        <p style="margin: 0;">Please refresh the page or contact support if the issue persists.</p>
+    `;
+    document.body.prepend(errorElement);
+    throw error;
+}
 
 // DOM Elements
 const testContent = document.getElementById('test-content');

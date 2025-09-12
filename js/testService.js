@@ -1,4 +1,5 @@
-import { db } from './firebase.js';
+// Use global Firebase instances that are already initialized in the HTML
+const { db } = window;
 
 // Collection names
 const TESTS_COLLECTION = 'tests';

@@ -79,26 +79,60 @@
             text-align: center;
         }
         
+        /* Base prompt text styles */
         .prompt-text {
-            font-size: 6rem;
             font-weight: 700;
             text-align: center;
-            margin: 3rem 0;
+            margin: 2rem 0;
             color: #1a2b4a;
-            line-height: 1.1;
-            min-height: 250px;
+            line-height: 1.4;
+            min-height: 150px;
             display: flex;
             align-items: center;
             justify-content: center;
-            text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.1);
-            letter-spacing: 3px;
+            text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.1);
             position: relative;
-            padding: 3rem;
+            padding: 2rem;
             background: rgba(255, 255, 255, 0.7);
-            border-radius: 16px;
+            border-radius: 12px;
             border: 1px solid rgba(0, 0, 0, 0.05);
             max-width: 100%;
+            width: 100%;
+            box-sizing: border-box;
             word-break: break-word;
+            overflow-wrap: break-word;
+        }
+        
+        /* Letter type - largest size */
+        .prompt-text[data-type="letter"] {
+            font-size: 8rem;
+            letter-spacing: 5px;
+        }
+        
+        /* Word type - large but smaller than letters */
+        .prompt-text[data-type="word"] {
+            font-size: 5rem;
+            letter-spacing: 2px;
+        }
+        
+        /* Sentence type - medium size */
+        .prompt-text[data-type="sentence"] {
+            font-size: 2.5rem;
+            line-height: 1.5;
+            text-align: left;
+            padding: 1.5rem 2rem;
+        }
+        
+        /* Passage type - smallest size */
+        .prompt-text[data-type="passage"] {
+            font-size: 1.5rem;
+            line-height: 1.8;
+            text-align: left;
+            padding: 1.5rem 2rem;
+            min-height: 100px;
+            max-height: 400px;
+            overflow-y: auto;
+            white-space: pre-line;
         }
         
         @media (max-width: 1200px) {
@@ -1597,8 +1631,10 @@
                             <h4 class="mt-3">Great job!</h4>
                             <p>You've completed this section of the test.</p>
                         </div>
-                        <div id="section-complete-buttons" class="d-flex flex-column gap-2">
-                            <!-- Buttons will be added dynamically -->
+                        <div class="modal-footer">
+                            <button id="continue-to-next-section" class="btn btn-primary">
+                                Continue to Next Section
+                            </button>
                         </div>
                     </div>
                 </div>
@@ -1631,30 +1667,7 @@
                     </div>
                 </div>
             </div>
-            
-            <!-- Section Complete Modal -->
-            <div id="section-complete-modal" class="modal">
-                <div class="modal-content">
-                    <div class="modal-header">
-                        <h3>Section Complete</h3>
-                        <button class="close-modal">&times;</button>
-                    </div>
-                    <div class="modal-body">
-                        <div class="text-center">
-                            <div class="success-animation">
-                                <i class="fas fa-check-circle"></i>
-                            </div>
-                            <h4>Great job!</h4>
-                            <p>You've completed this section of the test.</p>
-                        </div>
-                    </div>
-                    <div class="modal-footer">
-                        <button id="continue-to-next-section" class="btn btn-primary">
-                            Continue to Next Section
-                        </button>
-                    </div>
-                </div>
-            </div>
+
         </main>
     </div>
 
@@ -2290,10 +2303,17 @@
             const currentItem = currentSection.items[currentItemIndex];
             
             if (!currentItem) {
-                // Move to next section or complete test if no more items
+                console.log('No current item found, checking section transition...');
+                console.log('Current section index:', currentSectionIndex, 'Total sections:', currentTest.sections.length);
+                
+                // Check if we've reached the end of the test
                 if (currentSectionIndex < currentTest.sections.length - 1) {
-                    showSectionCompleteModal();
+                    console.log('Showing section summary for section:', currentSectionIndex);
+                    // Show section summary before moving to next section
+                    showSectionSummary(currentSectionIndex);
                 } else {
+                    console.log('Reached the end of the test, showing completion');
+                    // If this was the last section, show test completion
                     submitTest();
                 }
                 return;
@@ -2309,13 +2329,15 @@
                 case 'letter':
                 case 'word':
                 case 'sentence':
+                    // Add data-type attribute based on the item type for proper styling
+                    const itemType = currentItem.type === 'paragraph' ? 'passage' : currentItem.type;
                     itemHtml = `
                         <div class="question-container">
                             <div class="question-header">
                                 <h2 class="question-title">${getItemPrompt(currentItem.type)}</h2>
                                 ${currentItem.points ? `<span class="question-points">${currentItem.points} ${currentItem.points === 1 ? 'point' : 'points'}</span>` : ''}
                             </div>
-                            <div class="prompt-text">${currentItem.content}</div>
+                            <div class="prompt-text" data-type="${itemType}">${currentItem.content}</div>
                         </div>
                     `;
                     break;
@@ -2719,13 +2741,44 @@
         
         // Function to show section summary
         function showSectionSummary(sectionIndex) {
-            const section = currentTest.sections[sectionIndex];
-            const sectionResponses = userResponses[sectionIndex];
+            console.log('showSectionSummary called with sectionIndex:', sectionIndex);
+            console.log('currentTest.sections:', currentTest?.sections);
+            console.log('userResponses:', userResponses);
+            
+            const section = currentTest?.sections?.[sectionIndex];
+            const sectionResponses = userResponses?.[sectionIndex];
             
             if (!section || !sectionResponses) {
-                console.error('Section data not found');
+                console.error('Section data or responses not found for sectionIndex:', sectionIndex, { section, sectionResponses });
+                // If we can't show the section summary, just move to the next section
+                if (currentSectionIndex < currentTest.sections.length - 1) {
+                    currentSectionIndex++;
+                    currentItemIndex = 0;
+                    renderCurrentItem();
+                } else {
+                    submitTest();
+                }
                 return;
             }
+            
+            // Ensure the modal is properly initialized
+            const sectionModal = document.getElementById('section-complete-modal');
+            if (!sectionModal) {
+                console.error('Section complete modal not found');
+                // If modal is not found, just move to the next section
+                if (currentSectionIndex < currentTest.sections.length - 1) {
+                    currentSectionIndex++;
+                    currentItemIndex = 0;
+                    renderCurrentItem();
+                } else {
+                    submitTest();
+                }
+                return;
+            }
+            
+            // Show the modal
+            sectionModal.style.display = 'block';
+            document.body.style.overflow = 'hidden';
             
             // Calculate statistics
             const totalQuestions = sectionResponses.items.length;
@@ -2770,50 +2823,56 @@
             const modal = document.getElementById('section-summary-modal');
             modal.classList.add('show');
             
-            // Set up event listener for the continue button
-            const continueBtn = document.getElementById('continue-to-next-section');
-            const newContinueBtn = continueBtn.cloneNode(true);
-            
-            // Update button text if this is the last section
-            if (currentSectionIndex >= currentTest.sections.length - 1) {
-                newContinueBtn.textContent = 'Return to Test';
-                // Hide the submit button in the navigation
-                document.getElementById('submit-test-btn').style.display = 'block';
-            }
-            
-            continueBtn.parentNode.replaceChild(newContinueBtn, continueBtn);
-            
-            newContinueBtn.onclick = function() {
-                modal.classList.remove('show');
-                // If not the last section, move to next section
-                if (currentSectionIndex < currentTest.sections.length - 1) {
-                    currentSectionIndex++;
-                    currentItemIndex = 0;
-                    renderCurrentItem();
+            // Set up event delegation for the continue button
+            document.body.addEventListener('click', function handleContinueClick(e) {
+                if (e.target && e.target.id === 'continue-to-next-section') {
+                    console.log('Continue button clicked, currentSectionIndex:', currentSectionIndex);
+                    sectionModal.style.display = 'none';
+                    document.body.style.overflow = 'auto';
+                    
+                    // If not the last section, move to next section
+                    if (currentSectionIndex < currentTest.sections.length - 1) {
+                        currentSectionIndex++;
+                        currentItemIndex = 0;
+                        console.log('Moving to next section:', currentSectionIndex);
+                        renderCurrentItem();
+                    } else {
+                        console.log('Last section completed, showing submit button');
+                        // Show submit button if it's the last section
+                        const submitBtn = document.getElementById('submit-test-btn');
+                        if (submitBtn) submitBtn.style.display = 'block';
+                    }
+                    
+                    // Remove the event listener to prevent memory leaks
+                    document.body.removeEventListener('click', handleContinueClick);
                 }
-                // If it's the last section, just close the modal
-                // The submit button will be visible for manual submission
-            };
+            });
             
             // Close button in header
-            const closeBtn = modal.querySelector('.close-modal');
-            closeBtn.onclick = function(e) {
-                e.stopPropagation();
-                modal.classList.remove('show');
-                // Auto-advance to next section or finish test
-                if (currentSectionIndex < currentTest.sections.length - 1) {
-                    currentSectionIndex++;
-                    currentItemIndex = 0;
-                    renderCurrentItem();
-                } else {
-                    showTestCompletion();
-                }
-            };
+            const closeBtn = sectionModal.querySelector('.close-modal');
+            if (closeBtn) {
+                closeBtn.onclick = function(e) {
+                    e.stopPropagation();
+                    sectionModal.style.display = 'none';
+                    document.body.style.overflow = 'auto';
+                    
+                    // Auto-advance to next section or finish test
+                    if (currentSectionIndex < currentTest.sections.length - 1) {
+                        currentSectionIndex++;
+                        currentItemIndex = 0;
+                        renderCurrentItem();
+                    } else {
+                        showTestCompletion();
+                    }
+                };
+            }
             
             // Close when clicking outside
-            modal.onclick = function(e) {
-                if (e.target === modal) {
-                    modal.classList.remove('show');
+            sectionModal.onclick = function(e) {
+                if (e.target === sectionModal) {
+                    sectionModal.style.display = 'none';
+                    document.body.style.overflow = 'auto';
+                    
                     // Auto-advance to next section or finish test
                     if (currentSectionIndex < currentTest.sections.length - 1) {
                         currentSectionIndex++;

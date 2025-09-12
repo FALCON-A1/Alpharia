@@ -33,7 +33,7 @@ const db = getFirestore(app);
 const auth = getAuth(app);
 
 // Admin configuration
-const ADMIN_EMAIL = "alpharia2025@gmail.com";
+const ADMIN_EMAIL = "admin@alpharia.com";
 const ADMIN_PASSWORD = "@LPH@RI@*134679";
 const ADMIN_DISPLAY_NAME = "System Administrator";
 
