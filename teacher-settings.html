@@ -1,5 +1,6 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -9,219 +10,260 @@
     <link href="css/teacher-dashboard.css" rel="stylesheet">
     <link href="css/teacher-styles.css" rel="stylesheet">
     <style>
-        .settings-card { border: none; border-radius: 10px; box-shadow: 0 0.15rem 1.75rem 0 rgba(58, 59, 69, 0.15); margin-bottom: 1.5rem; }
-        .settings-card .card-header { background-color: #f8f9fc; border-bottom: 1px solid #e3e6f0; font-weight: 600; padding: 1rem 1.35rem; }
-        .profile-pic { width: 150px; height: 150px; border-radius: 50%; object-fit: cover; border: 5px solid #f8f9fc; box-shadow: 0 0.15rem 0.5rem rgba(0, 0, 0, 0.1); }
-        .nav-pills .nav-link { color: #6e707e; padding: 0.5rem 1rem; }
-        .nav-pills .nav-link.active { background-color: #4e73df; color: white; }
-        .tab-content { padding: 1.5rem 0; }
+        .settings-card {
+            border: none;
+            border-radius: 10px;
+            box-shadow: 0 0.15rem 1.75rem 0 rgba(58, 59, 69, 0.15);
+            margin-bottom: 1.5rem;
+        }
+
+        .settings-card .card-header {
+            background-color: #f8f9fc;
+            border-bottom: 1px solid #e3e6f0;
+            font-weight: 600;
+            padding: 1rem 1.35rem;
+        }
+
+        .profile-pic {
+            width: 150px;
+            height: 150px;
+            border-radius: 50%;
+            object-fit: cover;
+            border: 5px solid #f8f9fc;
+            box-shadow: 0 0.15rem 0.5rem rgba(0, 0, 0, 0.1);
+        }
+
+        .nav-pills .nav-link {
+            color: #6e707e;
+            padding: 0.5rem 1rem;
+        }
+
+        .nav-pills .nav-link.active {
+            background-color: #4e73df;
+            color: white;
+        }
+
+        .tab-content {
+            padding: 1.5rem 0;
+        }
     </style>
 </head>
+
 <body class="teacher-dashboard">
-        <aside class="sidebar" id="sidebar">
-            <div class="logo">
-                <div class="logo-icon">
-                    <i class="fas fa-book-open"></i>
-                </div>
-                <h2>Alpharia</h2>
+    <aside class="sidebar" id="sidebar">
+        <div class="logo">
+            <div class="logo-icon">
+                <i class="fas fa-book-open"></i>
             </div>
-            
-            <nav class="nav-menu">
-                <div class="menu-title">Main Menu</div>
-                
-                <div class="nav-item">
-                    <a href="teacher-dashboard.html" class="nav-link">
-                        <i class="fas fa-tachometer-alt"></i>
-                        <span>Dashboard</span>
-                    </a>
+            <h2>Alpharia</h2>
+        </div>
+
+        <nav class="nav-menu">
+            <div class="menu-title">Main Menu</div>
+
+            <div class="nav-item">
+                <a href="teacher-dashboard.html" class="nav-link">
+                    <i class="fas fa-tachometer-alt"></i>
+                    <span>Dashboard</span>
+                </a>
+            </div>
+
+            <div class="nav-item">
+                <a href="create-test.html" class="nav-link">
+                    <i class="fas fa-plus-circle"></i>
+                    <span>Create Test</span>
+                </a>
+            </div>
+
+            <div class="nav-item">
+                <a href="my-tests.html" class="nav-link">
+                    <i class="fas fa-clipboard-list"></i>
+                    <span>My Tests</span>
+                </a>
+            </div>
+
+            <div class="menu-title mt-4">Analytics</div>
+
+            <div class="nav-item">
+                <a href="teacher-progress.html" class="nav-link">
+                    <i class="fas fa-chart-line"></i>
+                    <span>Progress</span>
+                </a>
+            </div>
+
+            <div class="nav-item">
+                <a href="resources.html" class="nav-link">
+                    <i class="fas fa-book"></i>
+                    <span>Resources</span>
+                </a>
+            </div>
+
+            <div class="menu-title mt-4">Account</div>
+
+            <div class="nav-item">
+                <a href="teacher-settings.html" class="nav-link active">
+                    <i class="fas fa-cog"></i>
+                    <span>Settings</span>
+                </a>
+            </div>
+
+            <div class="nav-item">
+                <a href="help.html" class="nav-link">
+                    <i class="fas fa-question-circle"></i>
+                    <span>Help & Support</span>
+                </a>
+            </div>
+        </nav>
+
+        <div class="sidebar-footer">
+            <div class="user-profile">
+                <img src="https://ui-avatars.com/api/?name=Teacher&background=4a6cf7&color=fff" alt="User"
+                    class="user-avatar" id="user-avatar-sidebar">
+                <div class="user-info">
+                    <h4 class="user-name" id="sidebar-teacher-name">Loading...</h4>
+                    <span class="user-role">Teacher</span>
                 </div>
-                
-                <div class="nav-item">
-                    <a href="create-test.html" class="nav-link">
-                        <i class="fas fa-plus-circle"></i>
-                        <span>Create Test</span>
-                    </a>
-                </div>
-                
-                <div class="nav-item">
-                    <a href="my-tests.html" class="nav-link">
-                        <i class="fas fa-clipboard-list"></i>
-                        <span>My Tests</span>
-                    </a>
-                </div>
-                
-                <div class="menu-title mt-4">Analytics</div>
-                
-                <div class="nav-item">
-                    <a href="teacher-progress.html" class="nav-link">
-                        <i class="fas fa-chart-line"></i>
-                        <span>Progress</span>
-                    </a>
-                </div>
-                
-                <div class="nav-item">
-                    <a href="resources.html" class="nav-link">
-                        <i class="fas fa-book"></i>
-                        <span>Resources</span>
-                    </a>
-                </div>
-                
-                <div class="menu-title mt-4">Account</div>
-                
-                <div class="nav-item">
-                    <a href="teacher-settings.html" class="nav-link active">
-                        <i class="fas fa-cog"></i>
-                        <span>Settings</span>
-                    </a>
-                </div>
-                
-                <div class="nav-item">
-                    <a href="help.html" class="nav-link">
-                        <i class="fas fa-question-circle"></i>
-                        <span>Help & Support</span>
-                    </a>
-                </div>
-            </nav>
-            
-            <div class="sidebar-footer">
-                <div class="user-profile">
-                    <img src="https://ui-avatars.com/api/?name=Teacher&background=4a6cf7&color=fff" alt="User" class="user-avatar" id="user-avatar-sidebar">
-                    <div class="user-info">
-                        <h4 class="user-name" id="sidebar-teacher-name">Loading...</h4>
-                        <span class="user-role">Teacher</span>
-                    </div>
-                    <button class="sign-out" id="logout-btn" title="Sign Out">
-                        <i class="fas fa-sign-out-alt"></i>
-                    </button>
+                <button class="sign-out" id="logout-btn" title="Sign Out">
+                    <i class="fas fa-sign-out-alt"></i>
+                </button>
+            </div>
+        </div>
+    </aside>
+
+    <!-- Main Content -->
+    <main class="main-content">
+        <!-- Top Bar -->
+        <header class="top-bar">
+            <div class="search-bar">
+                <i class="fas fa-search"></i>
+                <input type="text" id="search-input" placeholder="Search tests, students, or classes...">
+            </div>
+
+            <div class="user-menu">
+                <a href="create-test.html" class="btn btn-primary" id="create-test-btn">
+                    <i class="fas fa-plus"></i> Create Test
+                </a>
+                <a href="#notifications" class="notification-icon">
+                    <i class="fas fa-bell"></i>
+                </a>
+                <div class="user-profile-container">
+                    <img src="" alt="User Avatar" class="user-avatar" id="user-avatar">
                 </div>
             </div>
-        </aside>
-        
-        <!-- Main Content -->
-        <main class="main-content">
-            <!-- Top Bar -->
-            <header class="top-bar">
-                <div class="search-bar">
-                    <i class="fas fa-search"></i>
-                    <input type="text" id="search-input" placeholder="Search tests, students, or classes...">
-                </div>
-                
-                <div class="user-menu">
-                    <a href="create-test.html" class="btn btn-primary" id="create-test-btn">
-                        <i class="fas fa-plus"></i> Create Test
-                    </a>
-                    <a href="#notifications" class="notification-icon">
-                        <i class="fas fa-bell"></i>
-                    </a>
-                    <div class="user-profile-container">
-                        <img src="" alt="User Avatar" class="user-avatar" id="user-avatar">
-                    </div>
-                </div>
-            </header>
+        </header>
 
-            <div class="container-fluid py-4">
-                <div class="d-flex justify-content-between align-items-center mb-4">
-                    <h2>Account Settings</h2>
-                    <button class="btn btn-primary" id="saveChangesBtn"><i class="fas fa-save me-2"></i>Save Changes</button>
-                </div>
+        <div class="container-fluid py-4">
+            <div class="d-flex justify-content-between align-items-center mb-4">
+                <h2>Account Settings</h2>
+                <button class="btn btn-primary" id="saveChangesBtn"><i class="fas fa-save me-2"></i>Save
+                    Changes</button>
+            </div>
 
-                <div class="row">
-                    <div class="col-lg-3">
-                        <div class="card settings-card mb-4">
-                            <div class="card-body text-center p-4">
-                                <img src="" alt="Profile" class="profile-pic mb-3" id="profile-pic">
-                                <h5 class="mb-1" id="profile-name">Loading...</h5>
-                                <p class="text-muted mb-3">Teacher</p>
-                                <button class="btn btn-outline-primary btn-sm w-100"><i class="fas fa-camera me-1"></i> Change Photo</button>
-                            </div>
-                        </div>
-                        
-                        <div class="card settings-card">
-                            <div class="list-group list-group-flush">
-                                <a href="#profile" class="list-group-item list-group-item-action active" data-bs-toggle="pill">
-                                    <i class="fas fa-user-circle me-2"></i> Profile
-                                </a>
-                                <a href="#account" class="list-group-item list-group-item-action" data-bs-toggle="pill">
-                                    <i class="fas fa-key me-2"></i> Account
-                                </a>
-                                <a href="#notifications" class="list-group-item list-group-item-action" data-bs-toggle="pill">
-                                    <i class="fas fa-bell me-2"></i> Notifications
-                                </a>
-                            </div>
+            <div class="row">
+                <div class="col-lg-3">
+                    <div class="card settings-card mb-4">
+                        <div class="card-body text-center p-4">
+                            <img src="" alt="Profile" class="profile-pic mb-3" id="profile-pic">
+                            <h5 class="mb-1" id="profile-name">Loading...</h5>
+                            <p class="text-muted mb-3">Teacher</p>
+                            <button class="btn btn-outline-primary btn-sm w-100"><i class="fas fa-camera me-1"></i>
+                                Change Photo</button>
                         </div>
                     </div>
 
-                    <div class="col-lg-9">
-                        <div class="card settings-card">
-                            <div class="card-body p-4">
-                                <div class="tab-content">
-                                    <!-- Profile Tab -->
-                                    <div class="tab-pane fade show active" id="profile">
-                                        <h5 class="mb-4">Personal Information</h5>
-                                        <form id="profile-form">
-                                            <div class="row mb-3">
-                                                <div class="col-md-6 mb-3">
-                                                    <label class="form-label">Full Name</label>
-                                                    <input type="text" class="form-control" id="full-name" placeholder="Enter your full name">
-                                                </div>
-                                                <div class="col-md-6 mb-3">
-                                                    <label class="form-label">Email Address</label>
-                                                    <input type="email" class="form-control" id="email-address" disabled>
-                                                </div>
-                                            </div>
-                                            <div class="row mb-3">
-                                                <div class="col-md-6 mb-3">
-                                                    <label class="form-label">Phone Number</label>
-                                                    <input type="text" class="form-control" id="phone-number" placeholder="(123) 456-7890">
-                                                </div>
-                                                <div class="col-md-6 mb-3">
-                                                    <label class="form-label">Location</label>
-                                                    <input type="text" class="form-control" id="location" placeholder="San Francisco, CA">
-                                                </div>
-                                            </div>
-                                            <div class="mb-3">
-                                                <label class="form-label">Bio</label>
-                                                <textarea class="form-control" id="bio" rows="4" placeholder="Tell us about yourself..."></textarea>
-                                            </div>
-                                        </form>
-                                    </div>
+                    <div class="card settings-card">
+                        <div class="list-group list-group-flush">
+                            <a href="#profile" class="list-group-item list-group-item-action active"
+                                data-bs-toggle="pill">
+                                <i class="fas fa-user-circle me-2"></i> Profile
+                            </a>
+                            <a href="#account" class="list-group-item list-group-item-action" data-bs-toggle="pill">
+                                <i class="fas fa-key me-2"></i> Account
+                            </a>
+                            <a href="#notifications" class="list-group-item list-group-item-action"
+                                data-bs-toggle="pill">
+                                <i class="fas fa-bell me-2"></i> Notifications
+                            </a>
+                        </div>
+                    </div>
+                </div>
 
-                                    <!-- Account Tab -->
-                                    <div class="tab-pane fade" id="account">
-                                        <h5 class="mb-4">Change Password</h5>
-                                        <form>
-                                            <div class="mb-3">
-                                                <label class="form-label">Current Password</label>
+                <div class="col-lg-9">
+                    <div class="card settings-card">
+                        <div class="card-body p-4">
+                            <div class="tab-content">
+                                <!-- Profile Tab -->
+                                <div class="tab-pane fade show active" id="profile">
+                                    <h5 class="mb-4">Personal Information</h5>
+                                    <form id="profile-form">
+                                        <div class="row mb-3">
+                                            <div class="col-md-6 mb-3">
+                                                <label class="form-label">Full Name</label>
+                                                <input type="text" class="form-control" id="full-name"
+                                                    placeholder="Enter your full name">
+                                            </div>
+                                            <div class="col-md-6 mb-3">
+                                                <label class="form-label">Email Address</label>
+                                                <input type="email" class="form-control" id="email-address" disabled>
+                                            </div>
+                                        </div>
+                                        <div class="row mb-3">
+                                            <div class="col-md-6 mb-3">
+                                                <label class="form-label">Phone Number</label>
+                                                <input type="text" class="form-control" id="phone-number"
+                                                    placeholder="(123) 456-7890">
+                                            </div>
+                                            <div class="col-md-6 mb-3">
+                                                <label class="form-label">Location</label>
+                                                <input type="text" class="form-control" id="location"
+                                                    placeholder="San Francisco, CA">
+                                            </div>
+                                        </div>
+                                        <div class="mb-3">
+                                            <label class="form-label">Bio</label>
+                                            <textarea class="form-control" id="bio" rows="4"
+                                                placeholder="Tell us about yourself..."></textarea>
+                                        </div>
+                                    </form>
+                                </div>
+
+                                <!-- Account Tab -->
+                                <div class="tab-pane fade" id="account">
+                                    <h5 class="mb-4">Change Password</h5>
+                                    <form>
+                                        <div class="mb-3">
+                                            <label class="form-label">Current Password</label>
+                                            <input type="password" class="form-control">
+                                        </div>
+                                        <div class="row">
+                                            <div class="col-md-6 mb-3">
+                                                <label class="form-label">New Password</label>
                                                 <input type="password" class="form-control">
                                             </div>
-                                            <div class="row">
-                                                <div class="col-md-6 mb-3">
-                                                    <label class="form-label">New Password</label>
-                                                    <input type="password" class="form-control">
-                                                </div>
-                                                <div class="col-md-6 mb-3">
-                                                    <label class="form-label">Confirm New Password</label>
-                                                    <input type="password" class="form-control">
-                                                </div>
+                                            <div class="col-md-6 mb-3">
+                                                <label class="form-label">Confirm New Password</label>
+                                                <input type="password" class="form-control">
                                             </div>
-                                        </form>
-                                    </div>
+                                        </div>
+                                    </form>
+                                </div>
 
-                                    <!-- Notifications Tab -->
-                                    <div class="tab-pane fade" id="notifications">
-                                        <h5 class="mb-4">Notification Preferences</h5>
-                                        <div class="form-check form-switch mb-3">
-                                            <input class="form-check-input" type="checkbox" id="emailNotifications" checked>
-                                            <label class="form-check-label" for="emailNotifications">Email Notifications</label>
-                                        </div>
-                                        <div class="form-check form-switch mb-3">
-                                            <input class="form-check-input" type="checkbox" id="testReminders" checked>
-                                            <label class="form-check-label" for="testReminders">Test Reminders</label>
-                                        </div>
-                                        <div class="form-check form-switch">
-                                            <input class="form-check-input" type="checkbox" id="promotionalEmails">
-                                            <label class="form-check-label" for="promotionalEmails">Promotional Emails</label>
-                                        </div>
+                                <!-- Notifications Tab -->
+                                <div class="tab-pane fade" id="notifications">
+                                    <h5 class="mb-4">Notification Preferences</h5>
+                                    <div class="form-check form-switch mb-3">
+                                        <input class="form-check-input" type="checkbox" id="emailNotifications" checked>
+                                        <label class="form-check-label" for="emailNotifications">Email
+                                            Notifications</label>
+                                    </div>
+                                    <div class="form-check form-switch mb-3">
+                                        <input class="form-check-input" type="checkbox" id="testReminders" checked>
+                                        <label class="form-check-label" for="testReminders">Test Reminders</label>
+                                    </div>
+                                    <div class="form-check form-switch">
+                                        <input class="form-check-input" type="checkbox" id="promotionalEmails">
+                                        <label class="form-check-label" for="promotionalEmails">Promotional
+                                            Emails</label>
                                     </div>
                                 </div>
                             </div>
@@ -229,50 +271,28 @@
                     </div>
                 </div>
             </div>
-        </main>
+        </div>
+    </main>
 
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/js/bootstrap.bundle.min.js"></script>
-    <script type="module" src="./firebase.js"></script>
     <script type="module">
-        // Import Firebase modules
-        import { auth, db } from './firebase.js';
-        import { onAuthStateChanged, setPersistence, browserLocalPersistence, signOut } from 'https://www.gstatic.com/firebasejs/12.1.0/firebase-auth.js';
+        import { auth, db } from './js/firebase-config.js';
+        import { requireAuth } from './js/auth-check.js';
+        import { signOut } from 'https://www.gstatic.com/firebasejs/12.1.0/firebase-auth.js';
         import { doc, getDoc, updateDoc } from 'https://www.gstatic.com/firebasejs/12.1.0/firebase-firestore.js';
 
-        // Set auth persistence
-        setPersistence(auth, browserLocalPersistence).catch((error) => {
-            console.error('Error setting auth persistence:', error);
-        });
-
-        // Logout Functionality
-        const logoutButton = document.getElementById('logout-btn');
-        if (logoutButton) {
-            logoutButton.addEventListener('click', async () => {
-                try {
-                    await signOut(auth);
-                    window.location.href = 'auth/login-fixed.html';
-                } catch (error) {
-                    console.error('Error signing out:', error);
-                }
-            });
-        }
-
-        // Auth state listener
-        onAuthStateChanged(auth, async (user) => {
-            if (!user) {
-                window.location.href = 'auth/login-fixed.html';
-                return;
-            }
-
+        async function initSettings() {
             try {
+                const { user } = await requireAuth(['teacher', 'admin']);
+
+                // Fetch teacher doc
                 const teacherDocRef = doc(db, 'teachers', user.uid);
                 const teacherDoc = await getDoc(teacherDocRef);
 
                 if (teacherDoc.exists()) {
                     const teacherData = teacherDoc.data();
-                    const teacherName = teacherData.name || 'Teacher';
+                    const teacherName = teacherData.name || user.displayName || 'Teacher';
 
-                    // Update UI elements
                     document.getElementById('sidebar-teacher-name').textContent = teacherName;
                     document.getElementById('profile-name').textContent = teacherName;
                     document.getElementById('full-name').value = teacherData.name || '';
@@ -281,48 +301,47 @@
                     document.getElementById('location').value = teacherData.location || '';
                     document.getElementById('bio').value = teacherData.bio || '';
 
-                    const avatarURL = teacherData.photoURL || './images/default-avatar.png';
-                    document.getElementById('user-avatar').src = avatarURL;
-                    document.getElementById('user-avatar-sidebar').src = avatarURL;
-                    document.getElementById('profile-pic').src = avatarURL;
-                } else {
-                    console.error('Teacher document not found in Firestore');
+                    const avatarURL = teacherData.photoURL || user.photoURL || `https://ui-avatars.com/api/?name=${encodeURIComponent(teacherName)}&background=4a6cf7&color=fff`;
+                    const avatarEls = [document.getElementById('user-avatar'), document.getElementById('user-avatar-sidebar'), document.getElementById('profile-pic')];
+                    avatarEls.forEach(el => { if (el) el.src = avatarURL; });
                 }
-            } catch (error) {
-                console.error('Error initializing settings page:', error);
+
+                // Events
+                const saveBtn = document.getElementById('saveChangesBtn');
+                if (saveBtn) {
+                    saveBtn.addEventListener('click', async () => {
+                        const updatedData = {
+                            name: document.getElementById('full-name').value,
+                            phone: document.getElementById('phone-number').value,
+                            location: document.getElementById('location').value,
+                            bio: document.getElementById('bio').value
+                        };
+                        try {
+                            await updateDoc(teacherDocRef, updatedData);
+                            alert('Settings saved!');
+                            document.getElementById('sidebar-teacher-name').textContent = updatedData.name;
+                            document.getElementById('profile-name').textContent = updatedData.name;
+                        } catch (e) { console.error(e); alert('Error saving'); }
+                    });
+                }
+
+                const logoutBtn = document.getElementById('logout-btn');
+                if (logoutBtn) {
+                    const newLogout = logoutBtn.cloneNode(true);
+                    logoutBtn.parentNode.replaceChild(newLogout, logoutBtn);
+                    newLogout.addEventListener('click', async () => {
+                        await signOut(auth);
+                        window.location.href = 'auth/login-fixed.html';
+                    });
+                }
+
+            } catch (e) {
+                console.error(e);
             }
-        });
-
-        // Save Changes Functionality
-        const saveBtn = document.getElementById('saveChangesBtn');
-        if (saveBtn) {
-            saveBtn.addEventListener('click', async () => {
-                const user = auth.currentUser;
-                if (!user) {
-                    alert('You must be logged in to save changes.');
-                    return;
-                }
-
-                const teacherDocRef = doc(db, 'teachers', user.uid);
-                const updatedData = {
-                    name: document.getElementById('full-name').value,
-                    phone: document.getElementById('phone-number').value,
-                    location: document.getElementById('location').value,
-                    bio: document.getElementById('bio').value
-                };
-
-                try {
-                    await updateDoc(teacherDocRef, updatedData);
-                    alert('Settings saved successfully!');
-                    // Optionally, update the name in the UI immediately
-                    document.getElementById('sidebar-teacher-name').textContent = updatedData.name;
-                    document.getElementById('profile-name').textContent = updatedData.name;
-                } catch (error) {
-                    console.error('Error saving settings:', error);
-                    alert('Failed to save settings. Please try again.');
-                }
-            });
         }
+
+        window.addEventListener('DOMContentLoaded', initSettings);
     </script>
 </body>
+
 </html>

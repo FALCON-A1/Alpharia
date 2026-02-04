@@ -1,24 +1,70 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Admin Reports - Alpharia</title>
-    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap"
+        rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <link rel="stylesheet" href="css/teacher-dashboard.css">
     <style>
-        .reports-container { max-width: 1400px; margin: 0 auto; padding: 2rem; }
-        .stats-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(250px, 1fr)); gap: 1.5rem; margin: 2rem 0; }
-        .card { background: white; border-radius: 10px; padding: 1.5rem; box-shadow: 0 2px 10px rgba(0,0,0,0.05); margin-bottom: 2rem; }
-        .card h2 { margin-top: 0; color: #333; }
-        table { width: 100%; border-collapse: collapse; margin-top: 1rem; }
-        th, td { padding: 0.75rem; text-align: left; border-bottom: 1px solid #eee; }
-        .progress-bar { height: 8px; background: #e9ecef; border-radius: 4px; overflow: hidden; }
-        .progress { height: 100%; background: #4a6cf7; border-radius: 4px; }
+        .reports-container {
+            max-width: 1400px;
+            margin: 0 auto;
+            padding: 2rem;
+        }
+
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
+            gap: 1.5rem;
+            margin: 2rem 0;
+        }
+
+        .card {
+            background: white;
+            border-radius: 10px;
+            padding: 1.5rem;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.05);
+            margin-bottom: 2rem;
+        }
+
+        .card h2 {
+            margin-top: 0;
+            color: #333;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 1rem;
+        }
+
+        th,
+        td {
+            padding: 0.75rem;
+            text-align: left;
+            border-bottom: 1px solid #eee;
+        }
+
+        .progress-bar {
+            height: 8px;
+            background: #e9ecef;
+            border-radius: 4px;
+            overflow: hidden;
+        }
+
+        .progress {
+            height: 100%;
+            background: #4a6cf7;
+            border-radius: 4px;
+        }
     </style>
 </head>
+
 <body class="teacher-dashboard">
     <div class="dashboard-container">
         <!-- Sidebar -->
@@ -29,56 +75,56 @@
                 </div>
                 <h2>Alpharia <span class="admin-badge">Admin</span></h2>
             </div>
-            
+
             <nav class="nav-menu">
                 <div class="menu-title">Main Menu</div>
-                
+
                 <div class="nav-item">
                     <a href="admin-dashboard.html" class="nav-link">
                         <i class="fas fa-tachometer-alt"></i>
                         <span>Dashboard</span>
                     </a>
                 </div>
-                
+
                 <div class="nav-item">
                     <a href="admin-management.html" class="nav-link">
                         <i class="fas fa-users-cog"></i>
                         <span>Management</span>
                     </a>
                 </div>
-                
+
                 <div class="nav-item">
                     <a href="admin-tests.html" class="nav-link">
                         <i class="fas fa-clipboard-list"></i>
                         <span>All Tests</span>
                     </a>
                 </div>
-                
+
                 <div class="nav-item">
                     <a href="admin-create-test.html" class="nav-link">
                         <i class="fas fa-plus-circle"></i>
                         <span>Create Test</span>
                     </a>
                 </div>
-                
+
                 <div class="menu-title mt-4">Analytics</div>
-                
+
                 <div class="nav-item">
                     <a href="admin-reports.html" class="nav-link active">
                         <i class="fas fa-chart-bar"></i>
                         <span>Reports</span>
                     </a>
                 </div>
-                
+
                 <div class="menu-title mt-4">Account</div>
-                
+
                 <div class="nav-item">
                     <a href="admin-settings.html" class="nav-link">
                         <i class="fas fa-cog"></i>
                         <span>Settings</span>
                     </a>
                 </div>
-                
+
                 <div class="nav-item">
                     <a href="#" id="logout" class="nav-link">
                         <i class="fas fa-sign-out-alt"></i>
@@ -191,65 +237,35 @@
     </div>
 
     <script type="module">
-        // Import Firebase services
-        import { initializeApp } from 'https://www.gstatic.com/firebasejs/12.1.0/firebase-app.js';
-        import { 
-            getAuth, 
-            onAuthStateChanged,
-            signOut 
-        } from 'https://www.gstatic.com/firebasejs/12.1.0/firebase-auth.js';
-        import { 
-            getFirestore,
-            collection, 
-            getDocs, 
-            query, 
-            where, 
-            orderBy,
-            getDoc,
-            doc as firestoreDoc,
-            limit
+        import { app, auth, db } from './js/firebase-config.js';
+        import { requireAuth } from './js/auth-check.js';
+        import {
+            getFirestore, collection, getDocs, query, where, orderBy, getDoc,
+            doc as firestoreDoc, limit
         } from 'https://www.gstatic.com/firebasejs/12.1.0/firebase-firestore.js';
-        
-        // Initialize Firebase
-        const firebaseConfig = {
-            apiKey: "AIzaSyAtOedXLBC4eigzqmBpYFciN-W5Mi2Cpmc",
-            authDomain: "alpharia-c6a39.firebaseapp.com",
-            projectId: "alpharia-c6a39",
-            storageBucket: "alpharia-c6a39.firebasestorage.app",
-            messagingSenderId: "85322759772",
-            appId: "1:85322759772:web:d5c7a528fd61c9d2373099",
-            measurementId: "G-KEC7MGMVE8"
-        };
-        
-        // Initialize Firebase
-        const app = initializeApp(firebaseConfig);
-        const auth = getAuth(app);
-        const db = getFirestore(app);
-        
+        import { signOut } from 'https://www.gstatic.com/firebasejs/12.1.0/firebase-auth.js';
+
         // Global variables to store data
         let allStudentsData = [];
         let allTeachersData = [];
         let gradeOptions = new Set();
-        
-        // Alias doc to avoid naming conflicts
-        const doc = firestoreDoc;
-        
+
         // Notification function
         function showNotification(message, type = 'info') {
             const notification = document.createElement('div');
             notification.className = `notification ${type}`;
             notification.textContent = message;
-            
+
             // Add to the page
             document.body.appendChild(notification);
-            
+
             // Auto-remove after 5 seconds
             setTimeout(() => {
                 notification.classList.add('fade-out');
                 setTimeout(() => notification.remove(), 300);
             }, 5000);
         }
-        
+
         // Add some basic styles for notifications
         const style = document.createElement('style');
         style.textContent = `
@@ -280,39 +296,16 @@
         document.head.appendChild(style);
 
         // Check authentication and load data
-        onAuthStateChanged(auth, async (user) => {
-            if (!user) {
-                window.location.href = 'auth/login-fixed.html';
-                return;
-            }
-
+        async function initApp() {
             try {
-                // First check in the admin collection
-                const adminRef = firestoreDoc(db, 'admins', user.uid);
-                const adminDoc = await getDoc(adminRef);
-                
-                // If not found in admins, check in users collection (for backward compatibility)
-                if (!adminDoc.exists()) {
-                    const userRef = firestoreDoc(db, 'users', user.uid);
-                    const userDoc = await getDoc(userRef);
-                    if (!userDoc.exists() || (userDoc.data().role !== 'admin' && userDoc.data().role !== 'ADMIN')) {
-                        window.location.href = 'unauthorized.html';
-                        return;
-                    }
-                }
-
-                // Load reports data
+                await requireAuth(['admin', 'teacher']); // Allow both for reports
                 await loadReportsData();
-                
             } catch (error) {
-                console.error('Error in auth check or loading reports:', {
-                    message: error.message,
-                    code: error.code,
-                    details: error.details || 'No additional details'
-                });
-                showNotification(`Authentication Error: ${error.message}`, 'error');
+                console.error("Initialization failed:", error);
             }
-        });
+        }
+
+        initApp();
 
         async function loadReportsData() {
             try {
@@ -326,7 +319,7 @@
                 const teachersQuery = collection(db, 'teachers');
                 const teachersSnapshot = await getDocs(teachersQuery);
                 const teachersData = [];
-                
+
                 // Process each teacher's data
                 for (const doc of teachersSnapshot.docs) {
                     const teacher = doc.data();
@@ -338,15 +331,15 @@
                         teacher.firstName = nameParts[0] || '';
                         teacher.lastName = nameParts.slice(1).join(' ') || '';
                     }
-                    
+
                     // Get teacher's students
                     const studentsQuery = query(
-                        collection(db, 'students'), 
+                        collection(db, 'students'),
                         where('teacherId', '==', doc.id)
                     );
                     const studentsSnapshot = await getDocs(studentsQuery);
                     teacher.studentCount = studentsSnapshot.size;
-                    
+
                     // Get teacher's tests
                     const testsQuery = query(
                         collection(db, 'tests'),
@@ -354,11 +347,11 @@
                     );
                     const testsSnapshot = await getDocs(testsQuery);
                     teacher.testsCreated = testsSnapshot.size;
-                    
+
                     // Calculate average score for teacher's students
                     let totalScore = 0;
                     let scoreCount = 0;
-                    
+
                     for (const studentDoc of studentsSnapshot.docs) {
                         const studentData = studentDoc.data();
                         if (studentData.averageScore) {
@@ -366,24 +359,24 @@
                             scoreCount++;
                         }
                     }
-                    
+
                     teacher.avgScore = scoreCount > 0 ? (totalScore / scoreCount) : 0;
                     teachersData.push(teacher);
                 }
-                
+
                 // Update teacher stats
                 document.getElementById('total-teachers').textContent = teachersData.length;
-                
+
                 // Load all students from the 'students' collection
                 const studentsQuery = collection(db, 'students');
                 const studentsSnapshot = await getDocs(studentsQuery);
                 const studentsData = [];
-                
+
                 // Process each student's data
                 for (const doc of studentsSnapshot.docs) {
                     const student = doc.data();
                     student.id = doc.id;
-                    
+
                     // Handle different name field formats
                     if (!student.firstName && student.name) {
                         // If name is stored in a single 'name' field
@@ -391,7 +384,7 @@
                         student.firstName = nameParts[0] || '';
                         student.lastName = nameParts.slice(1).join(' ') || '';
                     }
-                    
+
                     // Get student's teacher info
                     if (student.teacherId) {
                         try {
@@ -420,84 +413,84 @@
                     } else {
                         student.teacherName = 'Unassigned';
                     }
-                    
+
                     // Get student's test results (using a simpler query to avoid index requirements)
                     const resultsRef = collection(db, 'testResults');
                     const resultsQuery = where('studentId', '==', doc.id);
                     const resultsSnapshot = await getDocs(query(resultsRef, resultsQuery));
-                    
+
                     if (!resultsSnapshot.empty) {
                         // Find the latest result manually in memory
                         let latestResult = null;
                         resultsSnapshot.forEach(doc => {
                             const result = doc.data();
-                            if (!latestResult || 
-                                (result.completedAt && 
-                                 (!latestResult.completedAt || 
-                                  result.completedAt.toDate() > latestResult.completedAt.toDate()))) {
+                            if (!latestResult ||
+                                (result.completedAt &&
+                                    (!latestResult.completedAt ||
+                                        result.completedAt.toDate() > latestResult.completedAt.toDate()))) {
                                 latestResult = result;
                             }
                         });
-                        
+
                         if (latestResult) {
                             student.lastTestScore = latestResult.score;
                             student.lastTestDate = latestResult.completedAt?.toDate() || new Date();
                         }
                     }
-                    
+
                     studentsData.push(student);
                 }
-                
+
                 // Update student stats
                 document.getElementById('total-students').textContent = studentsData.length;
-                
+
                 // Calculate average score across all students
                 const validScores = studentsData
                     .map(s => s.averageScore)
                     .filter(score => typeof score === 'number');
-                    
-                const avgScore = validScores.length > 0 
-                    ? (validScores.reduce((a, b) => a + b, 0) / validScores.length) 
+
+                const avgScore = validScores.length > 0
+                    ? (validScores.reduce((a, b) => a + b, 0) / validScores.length)
                     : 0;
-                    
+
                 document.getElementById('avg-score').textContent = `${Math.round(avgScore)}%`;
-                
+
                 // Load active tests
                 const testsQuery = query(
                     collection(db, 'tests'),
                     where('isActive', '==', true)
                 );
-                
+
                 const testsSnapshot = await getDocs(testsQuery);
                 document.getElementById('active-tests').textContent = testsSnapshot.size;
-                
+
                 // Store the data globally
                 allStudentsData = studentsData;
                 allTeachersData = teachersData;
-                
+
                 // Extract unique grades from students
                 gradeOptions = new Set(studentsData
                     .map(s => s.grade)
                     .filter(grade => grade && grade.trim() !== '')
-                    .sort((a, b) => a.localeCompare(b, undefined, {numeric: true}))
+                    .sort((a, b) => a.localeCompare(b, undefined, { numeric: true }))
                 );
-                
+
                 // Populate teacher filter
                 const teacherFilter = document.getElementById('teacher-filter');
                 teacherFilter.innerHTML = '<option value="">All Teachers</option>';
-                
+
                 // Create a map of teacher IDs to their display names
                 const teacherMap = new Map();
                 allTeachersData.forEach(teacher => {
                     const teacherName = teacher.name || `${teacher.firstName || ''} ${teacher.lastName || ''}`.trim() || `Teacher ${teacher.id.substring(0, 6)}`;
                     teacherMap.set(teacher.id, teacherName);
-                    
+
                     const option = document.createElement('option');
                     option.value = teacher.id;
                     option.textContent = teacherName;
                     teacherFilter.appendChild(option);
                 });
-                
+
                 // Populate grade filter
                 const gradeFilter = document.getElementById('grade-filter');
                 gradeFilter.innerHTML = '<option value="">All Grades</option>';
@@ -507,23 +500,23 @@
                     option.textContent = `Grade ${grade}`;
                     gradeFilter.appendChild(option);
                 });
-                
+
                 // Add event listeners
                 teacherFilter.addEventListener('change', applyFilters);
                 gradeFilter.addEventListener('change', applyFilters);
-                
+
                 // Store teacher map for later use
                 window.teacherMap = teacherMap;
-                
+
                 // Initial UI update
                 updateTeacherPerformance(teachersData);
                 updateStudentProgress(studentsData);
-                
+
                 // Remove loading indicator
                 if (loadingIndicator.parentNode) {
                     loadingIndicator.remove();
                 }
-                
+
             } catch (error) {
                 console.error('Error loading reports data:', {
                     message: error.message,
@@ -532,10 +525,10 @@
                     code: error.code,
                     details: error.details || 'No additional details'
                 });
-                
+
                 // Show detailed error to user for debugging
                 showNotification(`Error: ${error.message || 'Failed to load reports data. Please check console for details.'}`, 'error');
-                
+
                 // Re-throw the error for further debugging if needed
                 throw error;
             }
@@ -562,7 +555,7 @@
             teachersData.forEach(teacher => {
                 const avgScore = teacher.avgScore || 0;
                 const scorePercentage = Math.round(avgScore * 100);
-                
+
                 const row = `
                     <tr>
                         <td>${teacher.firstName || ''} ${teacher.lastName || ''}</td>
@@ -585,27 +578,27 @@
         function applyFilters() {
             const teacherFilter = document.getElementById('teacher-filter').value;
             const gradeFilter = document.getElementById('grade-filter').value;
-            
+
             let filteredStudents = [...allStudentsData];
-            
+
             // Apply teacher filter
             if (teacherFilter) {
-                filteredStudents = filteredStudents.filter(student => 
+                filteredStudents = filteredStudents.filter(student =>
                     student.teacherId === teacherFilter
                 );
             }
-            
+
             // Apply grade filter
             if (gradeFilter) {
-                filteredStudents = filteredStudents.filter(student => 
+                filteredStudents = filteredStudents.filter(student =>
                     student.grade === gradeFilter
                 );
             }
-            
+
             // Update the UI with filtered data
             updateStudentProgress(filteredStudents);
         }
-        
+
         function updateStudentProgress(studentsData) {
             const tbody = document.getElementById('student-progress-body');
             tbody.innerHTML = '';
@@ -620,7 +613,7 @@
                 `;
                 return;
             }
-            
+
             // Default sort by last test date (most recent first)
             let sortedStudents = [...studentsData].sort((a, b) => {
                 const dateA = a.lastTestDate ? new Date(a.lastTestDate) : new Date(0);
@@ -630,12 +623,12 @@
 
             // Update student count in the UI
             document.getElementById('total-students').textContent = sortedStudents.length;
-            
+
             sortedStudents.forEach(student => {
                 const progress = student.progress || 0;
-                const lastScore = student.lastTestScore ? 
+                const lastScore = student.lastTestScore ?
                     `${Math.round(student.lastTestScore * 100)}%` : 'N/A';
-                
+
                 // Determine progress color based on score
                 let progressClass = '';
                 if (student.lastTestScore) {
@@ -643,7 +636,7 @@
                     else if (student.lastTestScore >= 0.5) progressClass = 'bg-warning';
                     else progressClass = 'bg-danger';
                 }
-                
+
                 const row = `
                     <tr>
                         <td>${student.firstName || ''} ${student.lastName || ''}</td>
@@ -680,4 +673,5 @@
         });
     </script>
 </body>
+
 </html>

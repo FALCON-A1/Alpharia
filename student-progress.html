@@ -1,5 +1,6 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -17,19 +18,19 @@
             --light: #f8f9fc;
             --dark: #5a5c69;
         }
-        
+
         body {
             font-family: 'Nunito', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
             background-color: var(--light);
             color: var(--dark);
         }
-        
+
         /* Layout */
         .dashboard-layout {
             display: flex;
             min-height: 100vh;
         }
-        
+
         /* Sidebar */
         .sidebar {
             width: 250px;
@@ -107,19 +108,20 @@
         .nav-link.active i {
             color: #4e73df;
         }
-        
+
         /* Main Content */
         .main-content {
             flex: 1;
             display: flex;
             flex-direction: column;
             min-width: 0;
-            margin-left: 250px; /* Match sidebar width */
+            margin-left: 250px;
+            /* Match sidebar width */
             padding: 1.5rem;
             min-height: 100vh;
             background-color: #f8f9fc;
         }
-        
+
         /* Top Bar */
         .top-bar {
             background: #fff;
@@ -130,12 +132,12 @@
             align-items: center;
             z-index: 5;
         }
-        
+
         .search-bar {
             position: relative;
             width: 300px;
         }
-        
+
         .search-bar input {
             width: 100%;
             padding: 0.5rem 1rem 0.5rem 2.5rem;
@@ -143,7 +145,7 @@
             border-radius: 0.35rem;
             font-size: 0.9rem;
         }
-        
+
         .search-bar i {
             position: absolute;
             left: 1rem;
@@ -151,18 +153,18 @@
             transform: translateY(-50%);
             color: #b7b9cc;
         }
-        
+
         .user-profile {
             display: flex;
             align-items: center;
         }
-        
+
         .username {
             margin-right: 1rem;
             font-weight: 600;
             color: #5a5c69;
         }
-        
+
         .avatar {
             width: 40px;
             height: 40px;
@@ -174,7 +176,7 @@
             color: var(--primary);
             font-size: 1.1rem;
         }
-        
+
         /* Stats Cards */
         .stat-card {
             background: #fff;
@@ -185,12 +187,12 @@
             border-left: 4px solid var(--primary);
             transition: transform 0.3s, box-shadow 0.3s;
         }
-        
+
         .stat-card:hover {
             transform: translateY(-5px);
             box-shadow: 0 0.5rem 1.5rem rgba(0, 0, 0, 0.1);
         }
-        
+
         .stat-card h6 {
             color: #5a5c69;
             font-size: 0.9rem;
@@ -198,18 +200,18 @@
             letter-spacing: 0.5px;
             margin-bottom: 0.5rem;
         }
-        
+
         .stat-card h3 {
             color: var(--primary);
             font-weight: 700;
             margin: 0;
         }
-        
+
         .stat-card small {
             display: block;
             margin-top: 0.5rem;
         }
-        
+
         .stat-icon {
             width: 48px;
             height: 48px;
@@ -219,12 +221,23 @@
             justify-content: center;
             font-size: 1.5rem;
         }
-        
-        .bg-primary-light { background-color: rgba(78, 115, 223, 0.1); }
-        .bg-success-light { background-color: rgba(28, 200, 138, 0.1); }
-        .bg-warning-light { background-color: rgba(246, 194, 62, 0.1); }
-        .bg-info-light { background-color: rgba(54, 185, 204, 0.1); }
-        
+
+        .bg-primary-light {
+            background-color: rgba(78, 115, 223, 0.1);
+        }
+
+        .bg-success-light {
+            background-color: rgba(28, 200, 138, 0.1);
+        }
+
+        .bg-warning-light {
+            background-color: rgba(246, 194, 62, 0.1);
+        }
+
+        .bg-info-light {
+            background-color: rgba(54, 185, 204, 0.1);
+        }
+
         /* Cards */
         .card {
             border: none;
@@ -232,23 +245,23 @@
             box-shadow: 0 0.15rem 1.75rem 0 rgba(58, 59, 69, 0.1);
             margin-bottom: 1.5rem;
         }
-        
+
         .card-header {
             background-color: #f8f9fc;
             border-bottom: 1px solid #e3e6f0;
             padding: 1rem 1.25rem;
         }
-        
+
         .card-header h5 {
             margin: 0;
             font-weight: 600;
             color: #4e73df;
         }
-        
+
         .card-body {
             padding: 1.25rem;
         }
-        
+
         /* Buttons */
         .btn {
             border-radius: 0.35rem;
@@ -256,32 +269,32 @@
             padding: 0.5rem 1rem;
             font-size: 0.85rem;
         }
-        
+
         .btn-sm {
             padding: 0.25rem 0.5rem;
             font-size: 0.75rem;
         }
-        
+
         .btn-outline-primary {
             color: var(--primary);
             border-color: var(--primary);
         }
-        
+
         .btn-outline-primary:hover {
             background-color: var(--primary);
             border-color: var(--primary);
         }
-        
+
         .btn-primary {
             background-color: var(--primary);
             border-color: var(--primary);
         }
-        
+
         .btn-primary:hover {
             background-color: #2e59d9;
             border-color: #2653d4;
         }
-        
+
         /* Dropdowns */
         .dropdown-menu {
             border: none;
@@ -289,23 +302,24 @@
             border-radius: 0.35rem;
             padding: 0.5rem 0;
         }
-        
+
         .dropdown-item {
             padding: 0.5rem 1.5rem;
             color: #5a5c69;
         }
-        
-        .dropdown-item:hover, .dropdown-item:focus {
+
+        .dropdown-item:hover,
+        .dropdown-item:focus {
             background-color: #f8f9fc;
             color: var(--primary);
         }
-        
+
         .dropdown-item.active {
             background-color: rgba(78, 115, 223, 0.1);
             color: var(--primary);
             font-weight: 600;
         }
-        
+
         /* Activity Feed */
         .activity-item {
             display: flex;
@@ -313,15 +327,15 @@
             border-bottom: 1px solid #e3e6f0;
             transition: background-color 0.2s;
         }
-        
+
         .activity-item:last-child {
             border-bottom: none;
         }
-        
+
         .activity-item:hover {
             background-color: #f8f9fc;
         }
-        
+
         .activity-icon {
             width: 40px;
             height: 40px;
@@ -334,23 +348,23 @@
             color: var(--primary);
             flex-shrink: 0;
         }
-        
+
         .activity-content {
             flex: 1;
         }
-        
+
         .activity-title {
             font-weight: 600;
             margin-bottom: 0.25rem;
             color: #5a5c69;
         }
-        
+
         .activity-meta {
             font-size: 0.85rem;
             color: #858796;
             margin-bottom: 0.25rem;
         }
-        
+
         .activity-badge {
             display: inline-block;
             padding: 0.25rem 0.5rem;
@@ -362,12 +376,12 @@
             vertical-align: baseline;
             border-radius: 0.35rem;
         }
-        
+
         .badge-success {
             color: #1cc88a;
             background-color: rgba(28, 200, 138, 0.1);
         }
-        
+
         /* Responsive Adjustments */
         @media (max-width: 992px) {
             .sidebar {
@@ -378,29 +392,29 @@
                 bottom: 0;
                 transition: transform 0.3s;
             }
-            
+
             .sidebar.active {
                 transform: translateX(0);
             }
-            
+
             .main-content {
                 margin-left: 0;
                 width: 100%;
             }
         }
-        
+
         @media (max-width: 768px) {
             .top-bar {
                 flex-direction: column;
                 align-items: flex-start;
                 padding: 1rem;
             }
-            
+
             .search-bar {
                 width: 100%;
                 margin-bottom: 1rem;
             }
-            
+
             .user-profile {
                 width: 100%;
                 justify-content: space-between;
@@ -408,23 +422,24 @@
         }
     </style>
 </head>
+
 <body class="dashboard-layout">
     <!-- Sidebar -->
     <aside class="sidebar">
         <div class="logo">
             <h2>Alpharia</h2>
         </div>
-        
+
         <nav>
             <ul class="nav-menu">
                 <li class="nav-item">
-                    <a href="student-dashboard-clean.html" class="nav-link">
+                    <a href="student-dashboard.html" class="nav-link">
                         <i class="fas fa-home"></i>
                         <span>Overview</span>
                     </a>
                 </li>
                 <li class="nav-item">
-                    <a href="take-test-fixed.html" class="nav-link">
+                    <a href="take-test.html" class="nav-link">
                         <i class="fas fa-tasks"></i>
                         <span>My Tests</span>
                     </a>
@@ -589,42 +604,32 @@
 
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/js/bootstrap.bundle.min.js"></script>
-    <script src="https://www.gstatic.com/firebasejs/9.0.2/firebase-app-compat.js"></script>
-    <script src="https://www.gstatic.com/firebasejs/9.0.2/firebase-auth-compat.js"></script>
-    <script src="https://www.gstatic.com/firebasejs/9.0.2/firebase-firestore-compat.js"></script>
-    <script>
-        // Firebase configuration
-        const firebaseConfig = {
-            apiKey: "AIzaSyAtOedXLBC4eigzqmBpYFciN-W5Mi2Cpmc",
-            authDomain: "alpharia-c6a39.firebaseapp.com",
-            projectId: "alpharia-c6a39",
-            storageBucket: "alpharia-c6a39.firebasestorage.app",
-            messagingSenderId: "85322759772",
-            appId: "1:85322759772:web:d5c7a528fd61c9d2373099",
-            measurementId: "G-KEC7MGMVE8"
-        };
 
-        // Initialize Firebase
-        if (!firebase.apps.length) {
-            firebase.initializeApp(firebaseConfig);
-        }
-    </script>
-    <script src="js/auth.js"></script>
+
     <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
     <script src="https://cdn.datatables.net/1.11.5/js/jquery.dataTables.min.js"></script>
     <script src="https://cdn.datatables.net/1.11.5/js/dataTables.bootstrap5.min.js"></script>
-    <script>
+    <script type="module">
+        import { app, auth, db } from './js/firebase-config.js';
+        import { requireAuth } from './js/auth-check.js';
+        import {
+            doc, getDoc, collection, query, where, orderBy, getDocs
+        } from 'https://www.gstatic.com/firebasejs/12.1.0/firebase-firestore.js';
+
         // Global variables
         let performanceChart;
         let testAttempts = [];
+
+        // Make functions global
+        window.initializeChart = initializeChart;
 
         // Format date to display
         function formatDate(timestamp) {
             if (!timestamp) return '';
             const date = timestamp.toDate ? timestamp.toDate() : new Date(timestamp);
-            return date.toLocaleDateString('en-US', { 
-                year: 'numeric', 
-                month: 'short', 
+            return date.toLocaleDateString('en-US', {
+                year: 'numeric',
+                month: 'short',
                 day: 'numeric',
                 hour: '2-digit',
                 minute: '2-digit'
@@ -636,37 +641,37 @@
             if (!timestamp) return '';
             const date = timestamp.toDate ? timestamp.toDate() : new Date(timestamp);
             const seconds = Math.floor((new Date() - date) / 1000);
-            
+
             let interval = Math.floor(seconds / 31536000);
             if (interval > 1) return interval + ' years ago';
             if (interval === 1) return '1 year ago';
-            
+
             interval = Math.floor(seconds / 2592000);
             if (interval > 1) return interval + ' months ago';
             if (interval === 1) return '1 month ago';
-            
+
             interval = Math.floor(seconds / 86400);
             if (interval > 1) return interval + ' days ago';
             if (interval === 1) return '1 day ago';
-            
+
             interval = Math.floor(seconds / 3600);
             if (interval > 1) return interval + ' hours ago';
             if (interval === 1) return '1 hour ago';
-            
+
             interval = Math.floor(seconds / 60);
             if (interval > 1) return interval + ' minutes ago';
-            
+
             return 'Just now';
         }
 
         // Initialize chart
         function initializeChart(labels = [], scores = []) {
             const ctx = document.getElementById('performanceChart').getContext('2d');
-            
+
             if (performanceChart) {
                 performanceChart.destroy();
             }
-            
+
             performanceChart = new Chart(ctx, {
                 type: 'line',
                 data: {
@@ -696,7 +701,7 @@
                         },
                         tooltip: {
                             callbacks: {
-                                label: function(context) {
+                                label: function (context) {
                                     return `Score: ${context.parsed.y}%`;
                                 }
                             }
@@ -710,7 +715,7 @@
                                 color: 'rgba(0, 0, 0, 0.05)'
                             },
                             ticks: {
-                                callback: function(value) {
+                                callback: function (value) {
                                     return value + '%';
                                 }
                             }
@@ -725,19 +730,90 @@
             });
         }
 
+        // Load user data and test attempts
+        document.addEventListener('DOMContentLoaded', async function () {
+            // Initialize an empty chart first
+            initializeChart([], []);
+
+            try {
+                const { user } = await requireAuth(['student']);
+
+                // Get user data from Firestore
+                const userDocRef = doc(db, 'students', user.uid);
+                const userDoc = await getDoc(userDocRef);
+
+                if (!userDoc.exists()) {
+                    console.error('Student document not found');
+                    return;
+                }
+
+                const userData = userDoc.data();
+
+                // Update user profile
+                const displayName = userData.displayName || userData.name || 'Student';
+                const usernameEl = document.querySelector('.username');
+                if (usernameEl) usernameEl.textContent = displayName;
+
+                // Get test attempts using v9
+                const attemptsRef = collection(db, 'students', user.uid, 'testAttempts');
+                const q = query(attemptsRef, orderBy('submittedAt', 'desc'));
+                const attemptsSnapshot = await getDocs(q);
+
+                testAttempts = attemptsSnapshot.docs.map(doc => ({
+                    id: doc.id,
+                    ...doc.data()
+                }));
+
+                // Update stats cards
+                updateStats(testAttempts);
+
+                // Update recent activity
+                updateRecentActivity(testAttempts);
+
+                // Prepare data for the chart (last 10 attempts)
+                const recentAttempts = [...testAttempts]
+                    .sort((a, b) => {
+                        const dateA = a.submittedAt ? (a.submittedAt.toDate ? a.submittedAt.toDate() : new Date(a.submittedAt)) : new Date(0);
+                        const dateB = b.submittedAt ? (b.submittedAt.toDate ? b.submittedAt.toDate() : new Date(b.submittedAt)) : new Date(0);
+                        return dateA - dateB;
+                    })
+                    .slice(-10); // Last 10 attempts
+
+                const chartLabels = recentAttempts.map((attempt, index) => {
+                    if (!attempt.submittedAt) return `Test ${index + 1}`;
+                    const date = attempt.submittedAt.toDate ? attempt.submittedAt.toDate() : new Date(attempt.submittedAt);
+                    return date.toLocaleDateString('en-US', { month: 'short', day: 'numeric' });
+                });
+
+                const chartScores = recentAttempts.map(attempt =>
+                    Math.round(parseFloat(attempt.percentage) || 0)
+                );
+
+                // Update the chart with real data
+                initializeChart(chartLabels, chartScores);
+
+            } catch (error) {
+                console.error('Error loading student data:', error);
+                // Show error message to user
+                const errorContainer = document.createElement('div');
+                errorContainer.className = 'alert alert-danger';
+                errorContainer.textContent = 'Error loading your progress data. Please try again later.';
+                document.querySelector('.container-fluid').prepend(errorContainer);
+            }
+        });
         // Update stats cards
         function updateStats(attempts) {
             if (!attempts || attempts.length === 0) return;
-            
+
             // Calculate total tests completed
             const totalTests = attempts.length;
-            
+
             // Calculate average score
             const totalScore = attempts.reduce((sum, attempt) => {
                 return sum + (parseFloat(attempt.percentage) || 0);
             }, 0);
             const averageScore = Math.round(totalScore / totalTests);
-            
+
             // Count unique words mastered (assuming each test has a wordsMastered field)
             const wordsMastered = new Set();
             attempts.forEach(attempt => {
@@ -745,12 +821,12 @@
                     attempt.wordsMastered.forEach(word => wordsMastered.add(word));
                 }
             });
-            
+
             // Update the DOM
             document.getElementById('tests-completed').textContent = totalTests;
             document.getElementById('average-score').textContent = `${averageScore}%`;
             document.getElementById('words-mastered').textContent = wordsMastered.size;
-            
+
             // Remove the "from last month" text as we don't have that data
             document.querySelectorAll('.stat-card .mt-3').forEach(el => {
                 el.style.display = 'none';
@@ -761,17 +837,17 @@
         function updateRecentActivity(attempts) {
             const activityContainer = document.querySelector('.list-group');
             if (!activityContainer) return;
-            
+
             // Sort attempts by date (newest first)
             const sortedAttempts = [...attempts].sort((a, b) => {
                 const dateA = a.submittedAt ? (a.submittedAt.toDate ? a.submittedAt.toDate() : new Date(a.submittedAt)) : new Date(0);
                 const dateB = b.submittedAt ? (b.submittedAt.toDate ? b.submittedAt.toDate() : new Date(b.submittedAt)) : new Date(0);
                 return dateB - dateA;
             }).slice(0, 5); // Show only the 5 most recent
-            
+
             // Clear existing activities
             activityContainer.innerHTML = '';
-            
+
             if (sortedAttempts.length === 0) {
                 activityContainer.innerHTML = `
                     <div class="list-group-item text-center text-muted">
@@ -780,14 +856,14 @@
                 `;
                 return;
             }
-            
+
             // Add each attempt as an activity
             sortedAttempts.forEach(attempt => {
                 const date = attempt.submittedAt ? formatDate(attempt.submittedAt) : 'Unknown date';
                 const timeAgoText = attempt.submittedAt ? timeAgo(attempt.submittedAt) : '';
                 const score = attempt.percentage ? `${Math.round(attempt.percentage)}%` : 'N/A';
                 const testTitle = attempt.testTitle || 'Untitled Test';
-                
+
                 const activityItem = document.createElement('div');
                 activityItem.className = 'list-group-item';
                 activityItem.innerHTML = `
@@ -801,7 +877,7 @@
                 activityContainer.appendChild(activityItem);
             });
         }
-        
+
         // Get feedback based on score
         function getScoreFeedback(percentage) {
             if (!percentage && percentage !== 0) return 'No score available';
@@ -812,87 +888,9 @@
             return 'You can do better with more practice!';
         }
 
-        // Load user data and test attempts
-        document.addEventListener('DOMContentLoaded', async function() {
-            // Initialize an empty chart first
-            initializeChart([], []);
-            
-            // Set up auth state listener
-            firebase.auth().onAuthStateChanged(async (user) => {
-                if (!user) {
-                    window.location.href = '/auth/login-fixed.html';
-                    return;
-                }
-                
-                try {
-                    // Get user data from Firestore
-                    const userDoc = await firebase.firestore()
-                        .collection('students')
-                        .doc(user.uid)
-                        .get();
-                    
-                    if (!userDoc.exists) {
-                        console.error('Student document not found');
-                        return;
-                    }
-                    
-                    const userData = userDoc.data();
-                    
-                    // Update user profile
-                    const displayName = userData.displayName || userData.name || 'Student';
-                    document.querySelector('.username').textContent = displayName;
-                    
-                    // Get test attempts
-                    const attemptsSnapshot = await firebase.firestore()
-                        .collection('students')
-                        .doc(user.uid)
-                        .collection('testAttempts')
-                        .orderBy('submittedAt', 'desc')
-                        .get();
-                    
-                    testAttempts = attemptsSnapshot.docs.map(doc => ({
-                        id: doc.id,
-                        ...doc.data()
-                    }));
-                    
-                    // Update stats cards
-                    updateStats(testAttempts);
-                    
-                    // Update recent activity
-                    updateRecentActivity(testAttempts);
-                    
-                    // Prepare data for the chart (last 10 attempts)
-                    const recentAttempts = [...testAttempts]
-                        .sort((a, b) => {
-                            const dateA = a.submittedAt ? (a.submittedAt.toDate ? a.submittedAt.toDate() : new Date(a.submittedAt)) : new Date(0);
-                            const dateB = b.submittedAt ? (b.submittedAt.toDate ? b.submittedAt.toDate() : new Date(b.submittedAt)) : new Date(0);
-                            return dateA - dateB;
-                        })
-                        .slice(-10); // Last 10 attempts
-                    
-                    const chartLabels = recentAttempts.map((attempt, index) => {
-                        if (!attempt.submittedAt) return `Test ${index + 1}`;
-                        const date = attempt.submittedAt.toDate ? attempt.submittedAt.toDate() : new Date(attempt.submittedAt);
-                        return date.toLocaleDateString('en-US', { month: 'short', day: 'numeric' });
-                    });
-                    
-                    const chartScores = recentAttempts.map(attempt => 
-                        Math.round(parseFloat(attempt.percentage) || 0)
-                    );
-                    
-                    // Update the chart with real data
-                    initializeChart(chartLabels, chartScores);
-                    
-                } catch (error) {
-                    console.error('Error loading student data:', error);
-                    // Show error message to user
-                    const errorContainer = document.createElement('div');
-                    errorContainer.className = 'alert alert-danger';
-                    errorContainer.textContent = 'Error loading your progress data. Please try again later.';
-                    document.querySelector('.container-fluid').prepend(errorContainer);
-                }
-            });
-        });
+        // Prepare data for the chart (last 10 attempts)
+
     </script>
 </body>
+
 </html>

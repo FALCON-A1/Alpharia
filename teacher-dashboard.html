@@ -1,19 +1,22 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Teacher Dashboard - Alpharia</title>
-    
+
     <!-- Google Fonts -->
-    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
-    
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap"
+        rel="stylesheet">
+
     <!-- Font Awesome Icons -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-    
+
     <!-- Custom CSS -->
     <link rel="stylesheet" href="css/teacher-dashboard.css">
 </head>
+
 <body class="teacher-dashboard">
     <div class="dashboard-container">
         <!-- Sidebar -->
@@ -24,56 +27,56 @@
                 </div>
                 <h2>Alpharia</h2>
             </div>
-            
+
             <nav class="nav-menu">
                 <div class="menu-title">Main Menu</div>
-                
+
                 <div class="nav-item">
                     <a href="teacher-dashboard.html" class="nav-link active">
                         <i class="fas fa-tachometer-alt"></i>
                         <span>Dashboard</span>
                     </a>
                 </div>
-                
+
                 <div class="nav-item">
                     <a href="create-test.html" class="nav-link">
                         <i class="fas fa-plus-circle"></i>
                         <span>Create Test</span>
                     </a>
                 </div>
-                
+
                 <div class="nav-item">
                     <a href="my-tests.html" class="nav-link">
                         <i class="fas fa-clipboard-list"></i>
                         <span>My Tests</span>
                     </a>
                 </div>
-                
+
                 <div class="menu-title mt-4">Analytics</div>
-                
+
                 <div class="nav-item">
                     <a href="teacher-progress.html" class="nav-link">
                         <i class="fas fa-chart-line"></i>
                         <span>Progress</span>
                     </a>
                 </div>
-                
+
                 <div class="nav-item">
                     <a href="resources.html" class="nav-link">
                         <i class="fas fa-book"></i>
                         <span>Resources</span>
                     </a>
                 </div>
-                
+
                 <div class="menu-title mt-4">Account</div>
-                
+
                 <div class="nav-item">
                     <a href="teacher-settings.html" class="nav-link">
                         <i class="fas fa-cog"></i>
                         <span>Settings</span>
                     </a>
                 </div>
-                
+
                 <div class="nav-item">
                     <a href="help.html" class="nav-link">
                         <i class="fas fa-question-circle"></i>
@@ -81,10 +84,11 @@
                     </a>
                 </div>
             </nav>
-            
+
             <div class="sidebar-footer">
                 <div class="user-profile">
-                    <img src="https://ui-avatars.com/api/?name=Teacher&background=4a6cf7&color=fff" alt="User" class="user-avatar" id="user-avatar-sidebar">
+                    <img src="https://ui-avatars.com/api/?name=Teacher&background=4a6cf7&color=fff" alt="User"
+                        class="user-avatar" id="user-avatar-sidebar">
                     <div class="user-info">
                         <h4 class="user-name" id="sidebar-teacher-name">Loading...</h4>
                         <span class="user-role">Teacher</span>
@@ -95,7 +99,7 @@
                 </div>
             </div>
         </aside>
-        
+
         <!-- Main Content -->
         <main class="main-content">
             <!-- Top Bar -->
@@ -104,20 +108,15 @@
                     <i class="fas fa-search"></i>
                     <input type="text" id="search-input" placeholder="Search tests, students, or classes...">
                 </div>
-                
+
                 <div class="user-menu">
                     <a href="#notifications" class="notification-icon">
                         <i class="fas fa-bell"></i>
                         <span class="badge">3</span>
                     </a>
-                    
+
                     <div class="user-avatar">
-                            <img src="" 
-                                 alt="User" 
-                                 class="rounded-circle"
-                                 width="40"
-                                 height="40"
-                                 id="user-avatar">
+                        <img src="" alt="User" class="rounded-circle" width="40" height="40" id="user-avatar">
                     </div>
                 </div>
             </header>
@@ -134,10 +133,10 @@
                                 <div id="loading-indicator" class="loading-spinner">
                                     <div class="spinner-border text-primary" role="status">
                                         <span class="visually-hidden">Loading...</span>
+                                    </div>
                                 </div>
                             </div>
                         </div>
-                    </div>
                 </section>
 
                 <!-- Quick Stats -->
@@ -151,7 +150,7 @@
                             <p>Total Tests</p>
                         </div>
                     </div>
-                    
+
                     <div class="stat-card">
                         <div class="stat-icon">
                             <i class="fas fa-users"></i>
@@ -161,7 +160,7 @@
                             <p>Students</p>
                         </div>
                     </div>
-                    
+
                     <div class="stat-card">
                         <div class="stat-icon">
                             <i class="fas fa-chart-line"></i>
@@ -171,7 +170,7 @@
                             <p>Avg. Score</p>
                         </div>
                     </div>
-                    
+
                     <div class="stat-card highlight">
                         <div class="stat-icon">
                             <i class="fas fa-tasks"></i>
@@ -203,27 +202,25 @@
             </div>
         </main>
     </div>
-    
+
     <!-- Firebase SDK and Teacher Dashboard Scripts -->
-    <script type="module" src="./firebase.js"></script>
-    <script type="module" src="./js/teacher-dashboard.js"></script>
-    
+    <!-- <script type="module" src="./js/teacher-dashboard.js"></script> -->
+    <!-- Commenting out potentially redundant script, relying on inline logic -->
+
     <!-- Initialize the dashboard -->
     <script type="module">
         // Import Firebase modules
-        import { app, auth, db } from './firebase.js';
-        
+        import { app, auth, db } from './js/firebase-config.js';
+        import { requireAuth } from './js/auth-check.js';
+
         // Import Auth functions directly from CDN
-        import { 
-            onAuthStateChanged, 
-            setPersistence, 
-            browserLocalPersistence, 
+        import {
             signOut
         } from 'https://www.gstatic.com/firebasejs/12.1.0/firebase-auth.js';
-        
+
         // Import Firestore functions
         import { doc, getDoc, collection, query, where, orderBy, limit, getDocs } from 'https://www.gstatic.com/firebasejs/12.1.0/firebase-firestore.js';
-        
+
         async function fetchAndDisplayRecentTests(teacherId) {
             console.log('Fetching recent tests for teacher:', teacherId);
             const testsContainer = document.getElementById('recent-tests-container');
@@ -241,16 +238,16 @@
 
                 if (querySnapshot.empty) {
                     console.log('No recent tests found for this teacher.');
-                    if(noTestsMessage) noTestsMessage.style.display = 'block';
+                    if (noTestsMessage) noTestsMessage.style.display = 'block';
                     testsContainer.innerHTML = ''; // Clear any existing content
                 } else {
-                    if(noTestsMessage) noTestsMessage.style.display = 'none';
+                    if (noTestsMessage) noTestsMessage.style.display = 'none';
                     testsContainer.innerHTML = ''; // Clear the message
-                    
+
                     querySnapshot.forEach(doc => {
                         const test = doc.data();
                         const testId = doc.id;
-                        
+
                         const createdAt = test.createdAt.toDate();
                         const formattedDate = createdAt.toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' });
 
@@ -279,10 +276,8 @@
             }
         }
 
-        console.log('Firebase services imported from firebase.js');
-        
-        // Set auth persistence to LOCAL to prevent sign-out on refresh
-        
+        // Init Dashboard Start
+
         // Configure auth persistence
         setPersistence(auth, browserLocalPersistence)
             .then(() => {
@@ -291,13 +286,13 @@
             .catch((error) => {
                 console.error('Error setting auth persistence:', error);
             });
-        
+
         // Check auth state and initialize dashboard
         console.log('Checking auth state...');
         let isInitializing = false;
         // Logout Functionality
         const logoutButton = document.getElementById('logout-btn');
-        
+
         async function handleLogout() {
             try {
                 await signOut(auth);
@@ -313,211 +308,101 @@
             logoutButton.addEventListener('click', handleLogout);
         }
 
-        // Initialize auth state listener
-        const unsubscribe = onAuthStateChanged(auth, async (user) => {
-            // If we're already initializing, ignore this callback
-            if (isInitializing) {
-                console.log('Auth state change already being handled, skipping...');
-                return;
-            }
-            
-            // Handle user not signed in
-            if (!user) {
-                console.log('No user signed in, redirecting to login...');
-                window.location.href = 'auth/login-fixed.html';
-                return;
-            }
-            
+        // Initialize dashboard
+        async function initDashboard() {
             try {
-                isInitializing = true;
-                
-                console.log('User is signed in:', {
-                    uid: user.uid,
-                    email: user.email,
-                    displayName: user.displayName
-                });
-                
-                // Initialize dashboard with user data
-                console.log('Fetching user document from Firestore...');
-                
-                try {
-                    console.log('1. Starting user data fetch...');
-                    
-                    // Method 1: Try to get user document from 'users' collection
-                    console.log('2. Trying to get user document...');
-                    
-                    // Ensure db is properly initialized
-                    if (!db) {
-                        throw new Error('Firestore database is not initialized');
-                    }
-                    
-                    const userDocRef = doc(db, 'users', user.uid);
-                    console.log('3. Document reference created for users collection:', userDocRef);
-                    
-                    let userData = null;
-                    
-                    // Try getting user document
-                    try {
-                        console.log('4. Fetching user document...');
-                        const userDoc = await getDoc(userDocRef);
-                        
-                        if (userDoc.exists()) {
-                            userData = userDoc.data();
-                            console.log('5. User document found:', JSON.stringify(userData, null, 2));
-                        } else {
-                            console.log('5. User document not found in users collection');
-                        }
-                    } catch (userError) {
-                        console.warn('Error fetching user document:', userError);
-                    }
-                    
-                    // If user data not found in users collection, try teachers collection
-                    if (!userData) {
-                        console.log('6. Trying to get teacher document...');
-                        const teacherDocRef = doc(db, 'teachers', user.uid);
-                        console.log('7. Document reference created for teachers collection');
-                        
-                        try {
-                            console.log('8. Fetching teacher document...');
-                            const teacherDoc = await getDoc(teacherDocRef);
-                            
-                            if (teacherDoc.exists()) {
-                                userData = teacherDoc.data();
-                                console.log('9. Teacher document found:', JSON.stringify(userData, null, 2));
-                            } else {
-                                console.log('9. Teacher document not found');
-                            }
-                        } catch (teacherError) {
-                            console.warn('Error fetching teacher document:', teacherError);
-                        }
-                    }
-                    
-                    // If we have user data, update the UI
-                    if (userData) {
-                        console.log('10. Updating UI with user data');
-                        const teacherName = userData.displayName || userData.name || 'Teacher';
-                        console.log('11. Setting teacher name to:', teacherName);
-                        
-                        // Safely update the UI
-                        document.getElementById('teacher-name').textContent = teacherName;
-                        document.getElementById('sidebar-teacher-name').textContent = teacherName;
-                        
-                        const avatarURL = user.photoURL;
-                        if (avatarURL) {
-                            document.getElementById('user-avatar').src = avatarURL;
-                            document.getElementById('user-avatar-sidebar').src = avatarURL;
-                        }
-                        
-                        const welcomeMessage = document.getElementById('welcome-message');
-                        if (welcomeMessage) {
-                            welcomeMessage.textContent = `Welcome to your dashboard, ${teacherName.split(' ')[0]}!`;
-                            welcomeMessage.style.display = 'block';
-                        }
-                        const loadingIndicator = document.getElementById('loading-indicator');
-                        if (loadingIndicator) loadingIndicator.style.display = 'none';
+                // Check auth and role
+                const { user } = await requireAuth(['teacher', 'admin']);
 
-                        // Fetch and display recent tests
-                        await fetchAndDisplayRecentTests(user.uid);
-                        
-                        console.log('12. UI updated successfully');
-                        
-                        // Fetch teacher's tests
-                        fetchTeacherTests(user.uid);
-                        
-                        return;
-                    }
-                    
-                    // If we get here, no document was found
-                    console.error('18. User document not found in Firestore');
-                    
-                    // Show error message to user
-                    const errorMessage = document.createElement('div');
-                    errorMessage.className = 'alert alert-danger';
-                    errorMessage.textContent = 'Error: Could not load your profile data. Please contact support.';
-                    
-                    const welcomeSection = document.querySelector('.welcome-section .card-body');
-                    if (welcomeSection) {
-                        welcomeSection.prepend(errorMessage);
-                    }
-                    
-                } catch (error) {
-                    console.error('ERROR CAUGHT:', {
-                        name: error.name,
-                        message: error.message,
-                        stack: error.stack,
-                        code: error.code,
-                        details: error
-                    });
-                    
-                    // Show error message to user
-                    const errorMessage = document.createElement('div');
-                    errorMessage.className = 'alert alert-danger';
-                    errorMessage.textContent = `Error: ${error.message || 'Could not load your profile data. Please try again later.'}`;
-                    
-                    const welcomeSection = document.querySelector('.welcome-section .card-body');
-                    if (welcomeSection) {
-                        welcomeSection.prepend(errorMessage);
-                    }
-                } finally {
-                    // Always hide the loading indicator
-                    const loadingIndicator = document.getElementById('loading-indicator');
-                    if (loadingIndicator) {
-                        loadingIndicator.style.display = 'none';
-                    }
-                    console.log('19. Loading indicator hidden');
-                }
-                
-                // Update avatar if it exists
-                const avatar = document.querySelector('.user-avatar img');
-                if (avatar) {
-                    if (user.photoURL) {
-                        avatar.src = user.photoURL;
+                // Initialize UI
+                // Fetch profile logic
+                let teacherName = user.displayName || 'Teacher';
+                let photoURL = user.photoURL;
+
+                try {
+                    // Try to fetch extended profile
+                    const teacherDoc = await getDoc(doc(db, 'teachers', user.uid));
+                    if (teacherDoc.exists()) {
+                        teacherName = teacherDoc.data().name || teacherName;
                     } else {
-                        const name = userData?.name || userData?.displayName || 'T';
-                        avatar.src = `https://ui-avatars.com/api/?name=${encodeURIComponent(name)}&background=random&color=fff&size=128`;
+                        // Fallback to users collection
+                        const userDoc = await getDoc(doc(db, 'users', user.uid));
+                        if (userDoc.exists()) {
+                            teacherName = userDoc.data().firstName
+                                ? `${userDoc.data().firstName} ${userDoc.data().lastName || ''}`
+                                : (userDoc.data().displayName || teacherName);
+                        }
                     }
-                    avatar.alt = userData?.name || 'Teacher';
-                    avatar.title = userData?.name || 'Teacher';
+                } catch (e) { console.error("Profile fetch error", e); }
+
+                // Update UI elements
+                const nameEls = [document.getElementById('teacher-name'), document.getElementById('sidebar-teacher-name')];
+                nameEls.forEach(el => { if (el) el.textContent = teacherName; });
+
+                const welcomeMsg = document.getElementById('welcome-message');
+                if (welcomeMsg) {
+                    welcomeMsg.textContent = `Welcome to your dashboard, ${teacherName.split(' ')[0]}!`;
+                    welcomeMsg.style.display = 'block';
                 }
-                
+
+                const avatarEls = [document.getElementById('user-avatar'), document.getElementById('user-avatar-sidebar')];
+                avatarEls.forEach(el => {
+                    if (el && photoURL) el.src = photoURL;
+                    else if (el) el.src = `https://ui-avatars.com/api/?name=${encodeURIComponent(teacherName)}&background=4a6cf7&color=fff`;
+                });
+
+                const loadingInd = document.getElementById('loading-indicator');
+                if (loadingInd) loadingInd.style.display = 'none';
+
+                // Fetch data
+                await fetchAndDisplayRecentTests(user.uid);
+                fetchTeacherTests(user.uid);
+
+                // Logout setup
+                const logoutBtn = document.getElementById('logout-btn');
+                if (logoutBtn) {
+                    // Remove old listener if possible (cloneNode trick)
+                    const newBtn = logoutBtn.cloneNode(true);
+                    logoutBtn.parentNode.replaceChild(newBtn, logoutBtn);
+                    newBtn.addEventListener('click', async () => {
+                        await signOut(auth);
+                        window.location.href = '/auth/login-fixed.html';
+                    });
+                }
+
             } catch (error) {
-                console.error('Error initializing dashboard:', error);
-                const welcomeMessage = document.getElementById('welcome-message');
-                if (welcomeMessage) {
-                    welcomeMessage.textContent = 'Error loading dashboard. Please refresh the page.';
-                    welcomeMessage.style.color = '#dc3545';
-                }
-            } finally {
-                isInitializing = false;
+                console.error("Dashboard init failed", error);
             }
-        });
-        
+        }
+
+        window.addEventListener('DOMContentLoaded', initDashboard);
+
         // Function to fetch and display teacher's tests
         async function fetchTeacherTests(teacherId) {
             try {
                 console.log('Fetching tests for teacher:', teacherId);
-                
+
                 // Get all tests created by this teacher, ordered by creation date
                 const testsRef = collection(db, 'tests');
                 const q = query(
-                    testsRef, 
+                    testsRef,
                     where('teacherId', '==', teacherId),
                     orderBy('createdAt', 'desc'),
                     limit(5) // Limit to 5 most recent tests
                 );
-                
+
                 const querySnapshot = await getDocs(q);
                 const testsContainer = document.querySelector('.card-body');
-                
+
                 // Clear existing test items
                 testsContainer.innerHTML = '';
-                
+
                 // Update the total tests count
                 const totalTestsElement = document.querySelector('.quick-stats .stat-card:first-child h3');
                 if (totalTestsElement) {
                     totalTestsElement.textContent = querySnapshot.size;
                 }
-                
+
                 if (querySnapshot.empty) {
                     testsContainer.innerHTML = `
                         <div class="no-tests">
@@ -526,13 +411,13 @@
                         </div>`;
                     return;
                 }
-                
+
                 // Create test items for each test
                 querySnapshot.forEach((doc) => {
                     const test = doc.data();
                     const testId = doc.id;
                     const testDate = test.createdAt ? test.createdAt.toDate().toLocaleDateString() : 'No date';
-                    
+
                     const testItem = document.createElement('div');
                     testItem.className = 'activity-item';
                     testItem.dataset.testId = testId; // Store test ID in dataset
@@ -553,10 +438,10 @@
                                 Results
                             </button>
                         </div>`;
-                    
+
                     testsContainer.appendChild(testItem);
                 });
-                
+
             } catch (error) {
                 console.error('Error fetching tests:', error);
                 const testsContainer = document.querySelector('.card-body');
@@ -568,18 +453,18 @@
                 }
             }
         }
-        
+
         // Add these functions for the view buttons
         function viewTest(testId) {
             // Navigate to view test page with testId
             window.location.href = `view-test.html?id=${testId}`;
         }
-        
+
         function viewResults(testId) {
             // Navigate to test results page with testId
             window.location.href = `test-results.html?id=${testId}`;
         }
-        
+
         // Add event delegation for test actions
         function setupTestEventListeners() {
             document.addEventListener('click', (e) => {
@@ -589,7 +474,7 @@
                     const testId = button.dataset.testId;
                     viewTest(testId);
                 }
-                
+
                 // Handle View Results button clicks
                 if (e.target.closest('.view-results')) {
                     const button = e.target.closest('.view-results');
@@ -598,14 +483,14 @@
                 }
             });
         }
-        
+
         // Initialize the dashboard when the page loads
         document.addEventListener('DOMContentLoaded', () => {
             console.log('DOM fully loaded');
             setupTestEventListeners(); // Add event listeners
             // Any initialization code that needs to run after DOM is loaded
         });
-        
+
         // Clean up the auth state listener when the page unloads
         window.addEventListener('beforeunload', () => {
             console.log('Cleaning up auth state listener...');
@@ -616,4 +501,5 @@
     </script>
 
 </body>
+
 </html>

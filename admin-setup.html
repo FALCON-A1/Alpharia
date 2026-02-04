@@ -1,5 +1,6 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -10,30 +11,35 @@
             padding: 2rem;
             background-color: #f8f9fa;
         }
+
         .setup-container {
             max-width: 800px;
             margin: 0 auto;
             background: white;
             padding: 2rem;
             border-radius: 8px;
-            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
         }
+
         .status {
             margin-top: 1rem;
             padding: 1rem;
             border-radius: 4px;
             display: none;
         }
+
         .success {
             background-color: #d4edda;
             color: #155724;
             border: 1px solid #c3e6cb;
         }
+
         .error {
             background-color: #f8d7da;
             color: #721c24;
             border: 1px solid #f5c6cb;
         }
+
         .loading {
             color: #0c5460;
             background-color: #d1ecf1;
@@ -41,29 +47,30 @@
         }
     </style>
 </head>
+
 <body>
     <div class="container">
         <div class="setup-container">
             <h2>Alpharia Admin Setup</h2>
             <p class="text-muted">This will initialize the admin user and set up the required roles in Firestore.</p>
-            
+
             <div class="mb-3">
                 <label for="adminEmail" class="form-label">Admin Email</label>
                 <input type="email" class="form-control" id="adminEmail" value="admin@alpharia.com">
             </div>
-            
+
             <div class="mb-3">
                 <label for="adminPassword" class="form-label">Admin Password</label>
                 <input type="password" class="form-control" id="adminPassword" value="@LPH@RI@*134679">
                 <div class="form-text">Must be at least 8 characters long</div>
             </div>
-            
+
             <div class="d-grid gap-2">
                 <button id="initBtn" class="btn btn-primary btn-lg">Initialize Admin User</button>
             </div>
-            
+
             <div id="status" class="status"></div>
-            
+
             <div id="nextSteps" class="mt-4" style="display: none;">
                 <h4>Next Steps:</h4>
                 <ol>
@@ -78,38 +85,23 @@
 
     <!-- Firebase SDK -->
     <script type="module">
-        import { initializeApp } from 'https://www.gstatic.com/firebasejs/9.22.0/firebase-app.js';
-        import { 
-            getAuth, 
+        import { app, auth, db } from './js/firebase-config.js';
+        import {
             createUserWithEmailAndPassword,
             signInWithEmailAndPassword,
             signOut
-        } from 'https://www.gstatic.com/firebasejs/9.22.0/firebase-auth.js';
-        import { 
-            getFirestore, 
-            doc, 
-            setDoc, 
+        } from 'https://www.gstatic.com/firebasejs/12.1.0/firebase-auth.js';
+        import {
+            getFirestore,
+            doc,
+            setDoc,
             collection,
             getDocs,
             query,
             where
-        } from 'https://www.gstatic.com/firebasejs/9.22.0/firebase-firestore.js';
+        } from 'https://www.gstatic.com/firebasejs/12.1.0/firebase-firestore.js';
 
-        // Your web app's Firebase configuration
-        const firebaseConfig = {
-            apiKey: "AIzaSyAtOedXLBC4eigzqmBpYFciN-W5Mi2Cpmc",
-            authDomain: "alpharia-c6a39.firebaseapp.com",
-            projectId: "alpharia-c6a39",
-            storageBucket: "alpharia-c6a39.firebasestorage.app",
-            messagingSenderId: "85322759772",
-            appId: "1:85322759772:web:d5c7a528fd61c9d2373099",
-            measurementId: "G-KEC7MGMVE8"
-        };
-
-        // Initialize Firebase
-        const app = initializeApp(firebaseConfig);
-        const auth = getAuth(app);
-        const db = getFirestore(app);
+        // Initialize Firebase - Done in firebase-config.js
 
         // Permission constants
         const PERMISSIONS = {
@@ -174,33 +166,33 @@
         async function initializeAdmin() {
             const email = adminEmail.value.trim();
             const password = adminPassword.value.trim();
-            
+
             if (!email || !password) {
                 showStatus('Please enter both email and password', 'error');
                 return;
             }
-            
+
             if (password.length < 8) {
                 showStatus('Password must be at least 8 characters long', 'error');
                 return;
             }
-            
+
             try {
                 showStatus('Initializing admin user and roles...', 'loading');
                 initBtn.disabled = true;
-                
+
                 // 1. Create the admin user
                 showStatus('Creating admin user...', 'loading');
                 const userCredential = await createUserWithEmailAndPassword(auth, email, password);
                 const user = userCredential.user;
-                
+
                 // 2. Sign out the current user (we'll sign in again later)
                 await signOut(auth);
-                
+
                 // 3. Create roles collection and add default roles
                 showStatus('Setting up roles and permissions...', 'loading');
                 const rolesRef = collection(db, 'roles');
-                
+
                 for (const [roleId, roleData] of Object.entries(DEFAULT_ROLES)) {
                     const roleRef = doc(rolesRef, roleId);
                     await setDoc(roleRef, {
@@ -209,7 +201,7 @@
                         createdAt: new Date().toISOString()
                     }, { merge: true });
                 }
-                
+
                 // 4. Create the admin user document with admin role
                 const userRef = doc(db, 'users', user.uid);
                 await setDoc(userRef, {
@@ -221,26 +213,26 @@
                     createdAt: new Date().toISOString(),
                     lastLogin: new Date().toISOString()
                 });
-                
+
                 // 5. Sign in the admin user
                 await signInWithEmailAndPassword(auth, email, password);
-                
+
                 // Show success message
                 showStatus('Admin setup completed successfully!', 'success');
                 nextSteps.style.display = 'block';
-                
+
             } catch (error) {
                 console.error('Error during admin setup:', error);
-                
+
                 // Handle specific errors
                 if (error.code === 'auth/email-already-in-use') {
                     showStatus('Admin user already exists. Updating permissions...', 'loading');
-                    
+
                     try {
                         // Sign in with the existing user
                         const userCredential = await signInWithEmailAndPassword(auth, email, password);
                         const user = userCredential.user;
-                        
+
                         // Update the user document with admin role
                         const userRef = doc(db, 'users', user.uid);
                         await setDoc(userRef, {
@@ -248,7 +240,7 @@
                             isActive: true,
                             updatedAt: new Date().toISOString()
                         }, { merge: true });
-                        
+
                         // Set up roles
                         const rolesRef = collection(db, 'roles');
                         for (const [roleId, roleData] of Object.entries(DEFAULT_ROLES)) {
@@ -259,10 +251,10 @@
                                 createdAt: new Date().toISOString()
                             }, { merge: true });
                         }
-                        
+
                         showStatus('Admin permissions updated successfully!', 'success');
                         nextSteps.style.display = 'block';
-                        
+
                     } catch (updateError) {
                         console.error('Error updating admin user:', updateError);
                         showStatus(`Error: ${updateError.message}`, 'error');
@@ -279,4 +271,5 @@
         initBtn.addEventListener('click', initializeAdmin);
     </script>
 </body>
+
 </html>

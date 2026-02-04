@@ -1,5 +1,6 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -9,24 +10,61 @@
     <link href="css/student-dashboard-clean.css" rel="stylesheet">
     <link href="css/student-styles.css" rel="stylesheet">
     <style>
-        .settings-card { border: none; border-radius: 10px; box-shadow: 0 0.15rem 1.75rem 0 rgba(58, 59, 69, 0.15); margin-bottom: 1.5rem; }
-        .settings-card .card-header { background-color: #f8f9fc; border-bottom: 1px solid #e3e6f0; font-weight: 600; padding: 1rem 1.35rem; }
-        .profile-pic { width: 150px; height: 150px; border-radius: 50%; object-fit: cover; border: 5px solid #f8f9fc; box-shadow: 0 0.15rem 0.5rem rgba(0, 0, 0, 0.1); }
-        .nav-pills .nav-link { color: #6e707e; padding: 0.5rem 1rem; }
-        .nav-pills .nav-link.active { background-color: #4e73df; color: white; }
-        .tab-content { padding: 1.5rem 0; }
+        .settings-card {
+            border: none;
+            border-radius: 10px;
+            box-shadow: 0 0.15rem 1.75rem 0 rgba(58, 59, 69, 0.15);
+            margin-bottom: 1.5rem;
+        }
+
+        .settings-card .card-header {
+            background-color: #f8f9fc;
+            border-bottom: 1px solid #e3e6f0;
+            font-weight: 600;
+            padding: 1rem 1.35rem;
+        }
+
+        .profile-pic {
+            width: 150px;
+            height: 150px;
+            border-radius: 50%;
+            object-fit: cover;
+            border: 5px solid #f8f9fc;
+            box-shadow: 0 0.15rem 0.5rem rgba(0, 0, 0, 0.1);
+        }
+
+        .nav-pills .nav-link {
+            color: #6e707e;
+            padding: 0.5rem 1rem;
+        }
+
+        .nav-pills .nav-link.active {
+            background-color: #4e73df;
+            color: white;
+        }
+
+        .tab-content {
+            padding: 1.5rem 0;
+        }
     </style>
 </head>
+
 <body class="dashboard-layout">
     <!-- Sidebar -->
     <div class="sidebar">
-        <div class="sidebar-header"><h3>Alpharia</h3></div>
+        <div class="sidebar-header">
+            <h3>Alpharia</h3>
+        </div>
         <ul class="nav flex-column">
-            <li class="nav-item"><a href="student-dashboard-clean.html" class="nav-link"><i class="fas fa-home"></i> Overview</a></li>
-            <li class="nav-item"><a href="take-test.html" class="nav-link"><i class="fas fa-tasks"></i> My Tests</a></li>
-            <li class="nav-item"><a href="student-progress.html" class="nav-link"><i class="fas fa-chart-line"></i> Progress</a></li>
+            <li class="nav-item"><a href="student-dashboard.html" class="nav-link"><i class="fas fa-home"></i>
+                    Overview</a></li>
+            <li class="nav-item"><a href="take-test.html" class="nav-link"><i class="fas fa-tasks"></i> My Tests</a>
+            </li>
+            <li class="nav-item"><a href="student-progress.html" class="nav-link"><i class="fas fa-chart-line"></i>
+                    Progress</a></li>
             <li class="nav-item"><a href="#" class="nav-link"><i class="fas fa-book"></i> Resources</a></li>
-            <li class="nav-item active"><a href="student-settings.html" class="nav-link active"><i class="fas fa-cog"></i> Settings</a></li>
+            <li class="nav-item active"><a href="student-settings.html" class="nav-link active"><i
+                        class="fas fa-cog"></i> Settings</a></li>
         </ul>
     </div>
 
@@ -34,13 +72,16 @@
     <div class="main-content">
         <nav class="top-bar">
             <div class="search-bar"><i class="fas fa-search"></i><input type="text" placeholder="Search..."></div>
-            <div class="user-profile"><span id="topBarUsername" class="username">Loading...</span><div class="avatar"><i class="fas fa-user"></i></div></div>
+            <div class="user-profile"><span id="topBarUsername" class="username">Loading...</span>
+                <div class="avatar"><i class="fas fa-user"></i></div>
+            </div>
         </nav>
 
         <div class="container-fluid py-4">
             <div class="d-flex justify-content-between align-items-center mb-4">
                 <h2>Account Settings</h2>
-                <button class="btn btn-primary" id="saveChangesBtn"><i class="fas fa-save me-2"></i>Save Changes</button>
+                <button class="btn btn-primary" id="saveChangesBtn"><i class="fas fa-save me-2"></i>Save
+                    Changes</button>
             </div>
 
             <div class="row">
@@ -50,19 +91,22 @@
                             <img src="" alt="Profile" class="profile-pic mb-3" id="profilePicture">
                             <h5 class="mb-1" id="profileName">Loading...</h5>
                             <p class="text-muted mb-3" id="userRole">Loading...</p>
-                            <button class="btn btn-outline-primary btn-sm w-100"><i class="fas fa-camera me-1"></i> Change Photo</button>
+                            <button class="btn btn-outline-primary btn-sm w-100"><i class="fas fa-camera me-1"></i>
+                                Change Photo</button>
                         </div>
                     </div>
-                    
+
                     <div class="card settings-card">
                         <div class="list-group list-group-flush">
-                            <a href="#profile" class="list-group-item list-group-item-action active" data-bs-toggle="pill">
+                            <a href="#profile" class="list-group-item list-group-item-action active"
+                                data-bs-toggle="pill">
                                 <i class="fas fa-user-circle me-2"></i> Profile
                             </a>
                             <a href="#account" class="list-group-item list-group-item-action" data-bs-toggle="pill">
                                 <i class="fas fa-key me-2"></i> Account
                             </a>
-                            <a href="#notifications" class="list-group-item list-group-item-action" data-bs-toggle="pill">
+                            <a href="#notifications" class="list-group-item list-group-item-action"
+                                data-bs-toggle="pill">
                                 <i class="fas fa-bell me-2"></i> Notifications
                             </a>
                         </div>
@@ -79,7 +123,8 @@
                                     <form>
                                         <div class="mb-3">
                                             <label class="form-label">Full Name</label>
-                                            <input type="text" class="form-control" id="fullName" placeholder="Enter your full name">
+                                            <input type="text" class="form-control" id="fullName"
+                                                placeholder="Enter your full name">
                                         </div>
                                         <div class="mb-3">
                                             <label class="form-label">Email Address</label>
@@ -125,20 +170,25 @@
                                     <form>
                                         <div class="mb-3">
                                             <label class="form-label">Current Password</label>
-                                            <input type="password" class="form-control" id="currentPassword" placeholder="Enter current password" required>
+                                            <input type="password" class="form-control" id="currentPassword"
+                                                placeholder="Enter current password" required>
                                             <div class="form-text">Required to change your password</div>
                                         </div>
                                         <div class="mb-3">
                                             <label class="form-label">New Password</label>
-                                            <input type="password" class="form-control" id="newPassword" placeholder="Enter new password (min 6 characters)" minlength="6" required>
+                                            <input type="password" class="form-control" id="newPassword"
+                                                placeholder="Enter new password (min 6 characters)" minlength="6"
+                                                required>
                                             <div class="form-text">Password must be at least 6 characters long</div>
                                         </div>
                                         <div class="mb-3">
                                             <label class="form-label">Confirm New Password</label>
-                                            <input type="password" class="form-control" id="confirmPassword" placeholder="Confirm new password" minlength="6" required>
+                                            <input type="password" class="form-control" id="confirmPassword"
+                                                placeholder="Confirm new password" minlength="6" required>
                                         </div>
                                         <button type="button" class="btn btn-primary" id="changePasswordBtn">
-                                            <span class="spinner-border spinner-border-sm d-none" role="status" aria-hidden="true"></span>
+                                            <span class="spinner-border spinner-border-sm d-none" role="status"
+                                                aria-hidden="true"></span>
                                             Update Password
                                         </button>
                                     </form>
@@ -149,21 +199,27 @@
                                     <h5 class="mb-4">Notification Preferences</h5>
                                     <div class="form-check form-switch mb-3">
                                         <input class="form-check-input" type="checkbox" id="emailNotifications" checked>
-                                        <label class="form-check-label" for="emailNotifications">Email Notifications</label>
-                                        <p class="text-muted small mb-0 mt-1">Receive email notifications about your account activity</p>
+                                        <label class="form-check-label" for="emailNotifications">Email
+                                            Notifications</label>
+                                        <p class="text-muted small mb-0 mt-1">Receive email notifications about your
+                                            account activity</p>
                                     </div>
                                     <div class="form-check form-switch mb-3">
                                         <input class="form-check-input" type="checkbox" id="testReminders" checked>
                                         <label class="form-check-label" for="testReminders">Test Reminders</label>
-                                        <p class="text-muted small mb-0 mt-1">Get reminders about upcoming tests and assignments</p>
+                                        <p class="text-muted small mb-0 mt-1">Get reminders about upcoming tests and
+                                            assignments</p>
                                     </div>
                                     <div class="form-check form-switch mb-3">
                                         <input class="form-check-input" type="checkbox" id="progressReports" checked>
-                                        <label class="form-check-label" for="progressReports">Weekly Progress Reports</label>
-                                        <p class="text-muted small mb-0 mt-1">Receive weekly updates on your learning progress</p>
+                                        <label class="form-check-label" for="progressReports">Weekly Progress
+                                            Reports</label>
+                                        <p class="text-muted small mb-0 mt-1">Receive weekly updates on your learning
+                                            progress</p>
                                     </div>
                                     <button type="button" class="btn btn-primary mt-2" id="savePreferencesBtn">
-                                        <span class="spinner-border spinner-border-sm d-none" role="status" aria-hidden="true"></span>
+                                        <span class="spinner-border spinner-border-sm d-none" role="status"
+                                            aria-hidden="true"></span>
                                         Save Preferences
                                     </button>
                                 </div>
@@ -176,33 +232,22 @@
     </div>
 
     <!-- Firebase SDK -->
-    <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-app-compat.js"></script>
-    <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-auth-compat.js"></script>
-    <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-firestore-compat.js"></script>
+
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/js/bootstrap.bundle.min.js"></script>
     <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
-    <script>
-        // Firebase configuration
-        const firebaseConfig = {
-            apiKey: "AIzaSyAtOedXLBC4eigzqmBpYFciN-W5Mi2Cpmc",
-            authDomain: "alpharia-c6a39.firebaseapp.com",
-            projectId: "alpharia-c6a39",
-            storageBucket: "alpharia-c6a39.appspot.com",
-            messagingSenderId: "85322759772",
-            appId: "1:85322759772:web:d5c7a528fd61c9d2373099"
-        };
+    <script type="module">
+        import { app, auth, db } from './js/firebase-config.js';
+        import { requireAuth } from './js/auth-check.js';
+        import {
+            doc, getDoc, collection, query, where, updateDoc, serverTimestamp
+        } from 'https://www.gstatic.com/firebasejs/12.1.0/firebase-firestore.js';
+        import {
+            EmailAuthProvider, reauthenticateWithCredential, updatePassword
+        } from 'https://www.gstatic.com/firebasejs/12.1.0/firebase-auth.js';
 
-        // Initialize Firebase
-        if (!firebase.apps.length) {
-            firebase.initializeApp(firebaseConfig);
-        }
-        
-        const auth = firebase.auth();
-        const db = firebase.firestore();
-        
-        // Set auth persistence
-        auth.setPersistence(firebase.auth.Auth.Persistence.LOCAL);
-        
+        let currentUser = null;
+        let userData = {};
+
         // DOM Elements
         const fullNameInput = document.getElementById('fullName');
         const emailInput = document.getElementById('email');
@@ -220,59 +265,102 @@
         const profilePic = document.querySelector('.profile-pic');
         const usernameDisplay = document.querySelector('.username');
         const userAvatar = document.querySelector('.user-avatar');
-        
-        let currentUser = null;
-        let userData = {};
+
+        // Make functions global or attach listeners
+        // ... (We will implement listeners in DOMContentLoaded)
+
+        // Initialize
+        document.addEventListener('DOMContentLoaded', async () => {
+            // Tooltips
+            const tooltipTriggerList = [].slice.call(document.querySelectorAll('[data-bs-toggle="tooltip"]'));
+            tooltipTriggerList.map(t => new bootstrap.Tooltip(t));
+
+            try {
+                const { user } = await requireAuth(['student']);
+                currentUser = user;
+
+                await loadUserData(user);
+
+                // Listeners
+                if (saveChangesBtn) saveChangesBtn.addEventListener('click', saveProfileChanges);
+                if (changePasswordBtn) changePasswordBtn.addEventListener('click', changePassword);
+                if (savePreferencesBtn) savePreferencesBtn.addEventListener('click', saveNotificationPreferences);
+
+                const changePhotoBtn = document.querySelector('.btn-outline-primary');
+                if (changePhotoBtn) {
+                    changePhotoBtn.addEventListener('click', (e) => {
+                        e.preventDefault();
+                        showAlert('Profile picture upload would be handled here with Firebase Storage', 'info');
+                    });
+                }
+
+            } catch (e) { console.error('Auth error', e); }
+        });
 
         // Format user's full name
         function formatFullName(firstName, lastName) {
             return `${firstName || ''} ${lastName || ''}`.trim() || 'Student';
         }
 
-        // Update UI with user data
+        // Load user data
+        async function loadUserData(user) {
+            try {
+                const userDocRef = doc(db, 'users', user.uid);
+                const studentDocRef = doc(db, 'students', user.uid);
+
+                const userDoc = await getDoc(userDocRef);
+                const studentDoc = await getDoc(studentDocRef);
+
+                if (userDoc.exists()) {
+                    userData = { ...userDoc.data() };
+                }
+                if (studentDoc.exists()) {
+                    const sData = studentDoc.data();
+                    userData = {
+                        ...userData,
+                        ...sData,
+                        gradeLevel: sData.grade || '',
+                        languageLevel: sData.level || ''
+                    };
+                }
+
+                if (!userData.firstName && user.displayName) {
+                    const names = user.displayName.split(' ');
+                    userData.firstName = names[0] || '';
+                    userData.lastName = names.slice(1).join(' ') || '';
+                }
+
+                updateUI(user, userData);
+            } catch (error) {
+                console.error('Error loading data', error);
+                showAlert('Error loading profile', 'danger');
+            }
+        }
+
         function updateUI(user, userData) {
-            console.log('Updating UI with:', { user, userData });
-            
-            // Update profile section
+            // ... Logic to update fields ...
             if (userData) {
-                // Update name field
-                if (userData.name) {
-                    fullNameInput.value = userData.name;
-                } else if (userData.firstName || userData.lastName) {
-                    // For backward compatibility with old data
-                    fullNameInput.value = `${userData.firstName || ''} ${userData.lastName || ''}`.trim();
-                }
-                
-                // Update email (from auth user)
-                if (user && user.email) {
-                    emailInput.value = user.email;
-                }
-                
-                // Update grade level
-                if (userData.gradeLevel) {
-                    gradeSelect.value = userData.gradeLevel;
-                } else if (userData.grade) {
-                    gradeSelect.value = userData.grade;
-                }
-                
-                // Update language level
-                if (userData.languageLevel) {
-                    languageLevelSelect.value = userData.languageLevel;
-                } else if (userData.level) {
-                    languageLevelSelect.value = userData.level;
-                }
-                
-                // Update notification preferences
+                if (userData.name) fullNameInput.value = userData.name;
+                else if (userData.firstName) fullNameInput.value = `${userData.firstName} ${userData.lastName || ''}`.trim();
+
+                if (user.email) emailInput.value = user.email;
+
+                if (userData.gradeLevel) gradeSelect.value = userData.gradeLevel;
+                else if (userData.grade) gradeSelect.value = userData.grade;
+
+                if (userData.languageLevel) languageLevelSelect.value = userData.languageLevel;
+                else if (userData.level) languageLevelSelect.value = userData.level;
+
                 if (userData.notifications) {
                     emailNotifications.checked = userData.notifications.email !== false;
                     testReminders.checked = userData.notifications.testReminders !== false;
                     progressReports.checked = userData.notifications.progressReports !== false;
                 }
-                
+
                 // Update profile picture with error handling
                 const setProfilePicture = (url) => {
                     if (!url) return false;
-                    
+
                     // Create a test image to check if the URL is valid
                     const img = new Image();
                     img.onload = () => {
@@ -286,199 +374,138 @@
                     img.src = url;
                     return true;
                 };
-                
+
                 // Try to set profile picture from available sources
                 const userPhotoURL = user?.photoURL;
                 const userDataPhotoURL = userData?.photoURL;
-                const placeholderURL = 'https://ui-avatars.com/api/?name=' + 
-                    encodeURIComponent(userData?.name || 'User') + 
+                const placeholderURL = 'https://ui-avatars.com/api/?name=' +
+                    encodeURIComponent(userData?.name || 'User') +
                     '&background=4e73df&color=fff&size=150';
-                
+
                 // Try user.photoURL first, then userData.photoURL, then fallback to placeholder
                 if (!(userPhotoURL && setProfilePicture(userPhotoURL)) &&
                     !(userDataPhotoURL && setProfilePicture(userDataPhotoURL))) {
                     profilePic.src = placeholderURL;
                 }
-                
+
                 // Get the user's display name (with fallbacks)
                 const displayName = userData.name || formatFullName(userData.firstName, userData.lastName) || 'Student';
-                
+
                 // Update profile name in the settings card
                 const profileName = document.getElementById('profileName');
                 if (profileName) {
                     profileName.textContent = displayName;
                 }
-                
+
                 // Update username display in the top bar
                 const topBarUsername = document.getElementById('topBarUsername');
                 if (topBarUsername) {
                     topBarUsername.textContent = displayName;
                 }
-                
+
                 // Update user avatar
                 if (userAvatar) {
                     if (userData.name) {
                         const nameParts = userData.name.split(' ');
                         userAvatar.textContent = (nameParts[0][0] + (nameParts[1] ? nameParts[1][0] : '')).toUpperCase();
                     } else if (userData.firstName || userData.lastName) {
-                        const initials = (userData.firstName ? userData.firstName[0] : '') + 
-                                       (userData.lastName ? userData.lastName[0] : '');
+                        const initials = (userData.firstName ? userData.firstName[0] : '') +
+                            (userData.lastName ? userData.lastName[0] : '');
                         userAvatar.textContent = initials.toUpperCase();
                     }
                 }
-                
+
                 // Update role display
                 const roleElement = document.querySelector('.text-muted.mb-3');
                 if (roleElement) {
                     roleElement.textContent = userData.role || 'Student';
                 }
-                
-                console.log('UI updated successfully');
             }
         }
 
-        // Load user data from Firestore
-        async function loadUserData(user) {
-            try {
-                console.log('Loading user data for:', user.uid);
-                
-                // Get user document using compat syntax
-                const userDoc = await db.collection('users').doc(user.uid).get();
-                const studentDoc = await db.collection('students').doc(user.uid).get();
-                
-                console.log('User doc exists:', userDoc.exists);
-                console.log('Student doc exists:', studentDoc.exists);
-                
-                if (userDoc.exists) {
-                    userData = { ...userDoc.data() };
-                    console.log('User data loaded:', userData);
-                }
-                
-                if (studentDoc.exists) {
-                    const studentData = studentDoc.data();
-                    userData = { 
-                        ...userData, 
-                        ...studentData,
-                        // Map student-specific fields
-                        gradeLevel: studentData.grade || '',
-                        languageLevel: studentData.level || ''
-                    };
-                    console.log('Student data loaded:', studentData);
-                }
-                
-                // If no name in database, use displayName from auth
-                if (!userData.firstName && user.displayName) {
-                    const names = user.displayName.split(' ');
-                    userData.firstName = names[0] || '';
-                    userData.lastName = names.length > 1 ? names.slice(1).join(' ') : '';
-                }
-                
-                updateUI(user, userData);
-            } catch (error) {
-                console.error('Error loading user data:', error);
-                showAlert('Error loading your profile. Please try again.', 'danger');
-            }
-        }
-
-        // Save profile changes to Firestore
         async function saveProfileChanges() {
-            try {
-                const name = fullNameInput.value.trim();
-                if (!name) {
-                    showAlert('Please enter your full name', 'warning');
-                    return;
-                }
+            const name = fullNameInput.value.trim();
+            if (!name) return showAlert('Enter full name', 'warning');
 
-                // Prepare updates for users collection
-                const userUpdates = {
-                    name: name,
-                    gradeLevel: gradeSelect.value,
-                    languageLevel: languageLevelSelect.value,
-                    updatedAt: firebase.firestore.FieldValue.serverTimestamp()
-                };
-                
-                // Prepare updates for students collection
-                const studentUpdates = {
-                    name: name,
-                    grade: gradeSelect.value,
-                    level: languageLevelSelect.value,
-                    updatedAt: firebase.firestore.FieldValue.serverTimestamp()
-                };
-                
-                // Update user document
-                await db.collection('users').doc(currentUser.uid).update(userUpdates);
-                
-                // Update student document
-                await db.collection('students').doc(currentUser.uid).update(studentUpdates);
-                
+            const updates = {
+                name,
+                gradeLevel: gradeSelect.value,
+                languageLevel: languageLevelSelect.value,
+                updatedAt: serverTimestamp()
+            };
+
+            const studentUpdates = {
+                name,
+                grade: gradeSelect.value,
+                level: languageLevelSelect.value,
+                updatedAt: serverTimestamp()
+            };
+
+            try {
+                await updateDoc(doc(db, 'users', currentUser.uid), updates);
+                await updateDoc(doc(db, 'students', currentUser.uid), studentUpdates);
+
                 // Update user data in memory
-                userData = { 
-                    ...userData, 
-                    ...userUpdates,
+                userData = {
+                    ...userData,
+                    ...updates,
                     // For backward compatibility
                     firstName: name.split(' ')[0],
                     lastName: name.split(' ').slice(1).join(' ')
                 };
-                
+
                 // Update UI
                 if (usernameDisplay) {
                     usernameDisplay.textContent = name;
                 }
-                
+
                 // Update top bar username if it exists
                 const topBarUsername = document.getElementById('topBarUsername');
                 if (topBarUsername) {
                     topBarUsername.textContent = name;
                 }
-                
-                showAlert('Profile updated successfully!', 'success');
-            } catch (error) {
-                console.error('Error updating profile:', error);
-                showAlert('Error updating your profile. Please try again.', 'danger');
-            }
+
+                showAlert('Profile updated!', 'success');
+            } catch (e) { console.error(e); showAlert('Error updating profile', 'danger'); }
         }
 
-        // Change password
+        async function saveNotificationPreferences() {
+            const prefs = {
+                email: emailNotifications.checked,
+                testReminders: testReminders.checked,
+                progressReports: progressReports.checked,
+                updatedAt: serverTimestamp()
+            };
+            try {
+                await updateDoc(doc(db, 'users', currentUser.uid), { notifications: prefs });
+                // Update user data in memory
+                userData.notifications = prefs;
+                showAlert('Preferences saved!', 'success');
+            } catch (e) { console.error(e); showAlert('Error saving preferences', 'danger'); }
+        }
+
         async function changePassword() {
-            const currentPassword = currentPasswordInput.value;
-            const newPassword = newPasswordInput.value;
-            const confirmPassword = confirmPasswordInput.value;
-            
-            // Validate inputs
-            if (!currentPassword || !newPassword || !confirmPassword) {
-                showAlert('Please fill in all password fields.', 'warning');
-                return;
-            }
-            
-            if (newPassword.length < 6) {
+            const current = currentPasswordInput.value;
+            const newP = newPasswordInput.value;
+            const confirmP = confirmPasswordInput.value;
+
+            if (!current || !newP || !confirmP) return showAlert('Fill all fields', 'warning');
+            if (newP.length < 6) {
                 showAlert('New password must be at least 6 characters long.', 'warning');
                 return;
             }
-            
-            if (newPassword !== confirmPassword) {
-                showAlert('New passwords do not match.', 'warning');
-                return;
-            }
-            
+            if (newP !== confirmP) return showAlert('Passwords do not match', 'warning');
+
             try {
-                const user = auth.currentUser;
-                const credential = firebase.auth.EmailAuthProvider.credential(user.email, currentPassword);
-                
-                // Re-authenticate user using compat syntax
-                await user.reauthenticateWithCredential(credential);
-                
-                // Update password using compat syntax
-                await user.updatePassword(newPassword);
-                
-                // Clear password fields
+                const cred = EmailAuthProvider.credential(currentUser.email, current);
+                await reauthenticateWithCredential(currentUser, cred);
+                await updatePassword(currentUser, newP);
                 currentPasswordInput.value = '';
                 newPasswordInput.value = '';
                 confirmPasswordInput.value = '';
-                
-                showAlert('Password updated successfully!', 'success');
+                showAlert('Password updated!', 'success');
             } catch (error) {
-                console.error('Error changing password:', error);
-                
+                console.error(error);
                 if (error.code === 'auth/wrong-password') {
                     showAlert('Incorrect current password. Please try again.', 'danger');
                 } else if (error.code === 'auth/requires-recent-login') {
@@ -492,97 +519,20 @@
             }
         }
 
-        // Save notification preferences
-        async function saveNotificationPreferences() {
-            try {
-                const preferences = {
-                    email: emailNotifications.checked,
-                    testReminders: testReminders.checked,
-                    progressReports: progressReports.checked,
-                    updatedAt: firebase.firestore.FieldValue.serverTimestamp()
-                };
-                
-                // Update user document using compat syntax
-                await db.collection('users').doc(currentUser.uid).update({
-                    notifications: preferences,
-                    updatedAt: firebase.firestore.FieldValue.serverTimestamp()
-                });
-                
-                // Update user data in memory
-                userData.notifications = preferences;
-                
-                showAlert('Notification preferences saved!', 'success');
-            } catch (error) {
-                console.error('Error saving preferences:', error);
-                showAlert('Error saving your preferences. Please try again.', 'danger');
-            }
-        }
-
-        // Show alert message
         function showAlert(message, type) {
-            // Remove any existing alerts
             const existingAlert = document.querySelector('.alert');
-            if (existingAlert) {
-                existingAlert.remove();
-            }
-            
+            if (existingAlert) existingAlert.remove();
+
             const alertDiv = document.createElement('div');
             alertDiv.className = `alert alert-${type} alert-dismissible fade show`;
-            alertDiv.role = 'alert';
-            alertDiv.innerHTML = `
-                ${message}
-                <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
-            `;
-            
-            // Insert alert after the main container
+            alertDiv.innerHTML = `${message}<button type="button" class="btn-close" data-bs-dismiss="alert"></button>`;
+
             const container = document.querySelector('.container-fluid');
             container.insertBefore(alertDiv, container.firstChild);
-            
-            // Auto-dismiss after 5 seconds
-            setTimeout(() => {
-                const bsAlert = new bootstrap.Alert(alertDiv);
-                bsAlert.close();
-            }, 5000);
+
+            setTimeout(() => { try { new bootstrap.Alert(alertDiv).close(); } catch (e) { } }, 5000);
         }
-
-        // Initialize the app when the DOM is loaded
-        document.addEventListener('DOMContentLoaded', function() {
-            // Initialize Bootstrap tooltips
-            const tooltipTriggerList = [].slice.call(document.querySelectorAll('[data-bs-toggle="tooltip"]'));
-            tooltipTriggerList.map(function(tooltipTriggerEl) {
-                return new bootstrap.Tooltip(tooltipTriggerEl);
-            });
-            
-            // Check if user is logged in
-            auth.onAuthStateChanged(async (user) => {
-                if (user) {
-                    currentUser = user;
-                    await loadUserData(user);
-                    
-                    // Set up event listeners after user data is loaded
-                    saveChangesBtn.addEventListener('click', saveProfileChanges);
-                    changePasswordBtn.addEventListener('click', changePassword);
-                    savePreferencesBtn.addEventListener('click', saveNotificationPreferences);
-                    
-                    // The top bar username is now updated in the updateUI function
-                } else {
-                    // Redirect to login if not authenticated
-                    window.location.href = 'auth/login-fixed.html';
-                }
-            });
-        });
-
-        // Handle profile picture upload (placeholder - would need a storage solution)
-        document.addEventListener('DOMContentLoaded', function() {
-            const changePhotoBtn = document.querySelector('.btn-outline-primary');
-            if (changePhotoBtn) {
-                changePhotoBtn.addEventListener('click', (e) => {
-                    e.preventDefault();
-                    // This would open a file picker and handle the upload
-                    showAlert('Profile picture upload would be handled here with Firebase Storage', 'info');
-                });
-            }
-        });
     </script>
 </body>
+
 </html>

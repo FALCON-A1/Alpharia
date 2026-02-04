@@ -1,16 +1,18 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>View Test - Alpharia</title>
-    
+
     <!-- Google Fonts -->
-    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
-    
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap"
+        rel="stylesheet">
+
     <!-- Font Awesome Icons -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-    
+
     <!-- Custom CSS -->
     <link rel="stylesheet" href="css/teacher-dashboard.css">
     <style>
@@ -35,11 +37,11 @@
             --gray-700: #495057;
             --gray-800: #343a40;
             --gray-900: #212529;
-            
+
             /* Typography */
             --font-sans: 'Poppins', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
             --font-mono: 'SFMono-Regular', Menlo, Monaco, Consolas, 'Liberation Mono', 'Courier New', monospace;
-            
+
             /* Spacing */
             --spacing-1: 0.25rem;
             --spacing-2: 0.5rem;
@@ -48,21 +50,21 @@
             --spacing-5: 1.5rem;
             --spacing-6: 2rem;
             --spacing-8: 3rem;
-            
+
             /* Border Radius */
             --radius-sm: 0.25rem;
             --radius: 0.5rem;
             --radius-md: 0.75rem;
             --radius-lg: 1rem;
             --radius-full: 9999px;
-            
+
             /* Shadows */
             --shadow-sm: 0 1px 2px 0 rgba(0, 0, 0, 0.05);
             --shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
             --shadow-md: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05);
             --shadow-lg: 0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04);
             --shadow-xl: 0 25px 50px -12px rgba(0, 0, 0, 0.25);
-            
+
             /* Transitions */
             --transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
             --transition-slow: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
@@ -381,8 +383,15 @@
         }
 
         @keyframes fadeIn {
-            from { opacity: 0; transform: translateY(10px); }
-            to { opacity: 1; transform: translateY(0); }
+            from {
+                opacity: 0;
+                transform: translateY(10px);
+            }
+
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
         }
 
         /* ==================== */
@@ -397,7 +406,7 @@
             width: 100%;
             border-bottom: 1px solid var(--gray-100);
         }
-        
+
         .top-bar-container {
             max-width: 1600px;
             margin: 0 auto;
@@ -413,8 +422,10 @@
             align-items: center;
             gap: 1rem;
             flex: 1;
-            min-width: 0; /* Prevents flex items from overflowing */
-            max-width: calc(100% - 500px); /* Prevent overlap with right section */
+            min-width: 0;
+            /* Prevents flex items from overflowing */
+            max-width: calc(100% - 500px);
+            /* Prevent overlap with right section */
         }
 
         .menu-toggle {
@@ -435,7 +446,8 @@
         .page-info {
             display: flex;
             flex-direction: column;
-            min-width: 0; /* Allows text truncation */
+            min-width: 0;
+            /* Allows text truncation */
         }
 
         .page-title {
@@ -559,7 +571,7 @@
             border: 1px solid var(--gray-200);
         }
 
-        .search-bar:focus-within + .search-results {
+        .search-bar:focus-within+.search-results {
             opacity: 1;
             visibility: visible;
             transform: translateY(0);
@@ -994,7 +1006,7 @@
             right: 0;
             bottom: 0;
             width: 40px;
-            background: linear-gradient(90deg, transparent, rgba(255,255,255,0.2));
+            background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.2));
             transform: skewX(-20deg);
             transition: var(--transition);
         }
@@ -1150,7 +1162,8 @@
             transition: var(--transition);
         }
 
-        .section-link:hover, .section-link.active {
+        .section-link:hover,
+        .section-link.active {
             background: var(--primary-light);
             color: var(--primary);
         }
@@ -1210,8 +1223,15 @@
         }
 
         @keyframes modalFadeIn {
-            from { opacity: 0; transform: translateY(-20px); }
-            to { opacity: 1; transform: translateY(0); }
+            from {
+                opacity: 0;
+                transform: translateY(-20px);
+            }
+
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
         }
 
         .modal-header {
@@ -1301,8 +1321,15 @@
         }
 
         @keyframes modalFadeIn {
-            from { opacity: 0; transform: translateY(-20px); }
-            to { opacity: 1; transform: translateY(0); }
+            from {
+                opacity: 0;
+                transform: translateY(-20px);
+            }
+
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
         }
 
         .modal-header {
@@ -1416,20 +1443,20 @@
             padding: 15px;
             margin-bottom: 15px;
         }
-        
+
         .item-header {
             display: flex;
             justify-content: space-between;
             align-items: center;
             margin-bottom: 15px;
         }
-        
+
         .item-header h4 {
             margin: 0;
             font-size: 1rem;
             color: #444;
         }
-        
+
         .btn-icon {
             width: 32px;
             height: 32px;
@@ -1439,32 +1466,37 @@
             justify-content: center;
             border-radius: 50%;
         }
-        
+
         .btn-danger {
             background-color: #ff4d4f;
             color: white;
             border-color: #ff4d4f;
         }
-        
+
         .btn-danger:hover {
             background-color: #ff7875;
             border-color: #ff7875;
         }
-        
+
         .action-buttons {
             display: flex;
             gap: 10px;
             margin-left: auto;
         }
-        
+
         .item-content-group.hidden {
             display: none;
         }
-        
+
         /* Spinner Animation */
         @keyframes spin {
-            0% { transform: rotate(0deg); }
-            100% { transform: rotate(360deg); }
+            0% {
+                transform: rotate(0deg);
+            }
+
+            100% {
+                transform: rotate(360deg);
+            }
         }
 
         .spinner {
@@ -1481,7 +1513,7 @@
             .test-container {
                 padding: 0 var(--spacing-sm);
             }
-            
+
             .test-header {
                 padding: var(--spacing-md);
                 flex-direction: column;
@@ -1498,13 +1530,14 @@
                 grid-template-columns: 1fr;
                 gap: var(--spacing-sm);
             }
-            
+
             .section-body {
                 padding: var(--spacing-md);
             }
         }
     </style>
 </head>
+
 <body class="teacher-dashboard">
     <div class="dashboard-container">
         <!-- Sidebar -->
@@ -1515,24 +1548,24 @@
                 </div>
                 <h2>Alpharia</h2>
             </div>
-            
+
             <nav class="nav-menu">
                 <div class="menu-title">Main Menu</div>
-                
+
                 <div class="nav-item">
                     <a href="teacher-dashboard.html" class="nav-link">
                         <i class="fas fa-tachometer-alt"></i>
                         <span>Dashboard</span>
                     </a>
                 </div>
-                
+
                 <div class="nav-item">
                     <a href="create-test.html" class="nav-link">
                         <i class="fas fa-plus-circle"></i>
                         <span>Create Test</span>
                     </a>
                 </div>
-                
+
                 <div class="nav-item">
                     <a href="my-tests.html" class="nav-link active">
                         <i class="fas fa-clipboard-list"></i>
@@ -1540,32 +1573,32 @@
                         <span class="nav-badge">5</span>
                     </a>
                 </div>
-                
+
                 <div class="menu-title mt-4">Analytics</div>
-                
+
                 <div class="nav-item">
                     <a href="progress.html" class="nav-link">
                         <i class="fas fa-chart-line"></i>
                         <span>Progress</span>
                     </a>
                 </div>
-                
+
                 <div class="nav-item">
                     <a href="resources.html" class="nav-link">
                         <i class="fas fa-book"></i>
                         <span>Resources</span>
                     </a>
                 </div>
-                
+
                 <div class="menu-title mt-4">Account</div>
-                
+
                 <div class="nav-item">
                     <a href="settings.html" class="nav-link">
                         <i class="fas fa-cog"></i>
                         <span>Settings</span>
                     </a>
                 </div>
-                
+
                 <div class="nav-item">
                     <a href="help.html" class="nav-link">
                         <i class="fas fa-question-circle"></i>
@@ -1573,10 +1606,11 @@
                     </a>
                 </div>
             </nav>
-            
+
             <div class="sidebar-footer">
                 <div class="user-profile">
-                    <img src="https://ui-avatars.com/api/?name=Teacher&background=4a6cf7&color=fff" alt="User" class="user-avatar" id="sidebar-avatar">
+                    <img src="https://ui-avatars.com/api/?name=Teacher&background=4a6cf7&color=fff" alt="User"
+                        class="user-avatar" id="sidebar-avatar">
                     <div class="user-info">
                         <h4 class="user-name" id="sidebar-teacher-name">Loading...</h4>
                         <span class="user-role">Teacher</span>
@@ -1598,7 +1632,7 @@
                             <i class="fas fa-bars"></i>
                         </button>
                     </div>
-                    
+
                     <div class="top-bar-right">
                         <div class="page-info">
                             <div class="breadcrumbs">
@@ -1624,52 +1658,48 @@
                                     <span class="badge badge-danger">5</span>
                                 </button>
                             </div>
-                            
+
                             <div class="user-dropdown" id="user-dropdown">
-                                <button class="user-profile" id="user-menu-button" aria-expanded="false" aria-haspopup="true">
-                                    <img 
-                                        src="https://ui-avatars.com/api/?name=Teacher&background=4a6cf7&color=fff" 
-                                        alt="User profile" 
-                                        class="user-avatar"
-                                        id="user-avatar">
+                                <button class="user-profile" id="user-menu-button" aria-expanded="false"
+                                    aria-haspopup="true">
+                                    <img src="https://ui-avatars.com/api/?name=Teacher&background=4a6cf7&color=fff"
+                                        alt="User profile" class="user-avatar" id="user-avatar">
                                     <div class="user-info">
                                         <span class="user-name" id="teacher-name">Loading...</span>
                                         <span class="user-role">Teacher</span>
                                     </div>
                                     <i class="fas fa-chevron-down dropdown-arrow"></i>
                                 </button>
-                                
+
                                 <div class="dropdown-menu" aria-labelledby="user-menu-button">
                                     <div class="dropdown-header">
                                         <div class="user-summary">
-                                            <img 
-                                                src="https://ui-avatars.com/api/?name=Teacher&background=4a6cf7&color=fff" 
-                                                alt="User" 
-                                                class="dropdown-avatar">
+                                            <img src="https://ui-avatars.com/api/?name=Teacher&background=4a6cf7&color=fff"
+                                                alt="User" class="dropdown-avatar">
                                             <div>
                                                 <div class="user-name" id="dropdown-username">Loading...</div>
                                                 <div class="user-email" id="dropdown-email">teacher@example.com</div>
                                             </div>
                                         </div>
                                     </div>
-                                    
+
                                     <a href="profile.html" class="dropdown-item">
                                         <i class="fas fa-user"></i>
                                         <span>My Profile</span>
                                     </a>
-                                    
+
                                     <a href="settings.html" class="dropdown-item">
                                         <i class="fas fa-cog"></i>
                                         <span>Account Settings</span>
                                     </a>
-                                    
+
                                     <a href="billing.html" class="dropdown-item">
                                         <i class="fas fa-credit-card"></i>
                                         <span>Billing & Subscription</span>
                                     </a>
-                                    
+
                                     <div class="dropdown-divider"></div>
-                                    
+
                                     <div class="dropdown-item theme-toggle" id="theme-toggle">
                                         <i class="fas fa-moon"></i>
                                         <span>Dark Mode</span>
@@ -1678,14 +1708,14 @@
                                             <span class="slider round"></span>
                                         </label>
                                     </div>
-                                    
+
                                     <div class="dropdown-divider"></div>
-                                    
+
                                     <a href="help.html" class="dropdown-item">
                                         <i class="fas fa-question-circle"></i>
                                         <span>Help & Support</span>
                                     </a>
-                                    
+
                                     <a href="#" class="dropdown-item" id="logout-btn">
                                         <i class="fas fa-sign-out-alt"></i>
                                         <span>Sign Out</span>
@@ -1695,7 +1725,7 @@
                         </div>
                     </div>
                 </div>
-                
+
 
             </header>
 
@@ -1718,7 +1748,7 @@
                         </button>
                     </div>
                 </div>
-                
+
                 <div id="test-details">
                     <div class="test-header">
                         <div>
@@ -1740,7 +1770,7 @@
                             </div>
                         </div>
                     </div>
-                    
+
                     <div class="test-content">
                         <div class="test-sidebar" id="test-sidebar">
                             <div class="sidebar-section">
@@ -1762,12 +1792,12 @@
                                 </button>
                             </div>
                         </div>
-                        
+
                         <div class="test-main-content">
                             <div id="test-sections">
                                 <!-- Test sections will be loaded here -->
                             </div>
-                            
+
                             <div class="test-footer">
                                 <div class="test-notes">
                                     <h4><i class="fas fa-info-circle"></i> Notes</h4>
@@ -1775,7 +1805,7 @@
                                         <!-- Test notes will be loaded here -->
                                     </div>
                                 </div>
-                                
+
                                 <div class="test-actions-bottom">
                                     <button class="btn btn-outline" id="save-draft">
                                         <i class="far fa-save"></i> Save as Draft
@@ -1860,11 +1890,11 @@
                         <label for="edit-section-title">Section Title</label>
                         <input type="text" id="edit-section-title" class="form-control" required>
                     </div>
-                    
+
                     <div id="items-container">
                         <!-- Items will be added here dynamically -->
                     </div>
-                    
+
                     <div class="form-actions">
                         <button type="button" class="btn btn-outline" id="add-item-btn">
                             <i class="fas fa-plus"></i> Add Item
@@ -1909,31 +1939,21 @@
     </template>
 
     </div>
-</div>
+    </div>
 
-<!-- Firebase SDK -->
-<script type="module">
+    <!-- Firebase SDK -->
     // Import the centralized Firebase configuration
-    import { app, auth, db } from './firebase.js';
-    import { onAuthStateChanged, signOut, setPersistence, browserLocalPersistence, browserSessionPersistence } from 'https://www.gstatic.com/firebasejs/12.1.0/firebase-auth.js';
-    import { doc, getDoc, collection, query, where, getDocs, updateDoc, deleteDoc, addDoc, onSnapshot, orderBy, limit, serverTimestamp } from 'https://www.gstatic.com/firebasejs/12.1.0/firebase-firestore.js';
+    import { app, auth, db } from './js/firebase-config.js';
+    import { requireAuth } from './js/auth-check.js';
+    import { signOut } from 'https://www.gstatic.com/firebasejs/12.1.0/firebase-auth.js';
+    import { doc, getDoc, collection, query, where, getDocs, updateDoc, deleteDoc, addDoc, onSnapshot, orderBy, limit,
+    serverTimestamp } from 'https://www.gstatic.com/firebasejs/12.1.0/firebase-firestore.js';
 
     // Use centralized Firebase configuration
     console.log('Using centralized Firebase configuration');
-    
-    // Set persistence
-    try {
-        await setPersistence(auth, browserLocalPersistence);
-        console.log('Persistence set to LOCAL');
-    } catch (error) {
-        console.error('Error setting persistence:', error);
-        try {
-            await setPersistence(auth, browserSessionPersistence);
-            console.log('Falling back to SESSION persistence');
-        } catch (fallbackError) {
-            console.error('Error setting session persistence:', fallbackError);
-        }
-    }
+    // Persistence handled by requireAuth/config
+
+    /* Legacy Persistence Logic Removed */
 
     // Make Firebase instances available globally for debugging
     window.firebaseApp = app;
@@ -1943,7 +1963,7 @@
     // Get test ID from URL
     const urlParams = new URLSearchParams(window.location.search);
     const testId = urlParams.get('id');
-    
+
     // DOM elements
     const testTitle = document.getElementById('test-title');
     const testMeta = document.getElementById('test-meta');
@@ -1953,13 +1973,13 @@
     const questionCount = document.getElementById('question-count');
     const totalPoints = document.getElementById('total-points');
     const testNotesContent = document.getElementById('test-notes-content');
-    
+
     // Modal Elements
     const editTestModal = document.getElementById('edit-test-modal');
     const editTestForm = document.getElementById('edit-test-form');
     const closeEditModal = document.getElementById('close-edit-modal');
     const cancelEdit = document.getElementById('cancel-edit');
-    
+
     // Section/Item Editor Elements
     const editSectionItemModal = document.getElementById('edit-section-item-modal');
     const sectionItemForm = document.getElementById('edit-section-item-form');
@@ -1969,425 +1989,436 @@
     const closeSectionItemModal = document.getElementById('close-section-item-modal');
     const cancelSectionEdit = document.getElementById('cancel-section-edit');
     const itemTemplate = document.getElementById('item-template');
-    
+
     // Current test data and editing state
     let currentTestData = null;
     let currentSectionIndex = -1;
     let isEditingSection = false;
-    
+
     // Set up event listeners
     function setupEventListeners() {
-        // Helper function to safely add event listeners
-        const addListener = (id, event, callback) => {
-            const element = document.getElementById(id);
-            if (element) {
-                element.addEventListener(event, callback);
-            }
-        };
-        
-        // Add all event listeners with null checks
-        addListener('edit-test', 'click', openEditModal);
-        addListener('print-test', 'click', printTest);
-        addListener('export-test', 'click', exportTest);
-        addListener('preview-test', 'click', previewTest);
-        addListener('assign-test', 'click', assignTest);
-        addListener('view-results', 'click', viewResults);
-        addListener('save-draft', 'click', saveAsDraft);
-        addListener('publish-test', 'click', publishTest);
-        addListener('sidebar-toggle', 'click', toggleSidebar);
-        addListener('logout-btn', 'click', handleLogout);
-        
-        // Modal and form elements
-        if (closeEditModal) closeEditModal.addEventListener('click', closeEditModalFunc);
-        if (cancelEdit) cancelEdit.addEventListener('click', closeEditModalFunc);
-        if (editTestForm) editTestForm.addEventListener('submit', handleTestUpdate);
-        
-        // Section/Item Editor Event Listeners
-        if (addItemBtn) addItemBtn.addEventListener('click', () => addNewItem()); // Pass no args for new item
-        if (closeSectionItemModal) closeSectionItemModal.addEventListener('click', closeSectionItemEditor);
-        if (cancelSectionEdit) cancelSectionEdit.addEventListener('click', closeSectionItemEditor);
-        if (sectionItemForm) sectionItemForm.addEventListener('submit', handleSectionItemSave);
-        
-        // Close modals when clicking outside
-        const closeModalOnOutsideClick = (modal, closeFunc) => {
-            if (modal) {
-                window.addEventListener('click', (e) => {
-                    if (e.target === modal) {
-                        closeFunc();
-                    }
-                });
-            }
-        };
-        
-        closeModalOnOutsideClick(editTestModal, closeEditModalFunc);
-        closeModalOnOutsideClick(editSectionItemModal, closeSectionItemEditor);
-        
-        // Delegate events for dynamic elements
-        document.addEventListener('click', (e) => {
-            // Handle edit section button clicks
-            if (e.target.closest('.edit-section-btn')) {
-                e.preventDefault();
-                const sectionElement = e.target.closest('.section-card');
-                if (sectionElement) {
-                    const sectionIndex = parseInt(sectionElement.dataset.index);
-                    openSectionEditor(sectionIndex);
-                }
-            }
-            
-            // Handle remove item button clicks
-            if (e.target.closest('.remove-item')) {
-                e.preventDefault();
-                const itemCard = e.target.closest('.item-card');
-                if (itemCard) {
-                    itemCard.remove();
-                    updateItemNumbers();
-                }
-            }
-        });
-        
-        // Handle dynamic content changes in the items container
-        if (itemsContainer) {
-            itemsContainer.addEventListener('change', (e) => {
-                if (e.target.classList.contains('item-type')) {
-                    updateItemContentField(e.target);
-                }
-            });
-        }
+    // Helper function to safely add event listeners
+    const addListener = (id, event, callback) => {
+    const element = document.getElementById(id);
+    if (element) {
+    element.addEventListener(event, callback);
     }
-    
+    };
+
+    // Add all event listeners with null checks
+    addListener('edit-test', 'click', openEditModal);
+    addListener('print-test', 'click', printTest);
+    addListener('export-test', 'click', exportTest);
+    addListener('preview-test', 'click', previewTest);
+    addListener('assign-test', 'click', assignTest);
+    addListener('view-results', 'click', viewResults);
+    addListener('save-draft', 'click', saveAsDraft);
+    addListener('publish-test', 'click', publishTest);
+    addListener('sidebar-toggle', 'click', toggleSidebar);
+    addListener('logout-btn', 'click', handleLogout);
+
+    // Modal and form elements
+    if (closeEditModal) closeEditModal.addEventListener('click', closeEditModalFunc);
+    if (cancelEdit) cancelEdit.addEventListener('click', closeEditModalFunc);
+    if (editTestForm) editTestForm.addEventListener('submit', handleTestUpdate);
+
+    // Section/Item Editor Event Listeners
+    if (addItemBtn) addItemBtn.addEventListener('click', () => addNewItem()); // Pass no args for new item
+    if (closeSectionItemModal) closeSectionItemModal.addEventListener('click', closeSectionItemEditor);
+    if (cancelSectionEdit) cancelSectionEdit.addEventListener('click', closeSectionItemEditor);
+    if (sectionItemForm) sectionItemForm.addEventListener('submit', handleSectionItemSave);
+
+    // Close modals when clicking outside
+    const closeModalOnOutsideClick = (modal, closeFunc) => {
+    if (modal) {
+    window.addEventListener('click', (e) => {
+    if (e.target === modal) {
+    closeFunc();
+    }
+    });
+    }
+    };
+
+    closeModalOnOutsideClick(editTestModal, closeEditModalFunc);
+    closeModalOnOutsideClick(editSectionItemModal, closeSectionItemEditor);
+
+    // Delegate events for dynamic elements
+    document.addEventListener('click', (e) => {
+    // Handle edit section button clicks
+    if (e.target.closest('.edit-section-btn')) {
+    e.preventDefault();
+    const sectionElement = e.target.closest('.section-card');
+    if (sectionElement) {
+    const sectionIndex = parseInt(sectionElement.dataset.index);
+    openSectionEditor(sectionIndex);
+    }
+    }
+
+    // Handle remove item button clicks
+    if (e.target.closest('.remove-item')) {
+    e.preventDefault();
+    const itemCard = e.target.closest('.item-card');
+    if (itemCard) {
+    itemCard.remove();
+    updateItemNumbers();
+    }
+    }
+    });
+
+    // Handle dynamic content changes in the items container
+    if (itemsContainer) {
+    itemsContainer.addEventListener('change', (e) => {
+    if (e.target.classList.contains('item-type')) {
+    updateItemContentField(e.target);
+    }
+    });
+    }
+    }
+
     // Check authentication state
-    function checkAuthState() {
-        onAuthStateChanged(auth, (user) => {
-            if (user) {
-                updateUserUI(user);
-                loadTest(testId); // Pass testId to loadTest
-            } else {
-                // Redirect to login if not authenticated
-                window.location.href = 'login.html';
-            }
-        });
+    async function initPage() {
+    try {
+    const { user } = await requireAuth(['teacher', 'admin']);
+    updateUserUI(user);
+
+    // Setup events after auth success (or before? better before to allow interactions if any, but interactions need
+    auth mostly, but it's fine here)
+    setupEventListeners();
+
+    if (testId) {
+    await loadTest(testId);
+    } else {
+    showError('Test ID missing from URL');
+    hideLoading();
     }
-    
+    } catch(e) {
+    console.error("Initialization failed", e);
+    }
+    }
+
     // Update UI with user data
     function updateUserUI(user) {
-        const teacherName = user.displayName || 'Teacher';
-        const avatarUrl = user.photoURL || `https://ui-avatars.com/api/?name=${encodeURIComponent(teacherName)}&background=4a6cf7&color=fff`;
-        
-        document.getElementById('teacher-name').textContent = teacherName;
-        document.getElementById('sidebar-teacher-name').textContent = teacherName;
-        document.getElementById('user-avatar').src = avatarUrl;
+    const teacherName = user.displayName || 'Teacher';
+    const avatarUrl = user.photoURL ||
+    `https://ui-avatars.com/api/?name=${encodeURIComponent(teacherName)}&background=4a6cf7&color=fff`;
+
+    document.getElementById('teacher-name').textContent = teacherName;
+    document.getElementById('sidebar-teacher-name').textContent = teacherName;
+    document.getElementById('user-avatar').src = avatarUrl;
     }
-    
+
     // Load test data from Firestore
     async function loadTest(id) {
-        if (!id) {
-            showError('Test ID not found in URL');
-            return;
-        }
-        
-        try {
-            showLoading();
-            const testDocRef = doc(db, 'tests', id);
-            const testDoc = await getDoc(testDocRef);
-            
-            if (testDoc.exists()) {
-                currentTestData = { id: testDoc.id, ...testDoc.data() };
-                displayTestData(currentTestData);
-            } else {
-                showError('Test not found. It may have been deleted.');
-            }
-        } catch (error) {
-            console.error('Error loading test:', error);
-            showError('Failed to load test data. Please check the console for details.');
-        } finally {
-            hideLoading();
-        }
+    if (!id) {
+    showError('Test ID not found in URL');
+    return;
     }
-    
+
+    try {
+    showLoading();
+    const testDocRef = doc(db, 'tests', id);
+    const testDoc = await getDoc(testDocRef);
+
+    if (testDoc.exists()) {
+    currentTestData = { id: testDoc.id, ...testDoc.data() };
+    displayTestData(currentTestData);
+    } else {
+    showError('Test not found. It may have been deleted.');
+    }
+    } catch (error) {
+    console.error('Error loading test:', error);
+    showError('Failed to load test data. Please check the console for details.');
+    } finally {
+    hideLoading();
+    }
+    }
+
     // Update test in Firestore
     async function updateTestInFirestore(data) {
-        if (!data || !data.id) {
-            throw new Error('Invalid test data provided for update.');
-        }
-        const testDocRef = doc(db, 'tests', data.id);
-        await updateDoc(testDocRef, data);
+    if (!data || !data.id) {
+    throw new Error('Invalid test data provided for update.');
     }
-    
+    const testDocRef = doc(db, 'tests', data.id);
+    await updateDoc(testDocRef, data);
+    }
+
     // Display test data on the page
     function displayTestData(data) {
-        if (!data) return;
-        
-        // Update header
-        testTitle.textContent = data.title || 'Untitled Test';
-        testMeta.innerHTML = `
-            <span>Grade: ${data.grade || 'N/A'}</span> | 
-            <span>Subject: ${data.subject || 'N/A'}</span> | 
-            <span>Last updated: ${data.updatedAt ? new Date(data.updatedAt.seconds * 1000).toLocaleDateString() : 'N/A'}</span>
-        `;
-        
-        // Update stats
-        const sections = data.sections || [];
-        const totalSections = sections.length;
-        const totalQuestions = sections.reduce((acc, s) => acc + (s.items ? s.items.length : 0), 0);
-        const totalPointsValue = sections.reduce((acc, s) => acc + (s.items ? s.items.reduce((itemAcc, i) => itemAcc + (i.points || 0), 0) : 0), 0);
-        
-        sectionCount.textContent = totalSections;
-        questionCount.textContent = totalQuestions;
-        totalPoints.textContent = totalPointsValue;
-        
-        // Display test notes
-        testNotesContent.textContent = data.notes || 'No notes available for this test.';
-        
-        // Clear and render sections
-        testSections.innerHTML = '';
-        sectionLinks.innerHTML = '';
-        
-        if (sections.length > 0) {
-            sections.forEach((section, sIndex) => {
-                const sectionId = `section-${sIndex}`;
-                const sectionElement = document.createElement('div');
-                sectionElement.className = 'section-card';
-                sectionElement.id = sectionId;
-                sectionElement.dataset.index = sIndex;
+    if (!data) return;
 
-                const sectionItems = section.items || [];
-                let itemsHtml = '<p class="no-items">No items in this section.</p>';
-                if (sectionItems.length > 0) {
-                    itemsHtml = sectionItems.map((item, iIndex) => {
-                        let content = item.content || item.question || '';
-                        if (item.type === 'letter') content = `Letter: <strong>${content}</strong>`;
-                        return `
-                            <div class="item-card">
-                                <div class="item-content"><strong>${iIndex + 1}.</strong> ${content}</div>
-                                <div class="item-meta">
-                                    <span class="badge">${item.type || 'item'}</span>
-                                    <span>${item.points || 1} point${item.points !== 1 ? 's' : ''}</span>
-                                </div>
-                            </div>
-                        `;
-                    }).join('');
-                }
+    // Update header
+    testTitle.textContent = data.title || 'Untitled Test';
+    testMeta.innerHTML = `
+    <span>Grade: ${data.grade || 'N/A'}</span> |
+    <span>Subject: ${data.subject || 'N/A'}</span> |
+    <span>Last updated: ${data.updatedAt ? new Date(data.updatedAt.seconds * 1000).toLocaleDateString() : 'N/A'}</span>
+    `;
 
-                sectionElement.innerHTML = `
-                    <div class="section-header">
-                        <h3 class="section-title">${section.title || `Section ${sIndex + 1}`}</h3>
-                        <div class="section-actions">
-                            <span>${sectionItems.length} item${sectionItems.length !== 1 ? 's' : ''}</span>
-                            <button class="btn btn-icon edit-section-btn" title="Edit Section"><i class="fas fa-pencil-alt"></i></button>
-                        </div>
-                    </div>
-                    <div class="section-body">${itemsHtml}</div>
-                `;
+    // Update stats
+    const sections = data.sections || [];
+    const totalSections = sections.length;
+    const totalQuestions = sections.reduce((acc, s) => acc + (s.items ? s.items.length : 0), 0);
+    const totalPointsValue = sections.reduce((acc, s) => acc + (s.items ? s.items.reduce((itemAcc, i) => itemAcc +
+    (i.points || 0), 0) : 0), 0);
 
-                testSections.appendChild(sectionElement);
+    sectionCount.textContent = totalSections;
+    questionCount.textContent = totalQuestions;
+    totalPoints.textContent = totalPointsValue;
 
-                // Add section to navigation
-                const sectionLink = document.createElement('a');
-                sectionLink.href = '#' + sectionId;
-                sectionLink.className = 'section-link';
-                sectionLink.innerHTML = `<i class="fas fa-bookmark"></i><span>${section.title || 'Section ' + (sIndex + 1)}</span>`;
-                sectionLinks.appendChild(sectionLink);
-            });
-        } else {
-            testSections.innerHTML = '<p>No sections found in this test.</p>';
-        }
+    // Display test notes
+    testNotesContent.textContent = data.notes || 'No notes available for this test.';
+
+    // Clear and render sections
+    testSections.innerHTML = '';
+    sectionLinks.innerHTML = '';
+
+    if (sections.length > 0) {
+    sections.forEach((section, sIndex) => {
+    const sectionId = `section-${sIndex}`;
+    const sectionElement = document.createElement('div');
+    sectionElement.className = 'section-card';
+    sectionElement.id = sectionId;
+    sectionElement.dataset.index = sIndex;
+
+    const sectionItems = section.items || [];
+    let itemsHtml = '<p class="no-items">No items in this section.</p>';
+    if (sectionItems.length > 0) {
+    itemsHtml = sectionItems.map((item, iIndex) => {
+    let content = item.content || item.question || '';
+    if (item.type === 'letter') content = `Letter: <strong>${content}</strong>`;
+    return `
+    <div class="item-card">
+        <div class="item-content"><strong>${iIndex + 1}.</strong> ${content}</div>
+        <div class="item-meta">
+            <span class="badge">${item.type || 'item'}</span>
+            <span>${item.points || 1} point${item.points !== 1 ? 's' : ''}</span>
+        </div>
+    </div>
+    `;
+    }).join('');
     }
-    
+
+    sectionElement.innerHTML = `
+    <div class="section-header">
+        <h3 class="section-title">${section.title || `Section ${sIndex + 1}`}</h3>
+        <div class="section-actions">
+            <span>${sectionItems.length} item${sectionItems.length !== 1 ? 's' : ''}</span>
+            <button class="btn btn-icon edit-section-btn" title="Edit Section"><i
+                    class="fas fa-pencil-alt"></i></button>
+        </div>
+    </div>
+    <div class="section-body">${itemsHtml}</div>
+    `;
+
+    testSections.appendChild(sectionElement);
+
+    // Add section to navigation
+    const sectionLink = document.createElement('a');
+    sectionLink.href = '#' + sectionId;
+    sectionLink.className = 'section-link';
+    sectionLink.innerHTML = `<i class="fas fa-bookmark"></i><span>${section.title || 'Section ' + (sIndex + 1)}</span>`;
+    sectionLinks.appendChild(sectionLink);
+    });
+    } else {
+    testSections.innerHTML = '<p>No sections found in this test.</p>';
+    }
+    }
+
     // --- Sidebar and Logout ---
     function toggleSidebar() {
-        const sidebar = document.getElementById('sidebar');
-        const mainContent = document.querySelector('.main-content');
-        if (sidebar) {
-            sidebar.classList.toggle('collapsed');
-        }
-        if (mainContent) {
-            mainContent.classList.toggle('expanded');
-        }
+    const sidebar = document.getElementById('sidebar');
+    const mainContent = document.querySelector('.main-content');
+    if (sidebar) {
+    sidebar.classList.toggle('collapsed');
+    }
+    if (mainContent) {
+    mainContent.classList.toggle('expanded');
+    }
     }
 
     // --- UI State & Modals ---
     function showLoading() {
-        const loadingElement = document.getElementById('loading-indicator');
-        if (loadingElement) loadingElement.style.display = 'flex';
+    const loadingElement = document.getElementById('loading-indicator');
+    if (loadingElement) loadingElement.style.display = 'flex';
     }
 
     function hideLoading() {
-        const loadingElement = document.getElementById('loading-indicator');
-        if (loadingElement) loadingElement.style.display = 'none';
+    const loadingElement = document.getElementById('loading-indicator');
+    if (loadingElement) loadingElement.style.display = 'none';
     }
 
     function openSectionEditor(sectionIndex) {
-        if (!currentTestData || !currentTestData.sections || !currentTestData.sections[sectionIndex]) {
-            showError('Could not open section editor. Section data is missing.');
-            return;
-        }
-        
-        const section = currentTestData.sections[sectionIndex];
-        currentSectionIndex = sectionIndex;
-        isEditingSection = true;
-        
-        sectionTitleInput.value = section.title || 'Section ' + (sectionIndex + 1);
-        itemsContainer.innerHTML = '';
-        
-        if (section.items && section.items.length > 0) {
-            section.items.forEach(item => addNewItem(item));
-        } else {
-            addNewItem(); // Add one empty item by default
-        }
-        
-        document.getElementById('section-item-modal-title').textContent = 'Edit Section ' + (sectionIndex + 1);
-        editSectionItemModal.style.display = 'flex';
-        document.body.style.overflow = 'hidden';
+    if (!currentTestData || !currentTestData.sections || !currentTestData.sections[sectionIndex]) {
+    showError('Could not open section editor. Section data is missing.');
+    return;
     }
-    
+
+    const section = currentTestData.sections[sectionIndex];
+    currentSectionIndex = sectionIndex;
+    isEditingSection = true;
+
+    sectionTitleInput.value = section.title || 'Section ' + (sectionIndex + 1);
+    itemsContainer.innerHTML = '';
+
+    if (section.items && section.items.length > 0) {
+    section.items.forEach(item => addNewItem(item));
+    } else {
+    addNewItem(); // Add one empty item by default
+    }
+
+    document.getElementById('section-item-modal-title').textContent = 'Edit Section ' + (sectionIndex + 1);
+    editSectionItemModal.style.display = 'flex';
+    document.body.style.overflow = 'hidden';
+    }
+
     function addNewItem(itemData = {}) {
-        const itemElement = document.importNode(itemTemplate.content, true);
-        const itemCard = itemElement.querySelector('.item-card');
-        const itemIndex = itemsContainer.children.length;
-        
-        itemCard.dataset.index = itemIndex;
-        itemCard.querySelector('.item-index').textContent = itemIndex + 1;
-        
-        if (itemData) {
-            const typeSelect = itemCard.querySelector('.item-type');
-            const contentInput = itemCard.querySelector('.item-content');
-            const pointsInput = itemCard.querySelector('.item-points');
-            
-            typeSelect.value = itemData.type || 'question';
-            contentInput.value = itemData.content || itemData.question || '';
-            pointsInput.value = itemData.points || 1;
-            
-            updateItemContentField(typeSelect);
-        }
-        
-        itemsContainer.appendChild(itemElement);
-        updateItemNumbers();
+    const itemElement = document.importNode(itemTemplate.content, true);
+    const itemCard = itemElement.querySelector('.item-card');
+    const itemIndex = itemsContainer.children.length;
+
+    itemCard.dataset.index = itemIndex;
+    itemCard.querySelector('.item-index').textContent = itemIndex + 1;
+
+    if (itemData) {
+    const typeSelect = itemCard.querySelector('.item-type');
+    const contentInput = itemCard.querySelector('.item-content');
+    const pointsInput = itemCard.querySelector('.item-points');
+
+    typeSelect.value = itemData.type || 'question';
+    contentInput.value = itemData.content || itemData.question || '';
+    pointsInput.value = itemData.points || 1;
+
+    updateItemContentField(typeSelect);
     }
-    
+
+    itemsContainer.appendChild(itemElement);
+    updateItemNumbers();
+    }
+
     function updateItemContentField(selectElement) {
-        const itemCard = selectElement.closest('.item-card');
-        const contentLabel = itemCard.querySelector('.item-content-label');
-        const contentInput = itemCard.querySelector('.item-content');
-        
-        const labels = { question: 'Question', letter: 'Letter', number: 'Number' };
-        contentLabel.textContent = labels[selectElement.value] || 'Content';
-        contentInput.placeholder = `Enter the ${selectElement.value}`;
+    const itemCard = selectElement.closest('.item-card');
+    const contentLabel = itemCard.querySelector('.item-content-label');
+    const contentInput = itemCard.querySelector('.item-content');
+
+    const labels = { question: 'Question', letter: 'Letter', number: 'Number' };
+    contentLabel.textContent = labels[selectElement.value] || 'Content';
+    contentInput.placeholder = `Enter the ${selectElement.value}`;
     }
-    
+
     function updateItemNumbers() {
-        const items = itemsContainer.querySelectorAll('.item-card');
-        items.forEach((item, index) => {
-            item.dataset.index = index;
-            item.querySelector('.item-index').textContent = index + 1;
-        });
+    const items = itemsContainer.querySelectorAll('.item-card');
+    items.forEach((item, index) => {
+    item.dataset.index = index;
+    item.querySelector('.item-index').textContent = index + 1;
+    });
     }
-    
+
     async function handleSectionItemSave(e) {
-        e.preventDefault();
-        if (currentSectionIndex === -1) {
-            showError('No section is being edited.');
-            return;
-        }
-        
-        try {
-            showLoading();
-            
-            const sectionTitle = sectionTitleInput.value.trim();
-            const items = Array.from(itemsContainer.querySelectorAll('.item-card')).map(card => ({
-                type: card.querySelector('.item-type').value,
-                content: card.querySelector('.item-content').value.trim(),
-                points: parseInt(card.querySelector('.item-points').value) || 1
-            })).filter(item => item.content);
-
-            const updatedSection = {
-                ...currentTestData.sections[currentSectionIndex],
-                title: sectionTitle,
-                items: items
-            };
-
-            currentTestData.sections[currentSectionIndex] = updatedSection;
-            
-            await updateTestInFirestore(currentTestData);
-            displayTestData(currentTestData);
-            closeSectionItemEditor();
-            showSuccess('Section saved successfully!');
-        } catch (error) {
-            console.error('Error saving section:', error);
-            showError('Failed to save section. Please try again.');
-        } finally {
-            hideLoading();
-        }
+    e.preventDefault();
+    if (currentSectionIndex === -1) {
+    showError('No section is being edited.');
+    return;
     }
-    
+
+    try {
+    showLoading();
+
+    const sectionTitle = sectionTitleInput.value.trim();
+    const items = Array.from(itemsContainer.querySelectorAll('.item-card')).map(card => ({
+    type: card.querySelector('.item-type').value,
+    content: card.querySelector('.item-content').value.trim(),
+    points: parseInt(card.querySelector('.item-points').value) || 1
+    })).filter(item => item.content);
+
+    const updatedSection = {
+    ...currentTestData.sections[currentSectionIndex],
+    title: sectionTitle,
+    items: items
+    };
+
+    currentTestData.sections[currentSectionIndex] = updatedSection;
+
+    await updateTestInFirestore(currentTestData);
+    displayTestData(currentTestData);
+    closeSectionItemEditor();
+    showSuccess('Section saved successfully!');
+    } catch (error) {
+    console.error('Error saving section:', error);
+    showError('Failed to save section. Please try again.');
+    } finally {
+    hideLoading();
+    }
+    }
+
     function closeSectionItemEditor() {
-        editSectionItemModal.style.display = 'none';
-        document.body.style.overflow = 'auto';
-        currentSectionIndex = -1;
-        isEditingSection = false;
+    editSectionItemModal.style.display = 'none';
+    document.body.style.overflow = 'auto';
+    currentSectionIndex = -1;
+    isEditingSection = false;
     }
-    
+
     function openEditModal() {
-        if (!currentTestData) return;
-        
-        document.getElementById('edit-test-title').value = currentTestData.title || '';
-        document.getElementById('edit-test-description').value = currentTestData.description || '';
-        document.getElementById('edit-test-grade').value = currentTestData.grade || '';
-        document.getElementById('edit-test-subject').value = currentTestData.subject || '';
-        
-        editTestModal.style.display = 'flex';
-        document.body.style.overflow = 'hidden';
+    if (!currentTestData) return;
+
+    document.getElementById('edit-test-title').value = currentTestData.title || '';
+    document.getElementById('edit-test-description').value = currentTestData.description || '';
+    document.getElementById('edit-test-grade').value = currentTestData.grade || '';
+    document.getElementById('edit-test-subject').value = currentTestData.subject || '';
+
+    editTestModal.style.display = 'flex';
+    document.body.style.overflow = 'hidden';
     }
-    
+
     function closeEditModalFunc() {
-        editTestModal.style.display = 'none';
-        document.body.style.overflow = 'auto';
+    editTestModal.style.display = 'none';
+    document.body.style.overflow = 'auto';
     }
-    
+
     async function handleTestUpdate(e) {
-        e.preventDefault();
-        if (!currentTestData) return;
-        
-        const updatedData = {
-            title: document.getElementById('edit-test-title').value.trim(),
-            description: document.getElementById('edit-test-description').value.trim(),
-            grade: document.getElementById('edit-test-grade').value,
-            subject: document.getElementById('edit-test-subject').value,
-            updatedAt: serverTimestamp()
-        };
-        
-        try {
-            const testDocRef = doc(db, 'tests', currentTestData.id);
-            await updateDoc(testDocRef, updatedData);
-            
-            currentTestData = { ...currentTestData, ...updatedData, updatedAt: new Date() };
-            displayTestData(currentTestData);
-            closeEditModalFunc();
-            showSuccess('Test updated successfully!');
-        } catch (error) {
-            console.error('Error updating test:', error);
-            showError('Failed to update test. Please try again.');
-        }
+    e.preventDefault();
+    if (!currentTestData) return;
+
+    const updatedData = {
+    title: document.getElementById('edit-test-title').value.trim(),
+    description: document.getElementById('edit-test-description').value.trim(),
+    grade: document.getElementById('edit-test-grade').value,
+    subject: document.getElementById('edit-test-subject').value,
+    updatedAt: serverTimestamp()
+    };
+
+    try {
+    const testDocRef = doc(db, 'tests', currentTestData.id);
+    await updateDoc(testDocRef, updatedData);
+
+    currentTestData = { ...currentTestData, ...updatedData, updatedAt: new Date() };
+    displayTestData(currentTestData);
+    closeEditModalFunc();
+    showSuccess('Test updated successfully!');
+    } catch (error) {
+    console.error('Error updating test:', error);
+    showError('Failed to update test. Please try again.');
     }
-    
+    }
+
     // --- Utility & Feedback ---
     function showError(message) {
-        testSections.innerHTML = `<div class="error-message">${message}</div>`;
+    testSections.innerHTML = `<div class="error-message">${message}</div>`;
     }
-    
+
     function showSuccess(message) {
-        const successMsg = document.createElement('div');
-        successMsg.className = 'success-message';
-        successMsg.textContent = message;
-        document.body.appendChild(successMsg);
-        setTimeout(() => successMsg.remove(), 3000);
+    const successMsg = document.createElement('div');
+    successMsg.className = 'success-message';
+    successMsg.textContent = message;
+    document.body.appendChild(successMsg);
+    setTimeout(() => successMsg.remove(), 3000);
     }
-    
+
     // --- General Actions ---
     function handleLogout(e) {
-        e.preventDefault();
-        signOut(auth).catch(error => console.error('Error signing out:', error));
+    e.preventDefault();
+    signOut(auth).catch(error => console.error('Error signing out:', error));
     }
-    
+
     function printTest() { window.print(); }
     function exportTest() { showSuccess('Export functionality coming soon!'); }
     function previewTest() { showSuccess('Preview functionality coming soon!'); }
@@ -2395,16 +2426,16 @@
     function viewResults() { showSuccess('View results functionality coming soon!'); }
     function saveAsDraft() { showSuccess('Test saved as draft!'); }
     function publishTest() {
-        if (confirm('Are you sure you want to publish this test?')) {
-            showSuccess('Test published successfully!');
-        }
+    if (confirm('Are you sure you want to publish this test?')) {
+    showSuccess('Test published successfully!');
+    }
     }
 
     // --- Initialization ---
     document.addEventListener('DOMContentLoaded', () => {
-        setupEventListeners();
-        checkAuthState();
+    initPage();
     });
-</script>
+    </script>
 </body>
+
 </html>

@@ -1,0 +1,1788 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Edit Test - Alpharia Admin</title>
+    <!-- Favicon -->
+    <link rel="icon" type="image/x-icon" href="favicon.ico">
+    <!-- Font Awesome -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <!-- Google Fonts -->
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <!-- Bootstrap CSS -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/css/bootstrap.min.css" rel="stylesheet">
+    <!-- Custom CSS -->
+    <link rel="stylesheet" href="css/teacher-dashboard.css">
+    <style>
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: #f5f7fb;
+        }
+
+        .main-content {
+            padding: 2rem;
+            min-height: 100vh;
+        }
+
+        .header-section {
+            background: white;
+            border-radius: 10px;
+            padding: 1.5rem 2rem;
+            margin-bottom: 2rem;
+            box-shadow: 0 0.125rem 0.25rem rgba(0, 0, 0, 0.075);
+        }
+
+        .header-section h1 {
+            font-size: 1.75rem;
+            font-weight: 600;
+            color: #2d3748;
+            margin: 0;
+        }
+
+        .header-actions {
+            display: flex;
+            gap: 0.75rem;
+        }
+
+        .editor-card {
+            background: white;
+            border-radius: 10px;
+            box-shadow: 0 0.125rem 0.25rem rgba(0, 0, 0, 0.075);
+            overflow: hidden;
+        }
+
+        .nav-tabs {
+            background: #f8fafc;
+            border-bottom: 2px solid #e2e8f0;
+            padding: 0 1rem;
+        }
+
+        .nav-tabs .nav-link {
+            border: none;
+            color: #64748b;
+            font-weight: 500;
+            padding: 1rem 1.5rem;
+            transition: all 0.2s;
+        }
+
+        .nav-tabs .nav-link:hover {
+            color: #4f46e5;
+            background: rgba(79, 70, 229, 0.05);
+        }
+
+        .nav-tabs .nav-link.active {
+            color: #4f46e5;
+            background: white;
+            border-bottom: 2px solid #4f46e5;
+            margin-bottom: -2px;
+        }
+
+        .tab-content {
+            padding: 2rem;
+        }
+
+        .form-section {
+            margin-bottom: 2rem;
+        }
+
+        .form-section-title {
+            font-size: 1.1rem;
+            font-weight: 600;
+            color: #2d3748;
+            margin-bottom: 1rem;
+            padding-bottom: 0.5rem;
+            border-bottom: 2px solid #e2e8f0;
+        }
+
+        .item-card {
+            background: #f8fafc;
+            border: 1px solid #e2e8f0;
+            border-radius: 8px;
+            padding: 1rem;
+            margin-bottom: 0.75rem;
+            transition: all 0.2s;
+        }
+
+        .item-card:hover {
+            border-color: #cbd5e0;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
+        }
+
+        .item-card .drag-handle {
+            cursor: move;
+            color: #94a3b8;
+            margin-right: 0.75rem;
+        }
+
+        .item-card .drag-handle:hover {
+            color: #64748b;
+        }
+
+        .btn-add-item {
+            border: 2px dashed #cbd5e0;
+            color: #64748b;
+            background: white;
+            width: 100%;
+            padding: 0.75rem;
+            border-radius: 8px;
+            transition: all 0.2s;
+        }
+
+        .btn-add-item:hover {
+            border-color: #4f46e5;
+            color: #4f46e5;
+            background: rgba(79, 70, 229, 0.05);
+        }
+
+        .word-chip {
+            display: inline-block;
+            background: #4f46e5;
+            color: white;
+            padding: 0.35rem 0.75rem;
+            border-radius: 16px;
+            margin: 0.25rem;
+            font-size: 0.9rem;
+        }
+
+        .word-chip .remove-btn {
+            margin-left: 0.5rem;
+            cursor: pointer;
+            opacity: 0.8;
+        }
+
+        .word-chip .remove-btn:hover {
+            opacity: 1;
+        }
+
+        .question-card {
+            background: #fff;
+            border: 1px solid #e2e8f0;
+            border-radius: 8px;
+            padding: 1.25rem;
+            margin-bottom: 1rem;
+        }
+
+        .spinner-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(255, 255, 255, 0.9);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            z-index: 9999;
+        }
+
+        .hidden {
+            display: none !important;
+        }
+
+        .alert-fixed {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            z-index: 9999;
+            min-width: 300px;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+        }
+    </style>
+</head>
+
+<body>
+    <!-- Loading Spinner -->
+    <div id="loadingSpinner" class="spinner-overlay">
+        <div class="text-center">
+            <div class="spinner-border text-primary" style="width: 3rem; height: 3rem;" role="status">
+                <span class="visually-hidden">Loading...</span>
+            </div>
+            <p class="mt-3 text-muted">Loading test data...</p>
+        </div>
+    </div>
+
+    <!-- Main Content -->
+    <div class="main-content">
+        <!-- Header -->
+        <div class="header-section d-flex justify-content-between align-items-center">
+            <div>
+                <h1 id="pageTitle">Edit Test</h1>
+                <p class="text-muted mb-0">
+                    <a href="admin-tests.html" class="text-decoration-none">
+                        <i class="fas fa-arrow-left me-2"></i>Back to All Tests
+                    </a>
+                </p>
+            </div>
+            <div class="header-actions">
+                <button class="btn btn-outline-secondary" onclick="cancelEdit()">
+                    <i class="fas fa-times me-2"></i>Cancel
+                </button>
+                <button class="btn btn-primary" onclick="saveTest()">
+                    <i class="fas fa-save me-2"></i>Save Changes
+                </button>
+            </div>
+        </div>
+
+        <!-- Editor Card -->
+        <div class="editor-card">
+            <!-- Tabs -->
+            <ul class="nav nav-tabs" id="editorTabs" role="tablist">
+                <li class="nav-item" role="presentation">
+                    <button class="nav-link active" id="basic-tab" data-bs-toggle="tab" data-bs-target="#basic"
+                        type="button" role="tab">
+                        <i class="fas fa-info-circle me-2"></i>Basic Info
+                    </button>
+                </li>
+                <li class="nav-item" role="presentation">
+                    <button class="nav-link" id="letters-tab" data-bs-toggle="tab" data-bs-target="#letters"
+                        type="button" role="tab">
+                        <i class="fas fa-font me-2"></i>Letters
+                    </button>
+                </li>
+                <li class="nav-item" role="presentation">
+                    <button class="nav-link" id="sentences-tab" data-bs-toggle="tab" data-bs-target="#sentences"
+                        type="button" role="tab">
+                        <i class="fas fa-align-left me-2"></i>Sentences
+                    </button>
+                </li>
+                <li class="nav-item" role="presentation">
+                    <button class="nav-link" id="words-tab" data-bs-toggle="tab" data-bs-target="#words" type="button"
+                        role="tab">
+                        <i class="fas fa-spell-check me-2"></i>Word Lists
+                    </button>
+                </li>
+                <li class="nav-item" role="presentation">
+                    <button class="nav-link" id="passages-tab" data-bs-toggle="tab" data-bs-target="#passages"
+                        type="button" role="tab">
+                        <i class="fas fa-book-open me-2"></i>Passages
+                    </button>
+                </li>
+                <li class="nav-item branching-rules-only" role="presentation" style="display: none;">
+                    <button class="nav-link" id="branching-tab" data-bs-toggle="tab" data-bs-target="#branching"
+                        type="button" role="tab">
+                        <i class="fas fa-code-branch me-2"></i>Branching Rules
+                    </button>
+                </li>
+            </ul>
+
+            <!-- Tab Content -->
+            <div class="tab-content" id="editorTabContent">
+                <!-- Basic Info Tab -->
+                <div class="tab-pane fade show active" id="basic" role="tabpanel">
+                    <div class="form-section">
+                        <h4 class="form-section-title">Test Information</h4>
+                        <div class="row">
+                            <div class="col-md-8 mb-3">
+                                <label for="testTitle" class="form-label">Test Title</label>
+                                <input type="text" class="form-control" id="testTitle" placeholder="Enter test title"
+                                    required>
+                            </div>
+                            <div class="col-md-4 mb-3">
+                                <label for="testStatus" class="form-label">Status</label>
+                                <select class="form-select" id="testStatus">
+                                    <option value="draft">Draft</option>
+                                    <option value="published">Published</option>
+                                    <option value="archived">Archived</option>
+                                </select>
+                            </div>
+                            <div class="col-12 mb-3">
+                                <label for="testDescription" class="form-label">Description</label>
+                                <textarea class="form-control" id="testDescription" rows="3"
+                                    placeholder="Enter test description"></textarea>
+                            </div>
+                            <div class="col-md-6 mb-3">
+                                <label for="testType" class="form-label">Test Type</label>
+                                <input type="text" class="form-control" id="testType"
+                                    placeholder="e.g., reading_assessment" readonly>
+                            </div>
+                            <div class="col-md-6 mb-3">
+                                <label for="testDuration" class="form-label">Duration (minutes)</label>
+                                <input type="number" class="form-control" id="testDuration" placeholder="60" min="1">
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Letters Tab -->
+                <div class="tab-pane fade" id="letters" role="tabpanel">
+                    <div class="form-section">
+                        <h4 class="form-section-title">Letter Recognition Stages</h4>
+                        <div id="letterStagesContainer"></div>
+                    </div>
+                </div>
+
+                <!-- Sentences Tab -->
+                <div class="tab-pane fade" id="sentences" role="tabpanel">
+                    <div class="form-section">
+                        <h4 class="form-section-title">Sentence Filter</h4>
+                        <div id="sentencesContainer"></div>
+                        <button class="btn-add-item" onclick="addSentence()">
+                            <i class="fas fa-plus me-2"></i>Add Sentence
+                        </button>
+                    </div>
+                </div>
+
+                <!-- Words Tab -->
+                <div class="tab-pane fade" id="words" role="tabpanel">
+                    <div class="form-section">
+                        <h4 class="form-section-title">Word Lists</h4>
+                        <div id="wordListsContainer"></div>
+                    </div>
+                </div>
+
+                <!-- Passages Tab -->
+                <div class="tab-pane fade" id="passages" role="tabpanel">
+                    <div class="form-section">
+                        <h4 class="form-section-title">Reading Passages</h4>
+                        <div id="passagesContainer"></div>
+                    </div>
+                </div>
+
+                <!-- Branching Rules Tab -->
+                <div class="tab-pane fade branching-rules-only" id="branching" role="tabpanel" style="display: none;">
+                    <div class="form-section">
+                        <h4 class="form-section-title">Sentence Filter Rules</h4>
+                        <p class="text-muted small mb-3">Configure which word list level to show based on sentence
+                            reading performance</p>
+                        <div id="sentenceFilterRules"></div>
+                        <button class="btn btn-sm btn-outline-primary mt-2" onclick="addSentenceRule()">
+                            <i class="fas fa-plus"></i> Add Condition
+                        </button>
+                    </div>
+
+                    <div class="form-section mt-4">
+                        <h4 class="form-section-title">Word List Filter Rules</h4>
+                        <p class="text-muted small mb-3">Configure which passage level to show based on word list
+                            performance</p>
+                        <div id="wordListFilterRules"></div>
+                        <button class="btn btn-sm btn-outline-primary mt-2" onclick="addWordListRule()">
+                            <i class="fas fa-plus"></i> Add Condition
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Bootstrap JS -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/js/bootstrap.bundle.min.js"></script>
+
+    <!-- Firebase and App Logic -->
+    <script type="module">
+        import { app, auth, db } from './js/firebase-config.js';
+        import { requireAuth } from './js/auth-check.js';
+        import {
+            doc,
+            getDoc,
+            updateDoc,
+            serverTimestamp
+        } from 'https://www.gstatic.com/firebasejs/12.1.0/firebase-firestore.js';
+
+        // Global state
+        let testData = null;
+        let testId = null;
+        let currentUser = null;
+
+        // Initialize
+        document.addEventListener('DOMContentLoaded', async () => {
+            try {
+                console.log('Initializing test editor...');
+
+                // Check authentication
+                const { user } = await requireAuth(['admin', 'teacher']);
+                currentUser = user;
+                console.log('User authenticated:', user.email);
+
+                // Get test ID from URL
+                const urlParams = new URLSearchParams(window.location.search);
+                testId = urlParams.get('id');
+
+                if (!testId) {
+                    showAlert('No test ID provided', 'danger');
+                    setTimeout(() => window.location.href = 'admin-tests.html', 2000);
+                    return;
+                }
+
+                // Load test data
+                await loadTest();
+
+            } catch (error) {
+                console.error('Initialization error:', error);
+                showAlert('Failed to initialize editor: ' + error.message, 'danger');
+            }
+        });
+
+        // Load test from Firebase
+        async function loadTest() {
+            try {
+                console.log('Loading test:', testId);
+
+                const testRef = doc(db, 'tests', testId);
+                const testSnap = await getDoc(testRef);
+
+                if (!testSnap.exists()) {
+                    throw new Error('Test not found');
+                }
+
+                testData = { id: testSnap.id, ...testSnap.data() };
+                console.log('Test loaded:', testData);
+
+                // Track original data structure
+                testData.originallyHadStages = !!testData.stages;
+
+                // Normalize data structure: Convert sections to stages if needed
+                // Normal tests use 'sections', placement tests use 'stages'
+                if (testData.sections && !testData.stages) {
+                    console.log('Converting sections to stages format...');
+                    console.log('Sections found:', testData.sections.length);
+                    testData.sections.forEach((section, idx) => {
+                        console.log(`Section ${idx}: type="${section.type}", title="${section.title}", items=${section.items?.length || 0}`);
+                    });
+
+                    testData.stages = testData.sections.map(section => ({
+                        id: section.id,
+                        name: section.title,
+                        type: section.type,
+                        items: section.items.map(item => {
+                            // For most types, content is the main field
+                            if (item.type === 'letter' || item.type === 'word' || item.type === 'sentence') {
+                                return item.content;
+                            }
+                            // For passages or complex items, return the whole item
+                            return item;
+                        })
+                    }));
+
+                    console.log('Stages created:', testData.stages.length);
+                    testData.stages.forEach((stage, idx) => {
+                        console.log(`Stage ${idx}: type="${stage.type}", name="${stage.name}", items=${stage.items?.length || 0}`);
+                    });
+                }
+
+                // Update page title
+                document.getElementById('pageTitle').textContent = `Edit: ${testData.title}`;
+
+                // Populate form fields
+                populateBasicInfo();
+                populateLetters();
+                populateSentences();
+                populateWordLists();
+                populatePassages();
+
+                // Only populate branching rules for assessment/placement tests
+                if (testData.type === 'reading_assessment' || testData.type === 'placement_test') {
+                    populateBranchingRules();
+                }
+
+                // Hide loading spinner
+                document.getElementById('loadingSpinner').classList.add('hidden');
+
+            } catch (error) {
+                console.error('Error loading test:', error);
+                showAlert('Failed to load test: ' + error.message, 'danger');
+                document.getElementById('loadingSpinner').classList.add('hidden');
+            }
+        }
+
+        // Populate basic info tab
+        function populateBasicInfo() {
+            document.getElementById('testTitle').value = testData.title || '';
+            document.getElementById('testDescription').value = testData.description || '';
+            document.getElementById('testStatus').value = testData.status || 'draft';
+            document.getElementById('testType').value = testData.type || '';
+            document.getElementById('testDuration').value = testData.duration || 60;
+
+            // Show/hide Branching Rules tab based on test type
+            const isAssessmentTest = testData.type === 'reading_assessment' || testData.type === 'placement_test';
+            const branchingElements = document.querySelectorAll('.branching-rules-only');
+            branchingElements.forEach(el => {
+                el.style.display = isAssessmentTest ? '' : 'none';
+            });
+        }
+
+        // Populate letters tab
+        function populateLetters() {
+            const container = document.getElementById('letterStagesContainer');
+            const letterStages = (testData.stages || []).filter(s =>
+                s.type === 'letter_recognition' || s.type === 'letters' || s.type === 'letter'
+            );
+
+            container.innerHTML = letterStages.map((stage, stageIdx) => `
+                <div class="mb-4">
+                    <h5 class="mb-3">${stage.name}</h5>
+                    <div id="letterStage_${stageIdx}">
+                        ${(stage.items || []).map((letter, idx) => `
+                            <div class="item-card d-flex align-items-center" data-stage="${stageIdx}" data-index="${idx}">
+                                <i class="fas fa-grip-vertical drag-handle"></i>
+                                <input type="text" class="form-control form-control-sm me-2" style="width: 80px;" value="${letter}" maxlength="1">
+                                <button class="btn btn-sm btn-outline-danger" onclick="removeLetterItem(${stageIdx}, ${idx})">
+                                    <i class="fas fa-trash-alt"></i>
+                                </button>
+                            </div>
+                        `).join('')}
+                        <button class="btn-add-item mt-2" onclick="addLetterItem(${stageIdx})">
+                            <i class="fas fa-plus me-2"></i>Add Letter
+                        </button>
+                    </div>
+                </div>
+            `).join('');
+        }
+
+        // Populate sentences tab
+        function populateSentences() {
+            const container = document.getElementById('sentencesContainer');
+            const sentenceStage = (testData.stages || []).find(s =>
+                s.type === 'sentence_reading' || s.type === 'sentences' || s.type === 'sentence'
+            );
+            const sentences = sentenceStage?.items || [];
+
+            container.innerHTML = sentences.map((sentence, idx) => {
+                // Handle both object {text, targetLevel} and string formats
+                const sentenceText = typeof sentence === 'object' ? sentence.text : sentence;
+                const targetLevel = typeof sentence === 'object' ? sentence.targetLevel : '';
+
+                return `
+                    <div class="item-card" data-index="${idx}">
+                        <div class="d-flex justify-content-between align-items-start mb-2">
+                            <h6 class="mb-0">Sentence ${idx + 1}</h6>
+                            <button class="btn btn-sm btn-outline-danger" onclick="removeSentence(${idx})">
+                                <i class="fas fa-trash-alt"></i>
+                            </button>
+                        </div>
+                        <textarea class="form-control mb-2" rows="2" placeholder="Enter sentence text" data-sentence-idx="${idx}" data-field="text">${sentenceText || ''}</textarea>
+                        <select class="form-select" data-sentence-idx="${idx}" data-field="targetLevel">
+                            <option value="">Select Target Level</option>
+                            <option value="pre_primer" ${targetLevel === 'pre_primer' ? 'selected' : ''}>Pre-Primer</option>
+                            <option value="primer" ${targetLevel === 'primer' ? 'selected' : ''}>Primer</option>
+                            <option value="level_1" ${targetLevel === 'level_1' ? 'selected' : ''}>Level 1</option>
+                            <option value="level_2" ${targetLevel === 'level_2' ? 'selected' : ''}>Level 2</option>
+                            <option value="level_3" ${targetLevel === 'level_3' ? 'selected' : ''}>Level 3</option>
+                            <option value="level_4" ${targetLevel === 'level_4' ? 'selected' : ''}>Level 4</option>
+                            <option value="level_5" ${targetLevel === 'level_5' ? 'selected' : ''}>Level 5</option>
+                            <option value="level_6" ${targetLevel === 'level_6' ? 'selected' : ''}>Level 6</option>
+                        </select>
+                    </div>
+                `;
+            }).join('');
+        }
+
+        // Populate word lists tab
+        function populateWordLists() {
+            const container = document.getElementById('wordListsContainer');
+
+            // Find ALL word stages
+            const wordStages = (testData.stages || []).filter(s =>
+                s.type === 'word_list' || s.type === 'words' || s.type === 'word'
+            );
+
+            if (!wordStages || wordStages.length === 0) {
+                container.innerHTML = '<p class="text-muted">No word lists found</p>';
+                return;
+            }
+
+            let levels = {};
+
+            // Check if this is a placement test (single stage with levels object) or normal test (multiple sections)
+            if (wordStages.length === 1 && wordStages[0].levels && typeof wordStages[0].levels === 'object' && !Array.isArray(wordStages[0].levels)) {
+                // Placement test: single stage with levels object
+                console.log('Placement test detected - using levels object');
+                levels = wordStages[0].levels;
+            } else {
+                // Normal test: multiple sections, aggregate them
+                console.log('Normal test detected - aggregating sections');
+                wordStages.forEach(stage => {
+                    // Determine level ID from stage name
+                    const name = stage.name.toLowerCase();
+                    let levelId = 'default';
+
+                    if (name.includes('pre-primer') || name.includes('preprimer')) {
+                        levelId = 'pre_primer';
+                    } else if (name.includes('primer') && !name.includes('pre')) {
+                        levelId = 'primer';
+                    } else if (name.match(/level\s*9/i)) {
+                        levelId = 'level_9';
+                    } else if (name.match(/level\s*8/i)) {
+                        levelId = 'level_8';
+                    } else if (name.match(/level\s*7/i)) {
+                        levelId = 'level_7';
+                    } else if (name.match(/level\s*6/i)) {
+                        levelId = 'level_6';
+                    } else if (name.match(/level\s*5/i)) {
+                        levelId = 'level_5';
+                    } else if (name.match(/level\s*4/i)) {
+                        levelId = 'level_4';
+                    } else if (name.match(/level\s*3/i)) {
+                        levelId = 'level_3';
+                    } else if (name.match(/level\s*2/i)) {
+                        levelId = 'level_2';
+                    } else if (name.match(/level\s*1/i)) {
+                        levelId = 'level_1';
+                    }
+
+                    // Get items from this stage
+                    const items = stage.items || [];
+
+                    // Add to levels (append if level already exists)
+                    if (!levels[levelId]) {
+                        levels[levelId] = [];
+                    }
+                    levels[levelId].push(...items);
+                });
+            }
+
+            console.log('Word levels:', Object.keys(levels), levels);
+
+            const levelNames = {
+                'default': 'Words',
+                'pre_primer': 'Pre-Primer',
+                'primer': 'Primer',
+                'level_1': 'Level 1',
+                'level_2': 'Level 2',
+                'level_3': 'Level 3',
+                'level_4': 'Level 4',
+                'level_5': 'Level 5',
+                'level_6': 'Level 6',
+                'level_7': 'Level 7',
+                'level_8': 'Level 8',
+                'level_9': 'Level 9'
+            };
+
+            // Define correct order
+            const levelOrder = ['default', 'pre_primer', 'primer', 'level_1', 'level_2', 'level_3', 'level_4', 'level_5', 'level_6', 'level_7', 'level_8', 'level_9'];
+
+            // Filter to only levels that exist in data and sort by defined order
+            const sortedLevels = levelOrder.filter(levelId => levels[levelId] && levels[levelId].length > 0);
+
+            container.innerHTML = sortedLevels.map(levelId => {
+                const words = levels[levelId];
+                return `
+                    <div class="mb-4">
+                        <h5 class="mb-3">${levelNames[levelId]} <span class="badge bg-secondary">${words.length} words</span></h5>
+                        <div id="wordStage_${levelId}" class="mb-3" data-level-id="${levelId}">
+                            ${words.map(word => `<span class="word-chip">${word}<i class="fas fa-times remove-btn" onclick="removeWord('${levelId}', '${word}')"></i></span>`).join('')}
+                        </div>
+                        <div class="input-group">
+                            <input type="text" class="form-control" id="newWord_${levelId}" placeholder="Add new word" onkeypress="if(event.key==='Enter') addWord('${levelId}')">
+                            <button class="btn btn-outline-primary" onclick="addWord('${levelId}')">
+                                <i class="fas fa-plus"></i> Add
+                            </button>
+                        </div>
+                    </div>
+                `;
+            }).join('');
+
+            // Add button to add new levels (Level 7, 8, 9)
+            const lastLevel = sortedLevels[sortedLevels.length - 1];
+            const lastLevelNum = lastLevel && lastLevel.match(/\d+/) ? parseInt(lastLevel.match(/\d+/)[0]) : 6;
+
+            if (lastLevelNum < 9 && lastLevel !== 'default') {
+                const nextLevelId = `level_${lastLevelNum + 1}`;
+                const nextLevelName = `Level ${lastLevelNum + 1}`;
+                container.innerHTML += `
+                    <div class="text-center mt-4">
+                        <button class="btn btn-outline-success" onclick="addNewLevel('${nextLevelId}', '${nextLevelName}', 'word')">
+                            <i class="fas fa-plus-circle"></i> Add ${nextLevelName}
+                        </button>
+                    </div>
+                `;
+            }
+        }
+
+        // Populate passages tab
+        function populatePassages() {
+            const container = document.getElementById('passagesContainer');
+
+            // Find ALL passage stages
+            const passageStages = (testData.stages || []).filter(s =>
+                s.type === 'oral_reading' || s.type === 'passage_reading' || s.type === 'passages' || s.type === 'passage'
+            );
+
+            if (!passageStages || passageStages.length === 0) {
+                container.innerHTML = '<p class="text-muted">No passages found</p>';
+                return;
+            }
+
+            let passages = [];
+
+            // Check if this is a placement test (single stage with levels array) or normal test (multiple sections)
+            if (passageStages.length === 1 && passageStages[0].levels && Array.isArray(passageStages[0].levels)) {
+                // Placement test: single stage with levels array
+                console.log('Placement test detected - using levels array');
+                passages = passageStages[0].levels;
+            } else {
+                // Normal test: multiple sections, aggregate them
+                console.log('Normal test detected - aggregating passage sections');
+                passageStages.forEach(stage => {
+                    const items = stage.items || [];
+                    items.forEach(item => {
+                        const name = stage.name.toLowerCase();
+                        let level = 'Unknown';
+                        let levelId = 'unknown';
+
+                        if (name.includes('pre-primer') || name.includes('preprimer')) {
+                            level = 'Pre-Primer';
+                            levelId = 'pre_primer';
+                        } else if (name.includes('primer') && !name.includes('pre')) {
+                            level = 'Primer';
+                            levelId = 'primer';
+                        } else if (name.match(/level\s*9/i)) {
+                            level = 'Level 9';
+                            levelId = 'level_9';
+                        } else if (name.match(/level\s*8/i)) {
+                            level = 'Level 8';
+                            levelId = 'level_8';
+                        } else if (name.match(/level\s*7/i)) {
+                            level = 'Level 7';
+                            levelId = 'level_7';
+                        } else if (name.match(/level\s*6/i)) {
+                            level = 'Level 6';
+                            levelId = 'level_6';
+                        } else if (name.match(/level\s*5/i)) {
+                            level = 'Level 5';
+                            levelId = 'level_5';
+                        } else if (name.match(/level\s*4/i)) {
+                            level = 'Level 4';
+                            levelId = 'level_4';
+                        } else if (name.match(/level\s*3/i)) {
+                            level = 'Level 3';
+                            levelId = 'level_3';
+                        } else if (name.match(/level\s*2/i)) {
+                            level = 'Level 2';
+                            levelId = 'level_2';
+                        } else if (name.match(/level\s*1/i)) {
+                            level = 'Level 1';
+                            levelId = 'level_1';
+                        }
+
+                        let passage;
+                        if (typeof item === 'object' && (item.text || item.content)) {
+                            passage = {
+                                level: level,
+                                levelId: levelId,
+                                title: item.title || stage.name,
+                                text: item.text || item.content || '',
+                                wordCount: item.wordCount || 0,
+                                questions: item.questions || []
+                            };
+                        } else {
+                            passage = {
+                                level: level,
+                                levelId: levelId,
+                                title: stage.name,
+                                text: item.toString(),
+                                wordCount: 0,
+                                questions: []
+                            };
+                        }
+                        passages.push(passage);
+                    });
+                });
+            }
+
+            console.log('Passages:', passages.length, passages);
+
+            // Group passages by level
+            const passagesByLevel = {};
+            const levelOrder = ['pre_primer', 'primer', 'level_1', 'level_2', 'level_3', 'level_4', 'level_5', 'level_6', 'level_7', 'level_8', 'level_9'];
+
+            passages.forEach(passage => {
+                const levelId = passage.levelId || 'unknown';
+                if (!passagesByLevel[levelId]) {
+                    passagesByLevel[levelId] = [];
+                }
+                passagesByLevel[levelId].push(passage);
+            });
+
+            const levelNames = {
+                'pre_primer': 'Pre-Primer',
+                'primer': 'Primer',
+                'level_1': 'Level 1',
+                'level_2': 'Level 2',
+                'level_3': 'Level 3',
+                'level_4': 'Level 4',
+                'level_5': 'Level 5',
+                'level_6': 'Level 6',
+                'level_7': 'Level 7',
+                'level_8': 'Level 8',
+                'level_9': 'Level 9'
+            };
+
+            // Render passages grouped by level
+            const sortedLevels = levelOrder.filter(levelId => passagesByLevel[levelId] && passagesByLevel[levelId].length > 0);
+
+            container.innerHTML = sortedLevels.map(levelId => {
+                const levelPassages = passagesByLevel[levelId];
+                return `
+                    <div class="mb-4 pb-3 border-bottom">
+                        <div class="d-flex justify-content-between align-items-center mb-3">
+                            <h5 class="mb-0">${levelNames[levelId]} <span class="badge bg-secondary">${levelPassages.length} passage(s)</span></h5>
+                            <button class="btn btn-sm btn-outline-primary" onclick="addPassage('${levelId}')">
+                                <i class="fas fa-plus"></i> Add Passage
+                            </button>
+                        </div>
+                        <div id="passageLevel_${levelId}">
+                            ${levelPassages.map((passage, idx) => {
+                    const globalIdx = passages.indexOf(passage);
+                    return `
+                                    <div class="passage-card mb-3 p-3 border rounded" data-level="${levelId}" data-idx="${globalIdx}">
+                                        <div class="d-flex justify-content-between align-items-start mb-3">
+                                            <h6 class="mb-0">Passage ${idx + 1}</h6>
+                                            <div class="btn-group">
+                                                <button class="btn btn-sm btn-outline-primary" onclick="autoCalculateWordCount(${globalIdx})" title="Auto-calculate word count">
+                                                    <i class="fas fa-calculator"></i>
+                                                </button>
+                                                <button class="btn btn-sm btn-outline-danger" onclick="removePassage('${levelId}', ${globalIdx})" title="Remove passage">
+                                                    <i class="fas fa-trash"></i>
+                                                </button>
+                                            </div>
+                                        </div>
+                                        <div class="mb-3">
+                                            <label class="form-label">Title</label>
+                                            <input type="text" class="form-control" id="passageTitle_${globalIdx}" value="${passage.title || ''}" placeholder="Passage title">
+                                        </div>
+                                        <div class="mb-3">
+                                            <label class="form-label">Text</label>
+                                            <textarea class="form-control" id="passageText_${globalIdx}" rows="6" placeholder="Passage text">${passage.text || ''}</textarea>
+                                        </div>
+                                        <div class="mb-3">
+                                            <label class="form-label">Word Count</label>
+                                            <input type="number" class="form-control" id="passageWordCount_${globalIdx}" value="${passage.wordCount || 0}" placeholder="Word count">
+                                        </div>
+                                        <div class="mb-3">
+                                            <label class="form-label">Comprehension Questions</label>
+                                            <div id="questions_${globalIdx}">
+                                                ${(passage.questions || []).map((q, qIdx) => `
+                                                    <div class="question-card mb-2 p-2 border rounded">
+                                                        <div class="d-flex justify-content-between mb-2">
+                                                            <small class="text-muted">Question ${qIdx + 1}</small>
+                                                            <button class="btn btn-sm btn-link text-danger p-0" onclick="removeQuestion(${globalIdx}, ${qIdx})">
+                                                                <i class="fas fa-times"></i>
+                                                            </button>
+                                                        </div>
+                                                        <div class="mb-2">
+                                                            <input type="text" class="form-control form-control-sm" data-field="question" placeholder="Question" value="${q.question || ''}">
+                                                        </div>
+                                                        <div>
+                                                            <input type="text" class="form-control form-control-sm" data-field="answer" placeholder="Answer" value="${q.answer || ''}">
+                                                        </div>
+                                                    </div>
+                                                `).join('')}
+                                            </div>
+                                            <button class="btn btn-sm btn-outline-primary mt-2" onclick="addQuestion(${globalIdx})">
+                                                <i class="fas fa-plus"></i> Add Question
+                                            </button>
+                                        </div>
+                                    </div>
+                                `;
+                }).join('')}
+                        </div>
+                    </div>
+                `;
+            }).join('');
+
+            // Add button to add new levels (Level 7, 8, 9)
+            const lastLevel = sortedLevels[sortedLevels.length - 1];
+            const lastLevelNum = lastLevel ? parseInt(lastLevel.match(/\d+/)?.[0] || '6') : 6;
+
+            if (lastLevelNum < 9) {
+                const nextLevelId = `level_${lastLevelNum + 1}`;
+                const nextLevelName = `Level ${lastLevelNum + 1}`;
+                container.innerHTML += `
+                    <div class="text-center mt-4">
+                        <button class="btn btn-outline-success" onclick="addNewLevel('${nextLevelId}', '${nextLevelName}', 'passage')">
+                            <i class="fas fa-plus-circle"></i> Add ${nextLevelName}
+                        </button>
+                    </div>
+                `;
+            }
+        }
+
+        // Auto-calculate word count from passage text
+        window.autoCalculateWordCount = function (passageIdx) {
+            const textarea = document.getElementById(`passageText_${passageIdx}`);
+            const wordCountInput = document.getElementById(`passageWordCount_${passageIdx}`);
+
+            if (textarea && wordCountInput) {
+                const text = textarea.value.trim();
+                // Count words by splitting on whitespace and filtering empty strings
+                const wordCount = text ? text.split(/\s+/).filter(w => w.length > 0).length : 0;
+                wordCountInput.value = wordCount;
+            }
+        }
+
+        // Add question to passage
+        window.addQuestion = function (passageIdx) {
+            const container = document.getElementById(`questions_${passageIdx}`);
+            if (container) {
+                const qIdx = container.querySelectorAll('.question-card').length;
+                const newQuestion = document.createElement('div');
+                newQuestion.className = 'question-card mb-2 p-2 border rounded';
+                newQuestion.innerHTML = `
+                    <div class="d-flex justify-content-between mb-2">
+                        <small class="text-muted">Question ${qIdx + 1}</small>
+                        <button class="btn btn-sm btn-link text-danger p-0" onclick="this.closest('.question-card').remove()">
+                            <i class="fas fa-times"></i>
+                        </button>
+                    </div>
+                    <div class="mb-2">
+                        <input type="text" class="form-control form-control-sm" data-field="question" placeholder="Question" value="">
+                    </div>
+                    <div>
+                        <input type="text" class="form-control form-control-sm" data-field="answer" placeholder="Answer" value="">
+                    </div>
+                `;
+                container.appendChild(newQuestion);
+            }
+        };
+
+        // Add new level
+        window.addNewLevel = function (levelId, levelName, type) {
+            if (type === 'word') {
+                const container = document.getElementById('wordListsContainer');
+                const newLevel = document.createElement('div');
+                newLevel.className = 'mb-4';
+                newLevel.innerHTML = `
+                    <h5 class="mb-3">${levelName} <span class="badge bg-secondary">0 words</span></h5>
+                    <div id="wordStage_${levelId}" class="mb-3" data-level-id="${levelId}"></div>
+                    <div class="input-group">
+                        <input type="text" class="form-control" id="newWord_${levelId}" placeholder="Add new word" onkeypress="if(event.key==='Enter') addWord('${levelId}')">
+                        <button class="btn btn-outline-primary" onclick="addWord('${levelId}')">
+                            <i class="fas fa-plus"></i> Add
+                        </button>
+                    </div>
+                `;
+                const addButton = container.querySelector('.text-center');
+                if (addButton) {
+                    container.insertBefore(newLevel, addButton);
+                    addButton.remove();
+                } else {
+                    container.appendChild(newLevel);
+                }
+
+                const nextNum = parseInt(levelId.match(/\d+/)[0]) + 1;
+                if (nextNum <= 9) {
+                    const nextButton = document.createElement('div');
+                    nextButton.className = 'text-center mt-4';
+                    nextButton.innerHTML = `
+                        <button class="btn btn-outline-success" onclick="addNewLevel('level_${nextNum}', 'Level ${nextNum}', 'word')">
+                            <i class="fas fa-plus-circle"></i> Add Level ${nextNum}
+                        </button>
+                    `;
+                    container.appendChild(nextButton);
+                }
+            } else if (type === 'passage') {
+                const container = document.getElementById('passagesContainer');
+                const newLevel = document.createElement('div');
+                newLevel.className = 'mb-4 pb-3 border-bottom';
+                newLevel.innerHTML = `
+                    <div class="d-flex justify-content-between align-items-center mb-3">
+                        <h5 class="mb-0">${levelName} <span class="badge bg-secondary">0 passage(s)</span></h5>
+                        <button class="btn btn-sm btn-outline-primary" onclick="alert('Add passage - to be implemented')">
+                            <i class="fas fa-plus"></i> Add Passage
+                        </button>
+                    </div>
+                    <div id="passageLevel_${levelId}">
+                        <p class="text-muted">No passages yet.</p>
+                    </div>
+                `;
+                const addButton = container.querySelector('.text-center');
+                if (addButton) {
+                    container.insertBefore(newLevel, addButton);
+                    addButton.remove();
+                } else {
+                    container.appendChild(newLevel);
+                }
+
+                const nextNum = parseInt(levelId.match(/\d+/)[0]) + 1;
+                if (nextNum <= 9) {
+                    const nextButton = document.createElement('div');
+                    nextButton.className = 'text-center mt-4';
+                    nextButton.innerHTML = `
+                        <button class="btn btn-outline-success" onclick="addNewLevel('level_${nextNum}', 'Level ${nextNum}', 'passage')">
+                            <i class="fas fa-plus-circle"></i> Add Level ${nextNum}
+                        </button>
+                    `;
+                    container.appendChild(nextButton);
+                }
+            }
+        };
+
+
+        // Populate branching rules tab
+        function populateBranchingRules() {
+            // Default values based on Welcome to Reading.md documentation
+            // Order matches the exact sequence from the document (lines 92-102)
+            const defaults = {
+                sentenceFilter: [
+                    { condition: 'Not read sentence 1', level: 'pre_primer' },
+                    { condition: 'Partially read sentence 1', level: 'pre_primer' },
+                    { condition: 'Completely read sentence 1', level: 'primer' },
+                    { condition: 'Completely read sentence 2', level: 'level_1' },
+                    { condition: 'Completely read sentence 3', level: 'level_2' },
+                    { condition: 'Completely read sentence 4', level: 'level_3' },
+                    { condition: 'Completely read sentence 5', level: 'level_4' }
+                ],
+                wordListFilter: [
+                    // Pre-Primer passage conditions (3 rules)
+                    { condition: 'Exactly 0 words on Pre-Primer', level: 'pre_primer' },
+                    { condition: 'Less than 8 words on Pre-Primer', level: 'pre_primer' },
+                    { condition: 'Less than 8 words on Primer', level: 'pre_primer' },
+
+                    // Primer passage conditions (3 rules)
+                    { condition: 'Master Pre-Primer but not Level 1', level: 'primer' },
+                    { condition: 'Exactly 0 words on Level 1', level: 'primer' },
+                    { condition: 'Less than 12 words on Level 1', level: 'primer' },
+
+                    // Level 1 passage conditions (3 rules)
+                    { condition: 'Master Level 1 but not Level 2', level: 'level_1' },
+                    { condition: 'Exactly 0 words on Level 2', level: 'level_1' },
+                    { condition: 'Less than 12 words on Level 2', level: 'level_1' },
+
+                    // Level 2 passage conditions (3 rules)
+                    { condition: 'Master Level 2 but not Level 3', level: 'level_2' },
+                    { condition: 'Less than 12 words on Level 3', level: 'level_2' },
+                    { condition: 'Exactly 0 words on Level 3', level: 'level_2' },
+
+                    // Level 3 passage conditions (3 rules)
+                    { condition: 'Master Level 3 only', level: 'level_3' },
+                    { condition: 'Less than 15 words on Level 4', level: 'level_3' },
+                    { condition: 'Exactly 0 words on Level 4', level: 'level_3' }
+                ]
+            };
+
+            // Get values from testData or use defaults
+            const rules = testData.branchingRules || {};
+
+            // Convert old format to new format if necessary
+            let sentenceRules = rules.sentenceFilter;
+            if (sentenceRules && !Array.isArray(sentenceRules)) {
+                // Old format - convert to new
+                sentenceRules = Object.entries(sentenceRules).map(([key, level]) => {
+                    const conditionMap = {
+                        'no_words_s1': 'No words read in sentence 1',
+                        'some_words_s1': 'Some words read from sentence 1',
+                        'only_s1': 'Only sentence 1 read correctly',
+                        's2_complete': 'Sentence 2 completed',
+                        's3_complete': 'Sentence 3 completed',
+                        's4_complete': 'Sentence 4 completed',
+                        's5_complete': 'Sentence 5 completed'
+                    };
+                    return { condition: conditionMap[key] || key, level };
+                });
+            }
+
+            // Always use correct defaults to ensure proper order (easiest to hardest)
+            // This ensures consistent ordering across all tests
+            console.log('Using standardized sentence filter rules in correct order');
+            sentenceRules = defaults.sentenceFilter;
+
+            let wordListRules = rules.wordListFilter;
+            if (wordListRules && !Array.isArray(wordListRules)) {
+                // Old format - convert to new
+                wordListRules = Object.entries(wordListRules).map(([key, level]) => {
+                    const conditionMap = {
+                        'preprimer_fail': 'Less than 8 words on Pre-Primer or Primer list',
+                        'primer_fail_l1': 'Master Pre-Primer, fail Level 1 (less than 12 words)',
+                        'l1_fail_l2': 'Master Level 1, fail Level 2 (less than 12 words)',
+                        'l2_fail_l3': 'Master Level 2, fail Level 3 (less than 12 words)',
+                        'l3_fail_l4': 'Master Level 3, fail Level 4 (less than 15 words)'
+                    };
+                    return { condition: conditionMap[key] || key, level };
+                });
+            }
+
+            // If wordListRules is incomplete (less than 15 conditions), use complete defaults
+            // This ensures existing tests get updated to the full 18-condition set
+            if (!wordListRules || wordListRules.length < 15) {
+                console.log('Updating to complete word list filter rules (18 conditions)');
+                wordListRules = defaults.wordListFilter;
+            }
+
+            // Render sentence filter rules
+            renderRules('sentenceFilterRules', sentenceRules, 'Word List');
+
+            // Render word list filter rules  
+            renderRules('wordListFilterRules', wordListRules, 'Passage');
+        }
+
+        // Render editable rule cards
+        function renderRules(containerId, rules, targetType) {
+            const container = document.getElementById(containerId);
+            const levelOptions = `
+                <option value="pre_primer">Pre-Primer</option>
+                <option value="primer">Primer</option>
+                <option value="level_1">Level 1</option>
+                <option value="level_2">Level 2</option>
+                <option value="level_3">Level 3</option>
+                <option value="level_4">Level 4</option>
+                <option value="level_5">Level 5</option>
+                <option value="level_6">Level 6</option>
+                <option value="level_7">Level 7</option>
+                <option value="level_8">Level 8</option>
+                <option value="level_9">Level 9</option>
+            `;
+
+            const isSentenceFilter = containerId === 'sentenceFilterRules';
+
+            container.innerHTML = rules.map((rule, idx) => {
+                // Parse existing rule to extract values
+                let parsedRule = parseRule(rule.condition, isSentenceFilter);
+
+                if (isSentenceFilter) {
+                    // Sentence Filter: [Status] + [Sentence Number]
+                    return `
+                        <div class="card mb-2 rule-card" data-idx="${idx}">
+                            <div class="card-body py-2 px-3">
+                                <div class="row align-items-center">
+                                    <div class="col-md-3">
+                                        <select class="form-select form-select-sm condition-status">
+                                            <option value="not" ${parsedRule.status === 'not' ? 'selected' : ''}>Not read</option>
+                                            <option value="partially" ${parsedRule.status === 'partially' ? 'selected' : ''}>Partially read</option>
+                                            <option value="completely" ${parsedRule.status === 'completely' ? 'selected' : ''}>Completely read</option>
+                                        </select>
+                                    </div>
+                                    <div class="col-md-3">
+                                        <select class="form-select form-select-sm condition-sentence">
+                                            <option value="1" ${parsedRule.sentence === '1' ? 'selected' : ''}>Sentence 1</option>
+                                            <option value="2" ${parsedRule.sentence === '2' ? 'selected' : ''}>Sentence 2</option>
+                                            <option value="3" ${parsedRule.sentence === '3' ? 'selected' : ''}>Sentence 3</option>
+                                            <option value="4" ${parsedRule.sentence === '4' ? 'selected' : ''}>Sentence 4</option>
+                                            <option value="5" ${parsedRule.sentence === '5' ? 'selected' : ''}>Sentence 5</option>
+                                        </select>
+                                    </div>
+                                    <div class="col-md-1 text-center">
+                                        <i class="fas fa-arrow-right text-muted"></i>
+                                    </div>
+                                    <div class="col-md-4">
+                                        <select class="form-select form-select-sm level-select">
+                                            ${levelOptions}
+                                        </select>
+                                    </div>
+                                    <div class="col-md-1 text-end">
+                                        <button class="btn btn-sm btn-link text-danger p-0" onclick="removeRule('${containerId}', ${idx})" title="Remove rule">
+                                            <i class="fas fa-trash"></i>
+                                        </button>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    `;
+                } else {
+                    // Word List Filter: Check if this is a compound condition
+                    const isCompound = rule.condition.toLowerCase().includes('master') &&
+                        (rule.condition.toLowerCase().includes('but') ||
+                            rule.condition.toLowerCase().includes('only'));
+
+                    if (isCompound) {
+                        // Compound condition: show as editable text
+                        return `
+                            <div class="card mb-2 rule-card rule-compound" data-idx="${idx}">
+                                <div class="card-body py-2 px-3">
+                                    <div class="row align-items-center">
+                                        <div class="col-md-1">
+                                            <small class="badge bg-info">Compound</small>
+                                        </div>
+                                        <div class="col-md-7">
+                                            <input type="text" class="form-control form-control-sm condition-text" 
+                                                   value="${rule.condition}" placeholder="e.g., Master Pre-Primer but not Level 1">
+                                        </div>
+                                        <div class="col-md-1 text-center">
+                                            <i class="fas fa-arrow-right text-muted"></i>
+                                        </div>
+                                        <div class="col-md-2">
+                                            <select class="form-select form-select-sm level-select">
+                                                ${levelOptions}
+                                            </select>
+                                        </div>
+                                        <div class="col-md-1 text-end">
+                                            <button class="btn btn-sm btn-link text-danger p-0" onclick="removeRule('${containerId}', ${idx})" title="Remove rule">
+                                                <i class="fas fa-trash"></i>
+                                            </button>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        `;
+                    }
+
+                    // Simple condition: [Comparison] + [Number] + [Level Tested]
+                    return `
+                        <div class="card mb-2 rule-card" data-idx="${idx}">
+                            <div class="card-body py-2 px-3">
+                                <div class="row align-items-center">
+                                    <div class="col-md-2">
+                                        <select class="form-select form-select-sm condition-comparison">
+                                            <option value="less" ${parsedRule.comparison === 'less' ? 'selected' : ''}>Less than</option>
+                                            <option value="more" ${parsedRule.comparison === 'more' ? 'selected' : ''}>More than</option>
+                                            <option value="exactly" ${parsedRule.comparison === 'exactly' ? 'selected' : ''}>Exactly</option>
+                                        </select>
+                                    </div>
+                                    <div class="col-md-2">
+                                        <input type="number" class="form-control form-control-sm condition-count" value="${parsedRule.count || 8}" min="1" max="20" placeholder="8">
+                                    </div>
+                                    <div class="col-md-1 text-center">
+                                        <small class="text-muted">words on</small>
+                                    </div>
+                                    <div class="col-md-2">
+                                        <select class="form-select form-select-sm condition-tested-level">
+                                            ${levelOptions}
+                                        </select>
+                                    </div>
+                                    <div class="col-md-1 text-center">
+                                        <i class="fas fa-arrow-right text-muted"></i>
+                                    </div>
+                                    <div class="col-md-3">
+                                        <select class="form-select form-select-sm level-select">
+                                            ${levelOptions}
+                                        </select>
+                                    </div>
+                                    <div class="col-md-1 text-end">
+                                        <button class="btn btn-sm btn-link text-danger p-0" onclick="removeRule('${containerId}', ${idx})" title="Remove rule">
+                                            <i class="fas fa-trash"></i>
+                                        </button>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    `;
+                }
+            }).join('');
+
+            // Set selected values for result level
+            rules.forEach((rule, idx) => {
+                const card = container.querySelectorAll('.rule-card')[idx];
+                if (card) {
+                    card.querySelector('.level-select').value = rule.level;
+                    // For word list, also set tested level
+                    if (!isSentenceFilter) {
+                        const parsedRule = parseRule(rule.condition, false);
+                        const testedLevelSelect = card.querySelector('.condition-tested-level');
+                        if (testedLevelSelect && parsedRule.testedLevel) {
+                            testedLevelSelect.value = parsedRule.testedLevel;
+                        }
+                    }
+                }
+            });
+        }
+
+        // Parse existing rule text to extract structured values
+        function parseRule(condition, isSentence) {
+            const result = {};
+
+            if (isSentence) {
+                // Parse sentence rules
+                if (condition.toLowerCase().includes('not')) {
+                    result.status = 'not';
+                } else if (condition.toLowerCase().includes('partial') || condition.toLowerCase().includes('some')) {
+                    result.status = 'partially';
+                } else {
+                    result.status = 'completely';
+                }
+
+                // Extract sentence number
+                const match = condition.match(/sentence\s*(\d)/i);
+                result.sentence = match ? match[1] : '1';
+            } else {
+                // Parse word list rules
+                if (condition.toLowerCase().includes('less')) {
+                    result.comparison = 'less';
+                } else if (condition.toLowerCase().includes('more')) {
+                    result.comparison = 'more';
+                } else {
+                    result.comparison = 'exactly';
+                }
+
+                // Extract number
+                const numMatch = condition.match(/(\d+)\s*word/i);
+                result.count = numMatch ? numMatch[1] : '8';
+
+                // Extract tested level
+                if (condition.toLowerCase().includes('pre-primer') || condition.toLowerCase().includes('preprimer')) {
+                    result.testedLevel = 'pre_primer';
+                } else if (condition.toLowerCase().includes('primer') && !condition.toLowerCase().includes('pre')) {
+                    result.testedLevel = 'primer';
+                } else {
+                    const levelMatch = condition.match(/level\s*(\d)/i);
+                    if (levelMatch) {
+                        result.testedLevel = `level_${levelMatch[1]}`;
+                    } else {
+                        result.testedLevel = 'pre_primer';
+                    }
+                }
+            }
+
+            return result;
+        }
+
+        // Add sentence rule
+        window.addSentenceRule = function () {
+            const container = document.getElementById('sentenceFilterRules');
+            const newIdx = container.querySelectorAll('.rule-card').length;
+            const levelOptions = `
+                <option value="pre_primer">Pre-Primer</option>
+                <option value="primer">Primer</option>
+                <option value="level_1">Level 1</option>
+                <option value="level_2">Level 2</option>
+                <option value="level_3">Level 3</option>
+                <option value="level_4">Level 4</option>
+                <option value="level_5">Level 5</option>
+                <option value="level_6">Level 6</option>
+                <option value="level_7">Level 7</option>
+                <option value="level_8">Level 8</option>
+                <option value="level_9">Level 9</option>
+            `;
+
+            const newRule = document.createElement('div');
+            newRule.className = 'card mb-2 rule-card';
+            newRule.dataset.idx = newIdx;
+            newRule.innerHTML = `
+                <div class="card-body py-2 px-3">
+                    <div class="row align-items-center">
+                        <div class="col-md-3">
+                            <select class="form-select form-select-sm condition-status">
+                                <option value="not">Not read</option>
+                                <option value="partially">Partially read</option>
+                                <option value="completely" selected>Completely read</option>
+                            </select>
+                        </div>
+                        <div class="col-md-3">
+                            <select class="form-select form-select-sm condition-sentence">
+                                <option value="1" selected>Sentence 1</option>
+                                <option value="2">Sentence 2</option>
+                                <option value="3">Sentence 3</option>
+                                <option value="4">Sentence 4</option>
+                                <option value="5">Sentence 5</option>
+                            </select>
+                        </div>
+                        <div class="col-md-1 text-center">
+                            <i class="fas fa-arrow-right text-muted"></i>
+                        </div>
+                        <div class="col-md-4">
+                            <select class="form-select form-select-sm level-select">
+                                ${levelOptions}
+                            </select>
+                        </div>
+                        <div class="col-md-1 text-end">
+                            <button class="btn btn-sm btn-link text-danger p-0" onclick="this.closest('.rule-card').remove()" title="Remove rule">
+                                <i class="fas fa-trash"></i>
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            `;
+            container.appendChild(newRule);
+        };
+
+        // Add word list rule
+        window.addWordListRule = function () {
+            const container = document.getElementById('wordListFilterRules');
+            const newIdx = container.querySelectorAll('.rule-card').length;
+            const levelOptions = `
+                <option value="pre_primer">Pre-Primer</option>
+                <option value="primer">Primer</option>
+                <option value="level_1">Level 1</option>
+                <option value="level_2">Level 2</option>
+                <option value="level_3">Level 3</option>
+                <option value="level_4">Level 4</option>
+                <option value="level_5">Level 5</option>
+                <option value="level_6">Level 6</option>
+                <option value="level_7">Level 7</option>
+                <option value="level_8">Level 8</option>
+                <option value="level_9">Level 9</option>
+            `;
+
+            const newRule = document.createElement('div');
+            newRule.className = 'card mb-2 rule-card';
+            newRule.dataset.idx = newIdx;
+            newRule.innerHTML = `
+                <div class="card-body py-2 px-3">
+                    <div class="row align-items-center">
+                        <div class="col-md-2">
+                            <select class="form-select form-select-sm condition-comparison">
+                                <option value="less" selected>Less than</option>
+                                <option value="more">More than</option>
+                                <option value="exactly">Exactly</option>
+                            </select>
+                        </div>
+                        <div class="col-md-2">
+                            <input type="number" class="form-control form-control-sm condition-count" value="8" min="1" max="20" placeholder="8">
+                        </div>
+                        <div class="col-md-1 text-center">
+                            <small class="text-muted">words on</small>
+                        </div>
+                        <div class="col-md-2">
+                            <select class="form-select form-select-sm condition-tested-level">
+                                ${levelOptions}
+                            </select>
+                        </div>
+                        <div class="col-md-1 text-center">
+                            <i class="fas fa-arrow-right text-muted"></i>
+                        </div>
+                        <div class="col-md-3">
+                            <select class="form-select form-select-sm level-select">
+                                ${levelOptions}
+                            </select>
+                        </div>
+                        <div class="col-md-1 text-end">
+                            <button class="btn btn-sm btn-link text-danger p-0" onclick="this.closest('.rule-card').remove()" title="Remove rule">
+                                <i class="fas fa-trash"></i>
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            `;
+            container.appendChild(newRule);
+        };
+
+        // Remove rule
+        window.removeRule = function (containerId, idx) {
+            const container = document.getElementById(containerId);
+            const cards = container.querySelectorAll('.rule-card');
+            if (cards[idx]) {
+                cards[idx].remove();
+            }
+        };
+
+
+        // Save test to Firebase
+        window.saveTest = async function () {
+            try {
+                showAlert('Saving test...', 'info');
+
+                // Collect all form data
+                const updatedData = {
+                    title: document.getElementById('testTitle').value.trim(),
+                    description: document.getElementById('testDescription').value.trim(),
+                    status: document.getElementById('testStatus').value,
+                    duration: parseInt(document.getElementById('testDuration').value) || 60,
+                    updatedAt: serverTimestamp(),
+                    updatedBy: currentUser.uid
+                };
+
+                // Validate
+                if (!updatedData.title) {
+                    showAlert('Title is required', 'warning');
+                    return;
+                }
+
+                // Collect stages data
+                updatedData.stages = collectStagesData();
+
+                // Convert stages back to sections for normal tests
+                // (Tests created with create-test.html use 'sections', not 'stages')
+                const isNormalTest = testData.sections && !testData.originallyHadStages;
+                if (isNormalTest) {
+                    console.log('Converting stages back to sections format...');
+                    updatedData.sections = updatedData.stages.map(stage => ({
+                        id: stage.id,
+                        title: stage.name,
+                        type: stage.type,
+                        instructions: stage.instructions || '',
+                        items: stage.items.map(item => {
+                            // If item is a simple string, convert to object
+                            if (typeof item === 'string') {
+                                return {
+                                    id: `item-${Date.now()}-${Math.random().toString(36).substr(2, 9)}`,
+                                    type: stage.type.replace('_recognition', '').replace('_reading', '').replace('_list', ''),
+                                    content: item,
+                                    points: 1
+                                };
+                            }
+                            // If item is already an object, keep it
+                            return item;
+                        })
+                    }));
+                    // Remove stages from data being saved
+                    delete updatedData.stages;
+                }
+
+                // Collect branching rules only for assessment/placement tests
+                const testType = document.getElementById('testType').value;
+                if (testType === 'reading_assessment' || testType === 'placement_test') {
+                    // Collect sentence filter rules
+                    const sentenceFilterCards = document.querySelectorAll('#sentenceFilterRules .rule-card');
+                    const sentenceFilter = Array.from(sentenceFilterCards).map(card => {
+                        const status = card.querySelector('.condition-status').value;
+                        const sentence = card.querySelector('.condition-sentence').value;
+                        const statusText = status === 'not' ? 'Not read' :
+                            status === 'partially' ? 'Partially read' : 'Completely read';
+                        return {
+                            condition: `${statusText} sentence ${sentence}`,
+                            level: card.querySelector('.level-select').value
+                        };
+                    });
+
+                    // Collect word list filter rules
+                    const wordListFilterCards = document.querySelectorAll('#wordListFilterRules .rule-card');
+                    const wordListFilter = Array.from(wordListFilterCards).map(card => {
+                        // Check if this is a compound condition (has .rule-compound class)
+                        if (card.classList.contains('rule-compound')) {
+                            // Compound condition: read from text input
+                            return {
+                                condition: card.querySelector('.condition-text').value,
+                                level: card.querySelector('.level-select').value
+                            };
+                        } else {
+                            // Simple condition: build from dropdowns
+                            const comparison = card.querySelector('.condition-comparison').value;
+                            const count = card.querySelector('.condition-count').value;
+                            const testedLevel = card.querySelector('.condition-tested-level').value;
+                            const comparisonText = comparison === 'less' ? 'Less than' :
+                                comparison === 'more' ? 'More than' : 'Exactly';
+                            const levelNames = {
+                                'pre_primer': 'Pre-Primer',
+                                'primer': 'Primer',
+                                'level_1': 'Level 1',
+                                'level_2': 'Level 2',
+                                'level_3': 'Level 3',
+                                'level_4': 'Level 4',
+                                'level_5': 'Level 5',
+                                'level_6': 'Level 6',
+                                'level_7': 'Level 7',
+                                'level_8': 'Level 8',
+                                'level_9': 'Level 9'
+                            };
+                            return {
+                                condition: `${comparisonText} ${count} words on ${levelNames[testedLevel]}`,
+                                level: card.querySelector('.level-select').value
+                            };
+                        }
+                    });
+
+                    updatedData.branchingRules = {
+                        sentenceFilter,
+                        wordListFilter
+                    };
+                }
+
+                console.log('Saving data:', updatedData);
+
+                // Update Firestore
+                const testRef = doc(db, 'tests', testId);
+                await updateDoc(testRef, updatedData);
+
+                showAlert('Test saved successfully!', 'success');
+
+                // Redirect after 1.5 seconds
+                setTimeout(() => {
+                    window.location.href = 'admin-tests.html';
+                }, 1500);
+
+            } catch (error) {
+                console.error('Save error:', error);
+                showAlert('Failed to save test: ' + error.message, 'danger');
+            }
+        };
+
+        // Collect stages data from form
+        function collectStagesData() {
+            const stages = JSON.parse(JSON.stringify(testData.stages || []));
+
+            // Update letter stages
+            stages.filter(s =>
+                s.type === 'letter_recognition' || s.type === 'letters' || s.type === 'letter'
+            ).forEach((stage, idx) => {
+                const items = [];
+                document.querySelectorAll(`#letterStage_${idx} input[type="text"]`).forEach(input => {
+                    const val = input.value.trim();
+                    if (val) items.push(val);
+                });
+                stage.items = items;
+            });
+
+            // Update sentence stage
+            const sentenceStage = stages.find(s =>
+                s.type === 'sentence_reading' || s.type === 'sentences' || s.type === 'sentence'
+            );
+            if (sentenceStage) {
+                const items = [];
+                const containers = document.querySelectorAll('#sentencesContainer .item-card');
+                containers.forEach(container => {
+                    const textArea = container.querySelector('[data-field="text"]');
+                    const selectBox = container.querySelector('[data-field="targetLevel"]');
+                    const text = textArea?.value.trim();
+                    const targetLevel = selectBox?.value;
+                    if (text) {
+                        items.push({ text, targetLevel });
+                    }
+                });
+                sentenceStage.items = items;
+            }
+
+            // Update word stage
+            const wordStage = stages.find(s =>
+                s.type === 'word_list' || s.type === 'words' || s.type === 'word'
+            );
+            if (wordStage && wordStage.levels) {
+                Object.keys(wordStage.levels).forEach(levelId => {
+                    const words = [];
+                    document.querySelectorAll(`#wordStage_${levelId} .word-chip`).forEach(chip => {
+                        words.push(chip.textContent.replace('×', '').trim());
+                    });
+                    wordStage.levels[levelId] = words;
+                });
+            }
+
+            // Update passage stage
+            const passageStage = stages.find(s =>
+                s.type === 'oral_reading' || s.type === 'passage_reading' || s.type === 'passages' || s.type === 'passage'
+            );
+            if (passageStage && passageStage.levels) {
+                passageStage.levels.forEach((passage, idx) => {
+                    passage.title = document.getElementById(`passageTitle_${idx}`)?.value || '';
+                    passage.text = document.getElementById(`passageText_${idx}`)?.value || '';
+                    passage.wordCount = parseInt(document.getElementById(`passageWordCount_${idx}`)?.value) || 0;
+
+                    const questions = [];
+                    document.querySelectorAll(`#questions_${idx} .question-card`).forEach(card => {
+                        const qInput = card.querySelector('[data-field="question"]');
+                        const aInput = card.querySelector('[data-field="answer"]');
+                        questions.push({
+                            question: qInput?.value || '',
+                            answer: aInput?.value || ''
+                        });
+                    });
+                    passage.questions = questions;
+                });
+            }
+
+            return stages;
+        }
+
+        // Helper functions for adding/removing items
+        window.addLetterItem = function (stageIdx) {
+            const container = document.getElementById(`letterStage_${stageIdx}`);
+            const items = container.querySelectorAll('.item-card');
+            const newIdx = items.length;
+
+            const newItem = document.createElement('div');
+            newItem.className = 'item-card d-flex align-items-center';
+            newItem.innerHTML = `
+                <i class="fas fa-grip-vertical drag-handle"></i>
+                <input type="text" class="form-control form-control-sm me-2" style="width: 80px;" value="" maxlength="1">
+                <button class="btn btn-sm btn-outline-danger" onclick="removeLetterItem(${stageIdx}, ${newIdx})">
+                    <i class="fas fa-trash-alt"></i>
+                </button>
+            `;
+            container.insertBefore(newItem, container.querySelector('.btn-add-item'));
+        };
+
+        window.removeLetterItem = function (stageIdx, idx) {
+            const container = document.getElementById(`letterStage_${stageIdx}`);
+            const items = container.querySelectorAll('.item-card');
+            if (items[idx]) items[idx].remove();
+        };
+
+        window.addSentence = function () {
+            const container = document.getElementById('sentencesContainer');
+            const items = container.querySelectorAll('.item-card');
+            const newIdx = items.length;
+
+            const newItem = document.createElement('div');
+            newItem.className = 'item-card';
+            newItem.innerHTML = `
+                <div class="d-flex justify-content-between align-items-start mb-2">
+                    <h6 class="mb-0">Sentence ${newIdx + 1}</h6>
+                    <button class="btn btn-sm btn-outline-danger" onclick="removeSentence(${newIdx})">
+                        <i class="fas fa-trash-alt"></i>
+                    </button>
+                </div>
+                <textarea class="form-control mb-2" rows="2" placeholder="Enter sentence text" data-sentence-idx="${newIdx}" data-field="text"></textarea>
+                <select class="form-select" data-sentence-idx="${newIdx}" data-field="targetLevel">
+                    <option value="">Select Target Level</option>
+                    <option value="pre_primer">Pre-Primer</option>
+                    <option value="primer">Primer</option>
+                    <option value="level_1">Level 1</option>
+                    <option value="level_2">Level 2</option>
+                    <option value="level_3">Level 3</option>
+                    <option value="level_4">Level 4</option>
+                    <option value="level_5">Level 5</option>
+                    <option value="level_6">Level 6</option>
+                </select>
+            `;
+            container.appendChild(newItem);
+        };
+
+        window.removeSentence = function (idx) {
+            const container = document.getElementById('sentencesContainer');
+            const items = container.querySelectorAll('.item-card');
+            if (items[idx]) items[idx].remove();
+        };
+
+        window.addWord = function (levelId) {
+            const input = document.getElementById(`newWord_${levelId}`);
+            const word = input.value.trim();
+            if (!word) return;
+
+            const container = document.getElementById(`wordStage_${levelId}`);
+            const chip = document.createElement('span');
+            chip.className = 'word-chip';
+            chip.innerHTML = `${word}<i class="fas fa-times remove-btn" onclick="removeWord('${levelId}', '${word}')"></i>`;
+            container.appendChild(chip);
+
+            input.value = '';
+            updateWordCount(levelId);
+        };
+
+        window.removeWord = function (levelId, word) {
+            event.target.parentElement.remove();
+            updateWordCount(levelId);
+        };
+
+        function updateWordCount(levelId) {
+            const container = document.getElementById(`wordStage_${levelId}`);
+            const count = container.querySelectorAll('.word-chip').length;
+            const badge = container.parentElement.querySelector('.badge');
+            if (badge) badge.textContent = `${count} words`;
+        }
+
+        window.addQuestion = function (stageIdx) {
+            const container = document.getElementById(`questions_${stageIdx}`);
+            const questions = container.querySelectorAll('.question-card');
+            const newIdx = questions.length;
+
+            const newQ = document.createElement('div');
+            newQ.className = 'question-card';
+            newQ.innerHTML = `
+                <div class="d-flex justify-content-between mb-2">
+                    <strong>Question ${newIdx + 1}</strong>
+                    <button class="btn btn-sm btn-outline-danger" onclick="removeQuestion(${stageIdx}, ${newIdx})">
+                        <i class="fas fa-trash-alt"></i>
+                    </button>
+                </div>
+                <input type="text" class="form-control mb-2" placeholder="Question text" data-stage="${stageIdx}" data-q="${newIdx}" data-field="question">
+                <input type="text" class="form-control" placeholder="Answer / Keywords" data-stage="${stageIdx}" data-q="${newIdx}" data-field="answer">
+            `;
+            container.appendChild(newQ);
+        };
+
+        window.removeQuestion = function (stageIdx, qIdx) {
+            const container = document.getElementById(`questions_${stageIdx}`);
+            const questions = container.querySelectorAll('.question-card');
+            if (questions[qIdx]) questions[qIdx].remove();
+        };
+
+        window.cancelEdit = function () {
+            if (confirm('Are you sure you want to cancel? All unsaved changes will be lost.')) {
+                window.location.href = 'admin-tests.html';
+            }
+        };
+
+        // Show alert notification
+        function showAlert(message, type = 'info') {
+            const alertDiv = document.createElement('div');
+            alertDiv.className = `alert alert-${type} alert-dismissible fade show alert-fixed`;
+            alertDiv.innerHTML = `
+                ${message}
+                <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+            `;
+            document.body.appendChild(alertDiv);
+
+            setTimeout(() => alertDiv.remove(), 5000);
+        }
+    </script>
+</body>
+
+</html>

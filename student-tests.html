@@ -1,11 +1,13 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>My Tests - Alpharia</title>
     <!-- Google Fonts -->
-    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap"
+        rel="stylesheet">
     <!-- Font Awesome Icons -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <!-- Bootstrap CSS -->
@@ -20,36 +22,36 @@
             border-radius: 10px;
             overflow: hidden;
         }
-        
+
         .test-card:hover {
             transform: translateY(-5px);
-            box-shadow: 0 10px 20px rgba(0,0,0,0.1);
+            box-shadow: 0 10px 20px rgba(0, 0, 0, 0.1);
         }
-        
+
         .test-card .card-body {
             padding: 1.5rem;
         }
-        
+
         .test-card .test-title {
             font-size: 1.25rem;
             font-weight: 600;
             margin-bottom: 0.5rem;
             color: #2c3e50;
         }
-        
+
         .test-card .test-description {
             color: #7f8c8d;
             margin-bottom: 1rem;
             font-size: 0.95rem;
         }
-        
+
         .test-meta {
             display: flex;
             justify-content: space-between;
             align-items: center;
             margin-top: 1rem;
         }
-        
+
         .test-meta {
             display: flex;
             justify-content: space-between;
@@ -58,7 +60,7 @@
             padding-top: 1rem;
             border-top: 1px solid #f0f0f0;
         }
-        
+
         /* Modal Styles */
         .modal {
             display: none;
@@ -71,7 +73,7 @@
             background-color: rgba(0, 0, 0, 0.5);
             overflow-y: auto;
         }
-        
+
         .modal-content {
             background-color: #fff;
             margin: 5% auto;
@@ -83,12 +85,19 @@
             position: relative;
             animation: modalFadeIn 0.3s ease-out;
         }
-        
+
         @keyframes modalFadeIn {
-            from { opacity: 0; transform: translateY(-20px); }
-            to { opacity: 1; transform: translateY(0); }
+            from {
+                opacity: 0;
+                transform: translateY(-20px);
+            }
+
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
         }
-        
+
         .modal-header {
             display: flex;
             justify-content: space-between;
@@ -97,7 +106,7 @@
             border-bottom: 1px solid #e9ecef;
             margin-bottom: 20px;
         }
-        
+
         .modal-header .close {
             background: none;
             border: none;
@@ -109,21 +118,21 @@
             padding: 0.5rem;
             margin: -0.5rem -0.5rem -0.5rem auto;
         }
-        
+
         .modal-header .close:hover {
             color: #343a40;
         }
-        
+
         .modal-title {
             margin: 0;
             font-size: 1.5rem;
             color: #2c3e50;
         }
-        
+
         .modal-body {
             padding: 15px 0;
         }
-        
+
         .modal-footer {
             display: flex;
             justify-content: flex-end;
@@ -131,65 +140,65 @@
             border-top: 1px solid #e9ecef;
             margin-top: 20px;
         }
-        
+
         .section-summary {
             padding: 15px;
             background-color: #f8f9fa;
             border-radius: 8px;
             margin-bottom: 15px;
         }
-        
+
         .section-summary h6 {
             margin: 0;
             color: #2c3e50;
             font-size: 1rem;
         }
-        
+
         .test-totals {
             background-color: #f8f9fa;
             padding: 15px;
             border-radius: 8px;
         }
-        
+
         /* Responsive adjustments */
         @media (max-width: 768px) {
             .modal-content {
                 margin: 20px auto;
                 width: 95%;
             }
-            
+
             .modal-title {
                 font-size: 1.25rem;
             }
         }
-        
+
         .test-badge {
             font-size: 0.8rem;
             padding: 0.35rem 0.75rem;
             border-radius: 50px;
             font-weight: 500;
         }
-        
+
         .badge-primary {
             background-color: #4361ee;
             color: white;
         }
-        
+
         .badge-success {
             background-color: #2ecc71;
             color: white;
         }
-        
+
         .badge-warning {
             background-color: #f39c12;
             color: white;
         }
-        
+
         .test-actions {
             display: flex;
             gap: 0.5rem;
         }
-        
+
         .empty-state {
             text-align: center;
             padding: 3rem 1rem;
@@ -197,23 +206,23 @@
             border-radius: 10px;
             margin: 2rem 0;
         }
-        
+
         .empty-state i {
             font-size: 3rem;
             color: #bdc3c7;
             margin-bottom: 1rem;
         }
-        
+
         .empty-state h4 {
             color: #7f8c8d;
             margin-bottom: 1rem;
         }
-        
+
         .search-container {
             margin-bottom: 2rem;
             position: relative;
         }
-        
+
         .search-container i {
             position: absolute;
             left: 15px;
@@ -221,21 +230,21 @@
             transform: translateY(-50%);
             color: #95a5a6;
         }
-        
+
         .search-container input {
             padding-left: 40px;
             border-radius: 50px;
             border: 1px solid #e0e0e0;
             height: 45px;
         }
-        
+
         .filter-buttons {
             margin-bottom: 1.5rem;
             display: flex;
             gap: 0.5rem;
             flex-wrap: wrap;
         }
-        
+
         .filter-btn {
             border-radius: 50px;
             padding: 0.4rem 1rem;
@@ -246,14 +255,16 @@
             color: #7f8c8d;
             transition: all 0.2s;
         }
-        
-        .filter-btn:hover, .filter-btn.active {
+
+        .filter-btn:hover,
+        .filter-btn.active {
             background-color: #4361ee;
             color: white;
             border-color: #4361ee;
         }
     </style>
 </head>
+
 <body class="student-dashboard">
     <div class="dashboard-container">
         <!-- Sidebar -->
@@ -261,11 +272,11 @@
             <div class="logo">
                 <h2>Alpharia</h2>
             </div>
-            
+
             <nav>
                 <ul class="nav-menu">
                     <li class="nav-item">
-                        <a href="student-dashboard-clean.html" class="nav-link">
+                        <a href="student-dashboard.html" class="nav-link">
                             <i class="fas fa-home"></i>
                             <span>Overview</span>
                         </a>
@@ -296,7 +307,7 @@
                     </li>
                 </ul>
             </nav>
-            
+
             <div class="user-profile">
                 <div class="user-avatar">
                     <img src="" alt="User" id="sidebar-avatar" class="rounded-circle">
@@ -316,20 +327,15 @@
                     <i class="fas fa-search"></i>
                     <input type="text" id="search-tests" placeholder="Search tests...">
                 </div>
-                
+
                 <div class="user-menu">
                     <a href="#notifications" class="notification-icon">
                         <i class="fas fa-bell"></i>
                         <span class="badge">0</span>
                     </a>
-                    
+
                     <div class="user-avatar">
-                        <img src="" 
-                             alt="User" 
-                             class="rounded-circle"
-                             width="40"
-                             height="40"
-                             id="user-avatar">
+                        <img src="" alt="User" class="rounded-circle" width="40" height="40" id="user-avatar">
                     </div>
                 </div>
             </header>
@@ -354,27 +360,36 @@
                 </div>
             </div>
 
-            <!-- Tests Container -->
-            <div class="tests-container" id="tests-container">
-                <!-- Tests will be loaded here -->
-                <div class="text-center py-5">
-                    <div class="spinner-border text-primary" role="status">
-                        <span class="visually-hidden">Loading...</span>
+            <!-- Placement Tests Section -->
+            <div class="mb-5">
+                <h4 class="mb-3 text-primary"><i class="fas fa-compass me-2"></i>Placement Tests</h4>
+                <div class="tests-container" id="placement-tests-container">
+                    <!-- Placement Tests will be loaded here -->
+                    <div class="text-center py-3">
+                        <div class="spinner-border text-primary spinner-border-sm" role="status"></div>
                     </div>
-                    <p class="mt-3 text-muted">Loading tests...</p>
+                </div>
+            </div>
+
+            <!-- Regular Tests Section -->
+            <div>
+                <h4 class="mb-3 text-secondary"><i class="fas fa-book-open me-2"></i>My Assignments</h4>
+                <div class="tests-container" id="tests-container">
+                    <!-- Regular Tests will be loaded here -->
+                    <div class="text-center py-3">
+                        <div class="spinner-border text-primary spinner-border-sm" role="status"></div>
+                    </div>
                 </div>
             </div>
         </main>
     </div>
 
     <!-- Firebase SDK -->
-    <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-app-compat.js"></script>
-    <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-auth-compat.js"></script>
-    <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-firestore-compat.js"></script>
-    
+
+
     <!-- Bootstrap JS Bundle with Popper -->
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
-    
+
     <!-- Test Details Modal -->
     <div id="test-details-modal" class="modal">
         <div class="modal-content" style="max-width: 800px;">
@@ -407,120 +422,84 @@
                 </div>
             </div>
             <div class="modal-footer">
-                <button type="button" class="btn btn-secondary" id="closeTestDetailsBtn" onclick="return closeTestDetailsModal()">Close</button>
+                <button type="button" class="btn btn-secondary" id="closeTestDetailsBtn"
+                    onclick="return closeTestDetailsModal()">Close</button>
             </div>
         </div>
     </div>
-    
+
     <!-- Firebase SDK -->
     <script type="module">
-        // Import the functions you need from the SDKs you need
-        import { initializeApp } from 'https://www.gstatic.com/firebasejs/9.22.0/firebase-app.js';
-        import { 
-            getAuth, 
-            onAuthStateChanged, 
-            signOut 
-        } from 'https://www.gstatic.com/firebasejs/9.22.0/firebase-auth.js';
-        import { 
-            getFirestore, 
-            doc, 
-            getDoc, 
-            collection, 
-            query, 
-            where, 
-            orderBy, 
-            limit,
-            getDocs,
-            updateDoc,
-            addDoc,
-            setDoc,
-            serverTimestamp
-        } from 'https://www.gstatic.com/firebasejs/9.22.0/firebase-firestore.js';
+        import { app, auth, db } from './js/firebase-config.js';
+        import { requireAuth } from './js/auth-check.js';
+        import {
+            doc, getDoc, collection, query, where, orderBy, limit, getDocs, updateDoc, addDoc, setDoc, serverTimestamp
+        } from 'https://www.gstatic.com/firebasejs/12.1.0/firebase-firestore.js';
 
-        // Your web app's Firebase configuration
-        const firebaseConfig = {
-            // Your Firebase config here
-            apiKey: "AIzaSyAtOedXLBC4eigzqmBpYFciN-W5Mi2Cpmc",
-            authDomain: "alpharia-c6a39.firebaseapp.com",
-            projectId: "alpharia-c6a39",
-            storageBucket: "alpharia-c6a39.firebasestorage.app",
-            messagingSenderId: "85322759772",
-            appId: "1:85322759772:web:d5c7a528fd61c9d2373099",
-            measurementId: "G-KEC7MGMVE8"
-        };
+        // Make formatDate global
+        window.formatDate = formatDate;
 
-        // Initialize Firebase
-        const app = initializeApp(firebaseConfig);
-        const auth = getAuth(app);
-        const db = getFirestore(app);
-        
         // DOM Elements
         const testsContainer = document.getElementById('tests-container');
+        const placementContainer = document.getElementById('placement-tests-container');
         const searchInput = document.getElementById('search-tests');
         const filterButtons = document.querySelectorAll('.filter-btn');
         const refreshButton = document.getElementById('refresh-tests');
-        
+
         // Current filter
         let currentFilter = 'all';
         let currentSearch = '';
         let currentUser = null;
-        
+
         // Load tests when the page loads
-        document.addEventListener('DOMContentLoaded', () => {
-            // Check if user is logged in
-            auth.onAuthStateChanged(async (user) => {
-                if (user) {
-                    currentUser = user;
-                    await loadUserData(user);
-                    await loadTests(user.uid);
-                    
-                    // Set up event listeners
-                    searchInput.addEventListener('input', (e) => {
-                        currentSearch = e.target.value.toLowerCase();
+        document.addEventListener('DOMContentLoaded', async () => {
+            // Check auth state
+            try {
+                const { user } = await requireAuth(['student']);
+                currentUser = user;
+                await loadUserData(user);
+                await loadTests(user.uid);
+
+                // Events
+                if (searchInput) searchInput.addEventListener('input', (e) => {
+                    currentSearch = e.target.value.toLowerCase();
+                    loadTests(user.uid);
+                });
+                if (filterButtons) filterButtons.forEach(button => {
+                    button.addEventListener('click', () => {
+                        filterButtons.forEach(btn => btn.classList.remove('active'));
+                        button.classList.add('active');
+                        currentFilter = button.dataset.filter;
                         loadTests(user.uid);
                     });
-                    
-                    filterButtons.forEach(button => {
-                        button.addEventListener('click', () => {
-                            filterButtons.forEach(btn => btn.classList.remove('active'));
-                            button.classList.add('active');
-                            currentFilter = button.dataset.filter;
-                            loadTests(user.uid);
-                        });
-                    });
-                    
-                    refreshButton.addEventListener('click', () => {
-                        loadTests(user.uid);
-                    });
-                    
-                } else {
-                    // Redirect to login if not authenticated
-                    window.location.href = 'auth/login-fixed.html';
-                }
-            });
+                });
+                if (refreshButton) refreshButton.addEventListener('click', () => {
+                    loadTests(user.uid);
+                });
+            } catch (e) { console.error('Auth error', e); }
         });
-        
+
         // Load user data
         async function loadUserData(user) {
             try {
                 // Get user document from Firestore using modular v9 syntax
                 const userDocRef = doc(db, 'students', user.uid);
                 const userDoc = await getDoc(userDocRef);
-                
+
                 if (userDoc.exists()) {
                     const userData = userDoc.data();
-                    
+
                     // Update sidebar user info
                     const sidebarUsername = document.getElementById('sidebar-username');
                     const topBarUsername = document.getElementById('topBarUsername');
                     const userAvatar = document.getElementById('user-avatar');
                     const sidebarAvatar = document.getElementById('sidebar-avatar');
-                    
+
                     // Set user name
                     const displayName = userData.name || user.displayName || 'Student';
                     if (sidebarUsername) sidebarUsername.textContent = displayName;
                     if (topBarUsername) topBarUsername.textContent = displayName;
-                    
+
                     // Set avatar
                     if (userData.photoURL) {
                         if (userAvatar) userAvatar.src = userData.photoURL;
@@ -534,7 +513,7 @@
                 console.error('Error loading user data:', error);
             }
         }
-        
+
         // Load tests from Firestore
         async function loadTests(userId) {
             try {
@@ -546,16 +525,16 @@
                         <p class="mt-3 text-muted">Loading tests...</p>
                     </div>
                 `;
-                
+
                 // Get all tests using Firestore v9 modular syntax
                 const testsQuery = collection(db, 'tests');
                 const testsSnapshot = await getDocs(testsQuery);
-                
+
                 // Get user's test attempts using Firestore v9 modular syntax
                 const attemptsRef = collection(db, 'students', userId, 'testAttempts');
                 const attemptsQuery = query(attemptsRef);
                 const attemptsSnapshot = await getDocs(attemptsQuery);
-                
+
                 // Create a map of testId to attempt
                 const attemptsMap = new Map();
                 attemptsSnapshot.forEach(doc => {
@@ -564,21 +543,21 @@
                         attemptsMap.set(attempt.testId, attempt);
                     }
                 });
-                
+
                 // Process tests
                 let tests = [];
                 const now = new Date();
-                
+
                 testsSnapshot.forEach(doc => {
                     const test = { id: doc.id, ...doc.data() };
                     const attempt = attemptsMap.get(doc.id);
-                    
+
                     // Determine test status
                     let status = 'available';
                     let statusText = 'Available';
                     let statusClass = 'primary';
                     let score = null;
-                    
+
                     if (attempt) {
                         if (attempt.status === 'completed') {
                             status = 'completed';
@@ -591,7 +570,7 @@
                             statusClass = 'warning';
                         }
                     }
-                    
+
                     // Check if test is available (based on start/end dates if they exist)
                     if (test.startDate) {
                         const startDate = test.startDate.toDate ? test.startDate.toDate() : new Date(test.startDate);
@@ -601,7 +580,7 @@
                             statusClass = 'secondary';
                         }
                     }
-                    
+
                     if (test.endDate) {
                         const endDate = test.endDate.toDate ? test.endDate.toDate() : new Date(test.endDate);
                         if (now > endDate) {
@@ -610,7 +589,7 @@
                             statusClass = 'danger';
                         }
                     }
-                    
+
                     tests.push({
                         ...test,
                         attempt,
@@ -620,32 +599,32 @@
                         score
                     });
                 });
-                
+
                 // Apply filters
                 let filteredTests = [...tests];
-                
+
                 // Apply search filter
                 if (currentSearch) {
-                    filteredTests = filteredTests.filter(test => 
+                    filteredTests = filteredTests.filter(test =>
                         test.title.toLowerCase().includes(currentSearch) ||
                         (test.description && test.description.toLowerCase().includes(currentSearch))
                     );
                 }
-                
+
                 // Apply status filter
                 if (currentFilter !== 'all') {
                     filteredTests = filteredTests.filter(test => test.status === currentFilter);
                 }
-                
+
                 // Sort tests: available first, then in-progress, then completed
                 filteredTests.sort((a, b) => {
                     const statusOrder = { 'available': 1, 'in-progress': 2, 'completed': 3, 'upcoming': 4, 'expired': 5 };
                     return statusOrder[a.status] - statusOrder[b.status];
                 });
-                
+
                 // Display tests
                 displayTests(filteredTests);
-                
+
             } catch (error) {
                 console.error('Error loading tests:', error);
                 testsContainer.innerHTML = `
@@ -659,128 +638,151 @@
                 `;
             }
         }
-        
-        // Display tests in the UI
-        function displayTests(tests) {
+
+        // DOM Elements
+        // const testsContainer = document.getElementById('tests-container'); // Already declared above
+        // const placementContainer = document.getElementById('placement-tests-container'); // Already declared above
+
+        // ... existing code ...
+
+        // Display tests dynamically
+        function displayTests(allTests) {
+            // Split tests
+            // 1. Find all reading assessments
+            const allReadingAssessments = allTests.filter(t => t.type === 'reading_assessment');
+
+            // 2. The User specifically wants ONLY ONE placement test (the first one).
+            // We will take the first one found as the "Placement Test".
+            // Any others will be treated as regular tests (or hidden if duplicates, but safer to show as regular).
+
+            let placementTests = [];
+            let regularTests = [...allTests];
+
+            if (allReadingAssessments.length > 0) {
+                // Take the very first one
+                const primaryPlacement = allReadingAssessments[0];
+                placementTests = [primaryPlacement];
+
+                // Remove this specific test from the regular list
+                regularTests = regularTests.filter(t => t.id !== primaryPlacement.id);
+            }
+
+            // Render Placement Tests
+            renderTestGrid(placementContainer, placementTests, true);
+
+            // Render Regular Tests
+            renderTestGrid(testsContainer, regularTests, false);
+        }
+
+        function renderTestGrid(container, tests, isPlacement) {
             if (tests.length === 0) {
-                testsContainer.innerHTML = `
-                    <div class="empty-state">
-                        <i class="fas fa-inbox"></i>
-                        <h4>No tests found</h4>
-                        <p>There are no tests available matching your criteria.</p>
+                if (isPlacement) {
+                    // Hide section or show subtle message
+                    container.closest('.mb-5').style.display = 'none'; // Hide the whole container if empty
+                    return;
+                }
+
+                container.innerHTML = `
+                    <div class="empty-state py-4">
+                        <i class="fas fa-inbox fa-2x mb-2"></i>
+                        <p class="mb-0">No tests found.</p>
                     </div>
                 `;
                 return;
             }
-            
+
+            // Ensure container is visible if it was hidden
+            if (isPlacement) container.closest('.mb-5').style.display = 'block';
+
             let html = '<div class="row">';
-            
+
             tests.forEach(test => {
-                const testUrl = `take-test-fixed.html?testId=${test.id}`;
+                // Determine Correct URL
+                const isReadingTest = test.type === 'reading_assessment';
+
+                const baseUrl = isReadingTest ? 'take-reading-test.html' : 'take-test.html';
+                const testUrl = `${baseUrl}?testId=${test.id}`;
+
+                // Clean Title
+                let displayTitle = test.title;
+                if (displayTitle.toLowerCase().includes('welcome to reading')) {
+                    displayTitle = displayTitle.replace(/welcome to reading\s*[-–:]?\s*/i, '');
+                }
+                // But typically we should trust the DB title unless overridden. 
+                // User said: "When I open the 'Placement Test' which should be named 'pre-test'"
+                // Let's just clean the "Welcome to Reading" part for now.
+
                 const isAvailable = test.status === 'available';
                 const isCompleted = test.status === 'completed';
                 const isInProgress = test.status === 'in-progress';
                 const isUpcoming = test.status === 'upcoming';
                 const isExpired = test.status === 'expired';
-                
-                // Format test duration
+
                 const duration = test.duration ? `${test.duration} mins` : 'No time limit';
-                
-                // Format test date if available
+
+                // Date logic ...
                 let dateInfo = '';
                 if (test.startDate) {
                     const startDate = test.startDate.toDate ? test.startDate.toDate() : new Date(test.startDate);
                     dateInfo = `Starts: ${formatDate(startDate)}`;
-                    
                     if (test.endDate) {
                         const endDate = test.endDate.toDate ? test.endDate.toDate() : new Date(test.endDate);
                         dateInfo += ` • Ends: ${formatDate(endDate)}`;
                     }
                 }
-                
+
                 html += `
                     <div class="col-md-6 col-lg-4">
-                        <div class="card test-card h-100">
+                        <div class="card test-card h-100 ${isPlacement ? 'border-primary' : ''}">
                             <div class="card-body d-flex flex-column">
                                 <div class="d-flex justify-content-between align-items-start mb-2">
-                                    <h5 class="test-title mb-0">${test.title || 'Untitled Test'}</h5>
+                                    <h5 class="test-title mb-0">${displayTitle || 'Untitled Test'}</h5>
                                     <span class="badge bg-${test.statusClass}">${test.statusText}</span>
                                 </div>
                                 
-                                ${test.description ? `<p class="test-description">${test.description}</p>` : ''}
-                                
+                                ${test.description ? `<p class="test-description text-truncate">${test.description}</p>` : ''}
                                 ${dateInfo ? `<p class="text-muted small mb-2"><i class="far fa-calendar-alt me-1"></i> ${dateInfo}</p>` : ''}
                                 
                                 <div class="d-flex justify-content-between align-items-center mb-2">
                                     <span class="text-muted small"><i class="far fa-clock me-1"></i> ${duration}</span>
-                                    ${test.questions ? `<span class="text-muted small"><i class="far fa-question-circle me-1"></i> ${test.questions.length} questions</span>` : ''}
+                                    ${test.questions ? `<span class="text-muted small"><i class="far fa-question-circle me-1"></i> ${test.questions.length} Qs</span>` : ''}
                                 </div>
                                 
-                                ${isCompleted && test.score !== null ? `
-                                    <div class="progress mb-3" style="height: 8px;">
-                                        <div class="progress-bar bg-${test.score >= 70 ? 'success' : test.score >= 50 ? 'warning' : 'danger'}" 
-                                             role="progressbar" 
-                                             style="width: ${test.score}%" 
-                                             aria-valuenow="${test.score}" 
-                                             aria-valuemin="0" 
-                                             aria-valuemax="100">
-                                        </div>
-                                    </div>
-                                    <div class="d-flex justify-content-between align-items-center mb-3">
-                                        <span class="fw-bold">Your Score: ${test.score}%</span>
-                                        <button class="btn btn-sm btn-outline-primary" 
-                                                onclick="viewTestResults('${test.id}')">
-                                            View Results
-                                        </button>
-                                    </div>
-                                ` : ''}
-                                
-                                <div class="mt-auto">
-                                    ${isAvailable ? `
-                                        <a href="${testUrl}" class="btn btn-primary w-100">
-                                            <i class="fas fa-play me-1"></i> Start Test
-                                        </a>
-                                    ` : isInProgress ? `
-                                        <a href="${testUrl}" class="btn btn-warning w-100 text-white">
-                                            <i class="fas fa-redo me-1"></i> Continue Test
-                                        </a>
-                                    ` : isCompleted ? `
-                                        <div class="d-grid gap-2">
-                                            <button class="btn btn-outline-secondary" 
-                                                    onclick="viewTestResults('${test.id}')">
-                                                <i class="fas fa-chart-bar me-1"></i> View Results
-                                            </button>
-                                            <button class="btn btn-outline-primary" 
-                                                    onclick="retakeTest('${test.id}')">
-                                                <i class="fas fa-redo me-1"></i> Retake Test
-                                            </button>
-                                        </div>
-                                    ` : isUpcoming ? `
-                                        <button class="btn btn-outline-secondary w-100" disabled>
-                                            <i class="far fa-clock me-1"></i> Test Not Started
-                                        </button>
-                                    ` : isExpired ? `
-                                        <button class="btn btn-outline-danger w-100" disabled>
-                                            <i class="fas fa-times-circle me-1"></i> Test Expired
-                                        </button>
-                                    ` : ''}
+                                <div class="mt-auto pt-3">
+                                    ${getActionButtons(test, testUrl, status)}
                                 </div>
                             </div>
                         </div>
                     </div>
                 `;
             });
-            
             html += '</div>';
-            testsContainer.innerHTML = html;
+            container.innerHTML = html;
         }
-        
+
+        function getActionButtons(test, url, status) {
+            if (test.status === 'available') {
+                return `<a href="${url}" class="btn btn-primary w-100"><i class="fas fa-play me-1"></i> Start Test</a>`;
+            } else if (test.status === 'in-progress') {
+                return `<a href="${url}" class="btn btn-warning w-100 text-white"><i class="fas fa-redo me-1"></i> Continue</a>`;
+            } else if (test.status === 'completed') {
+                // For placement tests, maybe just "View Result"?
+                return `
+                    <button class="btn btn-outline-primary w-100" onclick="viewTestResults('${test.id}')">
+                        <i class="fas fa-chart-bar me-1"></i> Results
+                    </button>
+                 `;
+            } else {
+                return `<button class="btn btn-outline-secondary w-100" disabled>Unavailable</button>`;
+            }
+        }
+
         // Format date to a readable string
         function formatDate(date) {
             if (!(date instanceof Date)) {
                 date = date.toDate ? date.toDate() : new Date(date);
             }
-            
+
             return date.toLocaleDateString('en-US', {
                 year: 'numeric',
                 month: 'short',
@@ -789,73 +791,73 @@
                 minute: '2-digit'
             });
         }
-        
+
         // Show test details in a modal
-        window.showTestDetails = function(testData) {
+        window.showTestDetails = function (testData) {
             console.log('showTestDetails called with testData:', testData);
             console.log('Attempt data:', testData.attempt);
-            
+
             const modal = document.getElementById('test-details-modal');
             const titleElement = document.getElementById('test-details-title');
             const sectionsContainer = document.getElementById('sections-summary');
             const totalScoreElement = document.getElementById('test-total-score');
             const totalPossibleElement = document.getElementById('test-total-possible');
             const percentageElement = document.getElementById('test-percentage');
-            
+
             if (!modal) {
                 console.error('Modal element not found');
                 return;
             }
-            
+
             if (!testData) {
                 console.error('No test data provided');
                 return;
             }
-            
+
             if (!testData.attempt) {
                 console.error('No attempt data found in test data');
                 console.log('Available test data keys:', Object.keys(testData));
                 return;
             }
-            
+
             console.log('Attempt data:', testData.attempt);
-            
+
             // Calculate total score and possible points from all sections
             let totalScore = 0;
             let totalPossible = 0;
-            
+
             if (testData.attempt.sections && Array.isArray(testData.attempt.sections)) {
                 testData.attempt.sections.forEach(section => {
-                    totalScore += section.score !== undefined ? section.score : 
-                                (section.items ? section.items.filter(item => item.isCorrect === true).length : 0);
-                    totalPossible += section.maxPossibleScore || 
-                                   (section.items ? section.items.length : 0);
+                    totalScore += section.score !== undefined ? section.score :
+                        (section.items ? section.items.filter(item => item.isCorrect === true).length : 0);
+                    totalPossible += section.maxPossibleScore ||
+                        (section.items ? section.items.length : 0);
                 });
             }
-            
+
             // Ensure we don't divide by zero
             if (totalPossible === 0) totalPossible = 1;
-            
+
             // Calculate percentage, using the one from attempt if available
-            const calculatedPercentage = testData.attempt.percentage || 
-                                      Math.round((totalScore / totalPossible) * 100);
-            
+            const calculatedPercentage = testData.attempt.percentage ||
+                Math.round((totalScore / totalPossible) * 100);
+
             console.log('Total scores:', { totalScore, totalPossible, calculatedPercentage });
-            
+
             // Update the modal with test details
             titleElement.textContent = testData.attempt.testTitle || 'Test Details';
             totalScoreElement.textContent = totalScore;
             totalPossibleElement.textContent = totalPossible;
             percentageElement.textContent = `${calculatedPercentage}%`;
-            
+
             // Update badge color based on percentage
-            percentageElement.className = 'badge text-white ' + 
-                (calculatedPercentage >= 70 ? 'bg-success' : 
-                 calculatedPercentage >= 50 ? 'bg-warning' : 'bg-danger');
-            
+            percentageElement.className = 'badge text-white ' +
+                (calculatedPercentage >= 70 ? 'bg-success' :
+                    calculatedPercentage >= 50 ? 'bg-warning' : 'bg-danger');
+
             // Clear previous sections
             sectionsContainer.innerHTML = '';
-            
+
             // Process each section from the attempt data
             if (testData.attempt.sections && Array.isArray(testData.attempt.sections)) {
                 testData.attempt.sections.forEach((sectionAttempt, index) => {
@@ -863,25 +865,25 @@
                     const sectionId = sectionAttempt.sectionId || `section-${index + 1}`;
                     const sectionName = sectionAttempt.sectionTitle || `Section ${index + 1}`;
                     const sectionItems = sectionAttempt.items || [];
-                    
+
                     // Calculate scores
                     console.log('Section attempt data:', sectionAttempt);
                     console.log('Section items:', sectionItems);
-                    
+
                     // Get score and possible points from sectionAttempt first, fall back to calculating from items
-                    const sectionScore = sectionAttempt.score !== undefined ? 
-                        sectionAttempt.score : 
+                    const sectionScore = sectionAttempt.score !== undefined ?
+                        sectionAttempt.score :
                         sectionItems.filter(item => item.isCorrect === true).length;
-                        
-                    const sectionPossible = sectionAttempt.maxPossibleScore || 
-                        sectionItems.length || 
+
+                    const sectionPossible = sectionAttempt.maxPossibleScore ||
+                        sectionItems.length ||
                         1; // Prevent division by zero
-                        
+
                     // Ensure we don't exceed 100% in case of any calculation issues
                     const percentage = Math.min(Math.round((sectionScore / sectionPossible) * 100), 100) || 0;
-                    
+
                     console.log('Calculated scores:', { sectionScore, sectionPossible, percentage });
-                    
+
                     const sectionElement = document.createElement('div');
                     sectionElement.className = 'section-summary-item mb-3 p-3 border rounded';
                     sectionElement.innerHTML = `
@@ -905,23 +907,23 @@
                             <span>${sectionItems.length} items</span>
                         </div>
                     `;
-                    
+
                     sectionsContainer.appendChild(sectionElement);
                 });
             }
-            
+
             // Update totals with data from attempt
             totalScoreElement.textContent = totalScore;
             totalPossibleElement.textContent = totalPossible;
             percentageElement.textContent = `${calculatedPercentage}%`;
-            
+
             // Show the modal
             modal.style.display = 'block';
             document.body.style.overflow = 'hidden';
         };
-        
+
         // Close the test details modal
-        window.closeTestDetailsModal = function() {
+        window.closeTestDetailsModal = function () {
             console.log('closeTestDetailsModal called');
             const modal = document.getElementById('test-details-modal');
             if (modal) {
@@ -929,60 +931,60 @@
                 document.body.style.overflow = 'auto';
             }
         };
-        
+
         // View test results in a modal
         async function viewTestResults(testId) {
             try {
                 console.log('Viewing results for test:', testId);
-                
+
                 if (!testId) {
                     throw new Error('No test ID provided');
                 }
-                
+
                 // Get current user
                 const user = auth.currentUser;
                 if (!user) {
                     throw new Error('User not authenticated');
                 }
-                
+
                 console.log('Fetching test document for ID:', testId);
                 // Get the test data from Firestore using v9 modular syntax
                 const testDocRef = doc(db, 'tests', testId);
                 const testDoc = await getDoc(testDocRef);
-                
+
                 if (!testDoc.exists()) {
                     throw new Error('Test document not found in Firestore');
                 }
-                
+
                 console.log('Test document found:', testDoc.id);
                 const testData = testDoc.data();
                 console.log('Test data:', testData);
-                
+
                 // Get the user's attempts for this test using v9 modular syntax
                 console.log('Fetching test attempts for user:', user.uid);
                 const attemptsRef = collection(db, 'students', user.uid, 'testAttempts');
                 const attemptsQuery = query(
-                    attemptsRef, 
+                    attemptsRef,
                     where('testId', '==', testId),
                     orderBy('submittedAt', 'desc'),
                     limit(1)
                 );
-                
+
                 const attemptsSnapshot = await getDocs(attemptsQuery);
                 if (attemptsSnapshot.empty) {
                     throw new Error(`No test attempts found for test ID: ${testId}`);
                 }
-                
+
                 console.log('Found test attempts:', attemptsSnapshot.docs.length);
                 const attemptDoc = attemptsSnapshot.docs[0];
                 const attemptData = attemptDoc.data();
-                const attempt = { 
-                    id: attemptDoc.id, 
+                const attempt = {
+                    id: attemptDoc.id,
                     ...attemptData
                 };
-                
+
                 console.log('Attempt data:', attempt);
-                
+
                 // Prepare test data with proper structure
                 const preparedTestData = {
                     ...testData,
@@ -996,12 +998,12 @@
                         sections: Array.isArray(attempt.sections) ? attempt.sections : []
                     }
                 };
-                
+
                 console.log('Prepared test data for modal:', preparedTestData);
-                
+
                 // Show the test details modal
                 showTestDetails(preparedTestData);
-                
+
             } catch (error) {
                 console.error('Error in viewTestResults:', {
                     error: error.message,
@@ -1012,7 +1014,7 @@
                 alert('Error loading test details. Please check the console for more details.');
             }
         }
-        
+
         // Close the test details modal
         function closeTestDetailsModal() {
             const modal = document.getElementById('test-details-modal');
@@ -1022,19 +1024,20 @@
             }
             return false;
         }
-        
+
         // Retake a test
         function retakeTest(testId) {
             if (confirm('Are you sure you want to retake this test? Your previous attempt will be archived.')) {
                 // In a real app, you would create a new test attempt here
                 // For now, just redirect to the test page
-                window.location.href = `take-test-fixed.html?testId=${testId}&retake=true`;
+                window.location.href = `take-test.html?testId=${testId}&retake=true`;
             }
         }
-        
+
         // Make functions available globally
         window.viewTestResults = viewTestResults;
         window.retakeTest = retakeTest;
     </script>
 </body>
+
 </html>

@@ -1,0 +1,263 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Seed Pre-test Data</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+</head>
+
+<body class="bg-light">
+    <div class="container mt-5">
+        <div class="card">
+            <div class="card-body">
+                <h2 class="card-title">Seed Pre-test Data</h2>
+                <p>Click the button below to upload the Placement Test data to Firestore.</p>
+                <div id="status" class="alert alert-secondary">Ready</div>
+                <button id="seedBtn" class="btn btn-primary">Seed Data</button>
+            </div>
+        </div>
+    </div>
+
+    <script type="module">
+        import { db } from './js/firebase-config.js';
+        import { auth } from './js/firebase-config.js';
+        import { doc, setDoc, collection, addDoc, serverTimestamp } from 'https://www.gstatic.com/firebasejs/12.1.0/firebase-firestore.js';
+
+        const preTestData = {
+            "title": "Placement Test",
+            "type": "reading_assessment",
+            "description": "A comprehensive reading assessment to determine your reading level.",
+            "duration": 30,
+            "status": "published", // Added: test status
+            "createdBy": "system", // Will be updated with actual user ID on seed
+            "createdByName": "System", // Will be updated with actual user name on seed
+            "sections": 5, // Added: number of main sections (Letters, Sentences, Words, Passages, Questions)
+            "totalQuestions": 35, // Added: approximate total questions across all stages
+            "attempts": 0, // Added: initial attempt count
+            "stages": [
+                {
+                    "id": "letters_capital",
+                    "name": "Capital Letters",
+                    "type": "letter_recognition",
+                    "items": ["G", "V", "C", "Q", "L", "U", "Z", "B", "I", "Y", "W", "F", "N", "K", "R", "A", "P", "J", "X", "O", "E", "S", "M", "H", "T", "D"]
+                },
+                {
+                    "id": "letters_common",
+                    "name": "Common Letters",
+                    "type": "letter_recognition",
+                    "items": ["g", "v", "c", "q", "l", "u", "z", "b", "i", "y", "w", "f", "n", "k", "r", "a", "p", "j", "x", "o", "e", "s", "m", "h", "t", "d"]
+                },
+                {
+                    "id": "sentence_filter",
+                    "name": "Sentence Filter",
+                    "type": "sentence_reading",
+                    "items": [
+                        {
+                            "text": "I can play with the bat and ball here.",
+                            "targetLevel": "pre_primer"
+                        },
+                        {
+                            "text": "The three boys like to walk to the bus stop.",
+                            "targetLevel": "level_1"
+                        },
+                        {
+                            "text": "We are sleeping. We woke up late and we are very tired.",
+                            "targetLevel": "level_2"
+                        },
+                        {
+                            "text": "Mother and father work from home. They help people and tell them what to do. Some of them left their houses very early.",
+                            "targetLevel": "level_3"
+                        },
+                        {
+                            "text": "Sometimes we need to place animals into groups of same and different. Together, we must write the important ones on the same list.",
+                            "targetLevel": "level_4"
+                        }
+                    ]
+                },
+                {
+                    "id": "word_lists",
+                    "name": "Word Lists",
+                    "type": "word_list",
+                    "levels": {
+                        "pre_primer": ["a", "and", "away", "big", "blue", "can", "come", "down", "find", "for", "funny", "go", "help", "here", "I", "in", "is", "it", "jump", "little", "look", "make", "me", "my", "not", "one", "play", "red", "run", "said", "see", "the", "three", "to", "two", "up", "we", "where", "yellow", "you"],
+                        "primer": ["all", "am", "are", "at", "ate", "be", "black", "brown", "but", "came", "did", "do", "eat", "four", "get", "good", "have", "he", "into", "like", "must", "new", "no", "now", "on", "our", "out", "please", "pretty", "ran", "ride", "saw", "say", "she", "so", "soon", "that", "there", "they", "this", "Too", "under", "want", "was", "well", "went", "what", "white", "who", "will", "with", "yes"],
+                        "level_1": ["after", "again", "an", "any", "ask", "as", "by", "could", "every", "fly", "from", "give", "going", "had", "has", "her", "him", "his", "how", "just", "know", "let", "live", "may", "of", "old", "once", "open", "over", "put", "round", "some", "stop", "take", "thank", "them", "then", "think", "walk", "were", "When"],
+                        "level_2": ["always", "around", "because", "been", "before", "best", "both", "buy", "call", "cold", "does", "don't", "fast", "first", "five", "found", "gave", "goes", "green", "its", "made", "many", "off", "or", "pull", "read", "right", "sing", "sit", "sleep", "tell", "their", "these", "those", "upon", "us", "use", "very", "wash", "Which", "why", "wish", "work", "would", "write", "your"],
+                        "level_3": ["about", "better", "bring", "carry", "clean", "cut", "done", "draw", "drink", "eight", "fall", "far", "full", "got", "grow", "hold", "hot", "hurt", "if", "keep", "kind", "laugh", "light", "long", "much", "myself", "never", "only", "own", "pick", "seven", "shall", "show", "six", "small", "start", "ten", "today", "together", "try", "Warm"],
+                        "level_4": ["listen", "important", "event", "towards", "notice", "problems", "favourite", "information", "hundred", "continue", "pleaded", "complete", "Coaches", "however", "excitement", "several", "perfect", "culture", "voice", "Products", "ply", "prepare", "return", "distance", "certain", "travel", "thought", "laugh", "provision", "gathered", "transport", "known", "health", "produce", "video", "written", "enough", "brought", "instant"],
+                        "level_5": ["wonderful", "holiday", "cope", "variety", "surface", "purchase", "decided", "finally", "challenge", "machine", "scientist", "carefully", "equation", "laptop", "improve", "happening", "borrowed", "remembered", "pattern", "quite", "furthermore", "compare", "thousands", "though", "surrounding", "laughter", "explore", "special", "built", "understand", "increase", "known", "machine", "virus", "preparations", "inches", "practical", "infected", "renowned"],
+                        "level_6": ["entertainment", "technology", "results", "influenced", "popular", "complex", "transportation", "development", "access", "manipulate", "available", "respectful", "leverage", "Medicine", "Opportunities", "computer", "education", "especially", "location", "Virtual", "through", "physical", "hygiene", "Pneumonia", "industry", "customs", "production", "business", "volunteer", "classified", "globalized", "transparent", "respiratory", "environment", "various", "mental", "beneath", "resources", "photography", "fascinate"]
+                    }
+                },
+                {
+                    "id": "passages",
+                    "name": "Reading Passages",
+                    "type": "oral_reading",
+                    "levels": [
+                        {
+                            "levelId": "pre_primer",
+                            "title": "Pre-Primer",
+                            "text": "I am Roy. I am a big boy. I can play bat and ball. Pam is a little girl. She can play bat and ball.",
+                            "wordCount": 25,
+                            "questions": [
+                                { "question": "Who is the story about?", "answer": "Pam" },
+                                { "question": "What can Roy do?", "answer": "Run, play, or big boy" },
+                                { "question": "What colour is the ball?", "answer": "Blue" },
+                                { "question": "Where can he play with the bat and the ball?", "answer": "outside, field, play area" }
+                            ]
+                        },
+                        {
+                            "levelId": "primer",
+                            "title": "Primer",
+                            "text": "I have two brown and white cats. They love to run and play. They love milk. Father has a pet at home too. He has a pet dog and it loves run and jump. The dog is black with white. It loves to eat food. It is big. When I go to school mother stays at home with our pets.",
+                            "wordCount": 60,
+                            "questions": [
+                                { "question": "What colour are the cats?", "answer": "brown and white" },
+                                { "question": "What is a pet?", "answer": "an animal kept at home for fun or pleasure" },
+                                { "question": "Who does the cats belong to?", "answer": "child, boy, or girl" },
+                                { "question": "Why does mother stay at home with the pets?", "answer": "take care of them" }
+                            ]
+                        },
+                        {
+                            "levelId": "level_1",
+                            "title": "The Farm",
+                            "text": "Pat lives on a farm. There are pigs and hens on the farm. It rains on the farm. The hens run to get out of the rain. They look funny when they are wet. The pigs like to play in the rain. The rain is good for the farmer. He can get good things to take to the market. After the rain stops, the farmer goes to the market. He likes to go to the market.",
+                            "wordCount": 76,
+                            "questions": [
+                                { "question": "Who lives on the farm?", "answer": "Pat or farmer" },
+                                { "question": "Where does the farmer sells his things?", "answer": "at the market" },
+                                { "question": "How does the rain help the farmer?", "answer": "plants grow or gets water" },
+                                { "question": "What other things do you believe are on the farm?", "answer": "cows, goats, plants" }
+                            ]
+                        },
+                        {
+                            "levelId": "level_2",
+                            "title": "Cake day at home",
+                            "text": "My name is Peter. There are four of us at home, mother, father, Ann and I. We have cake day at home. Mother and Ann make the cake. First, they buy the things they need. Then they read the labels, wash their hands and write what they should do. Mother and Ann sing when they bake. Father and I work in the yard. When the cake is done, mother takes it from the oven. She puts it to cool on the table. We wash up and then we eat our cake. We love our cake day at home.",
+                            "wordCount": 98,
+                            "questions": [
+                                { "question": "How many people were mentioned in the story?", "answer": "four" },
+                                { "question": "Who worked in the yard?", "answer": "daddy and the boy or son or Peter" },
+                                { "question": "What did they do last?", "answer": "wash up and eat" },
+                                { "question": "Why do they love cake day at home?", "answer": "they have fun or cake is sweet" },
+                                { "question": "Why did they put the cake to cool?", "answer": "too hot to eat" }
+                            ]
+                        },
+                        {
+                            "levelId": "level_3",
+                            "title": "Tom and his friends",
+                            "text": "Tom and his friends love to draw and paint. Together they do pretty pictures in class. They do their best work when they are at school. First, they think about what they would want to draw. Then they get all the items that they need. Next they begin. Tom likes to use cold colours when he draws and paints. Cold colours are blue, green and purple. His friends like to use warm colours like red, yellow and orange. When they work together they use only the three Primary colours to get all the six colours. The Primary colours are red, yellow and blue. If the paint falls on the floor, they clean it up. When they are finished painting, they show their work to their friends and family. Friends and family will buy their paintings.",
+                            "wordCount": 135,
+                            "questions": [
+                                { "question": "What do Tom and his friend like to do?", "answer": "draw and paint" },
+                                { "question": "Give another word for pretty", "answer": "beautiful, cute, or lovely" },
+                                { "question": "What is the second thing that Tom and his friends do?", "answer": "get needed items" },
+                                { "question": "Give the story another title", "answer": "The painters or the artists" },
+                                { "question": "Why do they clean the paint off the floor?", "answer": "avoid slipping or staying clean" },
+                                { "question": "Why do you think that their friends and family buys their paintings?", "answer": "good painting or to help" }
+                            ]
+                        },
+                        {
+                            "levelId": "level_4",
+                            "title": "Sports Days",
+                            "text": "Sports days at school are an important part of our culture. Athletes and non-athletes look forward to this activity filled event. This annual event is normally held on the two day before Ash Wednesday. The excitement begins weeks, even months before the big days. Students and teachers dress in their house colours, sing cheers and practice for each event. Some of the events include cheerleading, cross-country race, one hundred, up eight hundred metre race, shuttle relay and my favourite baton relays. Glucose, oranges and water are a must have for these days as the days are usually very hot and runners get very competitive. Coaches and teachers select their best runners or the person they believe would have a chance at winning. There are four houses at our school. They are Red House, Blue House, Yellow and Green Houses. I had recently transferred from another school and my house leader or captain did not know about my abilities. On the day of the big events, I pleaded with the house leader to let me run but I was told that they had all the athletes for each race already. So I went back to my seat to continue watching the races. When it was time for the eight hundred metres race the announcer called for two runners from each house. Then I overheard the house leader and captain discussing that they only had one name written down. I immediately volunteered myself as both looked at me from head to toe as if to say, he is so frail. The announcer repeated the call and they said go ahead. I quickly changed into my gears and confidently walked onto the field to the starting position. That day, I surpassed everyone's expectations.",
+                            "wordCount": 291,
+                            "questions": [
+                                { "question": "List 3 events that take place on sports days.", "answer": "cheerleading, netball, football, shuttle relay, baton relay" },
+                                { "question": "What does frail mean?", "answer": "Weak" },
+                                { "question": "Why do you think that the excitement of Sports day begins long before the big days?", "answer": "anticipation or preparation" },
+                                { "question": "Why didn't the teachers and coach know about the child's abilities?", "answer": "He was new" },
+                                { "question": "Why are glucose, oranges and water are a must have?", "answer": "energy or hot sun" },
+                                { "question": "What does gears mean as used in the passage?", "answer": "uniform or sports wear" },
+                                { "question": "How do you think the child felt when the teachers told him/her no?", "answer": "Disappointed or sad" }
+                            ]
+                        },
+                        {
+                            "levelId": "level_5",
+                            "title": "The Scientist",
+                            "text": "My name is Abby and my dream is to become a renowned Scientist. A scientist is someone who conducts scientific research to advance knowledge in an area of interest. Scientists are great and they help people. That is why Science is my favourite subject. My area of interest and the most important thing to me in Science class is the studying of insects. During that period, I am very attentive, especially when a practical is involved. Insects are different and very interesting creatures so I want to learn everything about them. When it is time to explore, I set up an area and then I begin my work. I look for all kinds of insects and put them in different categories. These categories include ants, bugs and worms. Whenever I collect different species I compare them to each other to see what new information I can learn. You would be amazed at the number of different species of worms and bugs inhabiting an area. Furthermore, you would be even more fascinated by the valuable contributions that they make to the environment. I worry about some of these insects becoming extinct. As a result, I want to have a thorough understanding of their needs, challenges and life cycle of each and every insect in my surroundings.",
+                            "wordCount": 213,
+                            "questions": [
+                                { "question": "Who is a scientist?", "answer": "someone who conducts scientific research" },
+                                { "question": "List 3 types of insects named in the passage.", "answer": "ant, bugs, worms" },
+                                { "question": "Why is Science Abby's favourite subject?", "answer": "Scientists help people" },
+                                { "question": "Give another word for amazed.", "answer": "shocked or surprised" },
+                                { "question": "What do you think Abby uses to compare the insects?", "answer": "microscope or eyes" },
+                                { "question": "What do you think would happen if there were no scientists in the world?", "answer": "would not find cure or learn things" },
+                                { "question": "How can you and I help to prevent these insects from becoming extinct?", "answer": "Do not kill them or protect habitat" }
+                            ]
+                        },
+                        {
+                            "levelId": "level_6",
+                            "title": "Virus",
+                            "text": "Viruses can make you sick. That's why you should practice proper hygiene. Wash your hands after using the bathroom, before you eat. They can become an epidemic with many people being infected. This is because of globalization, travel, and trade. Things can get worse and the virus later becomes a pandemic if we are not very careful. This can cause many vulnerable people to become sick or later die. These viruses can cause many people to develop a flu that involves a cough, or cold that later causes pneumonia which will result in severe respiratory problems. In 2020 we had the pandemic of the Novel Coronavirus. It crossed many country borders, caused many illnesses and had a devastating effect on their economy. Since people were asked to stay inside to contain the spread, many industries had to close. Tourism, travel and entertainment were the worst hit. Schools also had to be closed and many businesses had to change their model to online operations. Some businesses were ready and others weren't, consequently those did not survive. Governments all over the world had to provide stimulus packages to boost their economy to ensure that they did not collapse or go into a deep recession. Mental health became an issue as people struggled to cope with the situation.",
+                            "wordCount": 215,
+                            "questions": [
+                                { "question": "Give the passage a suitable title.", "answer": "Virus or Pandemic" },
+                                { "question": "Name one way that you can protect yourself from viruses.", "answer": "wash hands or stay inside" },
+                                { "question": "What is the meaning of the word pandemic?", "answer": "Virus affecting many countries" },
+                                { "question": "What does the term, did not survive when talking about a business mean?", "answer": "They closed" },
+                                { "question": "Which sectors were affected the worst?", "answer": "tourism, travel, entertainment" },
+                                { "question": "Why didn't some businesses survive?", "answer": "not prepared or not online" },
+                                { "question": "How would you help vulnerable people to survive in a pandemic like this?", "answer": "help them or support" }
+                            ]
+                        }
+                    ]
+                }
+            ],
+            "branchingRules": {
+                "sentenceFilter": {
+                    "no_words_s1": "pre_primer",
+                    "some_words_s1": "pre_primer",
+                    "only_s1": "primer",
+                    "s2_complete": "level_1",
+                    "s3_complete": "level_2",
+                    "s4_complete": "level_3",
+                    "s5_complete": "level_4"
+                },
+                "wordListFilter": {
+                    "preprimer_fail": "pre_primer",
+                    "primer_fail_l1": "primer",
+                    "l1_fail_l2": "level_1",
+                    "l2_fail_l3": "level_2",
+                    "l3_fail_l4": "level_3"
+                }
+            }
+        };
+
+        document.getElementById('seedBtn').addEventListener('click', async () => {
+            const statusDiv = document.getElementById('status');
+            statusDiv.textContent = 'Uploading...';
+            statusDiv.className = 'alert alert-info';
+
+            try {
+                // Get current user if authenticated
+                const currentUser = auth.currentUser;
+
+                // Prepare data with metadata
+                const testDataToSeed = {
+                    ...preTestData,
+                    createdAt: serverTimestamp(),
+                    createdBy: currentUser?.uid || 'system',
+                    createdByName: currentUser?.displayName || currentUser?.email || 'System'
+                };
+
+                // Add to tests collection
+                const docRef = await addDoc(collection(db, "tests"), testDataToSeed);
+
+                statusDiv.textContent = `Success! Test added with ID: ${docRef.id}`;
+                statusDiv.className = 'alert alert-success';
+                console.log("Document written with ID: ", docRef.id);
+                console.log("This test will now appear in admin-tests.html");
+            } catch (e) {
+                console.error("Error adding document: ", e);
+                statusDiv.textContent = `Error: ${e.message}`;
+                statusDiv.className = 'alert alert-danger';
+            }
+        });
+    </script>
+</body>
+
+</html>

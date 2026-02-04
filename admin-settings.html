@@ -1,16 +1,18 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Admin Settings - Alpharia</title>
-    
+
     <!-- Google Fonts -->
-    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
-    
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap"
+        rel="stylesheet">
+
     <!-- Font Awesome Icons -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-    
+
     <!-- Custom CSS -->
     <link rel="stylesheet" href="css/teacher-dashboard.css">
     <style>
@@ -28,7 +30,7 @@
             --sidebar-width: 250px;
             --header-height: 70px;
         }
-        
+
         .admin-badge {
             background-color: var(--warning-color);
             color: #000;
@@ -40,21 +42,21 @@
             margin-left: 8px;
             vertical-align: middle;
         }
-        
+
         .settings-container {
             max-width: 1000px;
             margin: 0 auto;
             padding: 2rem;
         }
-        
+
         .settings-section {
             background: white;
             border-radius: 8px;
-            box-shadow: 0 2px 4px rgba(0,0,0,0.05);
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
             margin-bottom: 2rem;
             overflow: hidden;
         }
-        
+
         .settings-header {
             padding: 1.5rem;
             border-bottom: 1px solid #eee;
@@ -62,28 +64,28 @@
             justify-content: space-between;
             align-items: center;
         }
-        
+
         .settings-header h2 {
             margin: 0;
             font-size: 1.25rem;
             color: var(--dark-color);
         }
-        
+
         .settings-body {
             padding: 1.5rem;
         }
-        
+
         .form-group {
             margin-bottom: 1.5rem;
         }
-        
+
         .form-group label {
             display: block;
             margin-bottom: 0.5rem;
             font-weight: 500;
             color: var(--dark-color);
         }
-        
+
         .form-control {
             width: 100%;
             padding: 0.75rem 1rem;
@@ -92,13 +94,13 @@
             font-size: 1rem;
             transition: all 0.3s ease;
         }
-        
+
         .form-control:focus {
             border-color: var(--primary-color);
             box-shadow: 0 0 0 0.2rem rgba(74, 108, 247, 0.25);
             outline: none;
         }
-        
+
         .btn {
             display: inline-block;
             font-weight: 500;
@@ -114,40 +116,40 @@
             transition: all 0.3s ease;
             cursor: pointer;
         }
-        
+
         .btn-primary {
             background-color: var(--primary-color);
             color: white;
         }
-        
+
         .btn-primary:hover {
             background-color: var(--primary-hover);
         }
-        
+
         .btn-outline-secondary {
             background-color: transparent;
             border-color: #ddd;
             color: var(--secondary-color);
         }
-        
+
         .btn-outline-secondary:hover {
             background-color: #f8f9fa;
         }
-        
+
         .profile-avatar {
             text-align: center;
             margin-bottom: 2rem;
         }
-        
+
         .profile-avatar img {
             width: 120px;
             height: 120px;
             border-radius: 50%;
             object-fit: cover;
             border: 4px solid #fff;
-            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
         }
-        
+
         .profile-avatar .change-avatar {
             display: inline-block;
             margin-top: 1rem;
@@ -155,7 +157,7 @@
             cursor: pointer;
             font-weight: 500;
         }
-        
+
         .form-actions {
             display: flex;
             justify-content: flex-end;
@@ -164,7 +166,7 @@
             border-top: 1px solid #eee;
             margin-top: 2rem;
         }
-        
+
         .password-strength {
             height: 4px;
             background: #eee;
@@ -172,14 +174,14 @@
             margin-top: 0.5rem;
             overflow: hidden;
         }
-        
+
         .password-strength-fill {
             height: 100%;
             width: 0%;
             background: #28a745;
             transition: width 0.3s ease, background 0.3s ease;
         }
-        
+
         .notification-settings .form-group {
             display: flex;
             align-items: center;
@@ -187,24 +189,24 @@
             padding: 0.75rem 0;
             border-bottom: 1px solid #f0f0f0;
         }
-        
+
         .notification-settings .form-group:last-child {
             border-bottom: none;
         }
-        
+
         .switch {
             position: relative;
             display: inline-block;
             width: 50px;
             height: 24px;
         }
-        
+
         .switch input {
             opacity: 0;
             width: 0;
             height: 0;
         }
-        
+
         .slider {
             position: absolute;
             cursor: pointer;
@@ -216,7 +218,7 @@
             transition: .4s;
             border-radius: 24px;
         }
-        
+
         .slider:before {
             position: absolute;
             content: "";
@@ -228,19 +230,19 @@
             transition: .4s;
             border-radius: 50%;
         }
-        
-        input:checked + .slider {
+
+        input:checked+.slider {
             background-color: var(--primary-color);
         }
-        
-        input:focus + .slider {
+
+        input:focus+.slider {
             box-shadow: 0 0 1px var(--primary-color);
         }
-        
-        input:checked + .slider:before {
+
+        input:checked+.slider:before {
             transform: translateX(26px);
         }
-        
+
         .danger-zone {
             border: 1px solid #ffebee;
             border-left: 4px solid #f44336;
@@ -249,27 +251,28 @@
             padding: 1.5rem;
             margin-top: 2rem;
         }
-        
+
         .danger-zone h3 {
             color: #d32f2f;
             margin-top: 0;
         }
-        
+
         .danger-zone p {
             color: #5c5c5c;
             margin-bottom: 1.5rem;
         }
-        
+
         .btn-danger {
             background-color: #dc3545;
             color: white;
         }
-        
+
         .btn-danger:hover {
             background-color: #c82333;
         }
     </style>
 </head>
+
 <body class="teacher-dashboard">
     <div class="dashboard-container">
         <!-- Sidebar -->
@@ -280,56 +283,56 @@
                 </div>
                 <h2>Alpharia <span class="admin-badge">Admin</span></h2>
             </div>
-            
+
             <nav class="nav-menu">
                 <div class="menu-title">Main Menu</div>
-                
+
                 <div class="nav-item">
                     <a href="admin-dashboard.html" class="nav-link">
                         <i class="fas fa-tachometer-alt"></i>
                         <span>Dashboard</span>
                     </a>
                 </div>
-                
+
                 <div class="nav-item">
                     <a href="admin-management.html" class="nav-link">
                         <i class="fas fa-users-cog"></i>
                         <span>Management</span>
                     </a>
                 </div>
-                
+
                 <div class="nav-item">
                     <a href="admin-tests.html" class="nav-link">
                         <i class="fas fa-clipboard-list"></i>
                         <span>All Tests</span>
                     </a>
                 </div>
-                
+
                 <div class="nav-item">
                     <a href="admin-create-test.html" class="nav-link">
                         <i class="fas fa-plus-circle"></i>
                         <span>Create Test</span>
                     </a>
                 </div>
-                
+
                 <div class="menu-title mt-4">Analytics</div>
-                
+
                 <div class="nav-item">
                     <a href="admin-reports.html" class="nav-link">
                         <i class="fas fa-chart-bar"></i>
                         <span>Reports</span>
                     </a>
                 </div>
-                
+
                 <div class="menu-title mt-4">Account</div>
-                
+
                 <div class="nav-item">
                     <a href="admin-settings.html" class="nav-link active">
                         <i class="fas fa-cog"></i>
                         <span>Settings</span>
                     </a>
                 </div>
-                
+
                 <div class="nav-item">
                     <a href="help.html" class="nav-link">
                         <i class="fas fa-question-circle"></i>
@@ -337,10 +340,11 @@
                     </a>
                 </div>
             </nav>
-            
+
             <div class="sidebar-footer">
                 <div class="user-profile">
-                    <img src="https://ui-avatars.com/api/?name=Admin&background=4a6cf7&color=fff" alt="Admin" class="user-avatar" id="user-avatar-sidebar">
+                    <img src="https://ui-avatars.com/api/?name=Admin&background=4a6cf7&color=fff" alt="Admin"
+                        class="user-avatar" id="user-avatar-sidebar">
                     <div class="user-info">
                         <h4 class="user-name" id="sidebar-admin-name">Loading...</h4>
                         <span class="user-role">Administrator</span>
@@ -371,7 +375,7 @@
                     </div>
                 </div>
             </header>
-            
+
             <!-- Settings Content -->
             <div class="settings-container">
                 <!-- Profile Section -->
@@ -385,7 +389,7 @@
                             <div class="change-avatar">Change Profile Picture</div>
                             <input type="file" id="avatar-upload" accept="image/*" style="display: none;">
                         </div>
-                        
+
                         <form id="profile-form">
                             <div class="row">
                                 <div class="col-md-6">
@@ -401,17 +405,17 @@
                                     </div>
                                 </div>
                             </div>
-                            
+
                             <div class="form-group">
                                 <label for="email">Email Address</label>
                                 <input type="email" id="email" class="form-control" value="admin@example.com">
                             </div>
-                            
+
                             <div class="form-group">
                                 <label for="phone">Phone Number</label>
                                 <input type="tel" id="phone" class="form-control" value="+1 (555) 123-4567">
                             </div>
-                            
+
                             <div class="form-actions">
                                 <button type="button" class="btn btn-outline-secondary">Cancel</button>
                                 <button type="submit" class="btn btn-primary">Save Changes</button>
@@ -419,7 +423,7 @@
                         </form>
                     </div>
                 </div>
-                
+
                 <!-- Change Password Section -->
                 <div class="settings-section">
                     <div class="settings-header">
@@ -431,21 +435,22 @@
                                 <label for="current-password">Current Password</label>
                                 <input type="password" id="current-password" class="form-control">
                             </div>
-                            
+
                             <div class="form-group">
                                 <label for="new-password">New Password</label>
                                 <input type="password" id="new-password" class="form-control">
                                 <div class="password-strength">
                                     <div class="password-strength-fill" id="password-strength"></div>
                                 </div>
-                                <small class="text-muted">Use 8 or more characters with a mix of letters, numbers & symbols</small>
+                                <small class="text-muted">Use 8 or more characters with a mix of letters, numbers &
+                                    symbols</small>
                             </div>
-                            
+
                             <div class="form-group">
                                 <label for="confirm-password">Confirm New Password</label>
                                 <input type="password" id="confirm-password" class="form-control">
                             </div>
-                            
+
                             <div class="form-actions">
                                 <button type="button" class="btn btn-outline-secondary">Cancel</button>
                                 <button type="submit" class="btn btn-primary">Update Password</button>
@@ -453,7 +458,7 @@
                         </form>
                     </div>
                 </div>
-                
+
                 <!-- Notification Settings -->
                 <div class="settings-section">
                     <div class="settings-header">
@@ -471,7 +476,7 @@
                                     <span class="slider"></span>
                                 </label>
                             </div>
-                            
+
                             <div class="form-group">
                                 <div>
                                     <h4>Test Results</h4>
@@ -482,7 +487,7 @@
                                     <span class="slider"></span>
                                 </label>
                             </div>
-                            
+
                             <div class="form-group">
                                 <div>
                                     <h4>System Updates</h4>
@@ -493,7 +498,7 @@
                                     <span class="slider"></span>
                                 </label>
                             </div>
-                            
+
                             <div class="form-actions">
                                 <button type="button" class="btn btn-outline-secondary">Reset to Default</button>
                                 <button type="button" class="btn btn-primary">Save Preferences</button>
@@ -501,67 +506,68 @@
                         </div>
                     </div>
                 </div>
-                
+
                 <!-- Danger Zone -->
                 <div class="settings-section danger-zone">
                     <h3><i class="fas fa-exclamation-triangle"></i> Danger Zone</h3>
                     <p>These actions are irreversible. Please proceed with caution.</p>
-                    
+
                     <div class="form-group">
                         <button class="btn btn-outline-secondary">
                             <i class="fas fa-download"></i> Export All Data
                         </button>
                         <small class="d-block text-muted mt-1">Download a copy of all your data</small>
                     </div>
-                    
+
                     <div class="form-group">
                         <button class="btn btn-outline-secondary">
                             <i class="fas fa-trash-alt"></i> Delete Account
                         </button>
-                        <small class="d-block text-muted mt-1">Permanently delete your account and all associated data</small>
+                        <small class="d-block text-muted mt-1">Permanently delete your account and all associated
+                            data</small>
                     </div>
                 </div>
             </div>
-            
+
 
         </main>
     </div>
-    
+
     <!-- jQuery and Bootstrap JS -->
     <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/js/bootstrap.bundle.min.js"></script>
-    
+
     <!-- Firebase -->
     <script type="module">
         // Import the shared Firebase configuration and initialization
-        import { app, db, auth } from '../firebase.js';
+        import { app, db, auth, storage } from './js/firebase-config.js';
+        import { requireAuth } from './js/auth-check.js';
         import { getStorage, ref, uploadBytes, getDownloadURL } from 'https://www.gstatic.com/firebasejs/12.1.0/firebase-storage.js';
-        import { 
-            signOut, 
-            onAuthStateChanged, 
-            updateProfile, 
-            updateEmail, 
-            updatePassword, 
-            reauthenticateWithCredential, 
-            EmailAuthProvider 
+        import {
+            signOut,
+            updateProfile,
+            updateEmail,
+            updatePassword,
+            reauthenticateWithCredential,
+            EmailAuthProvider
         } from 'https://www.gstatic.com/firebasejs/12.1.0/firebase-auth.js';
-        import { 
-            doc, 
-            getDoc, 
-            setDoc, 
-            updateDoc, 
-            collection, 
-            query, 
-            where, 
-            getDocs, 
-            addDoc, 
-            deleteDoc, 
-            serverTimestamp 
+        import {
+            doc,
+            getDoc,
+            setDoc,
+            updateDoc,
+            collection,
+            query,
+            where,
+            getDocs,
+            addDoc,
+            deleteDoc,
+            serverTimestamp
         } from 'https://www.gstatic.com/firebasejs/12.1.0/firebase-firestore.js';
-        
-        // Initialize Firebase Storage
-        const storage = getStorage(app);
-        
+
+        // Initialize Firebase Storage (already exported from config)
+        // const storage = getStorage(app); // No longer needed as we import it
+
         // DOM Elements
         const sidebarToggle = document.getElementById('sidebar-toggle');
         const logoutBtn = document.getElementById('logout-btn');
@@ -571,14 +577,14 @@
         const passwordForm = document.getElementById('password-form');
         const avatarUpload = document.getElementById('avatar-upload');
         const changeAvatarBtn = document.querySelector('.change-avatar');
-        
+
         // Toggle sidebar
         if (sidebarToggle) {
             sidebarToggle.addEventListener('click', () => {
                 document.body.classList.toggle('sidebar-collapsed');
             });
         }
-        
+
         // Logout function
         if (logoutBtn) {
             logoutBtn.addEventListener('click', async () => {
@@ -591,26 +597,26 @@
                 }
             });
         }
-        
+
         // Update profile information
         if (profileForm) {
             profileForm.addEventListener('submit', async (e) => {
                 e.preventDefault();
-                
+
                 const firstName = document.getElementById('first-name').value;
                 const lastName = document.getElementById('last-name').value;
                 const email = document.getElementById('email').value;
                 const phone = document.getElementById('phone').value;
-                
+
                 const user = auth.currentUser;
-                
+
                 try {
                     // Update user profile in Firebase Auth
                     await updateProfile(user, {
                         displayName: `${firstName} ${lastName}`.trim(),
                         photoURL: user.photoURL || ''
                     });
-                    
+
                     // Update user data in Firestore
                     const userDocRef = doc(db, 'users', user.uid);
                     await updateDoc(userDocRef, {
@@ -620,7 +626,7 @@
                         phone,
                         updatedAt: new Date()
                     });
-                    
+
                     showNotification('Profile updated successfully!', 'success');
                     updateUI(user);
                 } catch (error) {
@@ -629,80 +635,80 @@
                 }
             });
         }
-        
+
         // Change password
         if (passwordForm) {
             passwordForm.addEventListener('submit', async (e) => {
                 e.preventDefault();
-                
+
                 const currentPassword = document.getElementById('current-password').value;
                 const newPassword = document.getElementById('new-password').value;
                 const confirmPassword = document.getElementById('confirm-password').value;
-                
+
                 if (newPassword !== confirmPassword) {
                     showNotification('New passwords do not match.', 'error');
                     return;
                 }
-                
+
                 const user = auth.currentUser;
                 const credential = EmailAuthProvider.credential(user.email, currentPassword);
-                
+
                 try {
                     // Re-authenticate user
                     await reauthenticateWithCredential(user, credential);
-                    
+
                     // Update password
                     await updatePassword(user, newPassword);
-                    
+
                     // Clear form
                     passwordForm.reset();
-                    
+
                     showNotification('Password updated successfully!', 'success');
                 } catch (error) {
                     console.error('Error updating password:', error);
                     let errorMessage = 'Error updating password. Please try again.';
-                    
+
                     if (error.code === 'auth/wrong-password') {
                         errorMessage = 'Current password is incorrect.';
                     } else if (error.code === 'auth/weak-password') {
                         errorMessage = 'Password is too weak. Please choose a stronger password.';
                     }
-                    
+
                     showNotification(errorMessage, 'error');
                 }
             });
         }
-        
+
         // Handle avatar upload
         if (changeAvatarBtn && avatarUpload) {
             changeAvatarBtn.addEventListener('click', () => {
                 avatarUpload.click();
             });
-            
+
             avatarUpload.addEventListener('change', async (e) => {
                 const file = e.target.files[0];
                 if (!file) return;
-                
+
                 const user = auth.currentUser;
                 const storageRef = ref(storage, `avatars/${user.uid}/${file.name}`);
-                
+
                 try {
                     // Upload file to Firebase Storage
                     const snapshot = await uploadBytes(storageRef, file);
                     const downloadURL = await getDownloadURL(snapshot.ref);
-                    
+
                     // Update user profile with new photo URL
                     await updateProfile(user, {
                         photoURL: downloadURL
                     });
-                    
+
                     // Update user data in Firestore
                     const userDocRef = doc(db, 'admins', user.uid);
                     await updateDoc(userDocRef, {
                         photoURL: downloadURL,
                         updatedAt: new Date()
                     });
-                    
+
                     // Update UI
                     updateUI(user);
                     showNotification('Profile picture updated successfully!', 'success');
@@ -712,14 +718,14 @@
                 }
             });
         }
-        
+
         // Password strength indicator
         const passwordInput = document.getElementById('new-password');
         if (passwordInput) {
             passwordInput.addEventListener('input', (e) => {
                 const password = e.target.value;
                 const strengthBar = document.getElementById('password-strength');
-                
+
                 // Simple password strength calculation
                 let strength = 0;
                 if (password.length >= 8) strength += 25;
@@ -727,10 +733,10 @@
                 if (password.match(/[A-Z]+/)) strength += 25;
                 if (password.match(/[0-9]+/)) strength += 15;
                 if (password.match(/[!@#$%^&*(),.?":{}|<>]+/)) strength += 10;
-                
+
                 // Update strength bar
                 strengthBar.style.width = `${Math.min(strength, 100)}%`;
-                
+
                 // Update color based on strength
                 if (strength < 50) {
                     strengthBar.style.backgroundColor = '#dc3545'; // Red
@@ -741,26 +747,26 @@
                 }
             });
         }
-        
+
         // Update UI with user data
         function updateUI(user, userData = {}) {
             if (!user) return;
-            
+
             // Get display name from user data or auth
             let displayName = user.displayName || 'Administrator';
             const firstName = document.getElementById('first-name').value || displayName.split(' ')[0];
             const lastName = document.getElementById('last-name').value || displayName.split(' ').slice(1).join(' ');
-            
+
             // Update display name if we have first and last name
             if (firstName || lastName) {
                 displayName = `${firstName} ${lastName}`.trim();
             }
-            
+
             // Update name in all locations
             adminNameElements.forEach(el => {
                 el.textContent = displayName.split(' ')[0]; // Show only first name
             });
-            
+
             // Update avatar in all locations
             const photoURL = user.photoURL || userData.photoURL || `https://ui-avatars.com/api/?name=${encodeURIComponent(displayName)}&background=4a6cf7&color=fff`;
             adminAvatarElements.forEach(img => {
@@ -768,46 +774,46 @@
                 img.alt = displayName;
             });
         }
-        
+
         // Get the profile form element if it exists
         const profileFormElement = document.getElementById('profile-form');
-        
+
         // Handle profile form submission
         if (profileFormElement) {
             profileFormElement.addEventListener('submit', async (e) => {
                 e.preventDefault();
-                
+
                 const user = auth.currentUser;
                 if (!user) {
                     showNotification('You must be logged in to update your profile', 'error');
                     return;
                 }
-                
+
                 const firstName = document.getElementById('first-name').value.trim();
                 const lastName = document.getElementById('last-name').value.trim();
                 const email = document.getElementById('email').value.trim();
                 const phone = document.getElementById('phone').value.trim();
-                
+
                 if (!firstName) {
                     showNotification('First name is required', 'error');
                     return;
                 }
-                
+
                 // Show loading state
                 const submitBtn = e.target.querySelector('button[type="submit"]');
                 let originalBtnText = '';
-                
+
                 try {
                     if (submitBtn) {
                         originalBtnText = submitBtn.innerHTML;
                         submitBtn.disabled = true;
                         submitBtn.innerHTML = '<span class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span> Saving...';
                     }
-                    
+
                     // Update user profile in Firebase Auth
                     const displayName = `${firstName} ${lastName}`.trim();
                     await updateProfile(user, { displayName });
-                    
+
                     // Update user data in Firestore
                     const userRef = doc(db, 'users', user.uid);
                     await updateDoc(userRef, {
@@ -817,12 +823,12 @@
                         phone,
                         updatedAt: new Date().toISOString()
                     });
-                    
+
                     // Update UI
                     updateUI(user, { firstName, lastName, email, phone });
-                    
+
                     showNotification('Profile updated successfully', 'success');
-                    
+
                 } catch (error) {
                     console.error('Error updating profile:', error);
                     showNotification(`Failed to update profile: ${error.message}`, 'error');
@@ -835,86 +841,82 @@
                 }
             });
         }
-        
+
         // Show notification
         function showNotification(message, type = 'info') {
             // You can implement a more sophisticated notification system here
             alert(`${type.toUpperCase()}: ${message}`);
         }
-        
+
         // Check auth state and verify admin role
-        onAuthStateChanged(auth, async (user) => {
-            // If no user is signed in, redirect to login
-            if (!user) {
-                if (!window.location.href.includes('login-fixed.html')) {
-                    window.location.href = 'auth/login-fixed.html';
-                }
-                return;
-            }
-            
+        async function initApp() {
             try {
+                const { user } = await requireAuth(['admin']);
+
                 // Get additional user data from Firestore (from users collection)
                 const userDoc = await getDoc(doc(db, 'users', user.uid));
-                
-                if (!userDoc.exists()) {
-                    window.location.href = 'auth/login-fixed.html?error=no-user-data';
-                    return;
+
+                if (userDoc.exists()) {
+                    const userData = userDoc.data();
+
+                    // Update form fields with user data
+                    const firstName = userData.firstName || '';
+                    const lastName = userData.lastName || '';
+                    const email = user.email || '';
+                    const phone = userData.phone || '';
+
+                    // Set form values
+                    const firstNameInput = document.getElementById('first-name');
+                    const lastNameInput = document.getElementById('last-name');
+                    const emailInput = document.getElementById('email');
+                    const phoneInput = document.getElementById('phone');
+
+                    if (firstNameInput) firstNameInput.value = firstName;
+                    if (lastNameInput) lastNameInput.value = lastName;
+                    if (emailInput) emailInput.value = email;
+                    if (phoneInput) phoneInput.value = phone;
+
+                    // Update UI with user data
+                    updateUI(user, {
+                        firstName,
+                        lastName,
+                        email,
+                        phone
+                    });
+                } else {
+                    // Fallback if no user doc but authenticated as admin (via admins collection)
+                    updateUI(user);
+                    const emailInput = document.getElementById('email');
+                    if (emailInput) emailInput.value = user.email || '';
                 }
-                
-                const userData = userDoc.data();
-                
-                // Check if user has admin role
-                const isAdmin = userData.role === 'ADMIN' || userData.role === 'admin' || userData.isAdmin === true;
-                
-                if (!isAdmin) {
-                    window.location.href = 'auth/unauthorized.html';
-                    return;
-                }
-                
-                // Update form fields with user data
-                const firstName = userData.firstName || '';
-                const lastName = userData.lastName || '';
-                const email = user.email || '';
-                const phone = userData.phone || '';
-                
-                // Set form values
-                document.getElementById('first-name').value = firstName;
-                document.getElementById('last-name').value = lastName;
-                document.getElementById('email').value = email;
-                document.getElementById('phone').value = phone;
-                
-                // Update UI with user data
-                updateUI(user, { 
-                    firstName, 
-                    lastName, 
-                    email, 
-                    phone 
-                });
-                
+
             } catch (error) {
-                console.error('Error in auth state change handler:', error);
-                showNotification(`Error loading profile: ${error.message}`, 'error');
+                console.error("Initialization failed:", error);
+                // Redirect handled by requireAuth
             }
-        });
+        }
+
+        initApp();
     </script>
-    
+
     <script>
         // Simple sidebar toggle for demo purposes
-        document.addEventListener('DOMContentLoaded', function() {
+        document.addEventListener('DOMContentLoaded', function () {
             const sidebarToggle = document.getElementById('sidebar-toggle');
             if (sidebarToggle) {
-                sidebarToggle.addEventListener('click', function() {
+                sidebarToggle.addEventListener('click', function () {
                     document.body.classList.toggle('sidebar-collapsed');
                 });
             }
-            
+
             // Initialize tooltips
             const tooltipTriggerList = [].slice.call(document.querySelectorAll('[data-bs-toggle="tooltip"]'));
             tooltipTriggerList.map(function (tooltipTriggerEl) {
                 return new bootstrap.Tooltip(tooltipTriggerEl);
             });
-            
+
         });
     </script>
 </body>
+
 </html>

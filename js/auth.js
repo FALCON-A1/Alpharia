@@ -2,14 +2,14 @@
 firebase.auth().onAuthStateChanged((user) => {
     if (!user) {
         // User is not signed in, redirect to login page
-        if (!window.location.pathname.includes('login-fixed.html') && 
+        if (!window.location.pathname.includes('login-fixed.html') &&
             !window.location.pathname.includes('signup-fixed.html')) {
             window.location.href = '/auth/login-fixed.html';
         }
-    } else if (window.location.pathname.includes('login-fixed.html') || 
-               window.location.pathname.includes('signup-fixed.html')) {
+    } else if (window.location.pathname.includes('login-fixed.html') ||
+        window.location.pathname.includes('signup-fixed.html')) {
         // User is signed in but on auth pages, redirect to dashboard
-        window.location.href = '/student-dashboard-clean.html';
+        window.location.href = '/student-dashboard.html';
     }
 });
 

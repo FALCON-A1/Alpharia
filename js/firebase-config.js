@@ -1,5 +1,10 @@
-// Firebase configuration
-export const firebaseConfig = {
+// Firebase configuration and initialization (Modular SDK v12.1.0)
+import { initializeApp } from 'https://www.gstatic.com/firebasejs/12.1.0/firebase-app.js';
+import { getAuth } from 'https://www.gstatic.com/firebasejs/12.1.0/firebase-auth.js';
+import { getFirestore } from 'https://www.gstatic.com/firebasejs/12.1.0/firebase-firestore.js';
+import { getStorage } from 'https://www.gstatic.com/firebasejs/12.1.0/firebase-storage.js';
+
+const firebaseConfig = {
     apiKey: "AIzaSyAtOedXLBC4eigzqmBpYFciN-W5Mi2Cpmc",
     authDomain: "alpharia-c6a39.firebaseapp.com",
     projectId: "alpharia-c6a39",
@@ -9,33 +14,13 @@ export const firebaseConfig = {
     measurementId: "G-KEC7MGMVE8"
 };
 
-// Export a function to initialize Firebase
-export const initializeFirebase = () => {
-    // Check if Firebase is already initialized
-    if (!window.firebase?.apps?.length) {
-        // Import and initialize Firebase
-        import('https://www.gstatic.com/firebasejs/9.0.2/firebase-app-compat.js')
-            .then(({ default: firebase }) => {
-                // Initialize Firebase
-                firebase.initializeApp(firebaseConfig);
-                
-                // Initialize other Firebase services as needed
-                import('https://www.gstatic.com/firebasejs/9.0.2/firebase-auth-compat.js')
-                    .then(() => {
-                        firebase.auth();
-                    });
-                    
-                import('https://www.gstatic.com/firebasejs/9.0.2/firebase-firestore-compat.js')
-                    .then(() => {
-                        firebase.firestore();
-                    });
-            })
-            .catch(error => {
-                console.error('Error initializing Firebase:', error);
-            });
-    }
-    return window.firebase;
-};
+// Initialize Firebase
+const app = initializeApp(firebaseConfig);
+const auth = getAuth(app);
+const db = getFirestore(app);
+const storage = getStorage(app);
 
-// Export the Firebase instance
-export const getFirebase = () => window.firebase;
+console.log('Firebase initialized (v12.1.0 Modular)');
+
+// Export initialized instances
+export { app, auth, db, storage };
