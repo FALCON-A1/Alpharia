@@ -300,7 +300,7 @@ function renderWordListStage(stage) {
     const word = testState.currentWordList[currentSubIndex];
     const html = `
         <div class="py-5">
-            <h2 class="display-1 fw-bold mb-4 text-dark fade-in">${word}</h2>
+            <h2 class="display-1 fw-bolder mb-4 text-dark fade-in" style="font-size: 6rem; letter-spacing: 2px;">${word}</h2>
         </div>
     `;
     testContent.innerHTML = getStageWrapper(html, "Read the word quickly!");
@@ -376,7 +376,9 @@ function renderReadingPassageStage(stage) {
             currentSubIndex++;
             renderReadingPassageStage(stage);
         });
-        startRecording();
+
+        // FIXED: Use 15s timeout for questions as requested
+        startListeningWindow(15000);
     }
 }
 
@@ -482,16 +484,17 @@ function stopRecording() {
     try { recognition.stop(); } catch (e) { }
 }
 
-function startListeningWindow() {
+function startListeningWindow(duration) {
+    const finalDuration = duration || LISTENING_TIMEOUT_MS; // Default to 4000 if not provided
     stopRecording(); // Reset
     setTimeout(() => {
         startRecording();
-        updateTimerBar(LISTENING_TIMEOUT_MS);
+        updateTimerBar(finalDuration);
 
         clearListeningTimer();
         listenTimer = setTimeout(() => {
             handleTimeout();
-        }, LISTENING_TIMEOUT_MS);
+        }, finalDuration);
     }, 100);
 }
 
@@ -1008,6 +1011,8 @@ function handleInput(text, isInterim = false) {
             });
 
             showFeedback(true);
+            stopRecording();
+            clearListeningTimer();
             setTimeout(() => {
                 currentSubIndex++;
                 if (currentSubIndex >= testState.currentPassageData.questions.length) {
@@ -1028,6 +1033,8 @@ function handleInput(text, isInterim = false) {
             });
 
             showFeedback(false); // Red border
+            stopRecording();
+            clearListeningTimer();
 
             setTimeout(() => {
                 currentSubIndex++;
@@ -1102,7 +1109,8 @@ function runGreetingStep(step) {
         });
     } else if (step === 2) {
         // Explanation
-        const text = `Okay! ${greetingState.userPlace}... You will be doing a Reading Assessment. That includes; identifying letter names and sounds, identifying sight words, reading one or more stories and then answering some questions. This is not a pass or fail kind of test, so relax and do your best.`;
+        // FIXED: Use userName instead of userPlace as requested
+        const text = `Okay! ${greetingState.userName}... You will be doing a Reading Assessment. That includes; identifying letter names and sounds, identifying sight words, reading one or more stories and then answering some questions. This is not a pass or fail kind of test, so relax and do your best.`;
         speakAndShow(text, () => {
             interaction.innerHTML = `
                 <button class="btn btn-success btn-lg px-5 py-3 rounded-pill fw-bold shadow-sm" onclick="startTestFromGreeting()">
@@ -1125,6 +1133,30 @@ function speakAndShow(text, onEnd) {
         const u = new SpeechSynthesisUtterance(text);
         u.lang = 'en-US';
         u.rate = 0.9;
+
+        // FIXED: Select a "Calm Human" Voice
+        // FIXED: Enhanced Voice Selection Strategy (User requested NO Samantha, and different from Zira/Google)
+        // New Priority: Edge Natural, Microsoft David (Male Calm), Microsoft Mark (Male Calm), then Generic
+        const voices = window.speechSynthesis.getVoices();
+        const preferredVoice = voices.find(v =>
+            (v.name.includes("Natural") && v.lang === 'en-US') || // Edge/Azure Neural (Best)
+            v.name.includes("David") || // Microsoft David - Calm Male
+            v.name.includes("Mark") || // Microsoft Mark - Calm Male
+            // Fallbacks (moved down)
+            (v.name.includes("United States") && v.lang === 'en-US')
+        );
+
+        // If we found a good voice, use it. 
+        // If not, and it's the very first message ("Alex"), WAIT a bit longer and try again (force load)
+        if (preferredVoice) {
+            u.voice = preferredVoice;
+        } else if (text.includes("Hi, I am Alex")) {
+            console.log("Waiting for better voices...");
+            // Retry once after 500ms
+            setTimeout(() => speakAndShow(text, onEnd), 500);
+            return;
+        }
+
         u.onend = onEnd;
         window.speechSynthesis.speak(u);
     } else {
@@ -1683,7 +1715,44 @@ function checkMatch(spoken, target) {
 
     // Levenshtein for long words
     if (t.length > 3 && dist(s, t) <= 1) return true;
+
+    // FIXED: PHRASE MATCHING (for Comprehension)
+    // If target has multiple words, check if spoken text contains enough of them
+    if (t.split(' ').length > 1) {
+        if (checkPhraseMatch(s, t)) return true;
+    }
+
     return false;
+}
+
+// Helper: Check if spoken phrase contains key words from target
+function checkPhraseMatch(spoken, target) {
+    // 1. Remove instruction text from target (e.g. "(detail)", "(inference)", "or any other answer")
+    // Remove content in parenthesis
+    let cleanTarget = target.replace(/\(.*?\)/g, "").trim();
+    // Remove "or any other..." clauses
+    cleanTarget = cleanTarget.split(" or ")[0].trim();
+
+    if (!cleanTarget) return false;
+
+    // 2. Tokenize
+    const sWords = spoken.toLowerCase().split(/\s+/);
+    const tWords = cleanTarget.toLowerCase().split(/\s+/);
+
+    // 3. Count matches
+    let matches = 0;
+    tWords.forEach(tw => {
+        // Allow slight fuzzy match for each word
+        if (sWords.some(sw => sw === tw || (tw.length > 3 && dist(sw, tw) <= 1))) {
+            matches++;
+        }
+    });
+
+    // 4. Threshold: If 75% of target keywords are present, match!
+    // e.g. Target: "plants grow" (2 words). User: "it helps plants to grow" (contains "plants", "grow") -> 100%
+    // e.g. Target: "he gets water" (3 words). User: "he gets the water" (contains "he", "gets", "water") -> 100%
+    const pct = matches / tWords.length;
+    return pct >= 0.75;
 }
 
 // Letter mappings for homophones
