@@ -219,7 +219,8 @@ function renderLetterStage(stage) {
     </button>`;
 
     testContent.innerHTML = getStageWrapper(html, promptText);
-    startListeningWindow();
+    // FIXED: User requested NO TIMER for letters. Just listen until answer.
+    startRecording();
 }
 
 // --- STAGE 2: SENTENCES ---
@@ -714,11 +715,17 @@ function handleInput(text, isInterim = false) {
     // 1. Letters - With Evidence Logging
     // ISSUE 2 FIX: Only accept FINAL results for letters stage
     if (stage.type === 'letter_recognition') {
-        // Ignore interim results completely for letters
-        if (isInterim) return;
-
         const target = stage.items[currentSubIndex];
-        const isNameOnly = stage.id === 'letters_common'; // AUDIT FIX: Name-only for common letters
+        const isNameOnly = stage.id === 'letters_common';
+
+        // FIXED: Responsiveness Issue. 
+        // Previously we ignored ALL interim results. 
+        // Now, if an interim result matches the target, we ACCEPT it immediately.
+        // This prevents "stuck" recognition where the user speaks, browser hears it (interim), but never finalizes before timeout.
+        if (isInterim) {
+            if (!checkMatch(text, target)) return; // Iterate only if no match
+            console.log("Accepting strong interim match:", text);
+        }
 
         // For letters, we expect strict single-word match
         if (checkMatch(text, target)) {
@@ -795,42 +802,85 @@ function handleInput(text, isInterim = false) {
 
         // Mark words - ROBUST LOGIC: Lookahead window of 2 words
         // Handles insertions (ignore) and skips (catch up)
+        // Mark words - ROBUST LOGIC: Dual-Scan Best Fit
+        // We calculate which start position yields more matches:
+        // 1. From Indx 0 (Cumulative input)
+        // 2. From LastMarked + 1 (Continuation input)
+
+        const scanAndCount = (startIdx, spokeList) => {
+            let matches = 0;
+            let ptr = startIdx;
+            spokeList.forEach(s => {
+                for (let o = 0; o <= 2; o++) {
+                    let tid = ptr + o;
+                    if (tid < words.length && checkMatch(s, words[tid].clean)) {
+                        matches++;
+                        ptr = tid + 1;
+                        return; // matched
+                    }
+                }
+                // If no match, ptr stays
+            });
+            return matches;
+        };
+
+        const scoreFromZero = scanAndCount(0, text.split(/\s+/));
+        const scoreFromCursor = scanAndCount(testState.lastMarkedWordIndex + 1, text.split(/\s+/));
+
+        // Winner takes all. Prefer cursor if tied (continuity).
+        // Unless ScoreFromZero covers significantly more (e.g. repetition).
+        // Actually, if scoreFromZero is high, it likely means we are re-reading.
+        // If scoreFromCursor is high, we are continuing.
+        // Simple Max wins.
+
+        let currentScanIdx = (scoreFromCursor >= scoreFromZero) ? (testState.lastMarkedWordIndex + 1) : 0;
+
+        // Special Case: "We" (s=0, c=0 matched 0) vs "We" (s=3, c=3 matched 3).
+        // If tied, sticking to cursor is usually safer to avoid re-triggering old words.
+        // BUT if Cursor is at end, and we start over?
+        // Let's stick to max score.
+
         let hasChange = false;
 
         text.split(/\s+/).forEach(spoken => {
             if (!spoken || spoken.trim().length === 0) return;
 
-            const currentIdx = testState.lastMarkedWordIndex + 1;
-
-            // Check window: current, +1, +2
+            // Check window of 3 words from current scan position
             for (let offset = 0; offset <= 2; offset++) {
-                const targetIdx = currentIdx + offset;
+                const targetIdx = currentScanIdx + offset;
                 if (targetIdx >= words.length) break;
 
                 const targetWord = words[targetIdx];
-                if (targetWord.status !== 'pending') continue;
 
+                // Check match
                 if (checkMatch(spoken, targetWord.clean)) {
-                    // Match Found at targetIdx!
+                    // Match Found!
 
-                    // 1. Mark skipped words as incorrect (if any)
-                    for (let skipped = currentIdx; skipped < targetIdx; skipped++) {
+                    // 1. Mark skipped words as incorrect ONLY if they were pending
+                    for (let skipped = currentScanIdx; skipped < targetIdx; skipped++) {
                         if (words[skipped].status === 'pending') {
                             words[skipped].status = 'incorrect';
                             hasChange = true;
                         }
                     }
 
-                    // 2. Mark matched word as correct
-                    targetWord.status = 'correct';
-                    testState.lastMarkedWordIndex = targetIdx;
-                    hasChange = true;
+                    // 2. Mark matched word as correct (if not already)
+                    if (targetWord.status !== 'correct') {
+                        targetWord.status = 'correct';
+                        hasChange = true;
+                    }
 
-                    // Stop checking offsets, move to next spoken word
-                    return;
+                    // 3. Update Global Progress
+                    if (targetIdx > testState.lastMarkedWordIndex) {
+                        testState.lastMarkedWordIndex = targetIdx;
+                    }
+
+                    // Advance scan pointer to next word
+                    currentScanIdx = targetIdx + 1;
+                    return; // Next spoken word
                 }
             }
-            // If No match in window: Ignore input (Insertion/Noise)
+            // If no match, spoken word is ignored (noise/insertion)
         });
 
         if (hasChange) {
@@ -1132,18 +1182,19 @@ function speakAndShow(text, onEnd) {
     if ('speechSynthesis' in window) {
         const u = new SpeechSynthesisUtterance(text);
         u.lang = 'en-US';
-        u.rate = 0.9;
+        u.rate = 1;
 
         // FIXED: Select a "Calm Human" Voice
-        // FIXED: Enhanced Voice Selection Strategy (User requested NO Samantha, and different from Zira/Google)
-        // New Priority: Edge Natural, Microsoft David (Male Calm), Microsoft Mark (Male Calm), then Generic
+        // FIXED: Enhanced Voice Selection Strategy (User requested Google UK Female)
+        // New Priority: Google UK Female, Google UK Male, Edge Natural (UK), then US
         const voices = window.speechSynthesis.getVoices();
         const preferredVoice = voices.find(v =>
-            (v.name.includes("Natural") && v.lang === 'en-US') || // Edge/Azure Neural (Best)
-            v.name.includes("David") || // Microsoft David - Calm Male
-            v.name.includes("Mark") || // Microsoft Mark - Calm Male
-            // Fallbacks (moved down)
-            (v.name.includes("United States") && v.lang === 'en-US')
+            (v.name.includes("Google") && v.name.includes("UK") && v.name.includes("Female")) || // Exact request
+            (v.name.includes("Google") && v.name.includes("UK")) || // Any Google UK
+            (v.name.includes("Natural") && v.lang === 'en-GB') || // Edge UK Natural
+            (v.name.includes("Female") && v.lang === 'en-GB') || // Generic UK Female
+            // Fallbacks (US)
+            (v.name.includes("Natural") && v.lang === 'en-US')
         );
 
         // If we found a good voice, use it. 
@@ -1396,9 +1447,9 @@ function updateTimerBar(duration) {
         }
     }
 }
-// UPDATED CLEAN WORD: Strict alphanumeric only (removes . ? , !)
+// UPDATED CLEAN WORD: Strict alphanumeric only but PRESERVE SPACES
 function cleanWord(w) {
-    return w ? w.toLowerCase().replace(/[^a-z0-9]/g, '') : '';
+    return w ? w.toLowerCase().replace(/[^a-z0-9\s]/g, '').trim() : '';
 }
 function generatePassageHTML(list) {
     return list.map(w => {
@@ -1690,16 +1741,29 @@ function checkMatch(spoken, target) {
     if (s === t) return true;
     if (s_norm === t) return true;
 
-    if (s.includes(t)) return true; // Standard loose match
+    // 3.0 Strict Single Letter Logic
+    if (t.length === 1) {
+        // Exact match
+        if (s === t) return true;
+        // "Letter X" pattern
+        if (s === `letter ${t}` || s === `letter ${t.toUpperCase()}`) return true;
+        // Token match (e.g. "it is a", "this is b")
+        // Only allow if the letter is a distinct word
+        const words = s.split(/\s+/);
+        if (words.includes(t)) return true;
 
-    // Repetition check for Single Letters (e.g. "ee" -> "e", "aaa" -> "a")
-    // If target is length 1, and spoken string is ALL just that char?
-    if (t.length === 1 && s.length > 1) {
-        // Check if spoken is purely repetitions of target
-        // e.g. s="ee", t="e" -> s.split("e") -> ["", "", ""] -> join -> ""
-        // or just regex
-        if (new RegExp(`^${t}+$`).test(s)) return true;
+        // Repetition: Allow "b b", "bb", "b bb b"
+        // Checks if string consists ONLY of target letter and spaces
+        if (new RegExp(`^[${t}\\s]+$`).test(s)) return true;
+
+        // Homophones (letter mappings)
+        const map = getLetterMappings();
+        if (map[t] && map[t].some(opt => s === opt || words.includes(opt))) return true;
+
+        return false; // FAIL strict check if no match found
     }
+
+    if (s.includes(t)) return true; // Standard loose match for words/sentences
 
     // FIXED: Repetition check for Whole Words (e.g. "see see" -> "see")
     // If user repeats the word, count it as correct
@@ -1761,20 +1825,21 @@ function getLetterMappings() {
         'b': ['be', 'bee'],
         'c': ['see', 'sea', 'si', 'ci'],
         'd': ['dee'],
-        'f': ['eff'],
+        'e': ['ee'],
+        'f': ['eff', 'if', 'off', 'half'], // "If" is very common for "F"
         'g': ['jee', 'gee'],
-        'h': ['aitch', 'hey'],
-        'i': ['eye'],
+        'h': ['aitch', 'hey', 'huh', 'hah', 'itch'],
+        'i': ['eye', 'hi'],
         'j': ['jay'],
         'k': ['kay', 'key', 'cay'],
         'l': ['el', 'ell'],
         'm': ['em'],
-        'n': ['en'],
+        'n': ['en', 'an', 'and', 'in', 'end'], // Common misrecognitions for N
         'o': ['oh'],
-        'p': ['pee', 'pea'],
+        'p': ['pee', 'pea', 'peh'],
         'q': ['cue', 'queue', 'kew'],
-        'r': ['are', 'ar'],
-        's': ['ess'],
+        'r': ['are', 'ar', 'our'],
+        's': ['ess', 'yes'],
         't': ['tea', 'tee'],
         'u': ['you'],
         'v': ['vee'],
