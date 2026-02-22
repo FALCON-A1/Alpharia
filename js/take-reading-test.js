@@ -193,6 +193,7 @@ function renderLetterStage(stage) {
         return;
     }
 
+    testState.letterAnswered = false; // Reset lock for new letter
     const letter = stage.items[currentSubIndex];
     let promptText = "";
 
@@ -715,15 +716,15 @@ function handleInput(text, isInterim = false) {
     // 1. Letters - With Evidence Logging
     // ISSUE 2 FIX: Only accept FINAL results for letters stage
     if (stage.type === 'letter_recognition') {
+        // GUARD: Prevent double-fire from interim+final both advancing state
+        if (testState.letterAnswered) return;
+
         const target = stage.items[currentSubIndex];
         const isNameOnly = stage.id === 'letters_common';
 
-        // FIXED: Responsiveness Issue. 
-        // Previously we ignored ALL interim results. 
-        // Now, if an interim result matches the target, we ACCEPT it immediately.
-        // This prevents "stuck" recognition where the user speaks, browser hears it (interim), but never finalizes before timeout.
+        // Accept strong interim matches immediately (avoids timeout on slow finalisation)
         if (isInterim) {
-            if (!checkMatch(text, target)) return; // Iterate only if no match
+            if (!checkMatch(text, target)) return;
             console.log("Accepting strong interim match:", text);
         }
 
@@ -743,6 +744,7 @@ function handleInput(text, isInterim = false) {
             showFeedback(true);
             clearListeningTimer();
             stopRecording();
+            testState.letterAnswered = true; // Lock against double-fire
 
             setTimeout(() => {
                 if (letterStep === 'name' && !isNameOnly) {
@@ -776,6 +778,7 @@ function handleInput(text, isInterim = false) {
                 showFeedback(false);
                 clearListeningTimer();
                 stopRecording();
+                testState.letterAnswered = true; // Lock against double-fire
 
                 setTimeout(() => {
                     if (letterStep === 'name' && !isNameOnly) {
@@ -1009,38 +1012,68 @@ function handleInput(text, isInterim = false) {
         const words = testState.passageWords;
         let changed = false;
 
-        // FIXED: ROBUST LOOKAHEAD LOGIC (Window=2) - Matches Sentence Logic
-        text.split(/\s+/).forEach(spoken => {
-            if (!spoken || spoken.trim().length === 0) return;
+        // DUAL-SCAN BEST FIT: Same robust logic as sentence stage.
+        // Handles both cumulative speech ("Tom and" → "Tom and his friends")
+        // and continuation ("Tom" pause "and his friends")
+        const spokens = text.split(/\s+/).filter(s => s.trim().length > 0);
 
-            const currentIdx = testState.lastMarkedWordIndex + 1;
+        const scanAndCount = (startIdx) => {
+            let matches = 0;
+            let ptr = startIdx;
+            spokens.forEach(s => {
+                for (let o = 0; o <= 2; o++) {
+                    const tid = ptr + o;
+                    if (tid < words.length && checkMatch(s, words[tid].clean)) {
+                        matches++;
+                        ptr = tid + 1;
+                        return;
+                    }
+                }
+            });
+            return matches;
+        };
 
-            // Check window: current, +1, +2
+        const scoreFromZero = scanAndCount(0);
+        const scoreFromCursor = scanAndCount(testState.lastMarkedWordIndex + 1);
+
+        // Prefer cursor (continuation) if tied; use zero only if it wins clearly
+        let currentScanIdx = (scoreFromCursor >= scoreFromZero)
+            ? (testState.lastMarkedWordIndex + 1)
+            : 0;
+
+        spokens.forEach(spoken => {
+            // Check window of 3 words from current scan position
             for (let offset = 0; offset <= 2; offset++) {
-                const targetIdx = currentIdx + offset;
+                const targetIdx = currentScanIdx + offset;
                 if (targetIdx >= words.length) break;
 
                 const targetWord = words[targetIdx];
-                if (targetWord.status !== 'pending') continue;
 
                 if (checkMatch(spoken, targetWord.clean)) {
-                    // Match Found!
-                    // 1. Mark skipped words incorrect
-                    for (let skipped = currentIdx; skipped < targetIdx; skipped++) {
+                    // 1. Mark any skipped pending words as incorrect
+                    for (let skipped = currentScanIdx; skipped < targetIdx; skipped++) {
                         if (words[skipped].status === 'pending') {
                             words[skipped].status = 'incorrect';
                             changed = true;
                         }
                     }
-                    // 2. Mark matched word correct
-                    targetWord.status = 'correct';
-                    testState.lastMarkedWordIndex = targetIdx;
-                    changed = true;
-                    return;
+                    // 2. Mark matched word correct (if not already)
+                    if (targetWord.status !== 'correct') {
+                        targetWord.status = 'correct';
+                        changed = true;
+                    }
+                    // 3. Update global progress cursor
+                    if (targetIdx > testState.lastMarkedWordIndex) {
+                        testState.lastMarkedWordIndex = targetIdx;
+                    }
+                    // 4. Advance scan pointer
+                    currentScanIdx = targetIdx + 1;
+                    return; // Next spoken word
                 }
             }
-            // No match in window? Ignore (Insertion/Noise).
+            // No match → noise/insertion, ignore
         });
+
         if (changed) updateReadingDisplay('passage-text');
     }
     // 5. Comprehension Questions - With Evidence Logging
@@ -1522,11 +1555,25 @@ function showSectionCompleteModal(currentStage) {
 
     // ISSUE 1 FIX: Show separate Name/Sound scores for letters
     if (currentStage.type === 'letter_recognition') {
-        const nameLogs = testState.letterLogs.filter(l => l.step === 'name');
-        const soundLogs = testState.letterLogs.filter(l => l.step === 'sound');
+        // Only count logs for letters in THIS stage (avoids cross-stage contamination)
+        const stageLetters = new Set(currentStage.items || []);
+        const stageLogs = testState.letterLogs.filter(l => stageLetters.has(l.letter));
 
-        const nameCorrect = nameLogs.filter(l => l.status === 'correct').length;
-        const soundCorrect = soundLogs.filter(l => l.status === 'correct').length;
+        const nameLogs = stageLogs.filter(l => l.step === 'name');
+        const soundLogs = stageLogs.filter(l => l.step === 'sound');
+
+        // Deduplicate: For each letter, take the LAST log entry (most recent attempt)
+        const deduplicateLogs = (logs) => {
+            const map = {};
+            logs.forEach(l => { map[l.letter] = l; }); // latest overwrites earlier
+            return Object.values(map);
+        };
+
+        const uniqueNameLogs = deduplicateLogs(nameLogs);
+        const uniqueSoundLogs = deduplicateLogs(soundLogs);
+
+        const nameCorrect = uniqueNameLogs.filter(l => l.status === 'correct').length;
+        const soundCorrect = uniqueSoundLogs.filter(l => l.status === 'correct').length;
         const totalLetters = currentStage.items ? currentStage.items.length : 26;
 
         // AUDIT FIX: Handle name-only stages (common letters per document)
@@ -1661,6 +1708,38 @@ function showSectionCompleteModal(currentStage) {
         const completed = testState.sentenceLogs.filter(l => l.completed).length;
         const total = testState.sentenceLogs.length;
         scoreHtml = `Sentences Completed: ${completed} / ${total}`;
+    } else if (currentStage.type === 'oral_reading') {
+        const words = testState.passageWords || [];
+        const total = words.length;
+        const correct = words.filter(w => w.status === 'correct').length;
+        const incorrect = words.filter(w => w.status === 'incorrect').length;
+        const skipped = words.filter(w => w.status === 'pending').length;
+
+        scoreHtml = `
+            <div style="margin-top: 15px;">
+                <table class="table table-bordered table-sm text-center">
+                    <thead class="table-light">
+                        <tr>
+                            <th>Total Words</th>
+                            <th class="text-success">✓ Correct</th>
+                            <th class="text-danger">✗ Errors</th>
+                            <th>Skipped</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td><strong>${total}</strong></td>
+                            <td class="text-success"><strong>${correct}</strong></td>
+                            <td class="text-danger"><strong>${incorrect}</strong></td>
+                            <td><strong>${skipped}</strong></td>
+                        </tr>
+                    </tbody>
+                    <tfoot class="table-light">
+                        <tr><td colspan="4"><strong>Reader's Score: ${correct} / ${total}</strong></td></tr>
+                    </tfoot>
+                </table>
+            </div>
+        `;
     } else {
         // Fallback
         const total = currentStage.items ? currentStage.items.length : 0;
@@ -1822,15 +1901,15 @@ function checkPhraseMatch(spoken, target) {
 // Letter mappings for homophones
 function getLetterMappings() {
     return {
-        'b': ['be', 'bee'],
+        'b': ['be', 'bee', 'bea'],
         'c': ['see', 'sea', 'si', 'ci'],
         'd': ['dee'],
         'e': ['ee'],
         'f': ['eff', 'if', 'off', 'half'], // "If" is very common for "F"
-        'g': ['jee', 'gee'],
-        'h': ['aitch', 'hey', 'huh', 'hah', 'itch'],
+        'g': ['jee', 'gee', 'gee', 'she'],
+        'h': ['aitch', 'hey', 'huh', 'hah', 'itch', 'etch'],
         'i': ['eye', 'hi'],
-        'j': ['jay'],
+        'j': ['jay', 'je', 'ja', 'g'],
         'k': ['kay', 'key', 'cay'],
         'l': ['el', 'ell'],
         'm': ['em'],
@@ -1838,11 +1917,11 @@ function getLetterMappings() {
         'o': ['oh'],
         'p': ['pee', 'pea', 'peh'],
         'q': ['cue', 'queue', 'kew'],
-        'r': ['are', 'ar', 'our'],
+        'r': ['are', 'ar', 'our', 'or', 'hour'],
         's': ['ess', 'yes'],
-        't': ['tea', 'tee'],
+        't': ['tea', 'tee', 'dee'],
         'u': ['you'],
-        'v': ['vee'],
+        'v': ['vee', 'vi', 've', 'viy'],
         'w': ['double u', 'doubleplay', 'doubleyou'],
         'x': ['ex'],
         'y': ['why', 'wi'],
