@@ -1145,51 +1145,47 @@ function runGreetingStep(step) {
     const interaction = document.getElementById('user-interaction');
 
     if (step === 0) {
-        // Intro
+        // Intro — render input IMMEDIATELY, speak in background
         const text = "Hi, I am Alex. What is your name?";
-        speakAndShow(text, () => {
-            interaction.innerHTML = `
-                <div class="input-group" style="max-width:400px; margin: 0 auto;">
-                    <input type="text" id="user-name-input" class="form-control form-control-lg" placeholder="Type or say name..." onkeypress="if(event.key==='Enter') submitName()">
-                    <button class="btn btn-outline-primary" id="record-toggle-btn" type="button" onclick="window.toggleRecording()">
-                        <i class="fas fa-microphone"></i>
-                    </button>
-                    <button class="btn btn-primary px-4" onclick="submitName()"><i class="fas fa-paper-plane"></i></button>
-                </div>
-                <div id="mic-status" class="transition-all text-danger fw-bold mt-2 w-100" style="opacity:0; display:none;">
-                    <i class="fas fa-microphone-alt me-2 text-danger"></i> Recording...
-                </div>
-            `;
-        });
-    } else if (step === 1) {
-        // Place
-        const text = `Hi ${greetingState.userName}. I am from Spanish Town. Where are you from?`;
-        speakAndShow(text, () => {
-            interaction.innerHTML = `
-                <div class="input-group" style="max-width:400px; margin: 0 auto;">
-                    <input type="text" id="user-place-input" class="form-control form-control-lg" placeholder="Type or say place..." onkeypress="if(event.key==='Enter') submitPlace()">
-                    <button class="btn btn-outline-primary" id="record-toggle-btn" type="button" onclick="window.toggleRecording()">
-                        <i class="fas fa-microphone"></i>
-                    </button>
-                    <button class="btn btn-primary px-4" onclick="submitPlace()"><i class="fas fa-paper-plane"></i></button>
-                </div>
-                <div id="mic-status" class="transition-all text-danger fw-bold mt-2 w-100" style="opacity:0; display:none;">
-                    <i class="fas fa-microphone-alt me-2 text-danger"></i> Recording...
-                </div>
-            `;
-        });
-    } else if (step === 2) {
-        // Explanation
-        // FIXED: Use userName instead of userPlace as requested
-        const text = `Okay! ${greetingState.userName}... You will be doing a Reading Assessment. That includes; identifying letter names and sounds, identifying sight words, reading one or more stories and then answering some questions. This is not a pass or fail kind of test, so relax and do your best.`;
-        speakAndShow(text, () => {
-            interaction.innerHTML = `
-                <button class="btn btn-success btn-lg px-5 py-3 rounded-pill fw-bold shadow-sm" onclick="startTestFromGreeting()">
-                    Start Test <i class="fas fa-arrow-right ms-2"></i>
+        interaction.innerHTML = `
+            <div class="input-group" style="max-width:400px; margin: 0 auto;">
+                <input type="text" id="user-name-input" class="form-control form-control-lg" placeholder="Type or say name..." onkeypress="if(event.key==='Enter') submitName()">
+                <button class="btn btn-outline-primary" id="record-toggle-btn" type="button" onclick="window.toggleRecording()">
+                    <i class="fas fa-microphone"></i>
                 </button>
-            `;
-            stopRecording();
-        });
+                <button class="btn btn-primary px-4" onclick="submitName()"><i class="fas fa-paper-plane"></i></button>
+            </div>
+            <div id="mic-status" class="transition-all text-danger fw-bold mt-2 w-100" style="opacity:0; display:none;">
+                <i class="fas fa-microphone-alt me-2 text-danger"></i> Recording...
+            </div>
+        `;
+        speakAndShow(text, () => {}); // Fire-and-forget speech
+    } else if (step === 1) {
+        // Place — render input IMMEDIATELY
+        const text = `Hi ${greetingState.userName}. I am from Spanish Town. Where are you from?`;
+        interaction.innerHTML = `
+            <div class="input-group" style="max-width:400px; margin: 0 auto;">
+                <input type="text" id="user-place-input" class="form-control form-control-lg" placeholder="Type or say place..." onkeypress="if(event.key==='Enter') submitPlace()">
+                <button class="btn btn-outline-primary" id="record-toggle-btn" type="button" onclick="window.toggleRecording()">
+                    <i class="fas fa-microphone"></i>
+                </button>
+                <button class="btn btn-primary px-4" onclick="submitPlace()"><i class="fas fa-paper-plane"></i></button>
+            </div>
+            <div id="mic-status" class="transition-all text-danger fw-bold mt-2 w-100" style="opacity:0; display:none;">
+                <i class="fas fa-microphone-alt me-2 text-danger"></i> Recording...
+            </div>
+        `;
+        speakAndShow(text, () => {}); // Fire-and-forget speech
+    } else if (step === 2) {
+        // Explanation — render button IMMEDIATELY
+        const text = `Okay! ${greetingState.userName}... You will be doing a Reading Assessment. That includes; identifying letter names and sounds, identifying sight words, reading one or more stories and then answering some questions. This is not a pass or fail kind of test, so relax and do your best.`;
+        interaction.innerHTML = `
+            <button class="btn btn-success btn-lg px-5 py-3 rounded-pill fw-bold shadow-sm" onclick="startTestFromGreeting()">
+                Start Test <i class="fas fa-arrow-right ms-2"></i>
+            </button>
+        `;
+        stopRecording();
+        speakAndShow(text, () => {}); // Fire-and-forget speech
     }
 }
 
