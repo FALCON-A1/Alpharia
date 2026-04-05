@@ -1205,26 +1205,26 @@ function speakAndShow(text, onEnd) {
         u.lang = 'en-US';
         u.rate = 1;
 
-        // FIXED: Select a "Calm Human" Voice
         // FIXED: Enhanced Voice Selection Strategy (User requested Google UK Female)
-        // New Priority: Google UK Female, Google UK Male, Edge Natural (UK), then US
         const voices = window.speechSynthesis.getVoices();
-        const preferredVoice = voices.find(v =>
-            (v.name.includes("Google") && v.name.includes("UK") && v.name.includes("Female")) || // Exact request
-            (v.name.includes("Google") && v.name.includes("UK")) || // Any Google UK
-            (v.name.includes("Natural") && v.lang === 'en-GB') || // Edge UK Natural
-            (v.name.includes("Female") && v.lang === 'en-GB') || // Generic UK Female
-            // Fallbacks (US)
+        let preferredVoice = voices.find(v =>
+            (v.name.includes("Google") && v.name.includes("UK") && v.name.includes("Female")) || 
+            (v.name.includes("Google") && v.name.includes("UK")) || 
+            (v.name.includes("Natural") && v.lang === 'en-GB') || 
+            (v.name.includes("Female") && v.lang === 'en-GB') || 
             (v.name.includes("Natural") && v.lang === 'en-US')
         );
 
-        // If we found a good voice, use it. 
-        // If not, and it's the very first message ("Alex"), WAIT a bit longer and try again (force load)
+        if (!preferredVoice && voices.length > 0) {
+            // Absolutely ensure we have a fallback if on iOS/Safari
+            preferredVoice = voices.find(v => v.lang.startsWith('en')) || voices[0];
+        }
+
         if (preferredVoice) {
             u.voice = preferredVoice;
-        } else if (text.includes("Hi, I am Alex")) {
-            console.log("Waiting for better voices...");
-            // Retry once after 500ms
+        } else if (voices.length === 0 && !window.__speechRetried) {
+            console.log("Voices not loaded yet, retrying once...");
+            window.__speechRetried = true;
             setTimeout(() => speakAndShow(text, onEnd), 500);
             return;
         }
