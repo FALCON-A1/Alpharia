@@ -249,6 +249,8 @@
             </div>
         </aside>
 
+        <div class="sidebar-overlay" id="sidebar-overlay"></div>
+
         <main class="main-content">
             <!-- Top Bar -->
             <header class="top-bar">
@@ -486,41 +488,54 @@
             const sidebar = document.getElementById('sidebar');
             const sidebarToggle = document.getElementById('sidebar-toggle');
             const mainContent = document.querySelector('.main-content');
+            const sidebarOverlay = document.getElementById('sidebar-overlay');
 
             // Toggle sidebar on button click
             if (sidebarToggle && sidebar) {
                 sidebarToggle.addEventListener('click', (e) => {
                     e.preventDefault();
-                    sidebar.classList.toggle('collapsed');
-                    mainContent.classList.toggle('expanded');
-
-                    // Save sidebar state to localStorage
-                    const isCollapsed = sidebar.classList.contains('collapsed');
-                    localStorage.setItem('sidebarCollapsed', isCollapsed);
-                });
-
-                // Close sidebar when clicking outside on mobile
-                document.addEventListener('click', (e) => {
-                    if (window.innerWidth <= 992 &&
-                        !sidebar.contains(e.target) &&
-                        !sidebarToggle.contains(e.target) &&
-                        !sidebar.classList.contains('collapsed')) {
-                        sidebar.classList.add('collapsed');
-                        mainContent.classList.add('expanded');
-                        localStorage.setItem('sidebarCollapsed', true);
+                    if (window.innerWidth <= 1024) {
+                        sidebar.classList.toggle('active');
+                        if (sidebarOverlay) sidebarOverlay.classList.toggle('active');
+                    } else {
+                        sidebar.classList.toggle('collapsed');
+                        mainContent.classList.toggle('expanded');
+                        // Save sidebar state to localStorage
+                        const isCollapsed = sidebar.classList.contains('collapsed');
+                        localStorage.setItem('sidebarCollapsed', isCollapsed);
                     }
                 });
 
-                // Load saved sidebar state
-                const isCollapsed = localStorage.getItem('sidebarCollapsed') === 'true';
-                if (isCollapsed) {
-                    sidebar.classList.add('collapsed');
-                    mainContent.classList.add('expanded');
+                // Close sidebar when clicking outside on mobile
+                if (sidebarOverlay) {
+                    sidebarOverlay.addEventListener('click', () => {
+                        sidebar.classList.remove('active');
+                        sidebarOverlay.classList.remove('active');
+                    });
+                }
+                
+                document.addEventListener('click', (e) => {
+                    if (window.innerWidth <= 1024 &&
+                        !sidebar.contains(e.target) &&
+                        !sidebarToggle.contains(e.target) &&
+                        sidebar.classList.contains('active')) {
+                        sidebar.classList.remove('active');
+                        if (sidebarOverlay) sidebarOverlay.classList.remove('active');
+                    }
+                });
+
+                // Load saved sidebar state (desktop only)
+                if (window.innerWidth > 1024) {
+                    const isCollapsed = localStorage.getItem('sidebarCollapsed') === 'true';
+                    if (isCollapsed) {
+                        sidebar.classList.add('collapsed');
+                        mainContent.classList.add('expanded');
+                    }
                 }
             }
 
             // Handle sidebar menu items
-            const menuItems = document.querySelectorAll('.sidebar-nav .nav-link');
+            const menuItems = document.querySelectorAll('.sidebar-nav .nav-link, .nav-menu .nav-link');
             menuItems.forEach(item => {
                 item.addEventListener('click', (e) => {
                     // Remove active class from all items
@@ -529,9 +544,9 @@
                     item.classList.add('active');
 
                     // Close sidebar on mobile after clicking a menu item
-                    if (window.innerWidth <= 992) {
-                        sidebar.classList.add('collapsed');
-                        mainContent.classList.add('expanded');
+                    if (window.innerWidth <= 1024) {
+                        sidebar.classList.remove('active');
+                        if (sidebarOverlay) sidebarOverlay.classList.remove('active');
                     }
                 });
             });

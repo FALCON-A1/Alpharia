@@ -1,348 +1,841 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Alpharia | Reading Assessment & Literacy Tools</title>
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-    <link rel="preconnect" href="https://fonts.googleapis.com">
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
-    <link rel="stylesheet" href="styles.css">
-</head>
-<body>
-    <div id="landing-screen" class="landing-root">
-        <header class="navbar">
-            <div class="brand">
-                <i class="fas fa-book-reader"></i>
-                <span>Alpharia</span>
-            </div>
-            <button class="mobile-menu-btn" id="mobile-menu-btn" aria-label="Toggle menu">
-                <i class="fas fa-bars"></i>
-            </button>
-            <nav class="main-nav" id="main-nav">
-                <a href="#features" class="nav-link">Features</a>
-                <a href="#how-it-works" class="nav-link">How It Works</a>
-                <a href="#testimonials" class="nav-link">Testimonials</a>
-                <a href="#contact" class="nav-link">Contact</a>
-                <div class="nav-actions">
-                    <button id="landing-theme" class="theme-toggle-btn" aria-label="Toggle dark/light mode">
-                        <i class="fas fa-moon"></i>
-                    </button>
-                    <button class="primary-btn" id="cta-button">Get Started</button>
-                </div>
-            </nav>
-        </header>
-        <section class="landing-content">
-            <div class="landing-hero">
-                <div class="hero-content">
-                    <span class="hero-badge">
-                        <i class="fas fa-star"></i> Trusted by 500+ Schools
-                    </span>
-                    <h1>Transform Reading Assessment <span class="highlight">with AI</span></h1>
-                    <p class="hero-subtitle">Empower educators with our speech-enabled reading assessment platform. Accurately evaluate students' reading abilities with detailed insights and personalized feedback to guide their progress.</p>
-                    <div class="hero-cta">
-                        <a href="auth/login-fixed.html" class="primary-btn" style="text-decoration: none;">
-                            <span>Get Started</span>
-                            <i class="fas fa-arrow-right"></i>
-                        </a>
-                        <a href="#features" class="secondary-btn">
-                            <i class="far fa-play-circle"></i> Watch Demo
-                        </a>
-                    </div>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Alpharia | AI-Powered Reading Assessment & Literacy Platform</title>
+  <meta name="description" content="Alpharia revolutionises reading assessment with AI-powered speech analysis, instant interventions, and real-time analytics for students, teachers, parents, and schools.">
 
-                </div>
-                <div class="hero-image">
-                    <div class="feature-cards">
-                        <div class="feature-card feature-card-1">
-                            <div class="feature-icon">
-                                <i class="fas fa-chart-line"></i>
-                            </div>
-                            <h3>Progress Tracking</h3>
-                            <p>Monitor student growth with comprehensive analytics and visual reports that highlight improvements over time.</p>
-                            <div class="feature-wave"></div>
-                        </div>
-                        <div class="feature-card feature-card-2">
-                            <div class="feature-icon">
-                                <i class="fas fa-microphone"></i>
-                            </div>
-                            <h3>Speech Recognition</h3>
-                            <p>Advanced AI technology that accurately evaluates pronunciation, fluency, and reading speed with precision.</p>
-                            <div class="feature-wave"></div>
-                        </div>
-                        <div class="feature-card feature-card-3">
-                            <div class="feature-icon">
-                                <i class="fas fa-file-alt"></i>
-                            </div>
-                            <h3>Detailed Reports</h3>
-                            <p>Comprehensive performance reports with actionable insights to guide student development and progress.</p>
-                            <div class="feature-wave"></div>
-                        </div>
-                    </div>
-                    <div class="hero-image-bg">
-                        <div class="pulse-dot dot-1"></div>
-                        <div class="pulse-dot dot-2"></div>
-                        <div class="pulse-dot dot-3"></div>
-                    </div>
-                </div>
+  <!-- Icons & Fonts -->
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&family=Poppins:wght@400;600;700&display=swap" rel="stylesheet">
+
+  <!-- Styles (landing first so tokens load, then app styles) -->
+  <link rel="stylesheet" href="landing.css">
+  <link rel="stylesheet" href="styles.css">
+</head>
+<body class="lp-root">
+
+<!-- ╔══════════════════════════════════════════════════════════╗
+     ║   LANDING PAGE                                          ║
+     ╚══════════════════════════════════════════════════════════╝ -->
+<div id="landing-screen">
+
+  <!-- ═══════════════════ NAVBAR ═══════════════════ -->
+  <nav class="lp-navbar" id="lp-navbar" role="navigation" aria-label="Main navigation">
+    <a href="#" class="lp-brand" aria-label="Alpharia home">
+      <div class="lp-brand-icon">
+        <i class="fas fa-book-reader"></i>
+      </div>
+      <span class="lp-brand-name">Alpharia</span>
+    </a>
+
+    <ul class="lp-nav-links" aria-label="Site links">
+      <li><a href="#features">Features</a></li>
+      <li><a href="#how-it-works">How It Works</a></li>
+      <li><a href="#pricing">Pricing</a></li>
+      <li><a href="#contact">Contact</a></li>
+    </ul>
+
+    <div class="lp-nav-actions">
+      <button id="landing-theme" class="lp-btn lp-btn-outline" style="padding:0.55rem 0.9rem;" aria-label="Toggle dark/light mode">
+        <i class="fas fa-sun"></i>
+      </button>
+      <a href="auth/login-fixed.html" class="lp-btn lp-btn-primary" id="nav-get-started">
+        Get Started <i class="fas fa-arrow-right"></i>
+      </a>
+      <a href="#contact" class="lp-btn lp-btn-outline">Partner with Us</a>
+    </div>
+
+    <!-- Hamburger -->
+    <button class="lp-hamburger" id="lp-hamburger" aria-label="Open menu" aria-expanded="false">
+      <span></span>
+      <span></span>
+      <span></span>
+    </button>
+  </nav>
+
+  <!-- Mobile Nav Drawer -->
+  <div class="lp-mobile-nav" id="lp-mobile-nav" aria-label="Mobile navigation">
+    <a href="#features">Features</a>
+    <a href="#how-it-works">How It Works</a>
+    <a href="#pricing">Pricing</a>
+    <a href="#contact">Contact</a>
+    <a href="auth/login-fixed.html" class="lp-btn lp-btn-primary">Get Started <i class="fas fa-arrow-right"></i></a>
+    <a href="#contact" class="lp-btn lp-btn-outline">Partner with Us</a>
+  </div>
+
+
+  <!-- ═══════════════════ HERO ═══════════════════ -->
+  <section class="lp-hero" id="hero" aria-labelledby="hero-heading">
+    <!-- Animated blobs -->
+    <div class="lp-hero-blob lp-hero-blob-1" aria-hidden="true"></div>
+    <div class="lp-hero-blob lp-hero-blob-2" aria-hidden="true"></div>
+    <div class="lp-hero-blob lp-hero-blob-3" aria-hidden="true"></div>
+
+    <div class="lp-hero-inner">
+      <div class="lp-hero-badge" role="note">
+        <i class="fas fa-star"></i>
+        Trusted by 500+ Schools Across the Nation
+      </div>
+
+      <h1 class="lp-hero-h1" id="hero-heading">
+        Revolutionise Reading<br>
+        Assessment with <span class="lp-hl-blue">AI</span> &amp;
+        <span class="lp-hl-teal">Speech</span>
+      </h1>
+
+      <p class="lp-hero-sub">
+        Speech-based assessment, instant AI interventions, and comprehensive real-time analytics — giving every student the personalised support they need to become a confident reader.
+      </p>
+
+      <div class="lp-hero-ctas">
+        <a href="auth/login-fixed.html" class="lp-btn lp-btn-primary" id="hero-get-started">
+          <i class="fas fa-rocket"></i> Get Started Free
+        </a>
+        <a href="#contact" class="lp-btn lp-btn-coral">
+          <i class="fas fa-handshake"></i> Partner with Us
+        </a>
+      </div>
+
+      <!-- Animated stats -->
+      <div class="lp-hero-stats" aria-label="Platform statistics">
+        <div class="lp-stat">
+          <div class="lp-stat-num"><span data-counter="500" data-suffix="+">0</span></div>
+          <div class="lp-stat-label">Partner Schools</div>
+        </div>
+        <div class="lp-stat">
+          <div class="lp-stat-num"><span data-counter="50000" data-suffix="+">0</span></div>
+          <div class="lp-stat-label">Students Assessed</div>
+        </div>
+        <div class="lp-stat">
+          <div class="lp-stat-num"><span data-counter="98" data-suffix="%">0</span></div>
+          <div class="lp-stat-label">Accuracy Rate</div>
+        </div>
+        <div class="lp-stat">
+          <div class="lp-stat-num"><span data-counter="3" data-suffix="x">0</span></div>
+          <div class="lp-stat-label">Faster Assessment</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Dashboard Mockup -->
+    <div class="lp-dashboard-mockup reveal reveal-delay-2" aria-hidden="true">
+      <div class="lp-mockup-window">
+        <div class="lp-mockup-bar">
+          <div class="lp-mockup-dot"></div>
+          <div class="lp-mockup-dot"></div>
+          <div class="lp-mockup-dot"></div>
+          <div class="lp-mockup-url">alpharia.app / teacher-dashboard</div>
+        </div>
+        <div class="lp-mockup-body">
+          <!-- Card 1 -->
+          <div class="lp-mockup-card">
+            <div class="lp-mockup-card-label">Reading Fluency</div>
+            <div class="lp-mockup-card-val">91%</div>
+            <div class="lp-mockup-card-bar">
+              <div class="lp-mockup-card-bar-fill fill-blue"></div>
             </div>
-            
-            <div class="auth-card" id="landing-auth-card">
-                <div class="auth-card-header">
-                    <h2>Welcome Back!</h2>
-                    <p>Please sign in to continue</p>
-                    <button class="close-auth" onclick="hideAuthCard()">
-                        <i class="fas fa-times"></i>
-                    </button>
-                </div>
-                <div class="auth-tabs">
-                    <button class="auth-tab active" data-tab="student">
-                        <i class="fas fa-user-graduate"></i> Student
-                    </button>
-                    <div class="divider">or</div>
-                    <button class="auth-tab" data-tab="admin">
-                        <i class="fas fa-chalkboard-teacher"></i> Educator
-                    </button>
-                </div>
-                <div class="auth-body">
-                    <div class="auth-panel active" id="auth-student">
-                        <div class="input-group">
-                            <i class="fas fa-user"></i>
-                            <input type="text" id="landing-student-name" placeholder="Enter your name" autocomplete="name" />
-                        </div>
-                        <button id="landing-student-start" class="primary-btn full-width">
-                            Start Assessment <i class="fas fa-arrow-right"></i>
-                        </button>
-                        <div class="auth-divider">
-                            <span>or continue with</span>
-                        </div>
-                        <div class="social-auth">
-                            <button class="social-btn google">
-                                <img src="https://www.google.com/favicon.ico" alt="Google">
-                                Google
-                            </button>
-                            <button class="social-btn microsoft">
-                                <img src="https://www.microsoft.com/favicon.ico" alt="Microsoft">
-                                Microsoft
-                            </button>
-                        </div>
-                    </div>
-                    <div class="auth-panel" id="auth-admin">
-                        <div class="input-group">
-                            <i class="fas fa-envelope"></i>
-                            <input type="email" id="landing-admin-email" placeholder="Email address" autocomplete="email" />
-                        </div>
-                        <div class="input-group">
-                            <i class="fas fa-lock"></i>
-                            <input type="password" id="landing-admin-pass" placeholder="Password" autocomplete="current-password" />
-                            <button class="toggle-password" type="button">
-                                <i class="far fa-eye"></i>
-                            </button>
-                        </div>
-                        <div class="auth-options">
-                            <label class="remember-me">
-                                <input type="checkbox" id="remember-me">
-                                <span class="checkmark"></span>
-                                Remember me
-                            </label>
-                            <a href="#forgot-password" class="forgot-password">Forgot password?</a>
-                        </div>
-                        <button id="landing-admin-open" class="primary-btn full-width">
-                            Sign In
-                        </button>
-                        <div class="auth-footer">
-                            Don't have an account? <a href="#signup" class="auth-link">Sign up</a>
-                        </div>
-                    </div>
-                </div>
+          </div>
+          <!-- Card 2 -->
+          <div class="lp-mockup-card">
+            <div class="lp-mockup-card-label">Comprehension</div>
+            <div class="lp-mockup-card-val">87%</div>
+            <div class="lp-mockup-card-bar">
+              <div class="lp-mockup-card-bar-fill fill-teal"></div>
             </div>
+          </div>
+          <!-- Card 3 -->
+          <div class="lp-mockup-card">
+            <div class="lp-mockup-card-label">Interventions Done</div>
+            <div class="lp-mockup-card-val">24</div>
+            <div class="lp-mockup-card-bar">
+              <div class="lp-mockup-card-bar-fill fill-coral"></div>
+            </div>
+          </div>
+        </div>
+        <!-- Waveform row -->
+        <div style="padding: 0 1.5rem 1.5rem; display: flex; align-items: center; gap: 1rem;">
+          <div style="font-size:0.75rem; color: rgba(255,255,255,.4); white-space:nowrap; min-width:80px;">
+            <i class="fas fa-microphone" style="color:#818cf8; margin-right:4px;"></i> Live Recording
+          </div>
+          <div class="lp-waveform" style="flex:1;">
+            <div class="lp-wave-bar"></div>
+            <div class="lp-wave-bar"></div>
+            <div class="lp-wave-bar"></div>
+            <div class="lp-wave-bar"></div>
+            <div class="lp-wave-bar"></div>
+            <div class="lp-wave-bar"></div>
+            <div class="lp-wave-bar"></div>
+            <div class="lp-wave-bar"></div>
+            <div class="lp-wave-bar"></div>
+            <div class="lp-wave-bar"></div>
+            <div class="lp-wave-bar"></div>
+            <div class="lp-wave-bar"></div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+
+  <!-- ═══════════════════ TRUST LOGOS ═══════════════════ -->
+  <div class="lp-trust" role="complementary" aria-label="Trusted by">
+    <p class="lp-trust-header">Trusted by forward-thinking educational institutions</p>
+    <div class="lp-trust-logos">
+      <span class="lp-trust-logo"><i class="fas fa-university"></i> NatEdu Board</span>
+      <span class="lp-trust-logo"><i class="fas fa-school"></i> Sunrise Academies</span>
+      <span class="lp-trust-logo"><i class="fas fa-globe-africa"></i> EduReach NGO</span>
+      <span class="lp-trust-logo"><i class="fas fa-building"></i> LiteracyFirst</span>
+      <span class="lp-trust-logo"><i class="fas fa-graduation-cap"></i> ReadySet Schools</span>
+    </div>
+  </div>
+
+
+  <!-- ═══════════════════ FEATURES ═══════════════════ -->
+  <section class="lp-section lp-features" id="features" aria-labelledby="features-heading">
+    <div class="lp-container">
+      <div class="lp-features-header">
+        <div class="lp-section-tag lp-tag-blue reveal">
+          <i class="fas fa-layer-group"></i> Platform Features
+        </div>
+        <h2 class="lp-section-title reveal reveal-delay-1" id="features-heading">
+          Built for Every Stakeholder<br>in the Literacy Journey
+        </h2>
+        <p class="lp-section-subtitle reveal reveal-delay-2">
+          24 powerful features organised by role — empowering students, teachers, parents and school leaders with exactly the right tools.
+        </p>
+      </div>
+
+      <!-- Tab switcher -->
+      <div class="lp-tabs reveal reveal-delay-3" role="tablist" aria-label="Feature categories">
+        <button class="lp-tab active" data-tab="students" role="tab" aria-selected="true" aria-controls="panel-students">
+          🧠 Students
+        </button>
+        <button class="lp-tab" data-tab="teachers" role="tab" aria-selected="false" aria-controls="panel-teachers">
+          👩‍🏫 Teachers
+        </button>
+        <button class="lp-tab" data-tab="parents" role="tab" aria-selected="false" aria-controls="panel-parents">
+          👨‍👩‍👧 Parents
+        </button>
+        <button class="lp-tab" data-tab="schools" role="tab" aria-selected="false" aria-controls="panel-schools">
+          🏫 Schools &amp; Gov
+        </button>
+      </div>
+
+      <!-- STUDENTS PANEL -->
+      <div class="lp-tab-panel active" id="panel-students" role="tabpanel" aria-labelledby="tab-students">
+        <div class="lp-feature-grid">
+          <div class="lp-feat-card reveal">
+            <div class="lp-feat-icon icon-blue"><i class="fas fa-microphone-alt"></i></div>
+            <div class="lp-feat-title">Speech-Based Reading Assessment</div>
+            <div class="lp-feat-desc">Students read aloud and our AI instantly captures every word — no human grader required. Accurate, unbiased, and immediate.</div>
+          </div>
+          <div class="lp-feat-card reveal reveal-delay-1">
+            <div class="lp-feat-icon icon-teal"><i class="fas fa-signal"></i></div>
+            <div class="lp-feat-title">Automatic Reading Level Detection</div>
+            <div class="lp-feat-desc">Intelligently places every student from Pre-Primer all the way to Level 6 so they always work at exactly the right challenge.</div>
+          </div>
+          <div class="lp-feat-card reveal reveal-delay-2">
+            <div class="lp-feat-icon icon-coral"><i class="fas fa-book-open"></i></div>
+            <div class="lp-feat-title">Interactive Reading Practice</div>
+            <div class="lp-feat-desc">Engaging story activities, word drills, and comprehension checks keep students motivated and building fluency every day.</div>
+          </div>
+          <div class="lp-feat-card reveal reveal-delay-3">
+            <div class="lp-feat-icon icon-green"><i class="fas fa-record-vinyl"></i></div>
+            <div class="lp-feat-title">Voice Recording Library</div>
+            <div class="lp-feat-desc">Students hear themselves improve. A personal audio archive lets learners replay and compare recordings over time.</div>
+          </div>
+          <div class="lp-feat-card reveal reveal-delay-4">
+            <div class="lp-feat-icon icon-blue"><i class="fas fa-folder-open"></i></div>
+            <div class="lp-feat-title">Student Reading Portfolio</div>
+            <div class="lp-feat-desc">A rich, shareable digital portfolio of every assessment, passage, and achievement — the full learning story in one place.</div>
+          </div>
+          <div class="lp-feat-card reveal reveal-delay-5">
+            <div class="lp-feat-icon icon-teal"><i class="fas fa-trophy"></i></div>
+            <div class="lp-feat-title">Reading Challenge Gamification</div>
+            <div class="lp-feat-desc">Earn badges, climb leaderboards, and collect points for every reading milestone. Learning feels like an adventure, not a chore.</div>
+          </div>
+        </div>
+      </div>
+
+      <!-- TEACHERS PANEL -->
+      <div class="lp-tab-panel" id="panel-teachers" role="tabpanel">
+        <div class="lp-feature-grid">
+          <div class="lp-feat-card reveal">
+            <div class="lp-feat-icon icon-blue"><i class="fas fa-chart-bar"></i></div>
+            <div class="lp-feat-title">Real-Time Teacher Dashboard</div>
+            <div class="lp-feat-desc">Monitor every student's progress live — fluency scores, error counts, and growth charts all in one actionable view.</div>
+          </div>
+          <div class="lp-feat-card reveal reveal-delay-1">
+            <div class="lp-feat-icon icon-coral"><i class="fas fa-spell-check"></i></div>
+            <div class="lp-feat-title">Word Error Analysis</div>
+            <div class="lp-feat-desc">AI pinpoints exactly which words each student struggles with — substitutions, omissions, and mispronunciations catalogued automatically.</div>
+          </div>
+          <div class="lp-feat-card reveal reveal-delay-2">
+            <div class="lp-feat-icon icon-teal"><i class="fas fa-tachometer-alt"></i></div>
+            <div class="lp-feat-title">Fluency Speed Tracker</div>
+            <div class="lp-feat-desc">Words-per-minute trends per student and per class — see who needs a push and who is ready to advance.</div>
+          </div>
+          <div class="lp-feat-card reveal reveal-delay-3">
+            <div class="lp-feat-icon icon-green"><i class="fas fa-tools"></i></div>
+            <div class="lp-feat-title">Intervention Lesson Builder</div>
+            <div class="lp-feat-desc">Create targeted phonics, vocabulary, and fluency lessons in minutes using AI-suggested content based on real error patterns.</div>
+          </div>
+          <div class="lp-feat-card reveal reveal-delay-4">
+            <div class="lp-feat-icon icon-blue"><i class="fas fa-book-medical"></i></div>
+            <div class="lp-feat-title">Intervention Library</div>
+            <div class="lp-feat-desc">A growing library of expert-designed intervention activities organised by skill gap — ready to assign with one click.</div>
+          </div>
+          <div class="lp-feat-card reveal reveal-delay-5">
+            <div class="lp-feat-icon icon-coral"><i class="fas fa-exclamation-triangle"></i></div>
+            <div class="lp-feat-title">Early Warning System</div>
+            <div class="lp-feat-desc">AI flags students who are at risk of falling behind before it becomes a crisis — giving teachers time to act proactively.</div>
+          </div>
+        </div>
+      </div>
+
+      <!-- PARENTS PANEL -->
+      <div class="lp-tab-panel" id="panel-parents" role="tabpanel">
+        <div class="lp-feature-grid">
+          <div class="lp-feat-card reveal">
+            <div class="lp-feat-icon icon-blue"><i class="fas fa-mobile-alt"></i></div>
+            <div class="lp-feat-title">Parent Progress App</div>
+            <div class="lp-feat-desc">A beautifully simple parent-facing view showing reading level, recent scores, and growth trends — always in their pocket.</div>
+          </div>
+          <div class="lp-feat-card reveal reveal-delay-1">
+            <div class="lp-feat-icon icon-teal"><i class="fas fa-calendar-check"></i></div>
+            <div class="lp-feat-title">Assessment Booking System</div>
+            <div class="lp-feat-desc">Parents book and pay for reading assessments online — fully integrated payment gateway with instant booking confirmation.</div>
+          </div>
+          <div class="lp-feat-card reveal reveal-delay-2">
+            <div class="lp-feat-icon icon-coral"><i class="fas fa-sms"></i></div>
+            <div class="lp-feat-title">SMS Reminder System</div>
+            <div class="lp-feat-desc">Automated SMS reminders for upcoming assessments, report days, and reading challenges keep parents engaged and informed.</div>
+          </div>
+          <div class="lp-feat-card reveal reveal-delay-3">
+            <div class="lp-feat-icon icon-green"><i class="fas fa-chart-line"></i></div>
+            <div class="lp-feat-title">Reading Growth Tracker</div>
+            <div class="lp-feat-desc">Visual month-by-month growth charts show parents exactly how much their child has improved — celebrating every milestone.</div>
+          </div>
+        </div>
+      </div>
+
+      <!-- SCHOOLS & GOV PANEL -->
+      <div class="lp-tab-panel" id="panel-schools" role="tabpanel">
+        <div class="lp-feature-grid">
+          <div class="lp-feat-card reveal">
+            <div class="lp-feat-icon icon-blue"><i class="fas fa-chart-pie"></i></div>
+            <div class="lp-feat-title">School Reading Analytics</div>
+            <div class="lp-feat-desc">Institution-wide performance dashboards — average reading levels, grade breakdowns, and year-on-year comparisons.</div>
+          </div>
+          <div class="lp-feat-card reveal reveal-delay-1">
+            <div class="lp-feat-icon icon-teal"><i class="fas fa-map-marked-alt"></i></div>
+            <div class="lp-feat-title">National Reading Map</div>
+            <div class="lp-feat-desc">Interactive heat map visualising literacy levels by district — instantly identify struggling reader hotspots for targeted funding.</div>
+          </div>
+          <div class="lp-feat-card reveal reveal-delay-2">
+            <div class="lp-feat-icon icon-coral"><i class="fas fa-users-cog"></i></div>
+            <div class="lp-feat-title">Bulk School Assessment Tool</div>
+            <div class="lp-feat-desc">Assess thousands of students simultaneously — schedule, administer, and report on mass assessments without logistical headaches.</div>
+          </div>
+          <div class="lp-feat-card reveal reveal-delay-3">
+            <div class="lp-feat-icon icon-green"><i class="fas fa-file-chart-bar"></i></div>
+            <div class="lp-feat-title">Reading Report Generator</div>
+            <div class="lp-feat-desc">One-click branded reports for school boards, government ministries, and parent meetings — professionally formatted in seconds.</div>
+          </div>
+          <div class="lp-feat-card reveal reveal-delay-4">
+            <div class="lp-feat-icon icon-blue"><i class="fas fa-handshake"></i></div>
+            <div class="lp-feat-title">School Partnership Portal</div>
+            <div class="lp-feat-desc">Dedicated portal for institutional partners — manage licences, user accounts, contracts, and billing from a single secure dashboard.</div>
+          </div>
+          <div class="lp-feat-card reveal reveal-delay-5">
+            <div class="lp-feat-icon icon-teal"><i class="fas fa-flask"></i></div>
+            <div class="lp-feat-title">Research &amp; Data Insights</div>
+            <div class="lp-feat-desc">Anonymised, aggregate datasets and published research-ready exports to power literacy policy, academic research and grant applications.</div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+
+  <!-- ═══════════════════ AI TIMELINE ═══════════════════ -->
+  <section class="lp-section lp-ai-section" id="how-it-works" aria-labelledby="ai-heading">
+    <div class="lp-container lp-ai-inner">
+      <div class="lp-ai-header">
+        <div class="lp-section-tag lp-tag-teal reveal">
+          <i class="fas fa-brain"></i> AI-Powered Engine
+        </div>
+        <h2 class="lp-section-title reveal reveal-delay-1" id="ai-heading">
+          How AI Powers ALPHARIA
+        </h2>
+        <p class="lp-section-subtitle reveal reveal-delay-2" style="margin: 0 auto;">
+          From the moment a student reads aloud, our AI engine works in real time to analyse, recommend, and track growth with clinical precision.
+        </p>
+      </div>
+
+      <div class="lp-timeline">
+        <!-- Step 1 -->
+        <div class="lp-step reveal">
+          <div class="lp-step-num step-1">
+            <i class="fas fa-microphone"></i>
+          </div>
+          <div class="lp-step-label">Step 01</div>
+          <div class="lp-step-title">Student Reads Aloud</div>
+          <div class="lp-step-desc">The student reads a levelled passage while our speech engine records every word in real time — no special hardware needed, just a microphone.</div>
+        </div>
+        <!-- Step 2 -->
+        <div class="lp-step reveal reveal-delay-1">
+          <div class="lp-step-num step-2">
+            <i class="fas fa-brain"></i>
+          </div>
+          <div class="lp-step-label">Step 02</div>
+          <div class="lp-step-title">AI Analyses the Reading</div>
+          <div class="lp-step-desc">Our model identifies every error type — substitutions, omissions, insertions — and calculates fluency speed (WPM) and oral reading accuracy.</div>
+        </div>
+        <!-- Step 3 -->
+        <div class="lp-step reveal reveal-delay-2">
+          <div class="lp-step-num step-3">
+            <i class="fas fa-lightbulb"></i>
+          </div>
+          <div class="lp-step-label">Step 03</div>
+          <div class="lp-step-title">AI Recommends Interventions</div>
+          <div class="lp-step-desc">Based on the error profile, ALPHARIA surfaces targeted phonics lessons, vocabulary cards, and comprehension activities — personalised per student.</div>
+        </div>
+        <!-- Step 4 -->
+        <div class="lp-step reveal reveal-delay-3">
+          <div class="lp-step-num step-4">
+            <i class="fas fa-chart-line"></i>
+          </div>
+          <div class="lp-step-label">Step 04</div>
+          <div class="lp-step-title">Tracks Growth Over Time</div>
+          <div class="lp-step-desc">Every session is logged. Teachers and parents see longitudinal growth charts showing reading level progression, fluency gains, and error reduction.</div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+
+  <!-- ═══════════════════ PRICING ═══════════════════ -->
+  <section class="lp-section lp-pricing" id="pricing" aria-labelledby="pricing-heading">
+    <div class="lp-container">
+      <div class="lp-pricing-header">
+        <div class="lp-section-tag lp-tag-coral reveal">
+          <i class="fas fa-tags"></i> Subscriptions
+        </div>
+        <h2 class="lp-section-title reveal reveal-delay-1" id="pricing-heading">
+          Simple, Transparent Pricing
+        </h2>
+        <p class="lp-section-subtitle reveal reveal-delay-2" style="margin: 0 auto;">
+          Choose the plan that fits your context — from individual teachers to national education departments.
+        </p>
+      </div>
+
+      <!-- Billing toggle -->
+      <div class="lp-pricing-toggle reveal reveal-delay-3" aria-label="Billing period toggle">
+        <span>Monthly</span>
+        <div class="lp-toggle-track" id="lp-billing-toggle" role="switch" aria-checked="false" tabindex="0">
+          <div class="lp-toggle-thumb"></div>
+        </div>
+        <span>Annual <span class="lp-discount-badge">Save 20%</span></span>
+      </div>
+
+      <div class="lp-pricing-grid">
+        <!-- Plan 1: Teacher -->
+        <div class="lp-plan reveal">
+          <div class="lp-plan-icon icon-teal"><i class="fas fa-chalkboard-teacher"></i></div>
+          <div class="lp-plan-name">Educator</div>
+          <div class="lp-plan-target">For individual teachers &amp; tutors</div>
+          <div class="lp-plan-price">
+            <span class="lp-price-num">$<span data-monthly="29" data-annual="23">29</span></span>
+            <span class="lp-price-period">/ month</span>
+            <div class="lp-price-annual" style="opacity:0.4;">Billed as $276/yr when annual</div>
+          </div>
+          <div class="lp-plan-divider"></div>
+          <ul class="lp-plan-features">
+            <li><i class="fas fa-check-circle"></i> Up to 35 students</li>
+            <li><i class="fas fa-check-circle"></i> Speech-based assessments</li>
+            <li><i class="fas fa-check-circle"></i> Real-time teacher dashboard</li>
+            <li><i class="fas fa-check-circle"></i> Word error analysis</li>
+            <li><i class="fas fa-check-circle"></i> Intervention library access</li>
+            <li><i class="fas fa-check-circle"></i> Parent progress reports</li>
+            <li><i class="fas fa-check-circle"></i> SMS reminders (50/mo)</li>
+          </ul>
+          <button class="lp-plan-cta lp-plan-cta-outline">Start Free Trial</button>
+        </div>
+
+        <!-- Plan 2: School (Popular) -->
+        <div class="lp-plan lp-plan-popular reveal reveal-delay-1">
+          <div class="lp-popular-badge">⭐ Most Popular</div>
+          <div class="lp-plan-icon icon-blue"><i class="fas fa-school"></i></div>
+          <div class="lp-plan-name">School</div>
+          <div class="lp-plan-target">For whole-school literacy programs</div>
+          <div class="lp-plan-price">
+            <span class="lp-price-num">$<span data-monthly="199" data-annual="159">199</span></span>
+            <span class="lp-price-period">/ month</span>
+            <div class="lp-price-annual" style="opacity:0.4;">Billed as $1,908/yr when annual</div>
+          </div>
+          <div class="lp-plan-divider"></div>
+          <ul class="lp-plan-features">
+            <li><i class="fas fa-check-circle"></i> Unlimited students &amp; teachers</li>
+            <li><i class="fas fa-check-circle"></i> Everything in Educator</li>
+            <li><i class="fas fa-check-circle"></i> School reading analytics</li>
+            <li><i class="fas fa-check-circle"></i> Bulk assessment scheduling</li>
+            <li><i class="fas fa-check-circle"></i> Intervention lesson builder</li>
+            <li><i class="fas fa-check-circle"></i> Reading report generator</li>
+            <li><i class="fas fa-check-circle"></i> Early warning system</li>
+            <li><i class="fas fa-check-circle"></i> Assessment booking + payments</li>
+            <li><i class="fas fa-check-circle"></i> Priority support</li>
+          </ul>
+          <button class="lp-plan-cta lp-plan-cta-solid">Get Started</button>
+        </div>
+
+        <!-- Plan 3: Enterprise -->
+        <div class="lp-plan reveal reveal-delay-2">
+          <div class="lp-plan-icon icon-coral"><i class="fas fa-landmark"></i></div>
+          <div class="lp-plan-name">Government / Enterprise</div>
+          <div class="lp-plan-target">For districts, provinces &amp; ministries</div>
+          <div class="lp-plan-price">
+            <span class="lp-price-num" style="font-size:2rem;">Custom</span>
+            <div class="lp-price-annual" style="opacity:0.4; margin-top:0.5rem;">Volume pricing available</div>
+          </div>
+          <div class="lp-plan-divider"></div>
+          <ul class="lp-plan-features">
+            <li><i class="fas fa-check-circle"></i> Everything in School</li>
+            <li><i class="fas fa-check-circle"></i> National reading map (heatmap)</li>
+            <li><i class="fas fa-check-circle"></i> Multi-district management</li>
+            <li><i class="fas fa-check-circle"></i> Research &amp; data insights export</li>
+            <li><i class="fas fa-check-circle"></i> Coach certification module</li>
+            <li><i class="fas fa-check-circle"></i> Dedicated account manager</li>
+            <li><i class="fas fa-check-circle"></i> SLA &amp; data sovereignty options</li>
+            <li><i class="fas fa-check-circle"></i> White-label options available</li>
+          </ul>
+          <a href="#contact" class="lp-plan-cta lp-plan-cta-outline" style="display:flex;align-items:center;justify-content:center;">Contact Sales</a>
+        </div>
+      </div>
+    </div>
+  </section>
+
+
+  <!-- ═══════════════════ CONTACT / CTA BANNER ═══════════════════ -->
+  <section class="lp-section" id="contact" style="background: linear-gradient(135deg, #1e1b4b 0%, #0f172a 100%);" aria-labelledby="cta-heading">
+    <div class="lp-container" style="text-align:center; max-width:700px; margin:0 auto;">
+      <div class="lp-section-tag lp-tag-dark reveal" style="justify-content:center; display:inline-flex; margin-bottom:1.5rem;">
+        <i class="fas fa-rocket"></i> Ready to Transform Literacy?
+      </div>
+      <h2 class="lp-section-title reveal reveal-delay-1" id="cta-heading" style="font-size:2.6rem;">
+        Let's Build a Reading-Ready<br>Nation Together
+      </h2>
+      <p class="reveal reveal-delay-2" style="font-size:1.1rem; color:rgba(255,255,255,.6); line-height:1.75; margin-bottom:2.5rem;">
+        Whether you're a single teacher, a school principal, or a national education policymaker — ALPHARIA has the tools and the data to drive real reading outcomes.
+      </p>
+      <div style="display:flex; gap:1rem; justify-content:center; flex-wrap:wrap;" class="reveal reveal-delay-3">
+        <a href="auth/login-fixed.html" class="lp-btn lp-btn-primary" style="padding:0.9rem 2rem; font-size:1rem;">
+          <i class="fas fa-rocket"></i> Start for Free
+        </a>
+        <a href="mailto:partnerships@alpharia.app" class="lp-btn lp-btn-coral" style="padding:0.9rem 2rem; font-size:1rem;">
+          <i class="fas fa-envelope"></i> Email Our Team
+        </a>
+      </div>
+    </div>
+  </section>
+
+
+  <!-- ═══════════════════ FOOTER ═══════════════════ -->
+  <footer class="lp-footer" aria-label="Site footer">
+    <div class="lp-container">
+      <div class="lp-footer-grid">
+        <!-- Brand column -->
+        <div>
+          <div class="lp-footer-brand-name">Alpharia</div>
+          <p class="lp-footer-brand-desc">
+            AI-powered reading assessment and literacy intervention platform. Empowering every child to become a confident, capable reader.
+          </p>
+          <div class="lp-footer-socials">
+            <a href="#" class="lp-social-btn" aria-label="Twitter"><i class="fab fa-twitter"></i></a>
+            <a href="#" class="lp-social-btn" aria-label="LinkedIn"><i class="fab fa-linkedin-in"></i></a>
+            <a href="#" class="lp-social-btn" aria-label="Facebook"><i class="fab fa-facebook-f"></i></a>
+            <a href="#" class="lp-social-btn" aria-label="YouTube"><i class="fab fa-youtube"></i></a>
+          </div>
+        </div>
+
+        <!-- Features -->
+        <div>
+          <div class="lp-footer-col-title">Features</div>
+          <ul class="lp-footer-links">
+            <li><a href="#features">For Students</a></li>
+            <li><a href="#features">For Teachers</a></li>
+            <li><a href="#features">For Parents</a></li>
+            <li><a href="#features">For Schools</a></li>
+            <li><a href="#how-it-works">How It Works</a></li>
+          </ul>
+        </div>
+
+        <!-- Portals -->
+        <div>
+          <div class="lp-footer-col-title">Portals</div>
+          <ul class="lp-footer-links">
+            <li><a href="student-dashboard.html">Student Portal</a></li>
+            <li><a href="teacher-dashboard.html">Teacher Dashboard</a></li>
+            <li><a href="admin-dashboard.html">Admin Dashboard</a></li>
+            <li><a href="take-reading-test.html">Take a Test</a></li>
+            <li><a href="student-progress.html">Progress Reports</a></li>
+          </ul>
+        </div>
+
+        <!-- Company -->
+        <div>
+          <div class="lp-footer-col-title">Company</div>
+          <ul class="lp-footer-links">
+            <li><a href="#contact">About Us</a></li>
+            <li><a href="#pricing">Pricing</a></li>
+            <li><a href="#contact">Partner with Us</a></li>
+            <li><a href="mailto:support@alpharia.app">Support</a></li>
+            <li><a href="#contact">Careers</a></li>
+          </ul>
+        </div>
+
+        <!-- Legal -->
+        <div>
+          <div class="lp-footer-col-title">Legal</div>
+          <ul class="lp-footer-links">
+            <li><a href="privacy-policy.html">Privacy Policy</a></li>
+            <li><a href="terms-of-service.html">Terms of Service</a></li>
+            <li><a href="refund-policy.html">Refund Policy</a></li>
+            <li><a href="shipping-policy.html">Shipping Policy</a></li>
+          </ul>
+        </div>
+      </div>
+
+      <div class="lp-footer-bottom">
+        <span>© 2026 Alpharia. All rights reserved.</span>
+        <div class="lp-footer-legal">
+          <a href="privacy-policy.html">Privacy</a>
+          <a href="terms-of-service.html">Terms</a>
+          <a href="refund-policy.html">Refunds</a>
+        </div>
+      </div>
+    </div>
+  </footer>
+
+</div><!-- /#landing-screen -->
+
+
+<!-- ╔══════════════════════════════════════════════════════════╗
+     ║   EXISTING APP SCREENS (unchanged, hidden by default)   ║
+     ╚══════════════════════════════════════════════════════════╝ -->
+
+<!-- Auth Card (modal overlay) -->
+<div class="auth-card" id="landing-auth-card">
+    <div class="auth-card-header">
+        <h2>Welcome Back!</h2>
+        <p>Please sign in to continue</p>
+        <button class="close-auth" onclick="hideAuthCard()">
+            <i class="fas fa-times"></i>
+        </button>
+    </div>
+    <div class="auth-tabs">
+        <button class="auth-tab active" data-tab="student">
+            <i class="fas fa-user-graduate"></i> Student
+        </button>
+        <div class="divider">or</div>
+        <button class="auth-tab" data-tab="admin">
+            <i class="fas fa-chalkboard-teacher"></i> Educator
+        </button>
+    </div>
+    <div class="auth-body">
+        <div class="auth-panel active" id="auth-student">
+            <div class="input-group">
+                <i class="fas fa-user"></i>
+                <input type="text" id="landing-student-name" placeholder="Enter your name" autocomplete="name" />
+            </div>
+            <button id="landing-student-start" class="primary-btn full-width">
+                Start Assessment <i class="fas fa-arrow-right"></i>
+            </button>
+            <div class="auth-divider"><span>or continue with</span></div>
+            <div class="social-auth">
+                <button class="social-btn google">
+                    <img src="https://www.google.com/favicon.ico" alt="Google"> Google
+                </button>
+                <button class="social-btn microsoft">
+                    <img src="https://www.microsoft.com/favicon.ico" alt="Microsoft"> Microsoft
+                </button>
+            </div>
+        </div>
+        <div class="auth-panel" id="auth-admin">
+            <div class="input-group">
+                <i class="fas fa-envelope"></i>
+                <input type="email" id="landing-admin-email" placeholder="Email address" autocomplete="email" />
+            </div>
+            <div class="input-group">
+                <i class="fas fa-lock"></i>
+                <input type="password" id="landing-admin-pass" placeholder="Password" autocomplete="current-password" />
+                <button class="toggle-password" type="button"><i class="far fa-eye"></i></button>
+            </div>
+            <div class="auth-options">
+                <label class="remember-me">
+                    <input type="checkbox" id="remember-me">
+                    <span class="checkmark"></span>
+                    Remember me
+                </label>
+                <a href="#forgot-password" class="forgot-password">Forgot password?</a>
+            </div>
+            <button id="landing-admin-open" class="primary-btn full-width">Sign In</button>
+            <div class="auth-footer">
+                Don't have an account? <a href="#signup" class="auth-link">Sign up</a>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Admin Panel -->
+<div id="admin-panel" class="start-screen" style="display:none;">
+    <div class="start-card" style="max-height:80vh;overflow:auto;min-width:520px;">
+        <h2>Admin Panel</h2>
+        <div style="margin-bottom:12px;">Saved Attempts (local)</div>
+        <div id="admin-attempts"></div>
+        <div style="display:flex; gap:10px; margin-top:14px;">
+            <button id="admin-close" class="reshuffle-btn">Close</button>
+            <button id="admin-clear" class="reshuffle-btn">Clear All</button>
+        </div>
+    </div>
+</div>
+
+<!-- Start Screen -->
+<div id="start-screen" class="start-screen" style="display:none;">
+    <div class="start-card">
+        <h2>Enter Student Name</h2>
+        <label for="student-name-input">Student Name</label>
+        <input type="text" id="student-name-input" placeholder="Student Name" autocomplete="off" />
+        <button id="start-btn">Start</button>
+    </div>
+</div>
+
+<!-- Dashboard -->
+<div id="dashboard" class="start-screen" style="display:none;">
+    <div class="start-card" style="min-width:520px;">
+        <h2>Dashboard</h2>
+        <div id="dashboard-user" style="margin-bottom:8px;"></div>
+        <label for="role-select">Role</label>
+        <select id="role-select" style="padding:8px 12px; border-radius:8px; background: var(--bg); color: var(--fg); border:1px solid #444;">
+            <option value="student">Student</option>
+            <option value="teacher">Teacher</option>
+        </select>
+        <div style="display:flex; gap:12px; margin-top:14px; flex-wrap:wrap;">
+            <button id="dash-take-test" class="primary-btn" style="flex:1;">Take Test</button>
+            <button id="dash-my-tests" class="reshuffle-btn" style="flex:1;">My Tests</button>
+            <button id="dash-all-tests" class="reshuffle-btn" style="flex:1; display:none;">All Students</button>
+            <button id="dash-logout" class="reshuffle-btn" style="flex:1;">Logout</button>
+        </div>
+        <div id="dash-list" style="margin-top:16px; max-height:45vh; overflow:auto;"></div>
+    </div>
+</div>
+
+<!-- Assessment Container (sidebar + content) -->
+<div class="container" style="display:none;">
+    <aside class="sidebar">
+        <nav>
+            <ul>
+                <li class="nav-item active" data-section="uppercase">Uppercase Letters</li>
+                <li class="nav-item" data-section="lowercase">Lowercase Letters</li>
+                <li class="nav-item" data-section="sentence-filter">Sentence Filter</li>
+                <li class="nav-item" data-section="word-preprimer">Word List: Pre-primer</li>
+                <li class="nav-item" data-section="word-primer">Word List: Primer</li>
+                <li class="nav-item" data-section="word-1">Word List: Level 1</li>
+                <li class="nav-item" data-section="word-2">Word List: Level 2</li>
+                <li class="nav-item" data-section="word-3">Word List: Level 3</li>
+                <li class="nav-item" data-section="word-4">Word List: Level 4</li>
+                <li class="nav-item" data-section="word-5">Word List: Level 5</li>
+                <li class="nav-item" data-section="word-6">Word List: Level 6</li>
+                <li class="nav-item" data-section="passage-preprimer">Passage: Pre-primer</li>
+                <li class="nav-item" data-section="passage-primer">Passage: Primer</li>
+                <li class="nav-item" data-section="passage-1">Passage: Level 1</li>
+                <li class="nav-item" data-section="passage-2">Passage: Level 2</li>
+                <li class="nav-item" data-section="passage-3">Passage: Level 3</li>
+                <li class="nav-item" data-section="passage-4">Passage: Level 4</li>
+                <li class="nav-item" data-section="passage-5">Passage: Level 5</li>
+                <li class="nav-item" data-section="passage-6">Passage: Level 6</li>
+            </ul>
+        </nav>
+    </aside>
+    <main class="main-content">
+        <button id="theme-toggle" class="theme-toggle-btn" aria-label="Toggle dark/light mode">🌙</button>
+        <div id="student-name-display" class="student-name-display"></div>
+        <section id="section-content">
+            <!-- Dynamic assessment content loaded here -->
         </section>
-    </div>
-    <div id="admin-panel" class="start-screen" style="display:none;">
-        <div class="start-card" style="max-height:80vh;overflow:auto;min-width:520px;">
-            <h2>Admin Panel</h2>
-            <div style="margin-bottom:12px;">Saved Attempts (local)</div>
-            <div id="admin-attempts"></div>
-            <div style="display:flex; gap:10px; margin-top:14px;">
-                <button id="admin-close" class="reshuffle-btn">Close</button>
-                <button id="admin-clear" class="reshuffle-btn">Clear All</button>
-            </div>
-        </div>
-    </div>
-    <div id="start-screen" class="start-screen" style="display:none;">
-        <div class="start-card">
-            <h2>Enter Student Name</h2>
-            <label for="student-name-input">Student Name</label>
-            <input type="text" id="student-name-input" placeholder="Student Name" autocomplete="off" />
-            <button id="start-btn">Start</button>
-        </div>
-    </div>
-    <div id="dashboard" class="start-screen" style="display:none;">
-        <div class="start-card" style="min-width:520px;">
-            <h2>Dashboard</h2>
-            <div id="dashboard-user" style="margin-bottom:8px;"></div>
-            <label for="role-select">Role</label>
-            <select id="role-select" style="padding:8px 12px; border-radius:8px; background: var(--bg); color: var(--fg); border:1px solid #444;">
-                <option value="student">Student</option>
-                <option value="teacher">Teacher</option>
-            </select>
-            <div style="display:flex; gap:12px; margin-top:14px; flex-wrap:wrap;">
-                <button id="dash-take-test" class="primary-btn" style="flex:1;">Take Test</button>
-                <button id="dash-my-tests" class="reshuffle-btn" style="flex:1;">My Tests</button>
-                <button id="dash-all-tests" class="reshuffle-btn" style="flex:1; display:none;">All Students</button>
-                <button id="dash-logout" class="reshuffle-btn" style="flex:1;">Logout</button>
-            </div>
-            <div id="dash-list" style="margin-top:16px; max-height:45vh; overflow:auto;"></div>
-        </div>
-    </div>
-    <div class="container" style="display:none;">
-        <aside class="sidebar">
-            <nav>
-                <ul>
-                    <li class="nav-item active" data-section="uppercase">Uppercase Letters</li>
-                    <li class="nav-item" data-section="lowercase">Lowercase Letters</li>
-                    <li class="nav-item" data-section="sentence-filter">Sentence Filter</li>
-                    <li class="nav-item" data-section="word-preprimer">Word List: Pre-primer</li>
-                    <li class="nav-item" data-section="word-primer">Word List: Primer</li>
-                    <li class="nav-item" data-section="word-1">Word List: Level 1</li>
-                    <li class="nav-item" data-section="word-2">Word List: Level 2</li>
-                    <li class="nav-item" data-section="word-3">Word List: Level 3</li>
-                    <li class="nav-item" data-section="word-4">Word List: Level 4</li>
-                    <li class="nav-item" data-section="word-5">Word List: Level 5</li>
-                    <li class="nav-item" data-section="word-6">Word List: Level 6</li>
-                    <li class="nav-item" data-section="passage-preprimer">Passage: Pre-primer</li>
-                    <li class="nav-item" data-section="passage-primer">Passage: Primer</li>
-                    <li class="nav-item" data-section="passage-1">Passage: Level 1</li>
-                    <li class="nav-item" data-section="passage-2">Passage: Level 2</li>
-                    <li class="nav-item" data-section="passage-3">Passage: Level 3</li>
-                    <li class="nav-item" data-section="passage-4">Passage: Level 4</li>
-                    <li class="nav-item" data-section="passage-5">Passage: Level 5</li>
-                    <li class="nav-item" data-section="passage-6">Passage: Level 6</li>
-                </ul>
-            </nav>
-        </aside>
-        <main class="main-content">
-            <button id="theme-toggle" class="theme-toggle-btn" aria-label="Toggle dark/light mode">🌙</button>
-            <div id="student-name-display" class="student-name-display"></div>
-            <section id="section-content">
-                <!-- Dynamic content will be loaded here -->
-            </section>
-        </main>
-    </div>
-    <!-- Overlay for modals -->
-    <div class="overlay"></div>
-    
-    <!-- Firebase and Main Scripts -->
-    <script type="module" src="firebase.js"></script>
-    <script src="main.js"></script>
-    
-    <!-- Initialize the app when DOM is loaded -->
-    <script>
-        document.addEventListener('DOMContentLoaded', () => {
-            // Initialize the app
-            if (typeof onload === 'function') {
-                onload();
-            }
-            
-            // Mobile menu toggle
-            const mobileMenuBtn = document.getElementById('mobile-menu-btn');
-            const mainNav = document.getElementById('main-nav');
-            if (mobileMenuBtn && mainNav) {
-                mobileMenuBtn.addEventListener('click', () => {
-                    mainNav.classList.toggle('active');
-                    mobileMenuBtn.setAttribute('aria-expanded', 
-                        mobileMenuBtn.getAttribute('aria-expanded') === 'true' ? 'false' : 'true'
-                    );
-                });
-            }
-            
-            // Close mobile menu when clicking on nav links
-            document.querySelectorAll('.nav-link').forEach(link => {
-                link.addEventListener('click', () => {
-                    if (mainNav.classList.contains('active')) {
-                        mainNav.classList.remove('active');
-                        mobileMenuBtn.setAttribute('aria-expanded', 'false');
-                    }
-                });
-            });
-            
-            // Theme toggle
-            const themeToggle = document.getElementById('landing-theme');
-            if (themeToggle) {
-                // Set initial theme
-                const savedTheme = localStorage.getItem('theme') || 'dark';
-                document.body.classList.toggle('light', savedTheme === 'light');
-                updateThemeIcon(themeToggle, savedTheme);
-                
-                themeToggle.addEventListener('click', () => {
-                    const isLight = !document.body.classList.toggle('light');
-                    const theme = isLight ? 'dark' : 'light';
-                    localStorage.setItem('theme', theme);
-                    updateThemeIcon(themeToggle, theme);
-                });
-            }
-            
-            // Get Started buttons
-            const setupAuthButton = (buttonId, tabId = 'student') => {
-                const button = document.getElementById(buttonId);
-                if (button) {
-                    button.addEventListener('click', () => {
-                        showAuthCard();
-                        const tab = document.querySelector(`.auth-tab[data-tab="${tabId}"]`);
-                        if (tab) tab.click();
-                    });
-                }
-            };
-            
-            // Set up all auth buttons
-            setupAuthButton('landing-get-started');
-            setupAuthButton('cta-button');
-            
-            // Smooth scrolling for anchor links
-            document.querySelectorAll('a[href^="#"]').forEach(anchor => {
-                if (anchor.getAttribute('href') !== '#') {
-                    anchor.addEventListener('click', function(e) {
-                        e.preventDefault();
-                        const targetId = this.getAttribute('href');
-                        if (targetId === '#') return;
-                        
-                        const targetElement = document.querySelector(targetId);
-                        if (targetElement) {
-                            window.scrollTo({
-                                top: targetElement.offsetTop - 80,
-                                behavior: 'smooth'
-                            });
-                        }
-                    });
-                }
-            });
-        });
-        
-        // Update theme icon based on current theme
-        function updateThemeIcon(button, theme) {
-            if (!button) return;
-            const icon = button.querySelector('i');
-            if (icon) {
-                icon.className = theme === 'light' ? 'fas fa-moon' : 'fas fa-sun';
-                button.setAttribute('aria-label', `Switch to ${theme === 'light' ? 'dark' : 'light'} mode`);
-            }
-        }
-        
-        // Make these functions globally available
-        window.revealAuthCard = showAuthCard;
-        window.hideAuthCard = hideAuthCard;
-        
-        // Toggle theme function for other parts of the app
-        window.toggleTheme = () => {
-            const isLight = document.body.classList.toggle('light');
-            const theme = isLight ? 'light' : 'dark';
-            localStorage.setItem('theme', theme);
-            
-            const themeToggle = document.getElementById('landing-theme');
-            if (themeToggle) {
-                updateThemeIcon(themeToggle, theme);
-            }
-        };
-    </script>
+    </main>
+</div>
+
+<!-- Overlay for modals -->
+<div class="overlay"></div>
+
+<!-- ── Scripts ── -->
+<script type="module" src="firebase.js"></script>
+<script src="main.js"></script>
+<script src="landing.js" defer></script>
+
+<!-- Inline: theme + auth helpers -->
+<script>
+(function () {
+  /* ── Smooth theme transition ── */
+  document.documentElement.style.setProperty('--theme-transition', 'background 0.4s ease, color 0.3s ease, border-color 0.3s ease');
+
+  /* ── Read saved preference (default: dark) ── */
+  var saved = localStorage.getItem('theme') || 'dark';
+  if (saved === 'light') {
+    document.body.classList.add('light');
+  }
+
+  /* ── Wire up button once DOM is ready ── */
+  document.addEventListener('DOMContentLoaded', function () {
+    var btn = document.getElementById('landing-theme');
+    if (!btn) return;
+
+    /* Set correct icon on load */
+    setThemeIcon(btn, saved);
+
+    btn.addEventListener('click', function () {
+      var isNowLight = document.body.classList.toggle('light');
+      var theme = isNowLight ? 'light' : 'dark';
+      localStorage.setItem('theme', theme);
+      setThemeIcon(btn, theme);
+    });
+  });
+
+  /* ── Icon helper ──
+     Dark mode  → show ☀️ (click to go light)
+     Light mode → show 🌙 (click to go dark)  */
+  function setThemeIcon(btn, theme) {
+    var icon = btn.querySelector('i');
+    if (!icon) return;
+    if (theme === 'light') {
+      icon.className = 'fas fa-moon';
+      btn.title = 'Switch to dark mode';
+      btn.setAttribute('aria-label', 'Switch to dark mode');
+    } else {
+      icon.className = 'fas fa-sun';
+      btn.title = 'Switch to light mode';
+      btn.setAttribute('aria-label', 'Switch to light mode');
+    }
+  }
+
+  /* ── Global helpers for other parts of the app ── */
+  window.updateThemeIcon = function (button, theme) { setThemeIcon(button, theme); };
+  window.revealAuthCard  = function () { if (typeof showAuthCard  === 'function') showAuthCard();  };
+  window.hideAuthCard    = function () { if (typeof hideAuthCard   === 'function') hideAuthCard();  };
+  window.toggleTheme = function () {
+    var isLight = document.body.classList.toggle('light');
+    var theme = isLight ? 'light' : 'dark';
+    localStorage.setItem('theme', theme);
+    var b = document.getElementById('landing-theme');
+    if (b) setThemeIcon(b, theme);
+  };
+})();
+</script>
+
 </body>
 </html>

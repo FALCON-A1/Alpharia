@@ -100,10 +100,18 @@
             </div>
         </aside>
 
+        <div class="sidebar-overlay" id="sidebar-overlay"></div>
+
         <!-- Main Content -->
         <main class="main-content">
             <!-- Top Bar -->
             <header class="top-bar">
+                <div class="top-bar-left d-flex align-items-center">
+                    <button class="sidebar-toggle menu-toggle d-lg-none me-3" id="sidebar-toggle"
+                        style="background:none;border:none;font-size:1.5rem;cursor:pointer;color:var(--text-color);">
+                        <i class="fas fa-bars"></i>
+                    </button>
+                </div>
                 <div class="search-bar">
                     <i class="fas fa-search"></i>
                     <input type="text" id="search-input" placeholder="Search tests, students, or classes...">
@@ -215,7 +223,9 @@
 
         // Import Auth functions directly from CDN
         import {
-            signOut
+            signOut,
+            setPersistence,
+            browserLocalPersistence
         } from 'https://www.gstatic.com/firebasejs/12.1.0/firebase-auth.js';
 
         // Import Firestore functions
@@ -358,6 +368,9 @@
                 await fetchAndDisplayRecentTests(user.uid);
                 fetchTeacherTests(user.uid);
 
+                // Initialize sidebar
+                initSidebar();
+
                 // Logout setup
                 const logoutBtn = document.getElementById('logout-btn');
                 if (logoutBtn) {
@@ -484,6 +497,28 @@
             });
         }
 
+        // Initialize sidebar functionality
+        function initSidebar() {
+            const sidebar = document.getElementById('sidebar');
+            const sidebarToggle = document.getElementById('sidebar-toggle');
+            const sidebarOverlay = document.getElementById('sidebar-overlay');
+
+            if (sidebarToggle && sidebar) {
+                sidebarToggle.addEventListener('click', (e) => {
+                    e.preventDefault();
+                    sidebar.classList.toggle('active');
+                    if (sidebarOverlay) sidebarOverlay.classList.toggle('active');
+                });
+            }
+
+            if (sidebarOverlay && sidebar) {
+                sidebarOverlay.addEventListener('click', () => {
+                    sidebar.classList.remove('active');
+                    sidebarOverlay.classList.remove('active');
+                });
+            }
+        }
+
         // Initialize the dashboard when the page loads
         document.addEventListener('DOMContentLoaded', () => {
             console.log('DOM fully loaded');
@@ -494,7 +529,7 @@
         // Clean up the auth state listener when the page unloads
         window.addEventListener('beforeunload', () => {
             console.log('Cleaning up auth state listener...');
-            if (unsubscribe) {
+            if (typeof unsubscribe !== 'undefined' && unsubscribe) {
                 unsubscribe();
             }
         });

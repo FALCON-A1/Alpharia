@@ -1,372 +1,619 @@
-﻿<!DOCTYPE html>
+<!DOCTYPE html>
 <html lang="en">
-
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Reading Assessment - Alpharia</title>
-    <!-- Fonts & Icons -->
-    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap"
-        rel="stylesheet">
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-    <!-- CSS -->
-    <link rel="stylesheet" href="css/student-dashboard-clean.css">
-    <link rel="stylesheet" href="css/test-taking.css">
-    <link rel="stylesheet" href="css/dashboard.css">
-    <style>
-        /* Greeting / Chat Styles */
-        #greeting-container {
-            max-width: 800px;
-            margin: 40px auto;
-            text-align: center;
-        }
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Reading Assessment — Alpharia</title>
+  <meta name="description" content="Complete your reading assessment with AI-powered guidance.">
 
-        .chat-card {
-            background: white;
-            border-radius: 20px;
-            padding: 40px;
-            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
-        }
+  <!-- Fonts & Icons -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
 
-        .alex-avatar-container {
-            width: 100px;
-            height: 100px;
-            background: #e8f4fd;
-            border-radius: 50%;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            margin: 0 auto 20px;
-            animation: pulse-avatar 2s infinite ease-in-out;
-        }
+  <!-- Shared Dashboard Styles -->
+  <link rel="stylesheet" href="css/student-dashboard-clean.css">
+  <!-- Test-taking card styles (injected question UI) -->
+  <link rel="stylesheet" href="css/test-taking.css">
 
-        @keyframes pulse-avatar {
-            0% {
-                transform: scale(1);
-            }
+  <style>
+    /* ============================================================
+       TAKE READING TEST — Page-specific styles
+       ============================================================ */
 
-            50% {
-                transform: scale(1.05);
-                box-shadow: 0 0 20px rgba(74, 148, 253, 0.4);
-            }
+    /* ── Greeting Phase ── */
+    #greeting-container {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      min-height: calc(100vh - var(--sd-topbar-h));
+      padding: 2rem 1.5rem;
+    }
 
-            100% {
-                transform: scale(1);
-            }
-        }
+    .rt-chat-card {
+      background: var(--sd-surface);
+      border: 1.5px solid var(--sd-border);
+      border-radius: 24px;
+      padding: 3rem 2.5rem 2.5rem;
+      max-width: 640px;
+      width: 100%;
+      text-align: center;
+      box-shadow: var(--sd-shadow-md);
+      animation: rt-card-in 0.5s cubic-bezier(0.4,0,0.2,1) both;
+      position: relative;
+      overflow: hidden;
+      margin: 0 auto;
+    }
 
-        .chat-bubble {
-            background: #f0f7ff;
-            color: #1a2b4a;
-            padding: 20px 30px;
-            border-radius: 20px;
-            border-bottom-left-radius: 5px;
-            display: inline-block;
-            text-align: left;
-            font-size: 1.25rem;
-            line-height: 1.6;
-            margin-bottom: 30px;
-            position: relative;
-        }
+    .rt-chat-card::before {
+      content: '';
+      position: absolute;
+      top: 0; left: 0; right: 0;
+      height: 4px;
+      background: linear-gradient(90deg, #4f46e5, #14b8a6, #f97316);
+    }
 
-        .chat-bubble::after {
-            content: '';
-            position: absolute;
-            bottom: 0;
-            left: -10px;
-            width: 20px;
-            height: 20px;
-            background: #f0f7ff;
-            border-bottom-right-radius: 20px;
-            z-index: -1;
-        }
+    @keyframes rt-card-in {
+      from { opacity: 0; transform: translateY(24px); }
+      to   { opacity: 1; transform: translateY(0); }
+    }
 
-        .user-interaction-area {
-            min-height: 80px;
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            gap: 10px;
-        }
+    /* Alex avatar */
+    .rt-avatar-wrap {
+      width: 90px; height: 90px;
+      background: linear-gradient(135deg, rgba(79,70,229,.12), rgba(20,184,166,.12));
+      border: 2px solid rgba(79,70,229,.2);
+      border-radius: 50%;
+      display: flex; align-items: center; justify-content: center;
+      margin: 0 auto 1.75rem;
+      font-size: 2.2rem;
+      color: var(--sd-primary);
+      animation: rt-pulse 2.5s ease-in-out infinite;
+      position: relative;
+    }
 
-        /* Test Wrapper (Hidden Initially) */
-        #test-content-wrapper {
-            display: none;
-        }
+    .rt-avatar-wrap::after {
+      content: '';
+      position: absolute;
+      inset: -6px;
+      border-radius: 50%;
+      border: 2px solid rgba(79,70,229,.15);
+      animation: rt-ring 2.5s ease-in-out infinite;
+    }
 
-        /* Re-injecting the Card Styles from previous step globally to ensure consistency */
-        .question-container {
-            background: linear-gradient(145deg, #ffffff, #f8f9fa);
-            border-radius: 16px;
-            padding: 3rem 3.5rem;
-            margin: 2rem auto;
-            box-shadow: 0 8px 30px rgba(0, 0, 0, 0.1);
-            position: relative;
-            border: none;
-            max-width: 1100px;
-            width: 95%;
-            transition: all 0.3s ease;
-        }
+    @keyframes rt-pulse {
+      0%, 100% { transform: scale(1);    box-shadow: 0 0 0 0 rgba(79,70,229,.2); }
+      50%       { transform: scale(1.06); box-shadow: 0 0 0 12px rgba(79,70,229,.0); }
+    }
 
-        .question-header {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            margin-bottom: 2.5rem;
-            padding-bottom: 1.2rem;
-            border-bottom: 2px solid rgba(74, 111, 165, 0.1);
-        }
+    @keyframes rt-ring {
+      0%, 100% { transform: scale(1);    opacity: 0.5; }
+      50%       { transform: scale(1.12); opacity: 0; }
+    }
 
-        .question-title {
-            font-size: 2rem;
-            font-weight: 700;
-            color: #1a2b4a;
-            margin: 0;
-            letter-spacing: -0.5px;
-            text-transform: uppercase;
-            position: relative;
-            padding-left: 1.2rem;
-        }
+    /* AI name label */
+    .rt-ai-label {
+      display: inline-flex;
+      align-items: center;
+      gap: 0.4rem;
+      font-size: 0.72rem;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 0.1em;
+      color: var(--sd-primary);
+      background: var(--sd-primary-lt);
+      border: 1px solid rgba(79,70,229,.2);
+      padding: 0.25rem 0.75rem;
+      border-radius: 20px;
+      margin-bottom: 1.25rem;
+    }
 
-        .question-title:before {
-            content: '';
-            position: absolute;
-            left: 0;
-            top: 0;
-            height: 100%;
-            width: 5px;
-            background: linear-gradient(to bottom, #4a6fa5, #6a8cbf);
-            border-radius: 3px;
-        }
+    .rt-ai-label i { font-size: 0.65rem; }
 
-        .question-points {
-            background: linear-gradient(135deg, #4a6fa5, #6a8cbf);
-            color: white;
-            padding: 0.5rem 1.2rem;
-            border-radius: 50px;
-            font-size: 1.1rem;
-            font-weight: 600;
-            box-shadow: 0 4px 15px rgba(74, 111, 165, 0.3);
-            min-width: 100px;
-            text-align: center;
-        }
+    /* Speech bubble */
+    .rt-bubble {
+      background: linear-gradient(135deg, #f5f3ff, #eff6ff);
+      border: 1px solid rgba(79,70,229,.12);
+      color: var(--sd-text);
+      padding: 1.4rem 1.8rem;
+      border-radius: 16px;
+      border-bottom-left-radius: 4px;
+      text-align: left;
+      font-size: 1.1rem;
+      line-height: 1.65;
+      margin-bottom: 1.75rem;
+      position: relative;
+    }
 
-        .prompt-text {
-            font-weight: 700;
-            text-align: center;
-            margin: 2rem 0;
-            color: #1a2b4a;
-            line-height: 1.4;
-            min-height: 150px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.1);
-            position: relative;
-            padding: 2rem;
-            background: rgba(255, 255, 255, 0.7);
-            border-radius: 12px;
-            border: 1px solid rgba(0, 0, 0, 0.05);
-            width: 100%;
-            word-break: break-word;
-        }
+    .rt-bubble::before {
+      content: '';
+      position: absolute;
+      bottom: -10px; left: -1px;
+      width: 20px; height: 20px;
+      background: linear-gradient(135deg, #f5f3ff, #eff6ff);
+      border-right: 1px solid rgba(79,70,229,.12);
+      border-bottom: 1px solid rgba(79,70,229,.12);
+      clip-path: polygon(0 0, 100% 0, 100% 100%);
+    }
 
-        .prompt-text[data-type="letter"] {
-            font-size: 8rem;
-            letter-spacing: 5px;
-        }
+    /* User interaction area */
+    .rt-interaction {
+      min-height: 70px;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      gap: 0.75rem;
+      flex-wrap: wrap;
+      margin-top: 0.5rem;
+    }
 
-        .prompt-text[data-type="word"] {
-            font-size: 5rem;
-            letter-spacing: 2px;
-        }
+    /* Spinner used inside the interaction area */
+    .rt-spinner {
+      width: 28px; height: 28px;
+      border: 3px solid var(--sd-border);
+      border-top-color: var(--sd-primary);
+      border-radius: 50%;
+      animation: rt-spin 0.8s linear infinite;
+    }
 
-        .prompt-text[data-type="sentence"] {
-            font-size: 2.5rem;
-            text-align: left;
-        }
+    @keyframes rt-spin { to { transform: rotate(360deg); } }
 
-        .prompt-text[data-type="passage"] {
-            font-size: 1.5rem;
-            text-align: left;
-            white-space: pre-line;
-        }
+    /* ── Test Phase ── */
+    #test-content-wrapper {
+      display: none;
+    }
 
-        /* --- MODAL STYLES (Copied from Dashboard) --- */
-        .modal {
-            display: none;
-            position: fixed;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            background-color: rgba(0, 0, 0, 0.5);
-            z-index: 1000;
-            overflow-y: auto;
-            padding: 20px;
-            box-sizing: border-box;
-        }
+    /* Test header bar inside main */
+    .rt-test-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 1rem;
+      padding: 1rem 1.75rem;
+      background: var(--sd-surface);
+      border-bottom: 1px solid var(--sd-border);
+      flex-wrap: wrap;
+    }
 
-        .modal.show {
-            display: block;
-            animation: modalFadeIn 0.3s ease-out;
-        }
+    .rt-test-title {
+      font-size: 1.15rem;
+      font-weight: 700;
+      color: var(--sd-text);
+      display: flex;
+      align-items: center;
+      gap: 0.6rem;
+    }
 
-        .modal-dialog {
-            margin: 5% auto;
-            max-width: 90%;
-            width: auto;
-            pointer-events: none;
-            position: relative;
-        }
+    .rt-test-title i { color: var(--sd-primary); }
 
-        .modal-dialog-centered {
-            display: flex;
-            align-items: center;
-            min-height: calc(100% - 3.5rem);
-        }
+    .rt-test-body {
+      flex: 1;
+      overflow-y: auto;
+    }
 
-        .modal-content {
-            background-color: #fff;
-            padding: 20px;
-            border-radius: 8px;
-            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.2);
-            position: relative;
-            pointer-events: auto;
-            width: 100%;
-        }
+    /* ── Progress bar at top of test ── */
+    .rt-progress-bar-wrap {
+      height: 3px;
+      background: var(--sd-border);
+      position: relative;
+    }
 
-        @keyframes modalFadeIn {
-            from {
-                opacity: 0;
-                transform: translateY(-20px);
-            }
+    .rt-progress-bar-fill {
+      height: 100%;
+      background: linear-gradient(90deg, var(--sd-primary), var(--sd-teal));
+      width: 0%;
+      transition: width 0.5s ease;
+    }
 
-            to {
-                opacity: 1;
-                transform: translateY(0);
-            }
-        }
-    </style>
+    /* question-container styles (used by take-reading-test.js) */
+    .question-container {
+      background: var(--sd-surface);
+      border: 1.5px solid var(--sd-border);
+      border-radius: var(--sd-radius);
+      padding: 2.5rem 3rem;
+      margin: 2rem auto;
+      box-shadow: var(--sd-shadow);
+      max-width: 1100px;
+      width: 95%;
+      transition: var(--sd-transition);
+    }
+
+    .question-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 2rem;
+      padding-bottom: 1rem;
+      border-bottom: 2px solid var(--sd-border);
+    }
+
+    .question-title {
+      font-size: 1.6rem;
+      font-weight: 800;
+      color: var(--sd-text);
+      margin: 0;
+      letter-spacing: -0.5px;
+      text-transform: uppercase;
+      position: relative;
+      padding-left: 1.1rem;
+    }
+
+    .question-title::before {
+      content: '';
+      position: absolute;
+      left: 0; top: 0;
+      height: 100%; width: 4px;
+      background: linear-gradient(to bottom, var(--sd-primary), var(--sd-teal));
+      border-radius: 3px;
+    }
+
+    .question-points {
+      background: linear-gradient(135deg, var(--sd-primary), #6366f1);
+      color: white;
+      padding: 0.45rem 1.1rem;
+      border-radius: 50px;
+      font-size: 0.95rem;
+      font-weight: 700;
+      box-shadow: 0 4px 12px rgba(79,70,229,.3);
+      white-space: nowrap;
+    }
+
+    .prompt-text {
+      font-weight: 700;
+      text-align: center;
+      margin: 1.5rem 0;
+      color: var(--sd-text);
+      line-height: 1.4;
+      min-height: 140px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      position: relative;
+      padding: 2rem;
+      background: var(--sd-surface-2);
+      border-radius: 12px;
+      border: 1.5px solid var(--sd-border);
+      width: 100%;
+      word-break: break-word;
+    }
+
+    .prompt-text[data-type="letter"]   { font-size: 8rem;  letter-spacing: 5px; }
+    .prompt-text[data-type="word"]     { font-size: 5rem;  letter-spacing: 2px; }
+    .prompt-text[data-type="sentence"] { font-size: 2.5rem; text-align: left; }
+    .prompt-text[data-type="passage"]  { font-size: 1.5rem; text-align: left; white-space: pre-line; }
+
+    /* ── Modals (feedback + section transition) ── */
+    .modal {
+      display: none;
+      position: fixed;
+      inset: 0;
+      background: rgba(0,0,0,.55);
+      backdrop-filter: blur(4px);
+      -webkit-backdrop-filter: blur(4px);
+      z-index: 1000;
+      overflow-y: auto;
+      padding: 1.5rem;
+      box-sizing: border-box;
+    }
+
+    .modal.show {
+      display: block;   /* JS sets style.display='block', so keep block here */
+      animation: modal-in 0.25s ease-out;
+    }
+
+    /* Centre the dialog inside the block modal */
+    .modal.show .modal-dialog {
+      display: flex;
+      align-items: center;
+      min-height: calc(100% - 3rem);
+    }
+
+    @keyframes modal-in {
+      from { opacity: 0; }
+      to   { opacity: 1; }
+    }
+
+    .modal-dialog {
+      width: 100%;
+      max-width: 520px;
+      pointer-events: auto;
+      margin: 0 auto;
+    }
+
+    .modal-dialog-centered {
+      display: flex;
+      align-items: center;
+    }
+
+    .modal-content {
+      background: var(--sd-surface);
+      border-radius: var(--sd-radius);
+      box-shadow: 0 25px 60px rgba(0,0,0,.25);
+      overflow: hidden;
+      animation: modal-content-in 0.3s cubic-bezier(0.4,0,0.2,1);
+      width: 100%;
+      pointer-events: auto;
+    }
+
+    @keyframes modal-content-in {
+      from { opacity: 0; transform: translateY(-16px) scale(0.98); }
+      to   { opacity: 1; transform: translateY(0) scale(1); }
+    }
+
+    /* Section transition modal content */
+    #section-transition-modal .modal-content {
+      text-align: center;
+      padding: 3rem 2.5rem;
+    }
+
+    .rt-modal-check {
+      width: 80px; height: 80px;
+      background: rgba(16,185,129,.1);
+      border-radius: 50%;
+      display: flex; align-items: center; justify-content: center;
+      margin: 0 auto 1.5rem;
+      font-size: 2.2rem;
+      color: var(--sd-green);
+    }
+
+    .rt-modal-title {
+      font-size: 1.6rem;
+      font-weight: 800;
+      color: var(--sd-text);
+      margin-bottom: 0.5rem;
+      letter-spacing: -0.5px;
+    }
+
+    .rt-modal-score {
+      font-size: 1.1rem;
+      font-weight: 600;
+      color: var(--sd-primary);
+      margin-bottom: 1.25rem;
+    }
+
+    .rt-modal-msg {
+      font-size: 1rem;
+      color: var(--sd-text-2);
+      line-height: 1.65;
+      margin-bottom: 2rem;
+      font-style: italic;
+    }
+
+    /* Fade-in utility (keep for JS compatibility) */
+    .fade-in { animation: rt-card-in 0.4s ease-out both; }
+
+    /* ── Responsive ── */
+    @media (max-width: 600px) {
+      .rt-chat-card { padding: 2rem 1.25rem 1.75rem; }
+      .rt-bubble { font-size: 1rem; padding: 1.1rem 1.2rem; }
+      .question-container { padding: 1.5rem 1.25rem; }
+      .question-title { font-size: 1.25rem; }
+      .prompt-text[data-type="letter"] { font-size: 5rem; }
+      .prompt-text[data-type="word"]   { font-size: clamp(2rem, 10vw, 3rem); letter-spacing: 0px; }
+    }
+  </style>
 </head>
 
-<body class="student-dashboard">
-    <div class="dashboard-container">
-        <!-- Sidebar -->
-        <aside class="sidebar">
-            <div class="logo">
-                <h2>Alpharia</h2>
-            </div>
-            <nav>
-                <ul class="nav-menu">
-                    <li class="nav-item">
-                        <a href="student-dashboard.html" class="nav-link">
-                            <i class="fas fa-home"></i>
-                            <span>Overview</span>
-                        </a>
-                    </li>
-                    <li class="nav-item">
-                        <a href="take-test.html" class="nav-link active">
-                            <i class="fas fa-tasks"></i>
-                            <span>My Tests</span>
-                        </a>
-                    </li>
-                    <li class="nav-item">
-                        <a href="student-progress.html" class="nav-link">
-                            <i class="fas fa-chart-line"></i>
-                            <span>Progress</span>
-                        </a>
-                    </li>
-                    <li class="nav-item">
-                        <a href="#" class="nav-link">
-                            <i class="fas fa-book"></i>
-                            <span>Resources</span>
-                        </a>
-                    </li>
-                    <li class="nav-item">
-                        <a href="student-settings.html" class="nav-link">
-                            <i class="fas fa-cog"></i>
-                            <span>Settings</span>
-                        </a>
-                    </li>
-                </ul>
-            </nav>
-            <div class="user-profile">
-                <div class="user-avatar"><img id="sidebar-avatar" src="https://ui-avatars.com/api/?name=U" alt="User">
-                </div>
-                <div class="user-info">
-                    <h4 id="sidebar-username">User</h4><small>Student</small>
-                </div>
-            </div>
-        </aside>
+<body class="sd-page">
+<div class="sd-shell">
 
-        <!-- Main Content -->
-        <main class="main-content">
+  <!-- ═══════════ SIDEBAR ═══════════ -->
+  <aside class="sd-sidebar" id="sd-sidebar" aria-label="Main navigation">
 
-            <!-- 1. GREETING INTERFACE -->
-            <div id="greeting-container" class="fade-in">
-                <div class="chat-card">
-                    <div class="alex-avatar-container">
-                        <i class="fas fa-book-open-reader fa-3x text-primary"></i>
-                    </div>
-                    <div id="alex-speech-bubble" class="chat-bubble">
-                        <!-- Dynamic Text -->
-                        <span id="alex-text">Loading...</span>
-                    </div>
-                    <div id="user-interaction" class="user-interaction-area">
-                        <!-- Inputs / Buttons injected here -->
-                        <div class="spinner-border text-primary" role="status"></div>
-                    </div>
-                </div>
-            </div>
+    <a href="index.html" class="sd-sidebar-brand" aria-label="Alpharia home">
+      <div class="sd-brand-icon"><i class="fas fa-book-reader"></i></div>
+      <span class="sd-brand-text">Alpharia</span>
+    </a>
 
-            <!-- 2. TEST INTERFACE (Hidden) -->
-            <div id="test-content-wrapper" class="fade-in">
-                <header class="top-bar mb-4">
-                    <h1 id="test-title">Reading Assessment</h1>
-                    <div class="test-info">
-                        <!-- Timer removed or moved inside card -->
-                    </div>
-                </header>
+    <nav class="sd-nav" aria-label="Dashboard navigation">
+      <span class="sd-nav-section-label">Main</span>
 
-                <div id="test-content">
-                    <!-- Test Card Injected Here -->
-                </div>
-            </div>
+      <a href="student-dashboard.html" class="sd-nav-link">
+        <i class="fas fa-home"></i><span>Overview</span>
+      </a>
 
-        </main>
-    </div>
+      <a href="student-tests.html" class="sd-nav-link active" aria-current="page">
+        <i class="fas fa-tasks"></i><span>My Tests</span>
+      </a>
 
-    <!-- Scripts -->
-    <!-- Helper Modals (Hidden) -->
-    <div id="feedback-modal" class="modal">
-        <div class="modal-content"></div>
-    </div>
+      <a href="student-progress.html" class="sd-nav-link">
+        <i class="fas fa-chart-line"></i><span>Progress</span>
+      </a>
 
-    <!-- Section Transition Modal -->
-    <div id="section-transition-modal" class="modal" tabindex="-1" role="dialog" style="background: rgba(0,0,0,0.85);">
-        <div class="modal-dialog modal-dialog-centered" role="document">
-            <div class="modal-content border-0 shadow-lg text-center p-5 rounded-4"
-                style="max-width: 500px; margin: auto;">
-                <div class="modal-body">
-                    <div class="mb-4">
-                        <i class="fas fa-check-circle text-success" style="font-size: 5rem;"></i>
-                    </div>
-                    <h2 class="mb-3 fw-bold">Section Complete!</h2>
-                    <h4 class="text-primary mb-4" id="section-score-display">Score: 0 / 0</h4>
-                    <hr>
-                    <h3 class="my-4 fst-italic text-muted" id="section-transition-msg">Thank you.<br>Please Prepare to
-                        Call some Words.</h3>
-                    <button type="button" class="btn btn-primary btn-lg rounded-pill px-5 shadow-sm"
-                        onclick="nextStageFromModal()">
-                        Continue <i class="fas fa-arrow-right ms-2"></i>
-                    </button>
-                </div>
-            </div>
+      <a href="take-reading-test.html" class="sd-nav-link">
+        <i class="fas fa-microphone-alt"></i><span>Take a Test</span>
+      </a>
+
+      <span class="sd-nav-section-label">Library</span>
+
+      <a href="#" class="sd-nav-link">
+        <i class="fas fa-book-open"></i><span>Resources</span>
+      </a>
+
+      <a href="#" class="sd-nav-link">
+        <i class="fas fa-trophy"></i><span>Achievements</span>
+      </a>
+
+      <span class="sd-nav-section-label">Account</span>
+
+      <a href="student-settings.html" class="sd-nav-link">
+        <i class="fas fa-cog"></i><span>Settings</span>
+      </a>
+    </nav>
+
+    <div class="sd-sidebar-footer">
+      <div class="sd-sidebar-user">
+        <img src="https://ui-avatars.com/api/?name=U&background=4f46e5&color=fff"
+             alt="User" class="sd-sidebar-avatar" id="sidebar-avatar">
+        <div class="sd-sidebar-user-info">
+          <div class="sd-sidebar-user-name" id="sidebar-username">Student</div>
+          <div class="sd-sidebar-user-role">Student</div>
         </div>
+      </div>
     </div>
+  </aside>
 
-    <script type="module" src="./js/take-reading-test.js"></script>
+  <!-- Overlay (mobile) -->
+  <div class="sd-sidebar-overlay" id="sd-overlay" aria-hidden="true"></div>
+
+  <!-- ═══════════ MAIN ═══════════ -->
+  <div class="sd-main">
+
+    <!-- Top Bar -->
+    <header class="sd-topbar" role="banner">
+      <button class="sd-topbar-toggle" id="sd-menu-toggle" aria-label="Open navigation" aria-expanded="false">
+        <i class="fas fa-bars"></i>
+      </button>
+      <div style="flex:1;display:flex;align-items:center;gap:0.6rem;">
+        <i class="fas fa-microphone-alt" style="color:var(--sd-primary);font-size:0.95rem;"></i>
+        <span style="font-weight:700;font-size:0.95rem;color:var(--sd-text);">Reading Assessment</span>
+        <!-- hidden: queried by JS (take-reading-test.js line 81) to show student display name -->
+        <span id="user-name" style="display:none;"></span>
+      </div>
+      <a href="student-tests.html" class="sd-btn sd-btn-outline" style="font-size:0.82rem;padding:0.45rem 1rem;">
+        <i class="fas fa-arrow-left"></i> Back to Tests
+      </a>
+    </header>
+
+    <!-- Main body — both phases live here -->
+    <div style="flex:1;display:flex;flex-direction:column;overflow:hidden;">
+
+      <!-- ══════════════════════════════════
+           PHASE 1: GREETING / CHAT INTERFACE
+           ══════════════════════════════════ -->
+      <div id="greeting-container" class="fade-in">
+        <div class="rt-chat-card">
+
+          <!-- Alex avatar -->
+          <div class="rt-avatar-wrap" aria-hidden="true">
+            <i class="fas fa-robot"></i>
+          </div>
+
+          <!-- AI label -->
+          <div class="rt-ai-label">
+            <i class="fas fa-circle" style="color:#10b981;font-size:0.5rem;"></i>
+            Alex · AI Reading Coach
+          </div>
+
+          <!-- Dynamic speech bubble -->
+          <div id="alex-speech-bubble" class="rt-bubble" aria-live="polite">
+            <span id="alex-text">Loading…</span>
+          </div>
+
+          <!-- Buttons / inputs injected by JS -->
+          <div id="user-interaction" class="rt-interaction">
+            <div class="rt-spinner" role="status" aria-label="Loading"></div>
+          </div>
+
+        </div>
+      </div>
+
+      <!-- ══════════════════════════════════
+           PHASE 2: TEST INTERFACE (hidden until JS starts test)
+           ══════════════════════════════════ -->
+      <div id="test-content-wrapper" class="fade-in" style="display:none;flex:1;flex-direction:column;overflow-y:auto;">
+
+        <!-- Progress bar -->
+        <div class="rt-progress-bar-wrap">
+          <div class="rt-progress-bar-fill" id="test-progress-bar"></div>
+        </div>
+
+        <!-- Test title bar -->
+        <div class="rt-test-header">
+          <div class="rt-test-title">
+            <i class="fas fa-clipboard-list"></i>
+            <span id="test-title">Reading Assessment</span>
+          </div>
+          <div class="test-info">
+            <!-- Timer / section info injected by JS -->
+          </div>
+        </div>
+
+        <!-- Test content (question cards injected by take-reading-test.js) -->
+        <div id="test-content" style="padding-bottom:2rem;"></div>
+
+      </div>
+
+    </div><!-- /flex wrapper -->
+  </div><!-- /sd-main -->
+</div><!-- /sd-shell -->
+
+
+<!-- ══════════════════════════════════
+     MODALS (preserved exactly — IDs unchanged)
+══════════════════════════════════ -->
+
+<!-- Feedback modal (generic, used by test JS) -->
+<div id="feedback-modal" class="modal" role="dialog" aria-modal="true">
+  <div class="modal-content"></div>
+</div>
+
+<!-- Section Transition Modal -->
+<div id="section-transition-modal" class="modal" tabindex="-1" role="dialog"
+     style="background:rgba(0,0,0,0.7);">
+  <div class="modal-dialog modal-dialog-centered" role="document">
+    <div class="modal-content" style="max-width:480px;margin:auto;">
+      <div class="modal-body" style="padding:2.5rem 2rem;text-align:center;">
+
+        <!-- Check icon -->
+        <div class="rt-modal-check" aria-hidden="true">
+          <i class="fas fa-check"></i>
+        </div>
+
+        <div class="rt-modal-title">Section Complete!</div>
+
+        <div class="rt-modal-score" id="section-score-display">Score: 0 / 0</div>
+
+        <hr style="border-color:var(--sd-border);margin:1.25rem 0;">
+
+        <p class="rt-modal-msg" id="section-transition-msg">
+          Thank you.<br>Please prepare to<br>continue to the next section.
+        </p>
+
+        <button type="button" class="sd-btn sd-btn-primary"
+                style="padding:0.75rem 2.5rem;font-size:1rem;border-radius:50px;"
+                onclick="nextStageFromModal()">
+          Continue <i class="fas fa-arrow-right" style="margin-left:0.4rem;"></i>
+        </button>
+
+      </div>
+    </div>
+  </div>
+</div>
+
+
+<!-- ══════════════════════════════════
+     SCRIPTS
+══════════════════════════════════ -->
+
+<!-- Mobile sidebar toggle -->
+<script>
+(function () {
+  var sidebar = document.getElementById('sd-sidebar');
+  var overlay = document.getElementById('sd-overlay');
+  var toggle  = document.getElementById('sd-menu-toggle');
+
+  function open()  {
+    sidebar.classList.add('open');
+    overlay.classList.add('open');
+    toggle.setAttribute('aria-expanded', 'true');
+    document.body.style.overflow = 'hidden';
+  }
+  function close() {
+    sidebar.classList.remove('open');
+    overlay.classList.remove('open');
+    toggle.setAttribute('aria-expanded', 'false');
+    document.body.style.overflow = '';
+  }
+
+  if (toggle)  toggle.addEventListener('click', function () { sidebar.classList.contains('open') ? close() : open(); });
+  if (overlay) overlay.addEventListener('click', close);
+  document.addEventListener('keydown', function (e) { if (e.key === 'Escape') close(); });
+})();
+</script>
+
+<!-- Main test engine (unchanged) -->
+<script type="module" src="./js/take-reading-test.js"></script>
 </body>
-
 </html>

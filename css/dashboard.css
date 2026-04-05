@@ -50,7 +50,8 @@ body.role-student .sidebar {
 /* Hide elements based on role */
 .teacher-only,
 .student-only {
-    display: none; /* Will be shown by JavaScript based on role */
+    display: none;
+    /* Will be shown by JavaScript based on role */
 }
 
 /* Role-specific badges */
@@ -268,8 +269,15 @@ body.role-student .sidebar {
 }
 
 @keyframes fadeIn {
-    from { opacity: 0; transform: translateY(10px); }
-    to { opacity: 1; transform: translateY(0); }
+    from {
+        opacity: 0;
+        transform: translateY(10px);
+    }
+
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
 }
 
 h2 {
@@ -430,7 +438,8 @@ table {
     background-color: var(--bg-secondary);
 }
 
-th, td {
+th,
+td {
     padding: 1rem;
     text-align: left;
     border-bottom: 1px solid var(--border-color);
@@ -564,21 +573,36 @@ tbody tr:hover {
 /* Responsive */
 @media (max-width: 1024px) {
     .sidebar {
-        position: fixed;
-        left: -260px;
-        top: 0;
-        bottom: 0;
-        transition: var(--transition);
+        transform: translateX(-100%) !important;
+        box-shadow: none !important;
+        z-index: 1050 !important;
     }
-    
+
     .sidebar.active {
-        left: 0;
+        transform: translateX(0) !important;
+        box-shadow: 4px 0 20px rgba(0, 0, 0, 0.2) !important;
+        z-index: 1050 !important;
     }
-    
+
+    .sidebar-overlay {
+        display: none;
+        position: fixed;
+        top: 0;
+        left: 0;
+        right: 0;
+        bottom: 0;
+        background-color: rgba(0, 0, 0, 0.5);
+        z-index: 1040 !important;
+    }
+
+    .sidebar-overlay.active {
+        display: block !important;
+    }
+
     .main-content {
         margin-left: 0;
     }
-    
+
     .mobile-menu-toggle {
         display: block;
     }
@@ -588,11 +612,11 @@ tbody tr:hover {
     .overview-cards {
         grid-template-columns: 1fr 1fr;
     }
-    
+
     .top-bar {
         padding: 1rem;
     }
-    
+
     .search-bar {
         width: 200px;
     }
@@ -602,15 +626,15 @@ tbody tr:hover {
     .overview-cards {
         grid-template-columns: 1fr;
     }
-    
+
     .content-sections {
         padding: 1rem;
     }
-    
+
     .form-actions {
         flex-direction: column;
     }
-    
+
     .form-actions .btn {
         width: 100%;
     }
@@ -642,6 +666,7 @@ tbody tr:hover {
         transform: translateX(100%);
         opacity: 0;
     }
+
     to {
         transform: translateX(0);
         opacity: 1;

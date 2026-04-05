@@ -148,7 +148,8 @@ async function showAddStudentModal() {
                 <td>${student.displayName || student.name || 'Unnamed Student'}</td>
                 <td>${student.email || 'No email'}</td>
                 <td>${student.grade || 'N/A'}</td>
-                <td><span class="badge bg-secondary">Available</span></td>`;
+                <td><span class="badge bg-secondary">Available</span></td>
+            `;
 
             tbody.appendChild(row);
         });
@@ -558,392 +559,393 @@ function updateStudentTable(students) {
             // Clean up if initialization fails
             if ($.fn.DataTable.isDataTable('#studentProgressTable')) {
                 $('#studentProgressTable').DataTable().destroy(true);
-                console.error('Error updating DataTable, will reinitialize:', e);
-                studentDataTable.destroy(true);
-                studentDataTable = null;
+                console.error('Error updating DataTable, will reinitialize:', error);
+                if (studentDataTable) {
+                    studentDataTable.destroy(true);
+                    studentDataTable = null;
+                }
             }
         }
+    }
 
+    // Global chart state and instances
+    const chartsState = {
+        initialized: {
+            performance: false,
+            distribution: false
+        },
+        instances: {
+            performance: null,
+            distribution: null
+        }
+    };
 
+    // Initialize everything after the DOM is fully loaded
+    document.addEventListener('DOMContentLoaded', () => {
+        console.log('DOM fully loaded, initializing app...');
 
-        // Global chart state and instances
-        const chartsState = {
-            initialized: {
-                performance: false,
-                distribution: false
-            },
-            instances: {
-                performance: null,
-                distribution: null
-            }
-        };
+        // Initialize auth state first
+        initAuthState();
 
-        // Initialize everything after the DOM is fully loaded
-        document.addEventListener('DOMContentLoaded', () => {
-            console.log('DOM fully loaded, initializing app...');
+        // Initialize event listeners
+        initEventListeners();
 
-            // Initialize auth state first
-            initAuthState();
+        // Initialize charts with empty data
+        initializeCharts();
+    });
 
-            // Initialize event listeners
-            initEventListeners();
+    // Function to initialize all charts
+    function initializeCharts() {
+        console.log('Initializing charts...');
 
-            // Initialize charts with empty data
-            initializeCharts();
-        });
+        // Reset initialization state
+        chartsState.initialized.performance = false;
+        chartsState.initialized.distribution = false;
 
-        // Function to initialize all charts
-        function initializeCharts() {
-            console.log('Initializing charts...');
-
-            // Reset initialization state
-            chartsState.initialized.performance = false;
-            chartsState.initialized.distribution = false;
-
-            // Initialize performance chart
-            const perfChart = getOrCreatePerformanceChart();
-            if (perfChart) {
-                console.log('Performance chart initialized successfully');
-                chartsState.initialized.performance = true;
-                chartsState.instances.performance = perfChart;
-            } else {
-                console.error('Failed to initialize performance chart');
-            }
-
-            // Initialize distribution chart
-            const distChart = getOrCreateDistributionChart();
-            if (distChart) {
-                console.log('Distribution chart initialized successfully');
-                chartsState.initialized.distribution = true;
-                chartsState.instances.distribution = distChart;
-            } else {
-                console.error('Failed to initialize distribution chart');
-            }
-
-            console.log('Charts initialization state:', chartsState.initialized);
-
-            // Process any pending updates now that both charts are initialized
-            if (chartsState.initialized.performance && chartsState.initialized.distribution) {
-                console.log('Both charts ready, checking for pending updates');
-                processPendingUpdates();
-            }
+        // Initialize performance chart
+        const perfChart = getOrCreatePerformanceChart();
+        if (perfChart) {
+            console.log('Performance chart initialized successfully');
+            chartsState.initialized.performance = true;
+            chartsState.instances.performance = perfChart;
+        } else {
+            console.error('Failed to initialize performance chart');
         }
 
-        // Update the charts with student data
-        function updateCharts(students) {
-            try {
-                console.log('Updating charts with student data...');
+        // Initialize distribution chart
+        const distChart = getOrCreateDistributionChart();
+        if (distChart) {
+            console.log('Distribution chart initialized successfully');
+            chartsState.initialized.distribution = true;
+            chartsState.instances.distribution = distChart;
+        } else {
+            console.error('Failed to initialize distribution chart');
+        }
 
-                // Get chart instances from our state
-                const perfChart = chartsState.instances.performance;
-                const distChart = chartsState.instances.distribution;
+        console.log('Charts initialization state:', chartsState.initialized);
 
-                // Check if both charts are ready
-                if (!chartsState.initialized.performance || !chartsState.initialized.distribution) {
-                    console.log('Charts not fully initialized yet, skipping update');
-                    // Store the student data to update charts once they're ready
-                    window.pendingChartUpdate = students;
-                    return;
-                }
+        // Process any pending updates now that both charts are initialized
+        if (chartsState.initialized.performance && chartsState.initialized.distribution) {
+            console.log('Both charts ready, checking for pending updates');
+            processPendingUpdates();
+        }
+    }
 
-                // If no students, update charts with empty data and return
-                if (!students || students.length === 0) {
-                    console.log('No student data available, resetting charts');
-                    if (perfChart && perfChart.data && perfChart.data.datasets) {
-                        perfChart.data.datasets[0].data = new Array(6).fill(0);
-                        perfChart.update();
-                    }
-                    if (distChart && distChart.data && distChart.data.datasets) {
-                        distChart.data.datasets[0].data = [0, 0, 0, 0, 0];
-                        distChart.update();
-                    }
-                    return;
-                }
+    // Update the charts with student data
+    function updateCharts(students) {
+        try {
+            console.log('Updating charts with student data...');
 
-                // Update charts with student data
-                updateClassPerformanceChart(students);
-                updateScoreDistributionChart(students);
-            } catch (error) {
-                console.error('Error in updateCharts:', error);
+            // Get chart instances from our state
+            const perfChart = chartsState.instances.performance;
+            const distChart = chartsState.instances.distribution;
+
+            // Check if both charts are ready
+            if (!chartsState.initialized.performance || !chartsState.initialized.distribution) {
+                console.log('Charts not fully initialized yet, skipping update');
+                // Store the student data to update charts once they're ready
+                window.pendingChartUpdate = students;
+                return;
             }
+
+            // If no students, update charts with empty data and return
+            if (!students || students.length === 0) {
+                console.log('No student data available, resetting charts');
+                if (perfChart && perfChart.data && perfChart.data.datasets) {
+                    perfChart.data.datasets[0].data = new Array(6).fill(0);
+                    perfChart.update();
+                }
+                if (distChart && distChart.data && distChart.data.datasets) {
+                    distChart.data.datasets[0].data = [0, 0, 0, 0, 0];
+                    distChart.update();
+                }
+                return;
+            }
+
+            // Update charts with student data
+            updateClassPerformanceChart(students);
+            updateScoreDistributionChart(students);
+        } catch (error) {
+            console.error('Error in updateCharts:', error);
         }
+    }
 
-        // Initialize charts with empty data (kept for backward compatibility)
-        function initCharts() {
-            // This function is kept for backward compatibility but is no longer needed
-            // as chart initialization is now handled by getOrCreate* functions
-            console.log('initCharts() is deprecated. Charts are now initialized on demand.');
-        }
+    // Initialize charts with empty data (kept for backward compatibility)
+    function initCharts() {
+        // This function is kept for backward compatibility but is no longer needed
+        // as chart initialization is now handled by getOrCreate* functions
+        console.log('initCharts() is deprecated. Charts are now initialized on demand.');
+    }
 
-        // Safely initialize or get performance chart instance
-        function getOrCreatePerformanceChart() {
-            try {
-                // If we already have a chart instance, return it
-                if (chartsState.instances.performance) {
-                    return chartsState.instances.performance;
-                }
+    // Safely initialize or get performance chart instance
+    function getOrCreatePerformanceChart() {
+        try {
+            // If we already have a chart instance, return it
+            if (chartsState.instances.performance) {
+                return chartsState.instances.performance;
+            }
 
-                const canvas = document.getElementById('classPerformanceChart');
-                if (!canvas) {
-                    console.warn('Performance chart canvas not found');
-                    return null;
-                }
-
-                const ctx = canvas.getContext('2d');
-                if (!ctx) {
-                    console.warn('Could not get 2D context for performance chart');
-                    return null;
-                }
-
-                // Generate labels for the last 6 months
-                const months = [];
-                const now = new Date();
-                for (let i = 5; i >= 0; i--) {
-                    const date = new Date(now);
-                    date.setMonth(now.getMonth() - i);
-                    months.push(date.toLocaleString('default', { month: 'short' }));
-                }
-
-                // Create the chart instance
-                const chart = new Chart(ctx, {
-                    type: 'line',
-                    data: {
-                        labels: months,
-                        datasets: [{
-                            label: 'Class Average',
-                            data: new Array(6).fill(0),
-                            borderColor: '#4e73df',
-                            backgroundColor: 'rgba(78, 115, 223, 0.05)',
-                            tension: 0.3,
-                            fill: true
-                        }]
-                    },
-                    options: {
-                        responsive: true,
-                        maintainAspectRatio: false,
-                        plugins: {
-                            legend: {
-                                display: false
-                            }
-                        },
-                        scales: {
-                            y: {
-                                beginAtZero: true,
-                                max: 100,
-                                ticks: {
-                                    callback: function (value) {
-                                        return value + '%';
-                                    }
-                                }
-                            }
-                        }
-                    }
-                });
-
-                // Store the chart instance and update state
-                chartsState.instances.performance = chart;
-                chartsState.initialized.performance = true;
-                console.log('Performance chart created successfully');
-
-                return chart;
-
-            } catch (error) {
-                console.error('Error creating performance chart:', error);
+            const canvas = document.getElementById('classPerformanceChart');
+            if (!canvas) {
+                console.warn('Performance chart canvas not found');
                 return null;
             }
-        }
 
-        // Update the class performance line chart
-        function updateClassPerformanceChart(students) {
-            try {
-                // Get the chart instance
-                const chart = chartsState.instances.performance;
-                if (!chart || !chart.data || !chart.data.datasets || !chart.data.datasets[0]) {
-                    console.warn('Performance chart not properly initialized, skipping update');
-                    console.log('Current chart instance:', chart);
-                    return;
-                }
-
-                // Generate last 6 months labels
-                const months = [];
-                const now = new Date();
-                for (let i = 5; i >= 0; i--) {
-                    const date = new Date(now);
-                    date.setMonth(now.getMonth() - i);
-                    months.push(date.toLocaleString('default', { month: 'short' }));
-                }
-
-                // Initialize monthly averages
-                const monthlyAverages = new Array(6).fill(0);
-                const monthCounts = new Array(6).fill(0);
-                let hasData = false;
-
-                // Calculate monthly averages if we have students with test results
-                if (students && students.length > 0) {
-                    students.forEach(student => {
-                        if (!student.testResults) return;
-
-                        Object.values(student.testResults).forEach(test => {
-                            if (test.completedAt) {
-                                const testDate = test.completedAt.toDate();
-                                const monthDiff = (now.getFullYear() - testDate.getFullYear()) * 12 +
-                                    now.getMonth() - testDate.getMonth();
-
-                                if (monthDiff >= 0 && monthDiff < 6) {
-                                    const index = 5 - monthDiff;
-                                    monthlyAverages[index] += test.score || 0;
-                                    monthCounts[index]++;
-                                    hasData = true;
-                                }
-                            }
-                        });
-                    });
-                }
-
-                try {
-                    // Calculate final averages
-                    const averageScores = monthlyAverages.map((sum, i) =>
-                        monthCounts[i] > 0 ? Math.round((sum / monthCounts[i]) * 10) / 10 : 0
-                    );
-
-                    // Safely update the chart data and labels
-                    if (chart.data) {
-                        chart.data.labels = months;
-                        if (chart.data.datasets && chart.data.datasets[0]) {
-                            chart.data.datasets[0].data = hasData ? averageScores : new Array(6).fill(0);
-                        }
-                        chart.update();
-                    }
-                } catch (updateError) {
-                    console.error('Error updating chart data:', updateError);
-                }
-            } catch (error) {
-                console.error('Error in updateClassPerformanceChart:', error);
-            }
-        }
-
-        // Safely initialize or get distribution chart instance
-        function getOrCreateDistributionChart() {
-            try {
-                // If we already have a chart instance, return it
-                if (chartsState.instances.distribution) {
-                    return chartsState.instances.distribution;
-                }
-
-                const canvas = document.getElementById('scoreDistributionChart');
-                if (!canvas) {
-                    console.warn('Distribution chart canvas not found');
-                    return null;
-                }
-
-                const ctx = canvas.getContext('2d');
-                if (!ctx) {
-                    console.warn('Could not get 2D context for distribution chart');
-                    return null;
-                }
-
-                // Create the chart instance
-                const chart = new Chart(ctx, {
-                    type: 'doughnut',
-                    data: {
-                        labels: ['90-100%', '80-89%', '70-79%', '60-69%', 'Below 60%'],
-                        datasets: [{
-                            data: [0, 0, 0, 0, 0],
-                            backgroundColor: ['#1cc88a', '#36b9cc', '#f6c23e', '#e74a3b', '#858796'],
-                            hoverBackgroundColor: ['#17a673', '#2c9faf', '#dda20a', '#be2617', '#6c757d'],
-                            hoverBorderColor: 'rgba(234, 236, 244, 1)',
-                        }]
-                    },
-                    options: {
-                        maintainAspectRatio: false,
-                        plugins: {
-                            legend: {
-                                position: 'bottom',
-                                labels: {
-                                    padding: 20,
-                                    usePointStyle: true,
-                                    pointStyle: 'circle'
-                                }
-                            }
-                        },
-                        cutout: '70%',
-                        animation: {
-                            animateScale: true,
-                            animateRotate: true
-                        }
-                    }
-                });
-
-                // Store the chart instance and update state
-                chartsState.instances.distribution = chart;
-                chartsState.initialized.distribution = true;
-                console.log('Distribution chart created successfully');
-
-                return chart;
-
-            } catch (error) {
-                console.error('Error creating distribution chart:', error);
+            const ctx = canvas.getContext('2d');
+            if (!ctx) {
+                console.warn('Could not get 2D context for performance chart');
                 return null;
             }
-        }
 
-        // Update the score distribution chart
-        function updateScoreDistributionChart(students) {
-            try {
-                // Get the chart instance
-                const chart = chartsState.instances.distribution;
-                if (!chart || !chart.data || !chart.data.datasets || !chart.data.datasets[0]) {
-                    console.warn('Distribution chart not properly initialized, skipping update');
-                    console.log('Current chart instance:', chart);
-                    return;
-                }
-
-                // Initialize score ranges
-                const scoreRanges = [0, 0, 0, 0, 0]; // 90-100, 80-89, 70-79, 60-69, <60
-
-                // Calculate score distribution if we have students
-                if (students && students.length > 0) {
-                    students.forEach(student => {
-                        if (student.averageScore === undefined) return;
-
-                        if (student.averageScore >= 90) scoreRanges[0]++;
-                        else if (student.averageScore >= 80) scoreRanges[1]++;
-                        else if (student.averageScore >= 70) scoreRanges[2]++;
-                        else if (student.averageScore >= 60) scoreRanges[3]++;
-                        else scoreRanges[4]++;
-                    });
-                }
-
-                // Safely update the chart data
-                try {
-                    if (chart.data && chart.data.datasets && chart.data.datasets[0]) {
-                        chart.data.datasets[0].data = scoreRanges;
-                        chart.update();
-                    }
-                } catch (updateError) {
-                    console.error('Error updating distribution chart data:', updateError);
-                }
-            } catch (error) {
-                console.error('Error in updateScoreDistributionChart:', error);
+            // Generate labels for the last 6 months
+            const months = [];
+            const now = new Date();
+            for (let i = 5; i >= 0; i--) {
+                const date = new Date(now);
+                date.setMonth(now.getMonth() - i);
+                months.push(date.toLocaleString('default', { month: 'short' }));
             }
-        }
 
-        // Process any pending chart updates when both charts are ready
-        function processPendingUpdates() {
-            if (chartsState.initialized.performance && chartsState.initialized.distribution && window.pendingChartUpdate) {
-                console.log('All charts ready, processing pending update', window.pendingChartUpdate);
-                const studentsToUpdate = window.pendingChartUpdate;
-                window.pendingChartUpdate = null;
-                updateCharts(studentsToUpdate);
-            } else {
-                console.log('Not all charts ready or no pending updates', {
-                    chartsState,
-                    hasPendingUpdate: !!window.pendingChartUpdate
+            // Create the chart instance
+            const chart = new Chart(ctx, {
+                type: 'line',
+                data: {
+                    labels: months,
+                    datasets: [{
+                        label: 'Class Average',
+                        data: new Array(6).fill(0),
+                        borderColor: '#4e73df',
+                        backgroundColor: 'rgba(78, 115, 223, 0.05)',
+                        tension: 0.3,
+                        fill: true
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: {
+                        legend: {
+                            display: false
+                        }
+                    },
+                    scales: {
+                        y: {
+                            beginAtZero: true,
+                            max: 100,
+                            ticks: {
+                                callback: function (value) {
+                                    return value + '%';
+                                }
+                            }
+                        }
+                    }
+                }
+            });
+
+            // Store the chart instance and update state
+            chartsState.instances.performance = chart;
+            chartsState.initialized.performance = true;
+            console.log('Performance chart created successfully');
+
+            return chart;
+
+        } catch (error) {
+            console.error('Error creating performance chart:', error);
+            return null;
+        }
+    }
+
+    // Update the class performance line chart
+    function updateClassPerformanceChart(students) {
+        try {
+            // Get the chart instance
+            const chart = chartsState.instances.performance;
+            if (!chart || !chart.data || !chart.data.datasets || !chart.data.datasets[0]) {
+                console.warn('Performance chart not properly initialized, skipping update');
+                console.log('Current chart instance:', chart);
+                return;
+            }
+
+            // Generate last 6 months labels
+            const months = [];
+            const now = new Date();
+            for (let i = 5; i >= 0; i--) {
+                const date = new Date(now);
+                date.setMonth(now.getMonth() - i);
+                months.push(date.toLocaleString('default', { month: 'short' }));
+            }
+
+            // Initialize monthly averages
+            const monthlyAverages = new Array(6).fill(0);
+            const monthCounts = new Array(6).fill(0);
+            let hasData = false;
+
+            // Calculate monthly averages if we have students with test results
+            if (students && students.length > 0) {
+                students.forEach(student => {
+                    if (!student.testResults) return;
+
+                    Object.values(student.testResults).forEach(test => {
+                        if (test.completedAt) {
+                            const testDate = test.completedAt.toDate();
+                            const monthDiff = (now.getFullYear() - testDate.getFullYear()) * 12 +
+                                now.getMonth() - testDate.getMonth();
+
+                            if (monthDiff >= 0 && monthDiff < 6) {
+                                const index = 5 - monthDiff;
+                                monthlyAverages[index] += test.score || 0;
+                                monthCounts[index]++;
+                                hasData = true;
+                            }
+                        }
+                    });
                 });
             }
-        }
 
-        // Make functions available globally for debugging
-        window.updateCharts = updateCharts;
-        window.updateStudentTable = updateStudentTable;
-        window.chartsState = chartsState;
+            try {
+                // Calculate final averages
+                const averageScores = monthlyAverages.map((sum, i) =>
+                    monthCounts[i] > 0 ? Math.round((sum / monthCounts[i]) * 10) / 10 : 0
+                );
+
+                // Safely update the chart data and labels
+                if (chart.data) {
+                    chart.data.labels = months;
+                    if (chart.data.datasets && chart.data.datasets[0]) {
+                        chart.data.datasets[0].data = hasData ? averageScores : new Array(6).fill(0);
+                    }
+                    chart.update();
+                }
+            } catch (updateError) {
+                console.error('Error updating chart data:', updateError);
+            }
+        } catch (error) {
+            console.error('Error in updateClassPerformanceChart:', error);
+        }
+    }
+
+    // Safely initialize or get distribution chart instance
+    function getOrCreateDistributionChart() {
+        try {
+            // If we already have a chart instance, return it
+            if (chartsState.instances.distribution) {
+                return chartsState.instances.distribution;
+            }
+
+            const canvas = document.getElementById('scoreDistributionChart');
+            if (!canvas) {
+                console.warn('Distribution chart canvas not found');
+                return null;
+            }
+
+            const ctx = canvas.getContext('2d');
+            if (!ctx) {
+                console.warn('Could not get 2D context for distribution chart');
+                return null;
+            }
+
+            // Create the chart instance
+            const chart = new Chart(ctx, {
+                type: 'doughnut',
+                data: {
+                    labels: ['90-100%', '80-89%', '70-79%', '60-69%', 'Below 60%'],
+                    datasets: [{
+                        data: [0, 0, 0, 0, 0],
+                        backgroundColor: ['#1cc88a', '#36b9cc', '#f6c23e', '#e74a3b', '#858796'],
+                        hoverBackgroundColor: ['#17a673', '#2c9faf', '#dda20a', '#be2617', '#6c757d'],
+                        hoverBorderColor: 'rgba(234, 236, 244, 1)',
+                    }]
+                },
+                options: {
+                    maintainAspectRatio: false,
+                    plugins: {
+                        legend: {
+                            position: 'bottom',
+                            labels: {
+                                padding: 20,
+                                usePointStyle: true,
+                                pointStyle: 'circle'
+                            }
+                        }
+                    },
+                    cutout: '70%',
+                    animation: {
+                        animateScale: true,
+                        animateRotate: true
+                    }
+                }
+            });
+
+            // Store the chart instance and update state
+            chartsState.instances.distribution = chart;
+            chartsState.initialized.distribution = true;
+            console.log('Distribution chart created successfully');
+
+            return chart;
+
+        } catch (error) {
+            console.error('Error creating distribution chart:', error);
+            return null;
+        }
+    }
+
+    // Update the score distribution chart
+    function updateScoreDistributionChart(students) {
+        try {
+            // Get the chart instance
+            const chart = chartsState.instances.distribution;
+            if (!chart || !chart.data || !chart.data.datasets || !chart.data.datasets[0]) {
+                console.warn('Distribution chart not properly initialized, skipping update');
+                console.log('Current chart instance:', chart);
+                return;
+            }
+
+            // Initialize score ranges
+            const scoreRanges = [0, 0, 0, 0, 0]; // 90-100, 80-89, 70-79, 60-69, <60
+
+            // Calculate score distribution if we have students
+            if (students && students.length > 0) {
+                students.forEach(student => {
+                    if (student.averageScore === undefined) return;
+
+                    if (student.averageScore >= 90) scoreRanges[0]++;
+                    else if (student.averageScore >= 80) scoreRanges[1]++;
+                    else if (student.averageScore >= 70) scoreRanges[2]++;
+                    else if (student.averageScore >= 60) scoreRanges[3]++;
+                    else scoreRanges[4]++;
+                });
+            }
+
+            // Safely update the chart data
+            try {
+                if (chart.data && chart.data.datasets && chart.data.datasets[0]) {
+                    chart.data.datasets[0].data = scoreRanges;
+                    chart.update();
+                }
+            } catch (updateError) {
+                console.error('Error updating distribution chart data:', updateError);
+            }
+        } catch (error) {
+            console.error('Error in updateScoreDistributionChart:', error);
+        }
+    }
+
+    // Process any pending chart updates when both charts are ready
+    function processPendingUpdates() {
+        if (chartsState.initialized.performance && chartsState.initialized.distribution && window.pendingChartUpdate) {
+            console.log('All charts ready, processing pending update', window.pendingChartUpdate);
+            const studentsToUpdate = window.pendingChartUpdate;
+            window.pendingChartUpdate = null;
+            updateCharts(studentsToUpdate);
+        } else {
+            console.log('Not all charts ready or no pending updates', {
+                chartsState,
+                hasPendingUpdate: !!window.pendingChartUpdate
+            });
+        }
+    }
+
+    // Make functions available globally for debugging
+    window.updateCharts = updateCharts;
+    window.updateStudentTable = updateStudentTable;
+    window.chartsState = chartsState;

@@ -1,538 +1,962 @@
 <!DOCTYPE html>
 <html lang="en">
-
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Settings - Alpharia Student</title>
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/css/bootstrap.min.css" rel="stylesheet">
-    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css" rel="stylesheet">
-    <link href="css/student-dashboard-clean.css" rel="stylesheet">
-    <link href="css/student-styles.css" rel="stylesheet">
-    <style>
-        .settings-card {
-            border: none;
-            border-radius: 10px;
-            box-shadow: 0 0.15rem 1.75rem 0 rgba(58, 59, 69, 0.15);
-            margin-bottom: 1.5rem;
-        }
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Settings — Alpharia</title>
+  <meta name="description" content="Manage your Alpharia account, password, and notification preferences.">
 
-        .settings-card .card-header {
-            background-color: #f8f9fc;
-            border-bottom: 1px solid #e3e6f0;
-            font-weight: 600;
-            padding: 1rem 1.35rem;
-        }
+  <!-- Fonts & Icons -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
 
-        .profile-pic {
-            width: 150px;
-            height: 150px;
-            border-radius: 50%;
-            object-fit: cover;
-            border: 5px solid #f8f9fc;
-            box-shadow: 0 0.15rem 0.5rem rgba(0, 0, 0, 0.1);
-        }
+  <!-- Shared Design System -->
+  <link rel="stylesheet" href="css/student-dashboard-clean.css">
 
-        .nav-pills .nav-link {
-            color: #6e707e;
-            padding: 0.5rem 1rem;
-        }
+  <style>
+    /* ── Settings page styles ── */
 
-        .nav-pills .nav-link.active {
-            background-color: #4e73df;
-            color: white;
-        }
+    /* Two-column layout: sidebar nav + content */
+    .sg-layout {
+      display: grid;
+      grid-template-columns: 260px 1fr;
+      gap: 1.5rem;
+      align-items: start;
+    }
 
-        .tab-content {
-            padding: 1.5rem 0;
-        }
-    </style>
+    /* Left panel */
+    .sg-left { display: flex; flex-direction: column; gap: 1rem; }
+
+    /* Profile card */
+    .sg-profile-card {
+      background: var(--sd-surface);
+      border: 1.5px solid var(--sd-border);
+      border-radius: var(--sd-radius);
+      padding: 2rem 1.5rem;
+      text-align: center;
+      position: relative;
+      overflow: hidden;
+    }
+
+    .sg-profile-card::before {
+      content: '';
+      position: absolute;
+      top: 0; left: 0; right: 0;
+      height: 60px;
+      background: linear-gradient(135deg, var(--sd-primary) 0%, #14b8a6 100%);
+      border-radius: var(--sd-radius) var(--sd-radius) 0 0;
+    }
+
+    /* .profile-pic — queried by JS */
+    .profile-pic {
+      width: 86px; height: 86px;
+      border-radius: 50%;
+      object-fit: cover;
+      border: 3px solid var(--sd-surface);
+      box-shadow: 0 4px 12px rgba(0,0,0,.15);
+      position: relative;
+      z-index: 1;
+      margin-bottom: 0.75rem;
+    }
+
+    /* #profileName — queried by JS */
+    .sg-profile-name {
+      font-size: 1rem;
+      font-weight: 800;
+      color: var(--sd-text);
+      margin-bottom: 0.2rem;
+    }
+
+    /* .text-muted.mb-3 — queried by JS (role display) */
+    .text-muted.mb-3 {
+      font-size: 0.78rem;
+      color: var(--sd-text-3);
+      margin-bottom: 0.75rem !important;
+    }
+
+    /* Tab nav */
+    .sg-tab-nav { display: flex; flex-direction: column; gap: 0.25rem; }
+
+    .sg-tab-btn {
+      display: flex;
+      align-items: center;
+      gap: 0.65rem;
+      padding: 0.72rem 1rem;
+      border-radius: 10px;
+      font-family: var(--sd-font);
+      font-size: 0.875rem;
+      font-weight: 600;
+      color: var(--sd-text-2);
+      background: none;
+      border: none;
+      cursor: pointer;
+      text-align: left;
+      transition: var(--sd-transition);
+      width: 100%;
+    }
+
+    .sg-tab-btn i {
+      width: 18px;
+      text-align: center;
+      font-size: 0.85rem;
+      color: var(--sd-text-3);
+      transition: color 0.2s;
+    }
+
+    .sg-tab-btn:hover { background: var(--sd-surface-2); color: var(--sd-text); }
+
+    .sg-tab-btn.active {
+      background: var(--sd-primary-lt);
+      color: var(--sd-primary);
+    }
+
+    .sg-tab-btn.active i { color: var(--sd-primary); }
+
+    /* Right panel */
+    .sg-content-card {
+      background: var(--sd-surface);
+      border: 1.5px solid var(--sd-border);
+      border-radius: var(--sd-radius);
+    }
+
+    .sg-content-header {
+      padding: 1.2rem 1.75rem;
+      border-bottom: 1px solid var(--sd-border);
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      flex-wrap: wrap;
+      gap: 0.75rem;
+    }
+
+    .sg-content-title {
+      font-size: 0.98rem;
+      font-weight: 700;
+      color: var(--sd-text);
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+    }
+
+    .sg-content-title i { color: var(--sd-primary); }
+
+    /* Tab panes (show/hide via JS) */
+    .sg-pane { display: none; padding: 1.75rem; }
+    .sg-pane.active { display: block; animation: sg-in 0.2s ease-out; }
+
+    @keyframes sg-in {
+      from { opacity: 0; transform: translateY(6px); }
+      to   { opacity: 1; transform: translateY(0); }
+    }
+
+    /* Form elements */
+    .sg-form-group {
+      display: flex;
+      flex-direction: column;
+      gap: 0.35rem;
+      margin-bottom: 1.25rem;
+    }
+
+    .sg-label {
+      font-size: 0.8rem;
+      font-weight: 700;
+      color: var(--sd-text-2);
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+    }
+
+    .sg-input, .sg-select {
+      width: 100%;
+      border: 1.5px solid var(--sd-border);
+      border-radius: 10px;
+      background: var(--sd-surface);
+      color: var(--sd-text);
+      font-family: var(--sd-font);
+      font-size: 0.9rem;
+      padding: 0.65rem 0.9rem;
+      outline: none;
+      transition: var(--sd-transition);
+      box-sizing: border-box;
+    }
+
+    .sg-input::placeholder { color: var(--sd-text-3); }
+
+    .sg-input:focus, .sg-select:focus {
+      border-color: var(--sd-primary);
+      box-shadow: 0 0 0 3px rgba(79,70,229,.12);
+    }
+
+    .sg-input:disabled {
+      background: var(--sd-surface-2);
+      color: var(--sd-text-3);
+      cursor: not-allowed;
+    }
+
+    .sg-hint {
+      font-size: 0.76rem;
+      color: var(--sd-text-3);
+    }
+
+    /* Section divider label */
+    .sg-section-label {
+      font-size: 0.8rem;
+      font-weight: 700;
+      color: var(--sd-text-3);
+      text-transform: uppercase;
+      letter-spacing: 0.07em;
+      margin-bottom: 1rem;
+      padding-bottom: 0.5rem;
+      border-bottom: 1px solid var(--sd-border);
+    }
+
+    /* Notification toggle rows */
+    .sg-toggle-row {
+      display: flex;
+      align-items: flex-start;
+      justify-content: space-between;
+      gap: 1rem;
+      padding: 1rem 0;
+      border-bottom: 1px solid var(--sd-border);
+    }
+
+    .sg-toggle-row:last-of-type { border-bottom: none; }
+
+    .sg-toggle-info { flex: 1; }
+
+    .sg-toggle-title {
+      font-size: 0.9rem;
+      font-weight: 600;
+      color: var(--sd-text);
+      margin-bottom: 0.2rem;
+    }
+
+    .sg-toggle-sub {
+      font-size: 0.78rem;
+      color: var(--sd-text-3);
+      line-height: 1.5;
+    }
+
+    /* Custom toggle switch */
+    .sg-switch {
+      position: relative;
+      width: 44px;
+      height: 24px;
+      flex-shrink: 0;
+      margin-top: 2px;
+    }
+
+    .sg-switch input { opacity: 0; width: 0; height: 0; }
+
+    .sg-switch-track {
+      position: absolute;
+      inset: 0;
+      border-radius: 12px;
+      background: var(--sd-border);
+      cursor: pointer;
+      transition: background 0.25s;
+    }
+
+    .sg-switch-track::after {
+      content: '';
+      position: absolute;
+      left: 3px; top: 3px;
+      width: 18px; height: 18px;
+      border-radius: 50%;
+      background: white;
+      transition: transform 0.25s;
+      box-shadow: 0 1px 4px rgba(0,0,0,.2);
+    }
+
+    .sg-switch input:checked + .sg-switch-track { background: var(--sd-primary); }
+    .sg-switch input:checked + .sg-switch-track::after { transform: translateX(20px); }
+
+    /* Alert toasts */
+    .sg-alert {
+      padding: 0.85rem 1.1rem;
+      border-radius: 12px;
+      font-size: 0.88rem;
+      font-weight: 500;
+      display: flex;
+      align-items: center;
+      gap: 0.6rem;
+      margin-bottom: 1.25rem;
+      animation: sg-in 0.2s ease-out;
+    }
+
+    .sg-alert-success { background: rgba(16,185,129,.1); color: #059669; border: 1px solid rgba(16,185,129,.25); }
+    .sg-alert-danger  { background: rgba(239,68,68,.1);  color: #dc2626; border: 1px solid rgba(239,68,68,.25); }
+    .sg-alert-warning { background: rgba(245,158,11,.1); color: #d97706; border: 1px solid rgba(245,158,11,.25); }
+    .sg-alert-info    { background: rgba(79,70,229,.08); color: #4f46e5; border: 1px solid rgba(79,70,229,.2); }
+
+    /* Save button loading state */
+    .sg-btn-loading i { animation: sg-spin 0.8s linear infinite; }
+    @keyframes sg-spin { to { transform: rotate(360deg); } }
+
+    /* Page title row */
+    .sg-page-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      flex-wrap: wrap;
+      gap: 0.75rem;
+      margin-bottom: 0.25rem;
+    }
+
+    .sg-page-title {
+      font-size: 1.5rem;
+      font-weight: 800;
+      color: var(--sd-text);
+      letter-spacing: -0.5px;
+    }
+
+    /* Danger zone */
+    .sg-danger-zone {
+      border: 1.5px solid rgba(239,68,68,.25);
+      border-radius: 12px;
+      padding: 1.25rem 1.5rem;
+      margin-top: 1.5rem;
+      background: rgba(239,68,68,.04);
+    }
+
+    .sg-danger-title {
+      font-size: 0.85rem;
+      font-weight: 700;
+      color: var(--sd-red, #dc2626);
+      margin-bottom: 0.5rem;
+    }
+
+    .sg-danger-sub { font-size: 0.8rem; color: var(--sd-text-3); margin-bottom: 1rem; }
+
+    @media (max-width: 860px) {
+      .sg-layout { grid-template-columns: 1fr; }
+    }
+  </style>
 </head>
 
-<body class="dashboard-layout">
-    <!-- Sidebar -->
-    <div class="sidebar">
-        <div class="sidebar-header">
-            <h3>Alpharia</h3>
+<body class="sd-page">
+<div class="sd-shell">
+
+  <!-- ═══════════ SIDEBAR ═══════════ -->
+  <aside class="sd-sidebar" id="sd-sidebar" aria-label="Main navigation">
+
+    <a href="index.html" class="sd-sidebar-brand" aria-label="Alpharia home">
+      <div class="sd-brand-icon"><i class="fas fa-book-reader"></i></div>
+      <span class="sd-brand-text">Alpharia</span>
+    </a>
+
+    <nav class="sd-nav" aria-label="Dashboard navigation">
+      <span class="sd-nav-section-label">Main</span>
+
+      <a href="student-dashboard.html" class="sd-nav-link">
+        <i class="fas fa-home"></i><span>Overview</span>
+      </a>
+
+      <a href="student-tests.html" class="sd-nav-link">
+        <i class="fas fa-tasks"></i><span>My Tests</span>
+      </a>
+
+      <a href="student-progress.html" class="sd-nav-link">
+        <i class="fas fa-chart-line"></i><span>Progress</span>
+      </a>
+
+      <a href="take-reading-test.html" class="sd-nav-link">
+        <i class="fas fa-microphone-alt"></i><span>Take a Test</span>
+      </a>
+
+      <span class="sd-nav-section-label">Library</span>
+
+      <a href="#" class="sd-nav-link">
+        <i class="fas fa-book-open"></i><span>Resources</span>
+      </a>
+
+      <a href="#" class="sd-nav-link">
+        <i class="fas fa-trophy"></i><span>Achievements</span>
+      </a>
+
+      <span class="sd-nav-section-label">Account</span>
+
+      <a href="student-settings.html" class="sd-nav-link active" aria-current="page">
+        <i class="fas fa-cog"></i><span>Settings</span>
+      </a>
+    </nav>
+
+    <div class="sd-sidebar-footer">
+      <div class="sd-sidebar-user">
+        <img src="https://ui-avatars.com/api/?name=S&background=4f46e5&color=fff"
+             alt="User" class="sd-sidebar-avatar" id="sidebar-avatar">
+        <div class="sd-sidebar-user-info">
+          <!-- .username queried by JS: document.querySelector('.username') -->
+          <div class="sd-sidebar-user-name username" id="sidebar-username">Loading…</div>
+          <div class="sd-sidebar-user-role">Student</div>
         </div>
-        <ul class="nav flex-column">
-            <li class="nav-item"><a href="student-dashboard.html" class="nav-link"><i class="fas fa-home"></i>
-                    Overview</a></li>
-            <li class="nav-item"><a href="take-test.html" class="nav-link"><i class="fas fa-tasks"></i> My Tests</a>
-            </li>
-            <li class="nav-item"><a href="student-progress.html" class="nav-link"><i class="fas fa-chart-line"></i>
-                    Progress</a></li>
-            <li class="nav-item"><a href="#" class="nav-link"><i class="fas fa-book"></i> Resources</a></li>
-            <li class="nav-item active"><a href="student-settings.html" class="nav-link active"><i
-                        class="fas fa-cog"></i> Settings</a></li>
-        </ul>
+      </div>
     </div>
+  </aside>
 
-    <!-- Main Content -->
-    <div class="main-content">
-        <nav class="top-bar">
-            <div class="search-bar"><i class="fas fa-search"></i><input type="text" placeholder="Search..."></div>
-            <div class="user-profile"><span id="topBarUsername" class="username">Loading...</span>
-                <div class="avatar"><i class="fas fa-user"></i></div>
-            </div>
-        </nav>
+  <!-- Mobile overlay -->
+  <div class="sd-sidebar-overlay" id="sd-overlay" aria-hidden="true"></div>
 
-        <div class="container-fluid py-4">
-            <div class="d-flex justify-content-between align-items-center mb-4">
-                <h2>Account Settings</h2>
-                <button class="btn btn-primary" id="saveChangesBtn"><i class="fas fa-save me-2"></i>Save
-                    Changes</button>
-            </div>
+  <!-- ═══════════ MAIN ═══════════ -->
+  <div class="sd-main">
 
-            <div class="row">
-                <div class="col-lg-3">
-                    <div class="card settings-card mb-4">
-                        <div class="card-body text-center p-4">
-                            <img src="" alt="Profile" class="profile-pic mb-3" id="profilePicture">
-                            <h5 class="mb-1" id="profileName">Loading...</h5>
-                            <p class="text-muted mb-3" id="userRole">Loading...</p>
-                            <button class="btn btn-outline-primary btn-sm w-100"><i class="fas fa-camera me-1"></i>
-                                Change Photo</button>
-                        </div>
-                    </div>
+    <!-- Top Bar -->
+    <header class="sd-topbar" role="banner">
+      <button class="sd-topbar-toggle" id="sd-menu-toggle" aria-label="Open navigation" aria-expanded="false">
+        <i class="fas fa-bars"></i>
+      </button>
 
-                    <div class="card settings-card">
-                        <div class="list-group list-group-flush">
-                            <a href="#profile" class="list-group-item list-group-item-action active"
-                                data-bs-toggle="pill">
-                                <i class="fas fa-user-circle me-2"></i> Profile
-                            </a>
-                            <a href="#account" class="list-group-item list-group-item-action" data-bs-toggle="pill">
-                                <i class="fas fa-key me-2"></i> Account
-                            </a>
-                            <a href="#notifications" class="list-group-item list-group-item-action"
-                                data-bs-toggle="pill">
-                                <i class="fas fa-bell me-2"></i> Notifications
-                            </a>
-                        </div>
-                    </div>
-                </div>
+      <div class="sd-search" role="search">
+        <i class="fas fa-search" aria-hidden="true"></i>
+        <input type="text" placeholder="Search…" aria-label="Search">
+      </div>
 
-                <div class="col-lg-9">
-                    <div class="card settings-card">
-                        <div class="card-body p-4">
-                            <div class="tab-content">
-                                <!-- Profile Tab -->
-                                <div class="tab-pane fade show active" id="profile">
-                                    <h5 class="mb-4">Personal Information</h5>
-                                    <form>
-                                        <div class="mb-3">
-                                            <label class="form-label">Full Name</label>
-                                            <input type="text" class="form-control" id="fullName"
-                                                placeholder="Enter your full name">
-                                        </div>
-                                        <div class="mb-3">
-                                            <label class="form-label">Email Address</label>
-                                            <input type="email" class="form-control" id="email" disabled>
-                                        </div>
-                                        <div class="mb-3">
-                                            <label class="form-label">Grade Level</label>
-                                            <select class="form-select" id="gradeLevel">
-                                                <option value="">Select Grade</option>
-                                                <option value="Grade 1">Grade 1</option>
-                                                <option value="Grade 2">Grade 2</option>
-                                                <option value="Grade 3">Grade 3</option>
-                                                <option value="Grade 4">Grade 4</option>
-                                                <option value="Grade 5">Grade 5</option>
-                                                <option value="Grade 6">Grade 6</option>
-                                                <option value="Grade 7">Grade 7</option>
-                                                <option value="Grade 8">Grade 8</option>
-                                                <option value="Grade 9">Grade 9</option>
-                                                <option value="Grade 10">Grade 10</option>
-                                                <option value="Grade 11">Grade 11</option>
-                                                <option value="Grade 12">Grade 12</option>
-                                            </select>
-                                        </div>
-                                        <div class="mb-3">
-                                            <label class="form-label">Language Level</label>
-                                            <select class="form-select" id="languageLevel">
-                                                <option value="">Select Level</option>
-                                                <option value="Beginner (A1)">Beginner (A1)</option>
-                                                <option value="Elementary (A2)">Elementary (A2)</option>
-                                                <option value="Pre-Intermediate (A2+)">Pre-Intermediate (A2+)</option>
-                                                <option value="Intermediate (B1)">Intermediate (B1)</option>
-                                                <option value="Upper-Intermediate (B2)">Upper-Intermediate (B2)</option>
-                                                <option value="Advanced (C1)">Advanced (C1)</option>
-                                                <option value="Proficient (C2)">Proficient (C2)</option>
-                                            </select>
-                                        </div>
-                                    </form>
-                                </div>
-
-                                <!-- Account Tab -->
-                                <div class="tab-pane fade" id="account">
-                                    <h5 class="mb-4">Change Password</h5>
-                                    <form>
-                                        <div class="mb-3">
-                                            <label class="form-label">Current Password</label>
-                                            <input type="password" class="form-control" id="currentPassword"
-                                                placeholder="Enter current password" required>
-                                            <div class="form-text">Required to change your password</div>
-                                        </div>
-                                        <div class="mb-3">
-                                            <label class="form-label">New Password</label>
-                                            <input type="password" class="form-control" id="newPassword"
-                                                placeholder="Enter new password (min 6 characters)" minlength="6"
-                                                required>
-                                            <div class="form-text">Password must be at least 6 characters long</div>
-                                        </div>
-                                        <div class="mb-3">
-                                            <label class="form-label">Confirm New Password</label>
-                                            <input type="password" class="form-control" id="confirmPassword"
-                                                placeholder="Confirm new password" minlength="6" required>
-                                        </div>
-                                        <button type="button" class="btn btn-primary" id="changePasswordBtn">
-                                            <span class="spinner-border spinner-border-sm d-none" role="status"
-                                                aria-hidden="true"></span>
-                                            Update Password
-                                        </button>
-                                    </form>
-                                </div>
-
-                                <!-- Notifications Tab -->
-                                <div class="tab-pane fade" id="notifications">
-                                    <h5 class="mb-4">Notification Preferences</h5>
-                                    <div class="form-check form-switch mb-3">
-                                        <input class="form-check-input" type="checkbox" id="emailNotifications" checked>
-                                        <label class="form-check-label" for="emailNotifications">Email
-                                            Notifications</label>
-                                        <p class="text-muted small mb-0 mt-1">Receive email notifications about your
-                                            account activity</p>
-                                    </div>
-                                    <div class="form-check form-switch mb-3">
-                                        <input class="form-check-input" type="checkbox" id="testReminders" checked>
-                                        <label class="form-check-label" for="testReminders">Test Reminders</label>
-                                        <p class="text-muted small mb-0 mt-1">Get reminders about upcoming tests and
-                                            assignments</p>
-                                    </div>
-                                    <div class="form-check form-switch mb-3">
-                                        <input class="form-check-input" type="checkbox" id="progressReports" checked>
-                                        <label class="form-check-label" for="progressReports">Weekly Progress
-                                            Reports</label>
-                                        <p class="text-muted small mb-0 mt-1">Receive weekly updates on your learning
-                                            progress</p>
-                                    </div>
-                                    <button type="button" class="btn btn-primary mt-2" id="savePreferencesBtn">
-                                        <span class="spinner-border spinner-border-sm d-none" role="status"
-                                            aria-hidden="true"></span>
-                                        Save Preferences
-                                    </button>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-            </div>
+      <div class="sd-topbar-actions">
+        <button class="sd-icon-btn" aria-label="Notifications">
+          <i class="fas fa-bell"></i>
+          <span class="sd-notif-badge">0</span>
+        </button>
+        <!-- .user-avatar queried by JS -->
+        <div class="sd-avatar-btn user-avatar" id="user-avatar-container">
+          <img src="https://ui-avatars.com/api/?name=S&background=4f46e5&color=fff"
+               alt="Avatar" id="topbar-avatar" width="38" height="38"
+               style="border-radius:50%;width:38px;height:38px;object-fit:cover;">
         </div>
-    </div>
+      </div>
 
-    <!-- Firebase SDK -->
+      <!-- #topBarUsername queried by JS -->
+      <span id="topBarUsername" class="username" style="display:none;">Loading…</span>
+    </header>
 
-    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/js/bootstrap.bundle.min.js"></script>
-    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
-    <script type="module">
-        import { app, auth, db } from './js/firebase-config.js';
-        import { requireAuth } from './js/auth-check.js';
-        import {
-            doc, getDoc, collection, query, where, updateDoc, serverTimestamp
-        } from 'https://www.gstatic.com/firebasejs/12.1.0/firebase-firestore.js';
-        import {
-            EmailAuthProvider, reauthenticateWithCredential, updatePassword
-        } from 'https://www.gstatic.com/firebasejs/12.1.0/firebase-auth.js';
+    <!-- Body -->
+    <!-- .container-fluid queried by JS for alert prepend -->
+    <main class="sd-body container-fluid">
 
-        let currentUser = null;
-        let userData = {};
+      <!-- Page header + save button -->
+      <div class="sg-page-header">
+        <h1 class="sg-page-title">Account Settings</h1>
+        <!-- #saveChangesBtn queried by JS -->
+        <button class="sd-btn sd-btn-primary" id="saveChangesBtn">
+          <i class="fas fa-save"></i> Save Changes
+        </button>
+      </div>
 
-        // DOM Elements
-        const fullNameInput = document.getElementById('fullName');
-        const emailInput = document.getElementById('email');
-        const gradeSelect = document.getElementById('gradeLevel');
-        const languageLevelSelect = document.getElementById('languageLevel');
-        const currentPasswordInput = document.getElementById('currentPassword');
-        const newPasswordInput = document.getElementById('newPassword');
-        const confirmPasswordInput = document.getElementById('confirmPassword');
-        const emailNotifications = document.getElementById('emailNotifications');
-        const testReminders = document.getElementById('testReminders');
-        const progressReports = document.getElementById('progressReports');
-        const saveChangesBtn = document.getElementById('saveChangesBtn');
-        const changePasswordBtn = document.getElementById('changePasswordBtn');
-        const savePreferencesBtn = document.getElementById('savePreferencesBtn');
-        const profilePic = document.querySelector('.profile-pic');
-        const usernameDisplay = document.querySelector('.username');
-        const userAvatar = document.querySelector('.user-avatar');
+      <!-- Settings layout -->
+      <div class="sg-layout">
 
-        // Make functions global or attach listeners
-        // ... (We will implement listeners in DOMContentLoaded)
+        <!-- ── LEFT: profile + tab nav ── -->
+        <div class="sg-left">
 
-        // Initialize
-        document.addEventListener('DOMContentLoaded', async () => {
-            // Tooltips
-            const tooltipTriggerList = [].slice.call(document.querySelectorAll('[data-bs-toggle="tooltip"]'));
-            tooltipTriggerList.map(t => new bootstrap.Tooltip(t));
+          <!-- Profile card -->
+          <div class="sg-profile-card">
+            <!-- .profile-pic queried by JS (querySelector) -->
+            <img src="https://ui-avatars.com/api/?name=S&background=4f46e5&color=fff&size=150"
+                 alt="Profile" class="profile-pic" id="profilePicture">
+            <!-- #profileName queried by JS -->
+            <div class="sg-profile-name" id="profileName">Loading…</div>
+            <!-- .text-muted.mb-3 queried by JS for role text -->
+            <p class="text-muted mb-3">Student</p>
+            <!-- .btn-outline-primary queried by JS for change photo -->
+            <button class="sd-btn sd-btn-outline btn-outline-primary" style="width:100%;justify-content:center;font-size:0.83rem;">
+              <i class="fas fa-camera"></i> Change Photo
+            </button>
+          </div>
 
-            try {
-                const { user } = await requireAuth(['student']);
-                currentUser = user;
+          <!-- Tab nav -->
+          <div class="sg-content-card" style="padding:0.5rem;">
+            <div class="sg-tab-nav" role="tablist">
+              <button class="sg-tab-btn active" data-tab="profile" role="tab" aria-selected="true">
+                <i class="fas fa-user-circle"></i> Profile
+              </button>
+              <button class="sg-tab-btn" data-tab="account" role="tab" aria-selected="false">
+                <i class="fas fa-key"></i> Account &amp; Password
+              </button>
+              <button class="sg-tab-btn" data-tab="notifications" role="tab" aria-selected="false">
+                <i class="fas fa-bell"></i> Notifications
+              </button>
+            </div>
+          </div>
 
-                await loadUserData(user);
+        </div>
 
-                // Listeners
-                if (saveChangesBtn) saveChangesBtn.addEventListener('click', saveProfileChanges);
-                if (changePasswordBtn) changePasswordBtn.addEventListener('click', changePassword);
-                if (savePreferencesBtn) savePreferencesBtn.addEventListener('click', saveNotificationPreferences);
+        <!-- ── RIGHT: tab content ── -->
+        <div class="sg-content-card">
+          <div class="sg-content-header">
+            <div class="sg-content-title" id="tab-content-title">
+              <i class="fas fa-user-circle"></i>
+              <span>Personal Information</span>
+            </div>
+          </div>
 
-                const changePhotoBtn = document.querySelector('.btn-outline-primary');
-                if (changePhotoBtn) {
-                    changePhotoBtn.addEventListener('click', (e) => {
-                        e.preventDefault();
-                        showAlert('Profile picture upload would be handled here with Firebase Storage', 'info');
-                    });
-                }
+          <!-- Alert injection target (inside .container-fluid) — handled by JS -->
 
-            } catch (e) { console.error('Auth error', e); }
+          <!-- Profile Tab -->
+          <div class="sg-pane active" id="pane-profile" role="tabpanel">
+            <div class="sg-section-label">Profile Details</div>
+
+            <div class="sg-form-group">
+              <label class="sg-label" for="fullName">Full Name</label>
+              <input type="text" class="sg-input" id="fullName" placeholder="Enter your full name">
+            </div>
+
+            <div class="sg-form-group">
+              <label class="sg-label" for="email">Email Address</label>
+              <input type="email" class="sg-input" id="email" disabled>
+              <span class="sg-hint">Email cannot be changed here</span>
+            </div>
+
+            <div style="display:grid;grid-template-columns:1fr 1fr;gap:1rem;">
+              <div class="sg-form-group" style="margin-bottom:0;">
+                <label class="sg-label" for="gradeLevel">Grade Level</label>
+                <select class="sg-select" id="gradeLevel">
+                  <option value="">Select Grade</option>
+                  <option value="Grade 1">Grade 1</option>
+                  <option value="Grade 2">Grade 2</option>
+                  <option value="Grade 3">Grade 3</option>
+                  <option value="Grade 4">Grade 4</option>
+                  <option value="Grade 5">Grade 5</option>
+                  <option value="Grade 6">Grade 6</option>
+                  <option value="Grade 7">Grade 7</option>
+                  <option value="Grade 8">Grade 8</option>
+                  <option value="Grade 9">Grade 9</option>
+                  <option value="Grade 10">Grade 10</option>
+                  <option value="Grade 11">Grade 11</option>
+                  <option value="Grade 12">Grade 12</option>
+                </select>
+              </div>
+
+              <div class="sg-form-group" style="margin-bottom:0;">
+                <label class="sg-label" for="languageLevel">Language Level</label>
+                <select class="sg-select" id="languageLevel">
+                  <option value="">Select Level</option>
+                  <option value="Beginner (A1)">Beginner (A1)</option>
+                  <option value="Elementary (A2)">Elementary (A2)</option>
+                  <option value="Pre-Intermediate (A2+)">Pre-Intermediate (A2+)</option>
+                  <option value="Intermediate (B1)">Intermediate (B1)</option>
+                  <option value="Upper-Intermediate (B2)">Upper-Intermediate (B2)</option>
+                  <option value="Advanced (C1)">Advanced (C1)</option>
+                  <option value="Proficient (C2)">Proficient (C2)</option>
+                </select>
+              </div>
+            </div>
+          </div>
+
+          <!-- Account / Password Tab -->
+          <div class="sg-pane" id="pane-account" role="tabpanel">
+            <div class="sg-section-label">Change Password</div>
+
+            <div class="sg-form-group">
+              <label class="sg-label" for="currentPassword">Current Password</label>
+              <input type="password" class="sg-input" id="currentPassword" placeholder="Enter current password" required>
+              <span class="sg-hint">Required to change your password</span>
+            </div>
+
+            <div class="sg-form-group">
+              <label class="sg-label" for="newPassword">New Password</label>
+              <input type="password" class="sg-input" id="newPassword" placeholder="Min. 6 characters" minlength="6" required>
+              <span class="sg-hint">Password must be at least 6 characters long</span>
+            </div>
+
+            <div class="sg-form-group">
+              <label class="sg-label" for="confirmPassword">Confirm New Password</label>
+              <input type="password" class="sg-input" id="confirmPassword" placeholder="Re-enter new password" minlength="6" required>
+            </div>
+
+            <!-- #changePasswordBtn queried by JS -->
+            <button type="button" class="sd-btn sd-btn-primary" id="changePasswordBtn">
+              <i class="fas fa-lock"></i> Update Password
+            </button>
+
+            <!-- Danger zone -->
+            <div class="sg-danger-zone">
+              <div class="sg-danger-title"><i class="fas fa-exclamation-triangle" style="margin-right:0.4rem;"></i>Danger Zone</div>
+              <div class="sg-danger-sub">Once you sign out, you will need your credentials to get back in.</div>
+              <button type="button" class="sd-btn"
+                      style="background:rgba(239,68,68,.1);color:#dc2626;border:1.5px solid rgba(239,68,68,.25);font-size:0.83rem;"
+                      onclick="if(confirm('Sign out?')){import('./js/firebase-config.js').then(m=>m.auth.signOut()).then(()=>window.location.href='auth/login-fixed.html')}">
+                <i class="fas fa-sign-out-alt"></i> Sign Out
+              </button>
+            </div>
+          </div>
+
+          <!-- Notifications Tab -->
+          <div class="sg-pane" id="pane-notifications" role="tabpanel">
+            <div class="sg-section-label">Notification Preferences</div>
+
+            <div class="sg-toggle-row">
+              <div class="sg-toggle-info">
+                <div class="sg-toggle-title">Email Notifications</div>
+                <div class="sg-toggle-sub">Receive email notifications about your account activity</div>
+              </div>
+              <label class="sg-switch">
+                <input type="checkbox" id="emailNotifications" checked>
+                <span class="sg-switch-track"></span>
+              </label>
+            </div>
+
+            <div class="sg-toggle-row">
+              <div class="sg-toggle-info">
+                <div class="sg-toggle-title">Test Reminders</div>
+                <div class="sg-toggle-sub">Get reminders about upcoming tests and assignments</div>
+              </div>
+              <label class="sg-switch">
+                <input type="checkbox" id="testReminders" checked>
+                <span class="sg-switch-track"></span>
+              </label>
+            </div>
+
+            <div class="sg-toggle-row">
+              <div class="sg-toggle-info">
+                <div class="sg-toggle-title">Weekly Progress Reports</div>
+                <div class="sg-toggle-sub">Receive weekly updates on your learning progress</div>
+              </div>
+              <label class="sg-switch">
+                <input type="checkbox" id="progressReports" checked>
+                <span class="sg-switch-track"></span>
+              </label>
+            </div>
+
+            <div style="margin-top:1.5rem;">
+              <!-- #savePreferencesBtn queried by JS -->
+              <button type="button" class="sd-btn sd-btn-primary" id="savePreferencesBtn">
+                <i class="fas fa-check"></i> Save Preferences
+              </button>
+            </div>
+          </div>
+
+        </div><!-- /sg-content-card -->
+      </div><!-- /sg-layout -->
+
+    </main>
+  </div><!-- /sd-main -->
+</div><!-- /sd-shell -->
+
+
+<!-- ══════════════════════════════════
+     SCRIPTS
+══════════════════════════════════ -->
+
+<!-- Sidebar toggle + Tab switcher -->
+<script>
+(function () {
+  /* Sidebar */
+  var sidebar = document.getElementById('sd-sidebar');
+  var overlay = document.getElementById('sd-overlay');
+  var toggle  = document.getElementById('sd-menu-toggle');
+
+  function openSB()  { sidebar.classList.add('open'); overlay.classList.add('open'); toggle.setAttribute('aria-expanded','true'); document.body.style.overflow='hidden'; }
+  function closeSB() { sidebar.classList.remove('open'); overlay.classList.remove('open'); toggle.setAttribute('aria-expanded','false'); document.body.style.overflow=''; }
+
+  if (toggle)  toggle.addEventListener('click', function () { sidebar.classList.contains('open') ? closeSB() : openSB(); });
+  if (overlay) overlay.addEventListener('click', closeSB);
+  document.addEventListener('keydown', function (e) { if (e.key === 'Escape') closeSB(); });
+
+  /* Tabs — pure JS, no Bootstrap needed */
+  var TAB_TITLES = {
+    profile:       { icon: 'fas fa-user-circle',  text: 'Personal Information' },
+    account:       { icon: 'fas fa-key',           text: 'Account & Password' },
+    notifications: { icon: 'fas fa-bell',          text: 'Notification Preferences' }
+  };
+
+  function switchTab(name) {
+    document.querySelectorAll('.sg-tab-btn').forEach(function (b) {
+      b.classList.toggle('active', b.dataset.tab === name);
+      b.setAttribute('aria-selected', b.dataset.tab === name ? 'true' : 'false');
+    });
+    document.querySelectorAll('.sg-pane').forEach(function (p) {
+      p.classList.toggle('active', p.id === 'pane-' + name);
+    });
+
+    var info = TAB_TITLES[name] || {};
+    var titleEl = document.getElementById('tab-content-title');
+    if (titleEl && info.icon) {
+      titleEl.innerHTML = '<i class="' + info.icon + '"></i><span>' + info.text + '</span>';
+    }
+
+    /* Update Save Changes btn visibility (only profile needs it) */
+    var saveBtn = document.getElementById('saveChangesBtn');
+    if (saveBtn) saveBtn.style.display = name === 'profile' ? '' : 'none';
+  }
+
+  document.querySelectorAll('.sg-tab-btn').forEach(function (btn) {
+    btn.addEventListener('click', function () { switchTab(btn.dataset.tab); });
+  });
+})();
+</script>
+
+<!-- Firebase + settings logic (original JS fully preserved) -->
+<script type="module">
+  import { app, auth, db } from './js/firebase-config.js';
+  import { requireAuth } from './js/auth-check.js';
+  import {
+    doc, getDoc, collection, query, where, updateDoc, serverTimestamp
+  } from 'https://www.gstatic.com/firebasejs/12.1.0/firebase-firestore.js';
+  import {
+    EmailAuthProvider, reauthenticateWithCredential, updatePassword
+  } from 'https://www.gstatic.com/firebasejs/12.1.0/firebase-auth.js';
+
+  let currentUser = null;
+  let userData    = {};
+
+  /* ── DOM refs (all IDs preserved from original) ── */
+  const fullNameInput         = document.getElementById('fullName');
+  const emailInput            = document.getElementById('email');
+  const gradeSelect           = document.getElementById('gradeLevel');
+  const languageLevelSelect   = document.getElementById('languageLevel');
+  const currentPasswordInput  = document.getElementById('currentPassword');
+  const newPasswordInput      = document.getElementById('newPassword');
+  const confirmPasswordInput  = document.getElementById('confirmPassword');
+  const emailNotifications    = document.getElementById('emailNotifications');
+  const testReminders         = document.getElementById('testReminders');
+  const progressReports       = document.getElementById('progressReports');
+  const saveChangesBtn        = document.getElementById('saveChangesBtn');
+  const changePasswordBtn     = document.getElementById('changePasswordBtn');
+  const savePreferencesBtn    = document.getElementById('savePreferencesBtn');
+  const profilePic            = document.querySelector('.profile-pic');
+  const usernameDisplay       = document.querySelector('.username');
+  const userAvatar            = document.querySelector('.user-avatar');
+
+  /* ── Init ── */
+  document.addEventListener('DOMContentLoaded', async () => {
+    try {
+      const { user } = await requireAuth(['student']);
+      currentUser = user;
+
+      await loadUserData(user);
+
+      if (saveChangesBtn)    saveChangesBtn.addEventListener('click', saveProfileChanges);
+      if (changePasswordBtn) changePasswordBtn.addEventListener('click', changePassword);
+      if (savePreferencesBtn) savePreferencesBtn.addEventListener('click', saveNotificationPreferences);
+
+      const changePhotoBtn = document.querySelector('.btn-outline-primary');
+      if (changePhotoBtn) {
+        changePhotoBtn.addEventListener('click', (e) => {
+          e.preventDefault();
+          showAlert('Profile picture upload would be handled here with Firebase Storage', 'info');
         });
+      }
 
-        // Format user's full name
-        function formatFullName(firstName, lastName) {
-            return `${firstName || ''} ${lastName || ''}`.trim() || 'Student';
-        }
+    } catch (e) { console.error('Auth error', e); }
+  });
 
-        // Load user data
-        async function loadUserData(user) {
-            try {
-                const userDocRef = doc(db, 'users', user.uid);
-                const studentDocRef = doc(db, 'students', user.uid);
+  function formatFullName(firstName, lastName) {
+    return `${firstName || ''} ${lastName || ''}`.trim() || 'Student';
+  }
 
-                const userDoc = await getDoc(userDocRef);
-                const studentDoc = await getDoc(studentDocRef);
+  async function loadUserData(user) {
+    try {
+      const userDocRef    = doc(db, 'users', user.uid);
+      const studentDocRef = doc(db, 'students', user.uid);
 
-                if (userDoc.exists()) {
-                    userData = { ...userDoc.data() };
-                }
-                if (studentDoc.exists()) {
-                    const sData = studentDoc.data();
-                    userData = {
-                        ...userData,
-                        ...sData,
-                        gradeLevel: sData.grade || '',
-                        languageLevel: sData.level || ''
-                    };
-                }
+      const userDoc    = await getDoc(userDocRef);
+      const studentDoc = await getDoc(studentDocRef);
 
-                if (!userData.firstName && user.displayName) {
-                    const names = user.displayName.split(' ');
-                    userData.firstName = names[0] || '';
-                    userData.lastName = names.slice(1).join(' ') || '';
-                }
+      if (userDoc.exists())    userData = { ...userDoc.data() };
+      if (studentDoc.exists()) {
+        const sData = studentDoc.data();
+        userData = {
+          ...userData, ...sData,
+          gradeLevel:    sData.grade || '',
+          languageLevel: sData.level || ''
+        };
+      }
 
-                updateUI(user, userData);
-            } catch (error) {
-                console.error('Error loading data', error);
-                showAlert('Error loading profile', 'danger');
-            }
-        }
+      if (!userData.firstName && user.displayName) {
+        const names = user.displayName.split(' ');
+        userData.firstName = names[0]           || '';
+        userData.lastName  = names.slice(1).join(' ') || '';
+      }
 
-        function updateUI(user, userData) {
-            // ... Logic to update fields ...
-            if (userData) {
-                if (userData.name) fullNameInput.value = userData.name;
-                else if (userData.firstName) fullNameInput.value = `${userData.firstName} ${userData.lastName || ''}`.trim();
+      updateUI(user, userData);
+    } catch (error) {
+      console.error('Error loading data', error);
+      showAlert('Error loading profile', 'danger');
+    }
+  }
 
-                if (user.email) emailInput.value = user.email;
+  function updateUI(user, userData) {
+    if (!userData) return;
 
-                if (userData.gradeLevel) gradeSelect.value = userData.gradeLevel;
-                else if (userData.grade) gradeSelect.value = userData.grade;
+    if (userData.name)       fullNameInput.value = userData.name;
+    else if (userData.firstName) fullNameInput.value = `${userData.firstName} ${userData.lastName || ''}`.trim();
 
-                if (userData.languageLevel) languageLevelSelect.value = userData.languageLevel;
-                else if (userData.level) languageLevelSelect.value = userData.level;
+    if (user.email) emailInput.value = user.email;
 
-                if (userData.notifications) {
-                    emailNotifications.checked = userData.notifications.email !== false;
-                    testReminders.checked = userData.notifications.testReminders !== false;
-                    progressReports.checked = userData.notifications.progressReports !== false;
-                }
+    if (userData.gradeLevel)    gradeSelect.value          = userData.gradeLevel;
+    else if (userData.grade)    gradeSelect.value          = userData.grade;
 
-                // Update profile picture with error handling
-                const setProfilePicture = (url) => {
-                    if (!url) return false;
+    if (userData.languageLevel) languageLevelSelect.value  = userData.languageLevel;
+    else if (userData.level)    languageLevelSelect.value  = userData.level;
 
-                    // Create a test image to check if the URL is valid
-                    const img = new Image();
-                    img.onload = () => {
-                        profilePic.src = url;
-                        return true;
-                    };
-                    img.onerror = () => {
-                        console.warn('Failed to load profile picture from URL:', url);
-                        return false;
-                    };
-                    img.src = url;
-                    return true;
-                };
+    if (userData.notifications) {
+      emailNotifications.checked = userData.notifications.email          !== false;
+      testReminders.checked      = userData.notifications.testReminders  !== false;
+      progressReports.checked    = userData.notifications.progressReports !== false;
+    }
 
-                // Try to set profile picture from available sources
-                const userPhotoURL = user?.photoURL;
-                const userDataPhotoURL = userData?.photoURL;
-                const placeholderURL = 'https://ui-avatars.com/api/?name=' +
-                    encodeURIComponent(userData?.name || 'User') +
-                    '&background=4e73df&color=fff&size=150';
+    /* Profile picture */
+    const placeholderURL = 'https://ui-avatars.com/api/?name=' +
+      encodeURIComponent(userData?.name || 'User') +
+      '&background=4f46e5&color=fff&size=150';
 
-                // Try user.photoURL first, then userData.photoURL, then fallback to placeholder
-                if (!(userPhotoURL && setProfilePicture(userPhotoURL)) &&
-                    !(userDataPhotoURL && setProfilePicture(userDataPhotoURL))) {
-                    profilePic.src = placeholderURL;
-                }
+    const setProfilePicture = (url) => {
+      if (!url) return false;
+      const img = new Image();
+      img.onload = () => { profilePic.src = url; };
+      img.onerror = () => { console.warn('Failed to load profile picture:', url); };
+      img.src = url;
+      return true;
+    };
 
-                // Get the user's display name (with fallbacks)
-                const displayName = userData.name || formatFullName(userData.firstName, userData.lastName) || 'Student';
+    if (!(user.photoURL && setProfilePicture(user.photoURL)) &&
+        !(userData.photoURL && setProfilePicture(userData.photoURL))) {
+      profilePic.src = placeholderURL;
+    }
 
-                // Update profile name in the settings card
-                const profileName = document.getElementById('profileName');
-                if (profileName) {
-                    profileName.textContent = displayName;
-                }
+    /* displayName cascade */
+    const displayName = userData.name || formatFullName(userData.firstName, userData.lastName) || 'Student';
 
-                // Update username display in the top bar
-                const topBarUsername = document.getElementById('topBarUsername');
-                if (topBarUsername) {
-                    topBarUsername.textContent = displayName;
-                }
+    const profileName = document.getElementById('profileName');
+    if (profileName) profileName.textContent = displayName;
 
-                // Update user avatar
-                if (userAvatar) {
-                    if (userData.name) {
-                        const nameParts = userData.name.split(' ');
-                        userAvatar.textContent = (nameParts[0][0] + (nameParts[1] ? nameParts[1][0] : '')).toUpperCase();
-                    } else if (userData.firstName || userData.lastName) {
-                        const initials = (userData.firstName ? userData.firstName[0] : '') +
-                            (userData.lastName ? userData.lastName[0] : '');
-                        userAvatar.textContent = initials.toUpperCase();
-                    }
-                }
+    const topBarUsername = document.getElementById('topBarUsername');
+    if (topBarUsername) topBarUsername.textContent = displayName;
 
-                // Update role display
-                const roleElement = document.querySelector('.text-muted.mb-3');
-                if (roleElement) {
-                    roleElement.textContent = userData.role || 'Student';
-                }
-            }
-        }
+    /* sidebar username */
+    const sidebarUsername = document.getElementById('sidebar-username');
+    if (sidebarUsername) sidebarUsername.textContent = displayName;
 
-        async function saveProfileChanges() {
-            const name = fullNameInput.value.trim();
-            if (!name) return showAlert('Enter full name', 'warning');
+    /* sidebar + topbar avatar */
+    const avatarSrc    = user.photoURL || userData.photoURL || placeholderURL;
+    const sidebarAvt   = document.getElementById('sidebar-avatar');
+    const topbarAvt    = document.getElementById('topbar-avatar');
+    if (sidebarAvt) sidebarAvt.src = avatarSrc;
+    if (topbarAvt)  topbarAvt.src  = avatarSrc;
 
-            const updates = {
-                name,
-                gradeLevel: gradeSelect.value,
-                languageLevel: languageLevelSelect.value,
-                updatedAt: serverTimestamp()
-            };
+    /* userAvatar initials (original query: .user-avatar) */
+    if (userAvatar) {
+      if (userData.name) {
+        const parts = userData.name.split(' ');
+        userAvatar.textContent = (parts[0][0] + (parts[1] ? parts[1][0] : '')).toUpperCase();
+      } else if (userData.firstName || userData.lastName) {
+        userAvatar.textContent = ((userData.firstName?.[0] || '') + (userData.lastName?.[0] || '')).toUpperCase();
+      }
+    }
 
-            const studentUpdates = {
-                name,
-                grade: gradeSelect.value,
-                level: languageLevelSelect.value,
-                updatedAt: serverTimestamp()
-            };
+    /* .text-muted.mb-3 — role */
+    const roleEl = document.querySelector('.text-muted.mb-3');
+    if (roleEl) roleEl.textContent = userData.role || 'Student';
+  }
 
-            try {
-                await updateDoc(doc(db, 'users', currentUser.uid), updates);
-                await updateDoc(doc(db, 'students', currentUser.uid), studentUpdates);
+  async function saveProfileChanges() {
+    const name = fullNameInput.value.trim();
+    if (!name) return showAlert('Please enter your full name.', 'warning');
 
-                // Update user data in memory
-                userData = {
-                    ...userData,
-                    ...updates,
-                    // For backward compatibility
-                    firstName: name.split(' ')[0],
-                    lastName: name.split(' ').slice(1).join(' ')
-                };
+    setLoading(saveChangesBtn, true);
+    const updates        = { name, gradeLevel: gradeSelect.value, languageLevel: languageLevelSelect.value, updatedAt: serverTimestamp() };
+    const studentUpdates = { name, grade: gradeSelect.value, level: languageLevelSelect.value, updatedAt: serverTimestamp() };
 
-                // Update UI
-                if (usernameDisplay) {
-                    usernameDisplay.textContent = name;
-                }
+    try {
+      await updateDoc(doc(db, 'users',    currentUser.uid), updates);
+      await updateDoc(doc(db, 'students', currentUser.uid), studentUpdates);
 
-                // Update top bar username if it exists
-                const topBarUsername = document.getElementById('topBarUsername');
-                if (topBarUsername) {
-                    topBarUsername.textContent = name;
-                }
+      userData = { ...userData, ...updates, firstName: name.split(' ')[0], lastName: name.split(' ').slice(1).join(' ') };
 
-                showAlert('Profile updated!', 'success');
-            } catch (e) { console.error(e); showAlert('Error updating profile', 'danger'); }
-        }
+      if (usernameDisplay) usernameDisplay.textContent = name;
+      const topBarUsername = document.getElementById('topBarUsername');
+      if (topBarUsername) topBarUsername.textContent = name;
 
-        async function saveNotificationPreferences() {
-            const prefs = {
-                email: emailNotifications.checked,
-                testReminders: testReminders.checked,
-                progressReports: progressReports.checked,
-                updatedAt: serverTimestamp()
-            };
-            try {
-                await updateDoc(doc(db, 'users', currentUser.uid), { notifications: prefs });
-                // Update user data in memory
-                userData.notifications = prefs;
-                showAlert('Preferences saved!', 'success');
-            } catch (e) { console.error(e); showAlert('Error saving preferences', 'danger'); }
-        }
+      showAlert('Profile updated successfully!', 'success');
+    } catch (e) { console.error(e); showAlert('Error updating profile. Please try again.', 'danger'); }
+    finally { setLoading(saveChangesBtn, false); }
+  }
 
-        async function changePassword() {
-            const current = currentPasswordInput.value;
-            const newP = newPasswordInput.value;
-            const confirmP = confirmPasswordInput.value;
+  async function saveNotificationPreferences() {
+    setLoading(savePreferencesBtn, true);
+    const prefs = {
+      email:           emailNotifications.checked,
+      testReminders:   testReminders.checked,
+      progressReports: progressReports.checked,
+      updatedAt:       serverTimestamp()
+    };
+    try {
+      await updateDoc(doc(db, 'users', currentUser.uid), { notifications: prefs });
+      userData.notifications = prefs;
+      showAlert('Preferences saved!', 'success');
+    } catch (e) { console.error(e); showAlert('Error saving preferences.', 'danger'); }
+    finally { setLoading(savePreferencesBtn, false); }
+  }
 
-            if (!current || !newP || !confirmP) return showAlert('Fill all fields', 'warning');
-            if (newP.length < 6) {
-                showAlert('New password must be at least 6 characters long.', 'warning');
-                return;
-            }
-            if (newP !== confirmP) return showAlert('Passwords do not match', 'warning');
+  async function changePassword() {
+    const current  = currentPasswordInput.value;
+    const newP     = newPasswordInput.value;
+    const confirmP = confirmPasswordInput.value;
 
-            try {
-                const cred = EmailAuthProvider.credential(currentUser.email, current);
-                await reauthenticateWithCredential(currentUser, cred);
-                await updatePassword(currentUser, newP);
-                currentPasswordInput.value = '';
-                newPasswordInput.value = '';
-                confirmPasswordInput.value = '';
-                showAlert('Password updated!', 'success');
-            } catch (error) {
-                console.error(error);
-                if (error.code === 'auth/wrong-password') {
-                    showAlert('Incorrect current password. Please try again.', 'danger');
-                } else if (error.code === 'auth/requires-recent-login') {
-                    showAlert('Your session has expired. Please sign in again to change your password.', 'danger');
-                    auth.signOut().then(() => {
-                        window.location.href = 'auth/login-fixed.html';
-                    });
-                } else {
-                    showAlert('Error changing password. Please try again.', 'danger');
-                }
-            }
-        }
+    if (!current || !newP || !confirmP) return showAlert('Please fill in all password fields.', 'warning');
+    if (newP.length < 6)                return showAlert('New password must be at least 6 characters.', 'warning');
+    if (newP !== confirmP)              return showAlert('Passwords do not match.', 'warning');
 
-        function showAlert(message, type) {
-            const existingAlert = document.querySelector('.alert');
-            if (existingAlert) existingAlert.remove();
+    setLoading(changePasswordBtn, true);
+    try {
+      const cred = EmailAuthProvider.credential(currentUser.email, current);
+      await reauthenticateWithCredential(currentUser, cred);
+      await updatePassword(currentUser, newP);
 
-            const alertDiv = document.createElement('div');
-            alertDiv.className = `alert alert-${type} alert-dismissible fade show`;
-            alertDiv.innerHTML = `${message}<button type="button" class="btn-close" data-bs-dismiss="alert"></button>`;
+      currentPasswordInput.value = '';
+      newPasswordInput.value     = '';
+      confirmPasswordInput.value = '';
+      showAlert('Password updated successfully!', 'success');
+    } catch (error) {
+      console.error(error);
+      if (error.code === 'auth/wrong-password') {
+        showAlert('Incorrect current password. Please try again.', 'danger');
+      } else if (error.code === 'auth/requires-recent-login') {
+        showAlert('Session expired. Please sign in again to change your password.', 'danger');
+        auth.signOut().then(() => { window.location.href = 'auth/login-fixed.html'; });
+      } else {
+        showAlert('Error changing password. Please try again.', 'danger');
+      }
+    } finally { setLoading(changePasswordBtn, false); }
+  }
 
-            const container = document.querySelector('.container-fluid');
-            container.insertBefore(alertDiv, container.firstChild);
+  /* ── showAlert — injects into .container-fluid (preserved for JS compat) ── */
+  function showAlert(message, type) {
+    const existing = document.querySelector('.sg-alert');
+    if (existing) existing.remove();
 
-            setTimeout(() => { try { new bootstrap.Alert(alertDiv).close(); } catch (e) { } }, 5000);
-        }
-    </script>
+    const div = document.createElement('div');
+    div.className = `sg-alert sg-alert-${type} alert`;
+
+    const icons = { success: 'fa-check-circle', danger: 'fa-exclamation-circle', warning: 'fa-exclamation-triangle', info: 'fa-info-circle' };
+    div.innerHTML = `<i class="fas ${icons[type] || 'fa-info-circle'}"></i> ${message}`;
+
+    const container = document.querySelector('.container-fluid');
+    if (container) container.insertBefore(div, container.firstChild);
+
+    setTimeout(() => { if (div.parentNode) div.remove(); }, 5000);
+  }
+
+  /* ── Loading spinner helper ── */
+  function setLoading(btn, on) {
+    if (!btn) return;
+    const icon = btn.querySelector('i');
+    if (on) {
+      btn.disabled = true;
+      if (icon) { icon.className = 'fas fa-spinner sg-btn-loading'; }
+    } else {
+      btn.disabled = false;
+      if (icon) {
+        const map = {
+          saveChangesBtn:     'fa-save',
+          changePasswordBtn:  'fa-lock',
+          savePreferencesBtn: 'fa-check'
+        };
+        icon.className = 'fas ' + (map[btn.id] || 'fa-check');
+      }
+    }
+  }
+</script>
+
 </body>
-
 </html>

@@ -29,10 +29,10 @@ let currentUser = null;
 let pTest = null;
 let currentStageIndex = 0;
 let currentSubIndex = 0; // Usage varies by stage
-let recognition = null;
+let mediaRecorder = null;
+let audioChunks = [];
 let isListening = false;
-let ignoreEndEvent = false;
-let restartTimer = null;
+const DEEPGRAM_API_KEY = "26e5c134da53fdd59d8b0c1456cf39359a55a2d4";
 
 // Test & Reading State
 let testState = {
@@ -86,7 +86,7 @@ document.addEventListener('DOMContentLoaded', async () => {
         await loadPreTest(urlParams.get('testId'));
 
         // Init Speech
-        setupSpeechRecognition();
+        setupMediaRecorder();
 
         // Start
         renderCurrentStage();
@@ -220,8 +220,8 @@ function renderLetterStage(stage) {
     </button>`;
 
     testContent.innerHTML = getStageWrapper(html, promptText);
-    // FIXED: User requested NO TIMER for letters. Just listen until answer.
-    startRecording();
+    // User requested manual start/stop interaction.
+    updateRecordingUI("ready");
 }
 
 // --- STAGE 2: SENTENCES ---
@@ -257,7 +257,7 @@ function renderSentenceStage(stage) {
         original: w, clean: cleanWord(w), status: 'pending'
     }));
     updateReadingDisplay('sentence-text');
-    startRecording();
+    updateRecordingUI("ready");
 }
 
 // logic to handle sentence progression is in handleSpeechInput
@@ -307,8 +307,7 @@ function renderWordListStage(stage) {
     `;
     testContent.innerHTML = getStageWrapper(html, "Read the word quickly!");
 
-    // Use standardized Listening Window (4s)
-    startListeningWindow();
+    startListeningWindow(4000);
 }
 
 // --- STAGE 4: PASSAGE ---
@@ -354,7 +353,7 @@ function renderReadingPassageStage(stage) {
             currentSubIndex = 0;
             renderReadingPassageStage(stage);
         });
-        startRecording();
+        updateRecordingUI("ready");
     } else {
         // Questions
         if (currentSubIndex >= data.questions.length) {
@@ -379,8 +378,7 @@ function renderReadingPassageStage(stage) {
             renderReadingPassageStage(stage);
         });
 
-        // FIXED: Use 15s timeout for questions as requested
-        startListeningWindow(15000);
+        updateRecordingUI("ready");
     }
 }
 
@@ -446,56 +444,66 @@ function evaluateWordListPass() {
 let listenTimer = null;
 let listenDuration = 25000; // 25 seconds - enough time for sentences
 
-function setupSpeechRecognition() {
-    if (!('webkitSpeechRecognition' in window)) {
-        alert("Browser not supported"); return;
+async function setupMediaRecorder() {
+    try {
+        const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
+        const mimeType = MediaRecorder.isTypeSupported('audio/webm') ? 'audio/webm' : 
+                         MediaRecorder.isTypeSupported('audio/mp4') ? 'audio/mp4' : 
+                         'audio/ogg'; // fallback
+                         
+        mediaRecorder = new MediaRecorder(stream, { mimeType });
+
+        mediaRecorder.ondataavailable = event => {
+            if (event.data.size > 0) {
+                audioChunks.push(event.data);
+            }
+        };
+
+        mediaRecorder.onstart = () => {
+            isListening = true;
+            audioChunks = [];
+            updateRecordingUI("recording");
+        };
+
+        mediaRecorder.onstop = async () => {
+            isListening = false;
+            updateRecordingUI("processing");
+            const audioBlob = new Blob(audioChunks, { type: mimeType });
+            await sendToDeepgram(audioBlob);
+        };
+    } catch (err) {
+        console.error("Microphone access denied or unavailable", err);
+        alert("Please allow microphone access to use the assessment.");
     }
-    recognition = new webkitSpeechRecognition();
-    recognition.continuous = false; // Single Shot for better accuracy
-    recognition.interimResults = true; // Keep interim for speed
-    recognition.lang = 'en-US';
-
-    recognition.onstart = () => {
-        isListening = true;
-        updateUI(true);
-    };
-
-    recognition.onend = () => {
-        isListening = false;
-        updateUI(false);
-        // AUTO-RESTART LOOP: Mimic continuous listening
-        if (!ignoreEndEvent) {
-            // Restart immediately to catch the next word/attempt
-            try { recognition.start(); } catch (e) { }
-        }
-    };
-
-    recognition.onresult = processSpeechParams;
 }
 
 function startRecording() {
-    ignoreEndEvent = false;
-    if (isListening) return;
-    try { recognition.start(); } catch (e) { }
+    if (isListening || !mediaRecorder) return;
+    try { mediaRecorder.start(); } catch (e) { }
 }
 
 function stopRecording() {
-    ignoreEndEvent = true;
-    isListening = false;
-    clearListeningTimer();
-    try { recognition.stop(); } catch (e) { }
+    if (!isListening || !mediaRecorder) return;
+    try { mediaRecorder.stop(); } catch (e) { }
 }
 
+window.toggleRecording = function() {
+    if (isListening) {
+        stopRecording();
+    } else {
+        startRecording();
+    }
+};
+
 function startListeningWindow(duration) {
-    const finalDuration = duration || LISTENING_TIMEOUT_MS; // Default to 4000 if not provided
-    stopRecording(); // Reset
+    const finalDuration = duration || 5000;
+    stopRecording();
     setTimeout(() => {
         startRecording();
         updateTimerBar(finalDuration);
-
         clearListeningTimer();
         listenTimer = setTimeout(() => {
-            handleTimeout();
+            stopRecording(); // Automatically stops recording and sends to Deepgram
         }, finalDuration);
     }, 100);
 }
@@ -646,43 +654,51 @@ function handleTimeout() {
     }
 }
 
-function processSpeechParams(event) {
-    let transcript = '';
-    let isFinal = false;
-
-    // In single-shot mode (continuous=false), we usually get one result item.
-    if (event.results.length > 0) {
-        const result = event.results[event.results.length - 1];
-        transcript = result[0].transcript;
-        isFinal = result.isFinal;
-    }
-
-    // AGGRESSIVE CLEANING: Strip punctuation immediately
-    if (transcript) {
-        transcript = transcript.replace(/[.,?!]/g, '').trim();
-    }
-
-    // VISUAL UPDATE - FIXED: Show normalized letter for letter stage
-    const feedbackEl = document.getElementById('live-feedback');
-    if (feedbackEl && transcript) {
-        const stage = pTest.stages[currentStageIndex];
-        let displayText = transcript;
-
-        // For letter stage, normalize phonetic words to show the actual letter
-        if (stage && stage.type === 'letter_recognition') {
-            const target = stage.items[currentSubIndex];
-            if (target) {
-                displayText = normalizeSpeechToTarget(transcript.toLowerCase(), target);
-            }
+async function sendToDeepgram(blob) {
+    try {
+        const response = await fetch('https://api.deepgram.com/v1/listen?model=nova-2&smart_format=true&punctuate=true', {
+            method: 'POST',
+            headers: {
+                'Authorization': `Token ${DEEPGRAM_API_KEY}`,
+                'Content-Type': blob.type
+            },
+            body: blob
+        });
+        
+        if (!response.ok) {
+            console.error("Deepgram Error:", await response.text());
+            updateRecordingUI("ready");
+            showToast("Failed to process audio. Please try again.", false);
+            return;
         }
 
-        feedbackEl.textContent = `Heard: "${displayText}"`;
-        feedbackEl.style.opacity = '1';
-        setTimeout(() => { if (feedbackEl) feedbackEl.style.opacity = '0'; }, 3000);
-    }
+        const data = await response.json();
+        const transcript = data?.results?.channels?.[0]?.alternatives?.[0]?.transcript || "";
+        
+        // AGGRESSIVE CLEANING: Strip punctuation immediately
+        let cleanTranscript = transcript.replace(/[.,?!]/g, '').trim();
 
-    // Attempt match immediately (even if interim)
-    if (transcript) handleInput(transcript.toLowerCase(), !isFinal);
+        const feedbackEl = document.getElementById('live-feedback');
+        if (feedbackEl) {
+            const stage = pTest.stages[currentStageIndex];
+            let displayText = cleanTranscript;
+            if (stage && stage.type === 'letter_recognition' && cleanTranscript) {
+                const target = stage.items[currentSubIndex];
+                if (target) displayText = normalizeSpeechToTarget(cleanTranscript.toLowerCase(), target);
+            }
+            feedbackEl.textContent = cleanTranscript ? `Heard: "${displayText}"` : `Heard: (nothing)`;
+            feedbackEl.style.opacity = '1';
+            setTimeout(() => { if (feedbackEl) feedbackEl.style.opacity = '0'; }, 3000);
+        }
+
+        updateRecordingUI("ready");
+        handleInput(cleanTranscript.toLowerCase(), false);
+
+    } catch (err) {
+        console.error("Fetch to Deepgram failed", err);
+        updateRecordingUI("ready");
+        showToast("Network Error: Could not connect to AI services.", false);
+    }
 }
 
 function handleInput(text, isInterim = false) {
@@ -803,87 +819,45 @@ function handleInput(text, isInterim = false) {
     else if (stage.type === 'sentence_reading') {
         const words = testState.passageWords;
 
-        // Mark words - ROBUST LOGIC: Lookahead window of 2 words
-        // Handles insertions (ignore) and skips (catch up)
-        // Mark words - ROBUST LOGIC: Dual-Scan Best Fit
-        // We calculate which start position yields more matches:
-        // 1. From Indx 0 (Cumulative input)
-        // 2. From LastMarked + 1 (Continuation input)
-
-        const scanAndCount = (startIdx, spokeList) => {
-            let matches = 0;
-            let ptr = startIdx;
-            spokeList.forEach(s => {
-                for (let o = 0; o <= 2; o++) {
-                    let tid = ptr + o;
-                    if (tid < words.length && checkMatch(s, words[tid].clean)) {
-                        matches++;
-                        ptr = tid + 1;
-                        return; // matched
-                    }
-                }
-                // If no match, ptr stays
-            });
-            return matches;
-        };
-
-        const scoreFromZero = scanAndCount(0, text.split(/\s+/));
-        const scoreFromCursor = scanAndCount(testState.lastMarkedWordIndex + 1, text.split(/\s+/));
-
-        // Winner takes all. Prefer cursor if tied (continuity).
-        // Unless ScoreFromZero covers significantly more (e.g. repetition).
-        // Actually, if scoreFromZero is high, it likely means we are re-reading.
-        // If scoreFromCursor is high, we are continuing.
-        // Simple Max wins.
-
-        let currentScanIdx = (scoreFromCursor >= scoreFromZero) ? (testState.lastMarkedWordIndex + 1) : 0;
-
-        // Special Case: "We" (s=0, c=0 matched 0) vs "We" (s=3, c=3 matched 3).
-        // If tied, sticking to cursor is usually safer to avoid re-triggering old words.
-        // BUT if Cursor is at end, and we start over?
-        // Let's stick to max score.
-
+        // STRICT SEQUENTIAL MATCHING (User Request)
+        // Replaced dual-scan with sequential strict checking.
+        // Handles stutters (repeating the previous word) but penalizes skipping or swapping.
+        
+        // Reset pointers for the full evaluation of this API response
+        let currentScanIdx = 0; 
+        testState.lastMarkedWordIndex = -1;
         let hasChange = false;
+        let extraWordsSpoken = false;
 
         text.split(/\s+/).forEach(spoken => {
             if (!spoken || spoken.trim().length === 0) return;
 
-            // Check window of 3 words from current scan position
-            for (let offset = 0; offset <= 2; offset++) {
-                const targetIdx = currentScanIdx + offset;
-                if (targetIdx >= words.length) break;
-
-                const targetWord = words[targetIdx];
-
-                // Check match
-                if (checkMatch(spoken, targetWord.clean)) {
-                    // Match Found!
-
-                    // 1. Mark skipped words as incorrect ONLY if they were pending
-                    for (let skipped = currentScanIdx; skipped < targetIdx; skipped++) {
-                        if (words[skipped].status === 'pending') {
-                            words[skipped].status = 'incorrect';
-                            hasChange = true;
-                        }
-                    }
-
-                    // 2. Mark matched word as correct (if not already)
-                    if (targetWord.status !== 'correct') {
-                        targetWord.status = 'correct';
-                        hasChange = true;
-                    }
-
-                    // 3. Update Global Progress
-                    if (targetIdx > testState.lastMarkedWordIndex) {
-                        testState.lastMarkedWordIndex = targetIdx;
-                    }
-
-                    // Advance scan pointer to next word
-                    currentScanIdx = targetIdx + 1;
-                    return; // Next spoken word
-                }
+            if (currentScanIdx >= words.length) {
+                // The user spoke additional words after the target sentence finished (e.g. "happy")
+                extraWordsSpoken = true;
+                return;
             }
-            // If no match, spoken word is ignored (noise/insertion)
+
+            const targetWord = words[currentScanIdx];
+
+            // 1. Check strict match
+            if (checkMatch(spoken, targetWord.clean)) {
+                targetWord.status = 'correct';
+                testState.lastMarkedWordIndex = currentScanIdx;
+                currentScanIdx++;
+                hasChange = true;
+            } 
+            // 2. Check if it's a stutter of the immediately previous word
+            else if (currentScanIdx > 0 && checkMatch(spoken, words[currentScanIdx - 1].clean)) {
+                // Harmless stutter/repetition, ignore and do not penalize
+            } 
+            // 3. Spoken word is completely out of order or wrong
+            else {
+                targetWord.status = 'incorrect'; // Mark the expected word as failed
+                testState.lastMarkedWordIndex = currentScanIdx;
+                currentScanIdx++; // Force the cursor forward to expect the next word
+                hasChange = true;
+            }
         });
 
         if (hasChange) {
@@ -908,7 +882,8 @@ function handleInput(text, isInterim = false) {
             }
             testState.sentenceAdvancing = true;
 
-            const allCorrect = incorrectWords === 0;
+            // If they had 0 incorrect words but appended extra noise at the end, they fail the strict check!
+            const allCorrect = (incorrectWords === 0) && !extraWordsSpoken;
 
             // LOG EVIDENCE
             testState.sentenceLogs.push({
@@ -916,7 +891,7 @@ function handleInput(text, isInterim = false) {
                 total_words: totalWords,
                 correct_words: correctWords,
                 completed: allCorrect,
-                errors_count: incorrectWords
+                errors_count: incorrectWords + (extraWordsSpoken ? 1 : 0)
             });
 
             showFeedback(allCorrect);
@@ -984,13 +959,12 @@ function handleInput(text, isInterim = false) {
             } else {
                 setTimeout(() => renderWordListStage(stage), 1000);
             }
-        } else if (!isInterim && text.trim().length > 0) {
-            // FIXED: Handle incorrect answer (don't wait forever)
-            // LOG EVIDENCE: Incorrect
+        } else if (!isInterim) {
+            const isNoResp = text.trim().length === 0;
             testState.wordLogs.push({
                 target: target,
-                spoken: text,
-                status: 'incorrect'
+                spoken: isNoResp ? '(no response)' : text,
+                status: isNoResp ? 'no_response' : 'incorrect'
             });
 
             showFeedback(false); // Red border
@@ -1175,20 +1149,34 @@ function runGreetingStep(step) {
         const text = "Hi, I am Alex. What is your name?";
         speakAndShow(text, () => {
             interaction.innerHTML = `
-                <input type="text" id="user-name-input" class="form-control form-control-lg" placeholder="Say or type name..." style="max-width:300px" onchange="submitName()">
-                <button class="btn btn-primary btn-lg ms-2" onclick="submitName()"><i class="fas fa-paper-plane"></i></button>
+                <div class="input-group" style="max-width:400px; margin: 0 auto;">
+                    <input type="text" id="user-name-input" class="form-control form-control-lg" placeholder="Type or say name..." onkeypress="if(event.key==='Enter') submitName()">
+                    <button class="btn btn-outline-primary" id="record-toggle-btn" type="button" onclick="window.toggleRecording()">
+                        <i class="fas fa-microphone"></i>
+                    </button>
+                    <button class="btn btn-primary px-4" onclick="submitName()"><i class="fas fa-paper-plane"></i></button>
+                </div>
+                <div id="mic-status" class="transition-all text-danger fw-bold mt-2 w-100" style="opacity:0; display:none;">
+                    <i class="fas fa-microphone-alt me-2 text-danger"></i> Recording...
+                </div>
             `;
-            startRecording(); // Listen for name
         });
     } else if (step === 1) {
         // Place
         const text = `Hi ${greetingState.userName}. I am from Spanish Town. Where are you from?`;
         speakAndShow(text, () => {
             interaction.innerHTML = `
-                <input type="text" id="user-place-input" class="form-control form-control-lg" placeholder="Say or type place..." style="max-width:300px" onchange="submitPlace()">
-                <button class="btn btn-primary btn-lg ms-2" onclick="submitPlace()"><i class="fas fa-paper-plane"></i></button>
+                <div class="input-group" style="max-width:400px; margin: 0 auto;">
+                    <input type="text" id="user-place-input" class="form-control form-control-lg" placeholder="Type or say place..." onkeypress="if(event.key==='Enter') submitPlace()">
+                    <button class="btn btn-outline-primary" id="record-toggle-btn" type="button" onclick="window.toggleRecording()">
+                        <i class="fas fa-microphone"></i>
+                    </button>
+                    <button class="btn btn-primary px-4" onclick="submitPlace()"><i class="fas fa-paper-plane"></i></button>
+                </div>
+                <div id="mic-status" class="transition-all text-danger fw-bold mt-2 w-100" style="opacity:0; display:none;">
+                    <i class="fas fa-microphone-alt me-2 text-danger"></i> Recording...
+                </div>
             `;
-            startRecording(); // Listen for place
         });
     } else if (step === 2) {
         // Explanation
@@ -1295,7 +1283,7 @@ document.addEventListener('DOMContentLoaded', async () => {
         }
 
         // Init Speech
-        setupSpeechRecognition();
+        setupMediaRecorder();
 
         // Modal is now in HTML, no need to inject.
 
@@ -1340,84 +1328,6 @@ function getStageWrapper(content, help) {
     }
 
     return `
-    <!-- Custom Style Injection from take-test.html -->
-    <style>
-        .question-container {
-            background: linear-gradient(145deg, #ffffff, #f8f9fa);
-            border-radius: 16px;
-            padding: 3rem 3.5rem;
-            margin: 2rem auto;
-            box-shadow: 0 8px 30px rgba(0, 0, 0, 0.1);
-            position: relative;
-            border: none;
-            max-width: 1100px;
-            width: 95%;
-            transition: all 0.3s ease;
-        }
-        .question-header {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            margin-bottom: 2.5rem;
-            padding-bottom: 1.2rem;
-            border-bottom: 2px solid rgba(74, 111, 165, 0.1);
-        }
-        .question-title {
-            font-size: 2rem;
-            font-weight: 700;
-            color: #1a2b4a;
-            margin: 0;
-            letter-spacing: -0.5px;
-            text-transform: uppercase;
-            position: relative;
-            padding-left: 1.2rem;
-        }
-        .question-title:before {
-            content: '';
-            position: absolute;
-            left: 0;
-            top: 0;
-            height: 100%;
-            width: 5px;
-            background: linear-gradient(to bottom, #4a6fa5, #6a8cbf);
-            border-radius: 3px;
-        }
-        .question-points {
-            background: linear-gradient(135deg, #4a6fa5, #6a8cbf);
-            color: white;
-            padding: 0.5rem 1.2rem;
-            border-radius: 50px;
-            font-size: 1.1rem;
-            font-weight: 600;
-            box-shadow: 0 4px 15px rgba(74, 111, 165, 0.3);
-            min-width: 100px;
-            text-align: center;
-        }
-        .prompt-text {
-            font-weight: 700;
-            text-align: center;
-            margin: 2rem 0;
-            color: #1a2b4a;
-            line-height: 1.4;
-            min-height: 150px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.1);
-            position: relative;
-            padding: 2rem;
-            background: rgba(255, 255, 255, 0.7);
-            border-radius: 12px;
-            border: 1px solid rgba(0, 0, 0, 0.05);
-            width: 100%;
-            word-break: break-word;
-        }
-        .prompt-text[data-type="letter"] { font-size: 8rem; letter-spacing: 5px; }
-        .prompt-text[data-type="word"] { font-size: 5rem; letter-spacing: 2px; }
-        .prompt-text[data-type="sentence"] { font-size: 2.5rem; text-align: left; }
-        .prompt-text[data-type="passage"] { font-size: 1.5rem; text-align: left; white-space: pre-line; }
-    </style>
-
     <div class="question-container fade-in">
         <div class="question-header">
             <h2 class="question-title">${headerText}</h2>
@@ -1433,8 +1343,15 @@ function getStageWrapper(content, help) {
         <div class="mt-4 text-center">
             <p class="text-secondary fw-medium mb-3">${help}</p>
             
-            <div id="mic-status" class="transition-all text-primary fw-bold mb-2" style="opacity:0">
-                <i class="fas fa-microphone-alt me-2"></i> Listening...
+            <div class="mb-4">
+               <button id="record-toggle-btn" class="btn btn-outline-primary btn-lg rounded-pill shadow-sm px-4 py-2" onclick="window.toggleRecording()">
+                   <i class="fas fa-microphone me-2"></i> Start Recording
+               </button>
+               <div id="recording-spinner" class="spinner-border text-primary ms-3" role="status" style="width: 1.5rem; height: 1.5rem; display: none; vertical-align: middle;"></div>
+            </div>
+
+            <div id="mic-status" class="transition-all text-danger fw-bold mb-2" style="opacity:0">
+                <i class="fas fa-microphone-alt me-2"></i> Recording...
             </div>
             
             <div id="live-feedback" class="text-muted fst-italic transition-all" style="height:24px; opacity:0"></div>
@@ -1450,6 +1367,44 @@ function getStageWrapper(content, help) {
 function updateUI(on) {
     const el = document.getElementById('mic-status');
     if (el) el.style.opacity = on ? '1' : '0';
+}
+
+function updateRecordingUI(state) {
+    const el = document.getElementById('mic-status');
+    const btn = document.getElementById('record-toggle-btn');
+    const spinner = document.getElementById('recording-spinner');
+    
+    // Check if we are in greeting mode
+    const isGreeting = (typeof interactionMode !== 'undefined' && interactionMode === 'GREETING');
+    
+    if (state === "ready") {
+        if(btn) { 
+            btn.innerHTML = isGreeting ? '<i class="fas fa-microphone"></i>' : '<i class="fas fa-microphone me-2"></i> Start Recording'; 
+            btn.classList.remove('btn-danger', 'btn-secondary'); 
+            btn.classList.add('btn-outline-primary'); 
+            btn.disabled = false;
+        }
+        if(spinner) spinner.style.display = 'none';
+        if (el) { el.style.opacity = '0'; el.style.display = 'none'; }
+    } else if (state === "recording") {
+        if(btn) { 
+            btn.innerHTML = isGreeting ? '<i class="fas fa-stop"></i>' : '<i class="fas fa-stop me-2"></i> Stop Recording'; 
+            btn.classList.remove('btn-outline-primary', 'btn-secondary'); 
+            btn.classList.add('btn-danger'); 
+            btn.disabled = false;
+        }
+        if(spinner) spinner.style.display = 'none';
+        if (el) { el.style.opacity = '1'; el.style.display = 'block'; el.innerHTML = '<i class="fas fa-microphone-alt me-2 text-danger"></i> Recording...'; }
+    } else if (state === "processing") {
+        if(btn) { 
+            btn.innerHTML = isGreeting ? '<i class="fas fa-cog fa-spin"></i>' : 'Processing...'; 
+            btn.classList.remove('btn-danger', 'btn-outline-primary'); 
+            btn.classList.add('btn-secondary'); 
+            btn.disabled = true; 
+        }
+        if(spinner && !isGreeting) spinner.style.display = 'inline-block';
+        if (el) { el.style.opacity = '1'; el.style.display = 'block'; el.innerHTML = '<i class="fas fa-cog fa-spin me-2 text-primary"></i> Processing audio...'; }
+    }
 }
 function updateTimerBar(duration) {
     const footer = document.querySelector('.card-footer');

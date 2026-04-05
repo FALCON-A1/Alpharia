@@ -1,1049 +1,775 @@
 <!DOCTYPE html>
 <html lang="en">
-
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Student Dashboard - Alpharia</title>
-    <!-- Google Fonts -->
-    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap"
-        rel="stylesheet">
-    <!-- Font Awesome Icons -->
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-    <!-- Custom CSS -->
-    <link rel="stylesheet" href="css/student-dashboard-clean.css">
-    <style>
-        /* Modal Styles */
-        .modal {
-            display: none;
-            position: fixed;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            background-color: rgba(0, 0, 0, 0.5);
-            z-index: 1000;
-            overflow-y: auto;
-            padding: 20px;
-            box-sizing: border-box;
-        }
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Student Dashboard — Alpharia</title>
+  <meta name="description" content="Your personal reading dashboard — track tests, scores, and progress.">
 
-        .modal-content {
-            background-color: #fff;
-            margin: 5% auto;
-            padding: 20px;
-            border-radius: 8px;
-            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.2);
-            max-width: 90%;
-            position: relative;
-            animation: modalFadeIn 0.3s ease-out;
-        }
+  <!-- Fonts & Icons -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
 
-        .modal-header {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            margin-bottom: 20px;
-            padding-bottom: 15px;
-            border-bottom: 1px solid #eee;
-        }
-
-        .modal-header h3 {
-            margin: 0;
-            color: #2c3e50;
-            display: flex;
-            align-items: center;
-            gap: 10px;
-        }
-
-        .close-modal {
-            background: none;
-            border: none;
-            font-size: 24px;
-            cursor: pointer;
-            color: #6c757d;
-            transition: color 0.2s;
-        }
-
-        .close-modal:hover {
-            color: #2c3e50;
-        }
-
-        .modal-body {
-            margin-bottom: 20px;
-        }
-
-        .modal-footer {
-            display: flex;
-            justify-content: flex-end;
-            gap: 10px;
-            padding-top: 15px;
-            border-top: 1px solid #eee;
-        }
-
-        @keyframes modalFadeIn {
-            from {
-                opacity: 0;
-                transform: translateY(-20px);
-            }
-
-            to {
-                opacity: 1;
-                transform: translateY(0);
-            }
-        }
-
-        /* Section Summary Styles */
-        .section-summary-item {
-            margin-bottom: 15px;
-            background-color: #f8f9fa;
-            border-radius: 6px;
-            transition: transform 0.2s, box-shadow 0.2s;
-        }
-
-        .section-summary-item:hover {
-            transform: translateY(-2px);
-            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
-        }
-
-        .progress {
-            height: 20px;
-            margin: 10px 0;
-            background-color: #e9ecef;
-            border-radius: 10px;
-            overflow: hidden;
-        }
-
-        .progress-bar {
-            background-color: #28a745;
-            /* Green color for progress */
-            transition: width 0.3s ease-in-out;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            color: white;
-            font-weight: bold;
-            font-size: 12px;
-        }
-
-        /* Section Summary Styles */
-        .section-summary-item {
-            margin-bottom: 15px;
-            background-color: #f8f9fa;
-            border-radius: 6px;
-            transition: transform 0.2s, box-shadow 0.2s;
-        }
-
-        .section-summary-item:hover {
-            transform: translateY(-2px);
-            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
-        }
-
-        .progress {
-            height: 20px;
-            margin: 10px 0;
-            background-color: #e9ecef;
-            border-radius: 10px;
-            overflow: hidden;
-        }
-
-        .progress-bar {
-            background-color: #28a745;
-            /* Green color for progress */
-            transition: width 0.3s ease-in-out;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            color: white;
-            font-weight: bold;
-            font-size: 12px;
-        }
-    </style>
+  <!-- Dashboard Styles -->
+  <link rel="stylesheet" href="css/student-dashboard-clean.css">
 </head>
+<body class="sd-page">
 
-<body class="student-dashboard">
-    <div class="dashboard-container">
-        <!-- Sidebar -->
-        <aside class="sidebar">
-            <div class="logo">
-                <h2>Alpharia</h2>
-            </div>
+<!-- ╔══════════════════════════════════════╗
+     ║  LAYOUT SHELL                       ║
+     ╚══════════════════════════════════════╝ -->
+<div class="sd-shell">
 
-            <nav>
-                <ul class="nav-menu">
-                    <li class="nav-item">
-                        <a href="student-dashboard.html" class="nav-link active">
-                            <i class="fas fa-home"></i>
-                            <span>Overview</span>
-                        </a>
-                    </li>
-                    <li class="nav-item">
-                        <a href="student-tests.html" class="nav-link">
-                            <i class="fas fa-tasks"></i>
-                            <span>My Tests</span>
-                        </a>
-                    </li>
-                    <li class="nav-item">
-                        <a href="student-progress.html" class="nav-link">
-                            <i class="fas fa-chart-line"></i>
-                            <span>Progress</span>
-                        </a>
-                    </li>
-                    <li class="nav-item">
-                        <a href="#" class="nav-link">
-                            <i class="fas fa-book"></i>
-                            <span>Resources</span>
-                        </a>
-                    </li>
-                    <li class="nav-item">
-                        <a href="student-settings.html" class="nav-link">
-                            <i class="fas fa-cog"></i>
-                            <span>Settings</span>
-                        </a>
-                    </li>
-                </ul>
-            </nav>
-        </aside>
+  <!-- ═══════════ SIDEBAR ═══════════ -->
+  <aside class="sd-sidebar" id="sd-sidebar" aria-label="Main navigation">
 
-        <!-- Main Content -->
-        <main class="main-content">
-            <!-- Top Bar -->
-            <header class="top-bar">
-                <div class="search-bar">
-                    <i class="fas fa-search"></i>
-                    <input type="text" id="search-input" placeholder="Search tests, resources...">
-                </div>
+    <!-- Brand -->
+    <a href="index.html" class="sd-sidebar-brand" aria-label="Alpharia home">
+      <div class="sd-brand-icon"><i class="fas fa-book-reader"></i></div>
+      <span class="sd-brand-text">Alpharia</span>
+    </a>
 
-                <div class="user-menu">
-                    <a href="#notifications" class="notification-icon">
-                        <i class="fas fa-bell"></i>
-                        <span class="badge">3</span>
-                    </a>
+    <!-- Nav -->
+    <nav class="sd-nav" aria-label="Dashboard navigation">
+      <span class="sd-nav-section-label">Main</span>
 
-                    <div class="user-avatar">
-                        <img src="" alt="User" class="rounded-circle" width="40" height="40" id="user-avatar">
-                    </div>
-                </div>
-            </header>
+      <a href="student-dashboard.html" class="sd-nav-link active" aria-current="page">
+        <i class="fas fa-home"></i>
+        <span>Overview</span>
+      </a>
 
-            <!-- Dashboard Content -->
-            <div class="dashboard-content">
-                <!-- Welcome Section -->
-                <section class="welcome-section">
-                    <div class="card">
-                        <div class="card-body">
-                            <h1>Welcome back, <span class="text-primary" id="user-name">Student</span>!</h1>
-                            <button id="sign-out-btn" class="btn btn-sm btn-outline-secondary mt-2">
-                                <i class="fas fa-sign-out-alt"></i> Sign Out
-                            </button>
-                            <p class="lead">You have <strong id="upcoming-tests-count">0 upcoming tests</strong>. Stay
-                                on track with your studies!</p>
-                        </div>
-                    </div>
-                </section>
+      <a href="student-tests.html" class="sd-nav-link">
+        <i class="fas fa-tasks"></i>
+        <span>My Tests</span>
+        <span class="sd-nav-badge" id="sd-badge-tests">—</span>
+      </a>
 
-                <!-- Quick Stats -->
-                <div class="quick-stats">
-                    <div class="stat-card">
-                        <div class="stat-icon">
-                            <i class="fas fa-check-circle"></i>
-                        </div>
-                        <div class="stat-info">
-                            <h3>12</h3>
-                            <p>Completed Tests</p>
-                        </div>
-                    </div>
-                    <div class="stat-card">
-                        <div class="stat-icon">
-                            <i class="fas fa-chart-line"></i>
-                        </div>
-                        <div class="stat-info">
-                            <h3>87%</h3>
-                            <p>Average Score</p>
-                        </div>
-                    </div>
-                    <div class="stat-card">
-                        <div class="stat-icon">
-                            <i class="fas fa-calendar"></i>
-                        </div>
-                        <div class="stat-info">
-                            <h3>3</h3>
-                            <p>Upcoming Tests</p>
-                        </div>
-                    </div>
-                </div>
+      <a href="student-progress.html" class="sd-nav-link">
+        <i class="fas fa-chart-line"></i>
+        <span>Progress</span>
+      </a>
 
-                <!-- Recent Tests -->
-                <section class="recent-tests">
-                    <div class="card">
-                        <div class="card-header">
-                            <h3><i class="fas fa-clock"></i> Recent Tests</h3>
-                            <a href="student-tests.html" class="btn btn-link">View All</a>
-                        </div>
-                        <div class="card-body" id="recent-tests-list">
-                            <!-- Tests will be loaded here dynamically -->
-                            <div class="text-center py-4">
-                                <div class="spinner-border text-primary" role="status">
-                                    <span class="visually-hidden">Loading...</span>
-                                </div>
-                                <p class="mt-2 text-muted">Loading tests...</p>
-                            </div>
-                        </div>
-                    </div>
-                </section>
-            </div>
-        </main>
-    </div>
+      <a href="take-reading-test.html" class="sd-nav-link">
+        <i class="fas fa-microphone-alt"></i>
+        <span>Take a Test</span>
+      </a>
 
-    <!-- Test Details Modal -->
-    <div id="test-details-modal" class="modal">
-        <div class="modal-content" style="max-width: 800px;">
-            <div class="modal-header">
-                <h5 class="modal-title">Test Details</h5>
-                <button type="button" class="close" onclick="return closeTestDetailsModal()" aria-label="Close">
-                    <span aria-hidden="true">&times;</span>
-                </button>
-            </div>
-            <div class="modal-body">
-                <div class="test-summary">
-                    <h4 id="test-details-title" class="mb-4"></h4>
-                    <div id="sections-summary" class="mb-4">
-                        <!-- Sections will be populated by JavaScript -->
-                    </div>
-                    <div class="test-totals border-top pt-3 mt-3">
-                        <div class="d-flex justify-content-between align-items-center mb-2">
-                            <span class="fw-bold">Total Score:</span>
-                            <span id="test-total-score" class="fw-bold text-primary">0</span>
-                        </div>
-                        <div class="d-flex justify-content-between align-items-center">
-                            <span class="fw-bold">Max Possible Score:</span>
-                            <span id="test-total-possible" class="fw-bold">0</span>
-                        </div>
-                        <div class="d-flex justify-content-between align-items-center mt-2">
-                            <span class="fw-bold">Overall Score:</span>
-                            <span id="test-percentage" class="badge bg-primary text-white">0%</span>
-                        </div>
-                    </div>
-                </div>
-            </div>
-            <div class="modal-footer">
-                <button type="button" class="btn btn-secondary" id="closeTestDetailsBtn"
-                    onclick="return closeTestDetailsModal()">Close</button>
-            </div>
+      <span class="sd-nav-section-label">Library</span>
+
+      <a href="#" class="sd-nav-link">
+        <i class="fas fa-book-open"></i>
+        <span>Resources</span>
+      </a>
+
+      <a href="#" class="sd-nav-link">
+        <i class="fas fa-trophy"></i>
+        <span>Achievements</span>
+      </a>
+
+      <span class="sd-nav-section-label">Account</span>
+
+      <a href="student-settings.html" class="sd-nav-link">
+        <i class="fas fa-cog"></i>
+        <span>Settings</span>
+      </a>
+    </nav>
+
+    <!-- Sidebar footer: user info -->
+    <div class="sd-sidebar-footer">
+      <div class="sd-sidebar-user" title="Your account">
+        <img src="" alt="User" class="sd-sidebar-avatar" id="sd-sidebar-avatar">
+        <div class="sd-sidebar-user-info">
+          <div class="sd-sidebar-user-name" id="sd-sidebar-name">Loading…</div>
+          <div class="sd-sidebar-user-role">Student</div>
         </div>
+        <i class="fas fa-ellipsis-v" style="color:rgba(255,255,255,.25); font-size:0.8rem;"></i>
+      </div>
+    </div>
+  </aside>
+
+  <!-- Sidebar overlay (mobile) -->
+  <div class="sd-sidebar-overlay" id="sd-overlay" aria-hidden="true"></div>
+
+  <!-- ═══════════ MAIN ═══════════ -->
+  <div class="sd-main">
+
+    <!-- Top Bar -->
+    <header class="sd-topbar" role="banner">
+      <button class="sd-topbar-toggle" id="sd-menu-toggle" aria-label="Open navigation" aria-expanded="false">
+        <i class="fas fa-bars"></i>
+      </button>
+
+      <div class="sd-search" role="search">
+        <i class="fas fa-search" aria-hidden="true"></i>
+        <input type="text" id="search-input" placeholder="Search tests, resources…" aria-label="Search">
+      </div>
+
+      <div class="sd-topbar-actions">
+        <button class="sd-icon-btn" aria-label="Notifications" title="Notifications">
+          <i class="fas fa-bell"></i>
+          <span class="sd-notif-badge" aria-label="3 notifications">3</span>
+        </button>
+
+        <div class="sd-avatar-btn" title="Your profile">
+          <img src="" alt="User avatar" id="user-avatar" width="38" height="38">
+        </div>
+      </div>
+    </header>
+
+    <!-- Page Body -->
+    <main class="sd-body" id="main-content">
+
+      <!-- ── Welcome Hero ── -->
+      <section class="sd-welcome" aria-labelledby="welcome-heading">
+        <div class="sd-welcome-text">
+          <div class="sd-welcome-eyebrow">
+            <i class="fas fa-sun" style="margin-right:4px;"></i>
+            Good day!
+          </div>
+          <h1 class="sd-welcome-h1" id="welcome-heading">
+            Welcome back, <span id="user-name">Student</span>!
+          </h1>
+          <p class="sd-welcome-sub">
+            You have <strong id="upcoming-tests-count" style="color:#a5b4fc;">0 upcoming tests</strong>.
+            Keep reading — every session makes you stronger!
+          </p>
+          <div class="sd-welcome-actions">
+            <a href="take-reading-test.html" class="sd-btn sd-btn-primary">
+              <i class="fas fa-play"></i> Start Reading Test
+            </a>
+            <button id="sign-out-btn" class="sd-btn sd-btn-ghost">
+              <i class="fas fa-sign-out-alt"></i> Sign Out
+            </button>
+          </div>
+        </div>
+
+        <!-- Mini dashboard cards -->
+        <div class="sd-welcome-visual" aria-hidden="true">
+          <div class="sd-mini-card">
+            <div class="sd-mini-card-icon mc-blue"><i class="fas fa-check-circle"></i></div>
+            <div>
+              <div class="sd-mini-card-label">Tests Done</div>
+              <div class="sd-mini-card-val" id="wc-tests">—</div>
+            </div>
+          </div>
+          <div class="sd-mini-card">
+            <div class="sd-mini-card-icon mc-teal"><i class="fas fa-chart-bar"></i></div>
+            <div>
+              <div class="sd-mini-card-label">Avg. Score</div>
+              <div class="sd-mini-card-val" id="wc-score">—</div>
+            </div>
+          </div>
+          <div class="sd-mini-card">
+            <div class="sd-mini-card-icon mc-green"><i class="fas fa-fire"></i></div>
+            <div>
+              <div class="sd-mini-card-label">Day Streak</div>
+              <div class="sd-mini-card-val" id="wc-streak">—</div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- ── Stat Cards ── -->
+      <div class="sd-stats-grid" role="region" aria-label="Quick statistics">
+
+        <div class="sd-stat">
+          <div class="sd-stat-icon stat-purple"><i class="fas fa-check-double"></i></div>
+          <div class="sd-stat-body">
+            <div class="sd-stat-label">Completed Tests</div>
+            <div class="sd-stat-value" id="stat-completed">—</div>
+            <div class="sd-stat-trend trend-up">
+              <i class="fas fa-arrow-up"></i> All time
+            </div>
+          </div>
+        </div>
+
+        <div class="sd-stat">
+          <div class="sd-stat-icon stat-teal"><i class="fas fa-percent"></i></div>
+          <div class="sd-stat-body">
+            <div class="sd-stat-label">Average Score</div>
+            <div class="sd-stat-value" id="stat-avg">—</div>
+            <div class="sd-stat-trend trend-flat">
+              <i class="fas fa-minus"></i> Across all tests
+            </div>
+          </div>
+        </div>
+
+        <div class="sd-stat">
+          <div class="sd-stat-icon stat-amber"><i class="fas fa-calendar-alt"></i></div>
+          <div class="sd-stat-body">
+            <div class="sd-stat-label">Upcoming Tests</div>
+            <div class="sd-stat-value" id="stat-upcoming">—</div>
+            <div class="sd-stat-trend trend-flat">
+              <i class="fas fa-clock"></i> Active now
+            </div>
+          </div>
+        </div>
+
+      </div>
+
+      <!-- ── Two-column content ── -->
+      <div class="sd-content-grid">
+
+        <!-- Recent Tests Card -->
+        <div class="sd-card" role="region" aria-labelledby="recent-heading">
+          <div class="sd-card-header">
+            <div class="sd-card-title" id="recent-heading">
+              <i class="fas fa-history" aria-hidden="true"></i>
+              Recent Tests
+            </div>
+            <a href="student-tests.html" class="sd-card-link">
+              View all <i class="fas fa-arrow-right"></i>
+            </a>
+          </div>
+          <div class="sd-card-body" id="recent-tests-list">
+            <!-- Skeleton placeholders -->
+            <div class="sd-test-item" aria-hidden="true">
+              <div class="sd-skeleton" style="width:36px;height:36px;border-radius:9px;flex-shrink:0;"></div>
+              <div style="flex:1;">
+                <div class="sd-skeleton" style="height:14px;width:60%;margin-bottom:8px;"></div>
+                <div class="sd-skeleton" style="height:11px;width:40%;"></div>
+              </div>
+            </div>
+            <div class="sd-test-item" aria-hidden="true">
+              <div class="sd-skeleton" style="width:36px;height:36px;border-radius:9px;flex-shrink:0;"></div>
+              <div style="flex:1;">
+                <div class="sd-skeleton" style="height:14px;width:70%;margin-bottom:8px;"></div>
+                <div class="sd-skeleton" style="height:11px;width:35%;"></div>
+              </div>
+            </div>
+            <div class="sd-test-item" aria-hidden="true">
+              <div class="sd-skeleton" style="width:36px;height:36px;border-radius:9px;flex-shrink:0;"></div>
+              <div style="flex:1;">
+                <div class="sd-skeleton" style="height:14px;width:50%;margin-bottom:8px;"></div>
+                <div class="sd-skeleton" style="height:11px;width:45%;"></div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Upcoming / Quick Actions -->
+        <div style="display:flex;flex-direction:column;gap:1.25rem;">
+
+          <!-- Upcoming tests -->
+          <div class="sd-card" role="region" aria-labelledby="upcoming-heading">
+            <div class="sd-card-header">
+              <div class="sd-card-title" id="upcoming-heading">
+                <i class="fas fa-calendar-check" aria-hidden="true"></i>
+                Upcoming Tests
+              </div>
+            </div>
+            <div class="sd-card-body" id="upcoming-tests-list">
+              <div class="sd-empty" aria-busy="true">
+                <div class="sd-empty-icon"><i class="fas fa-hourglass-half"></i></div>
+                <div class="sd-empty-title">Loading…</div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Quick actions -->
+          <div class="sd-card" role="complementary" aria-label="Quick actions">
+            <div class="sd-card-header">
+              <div class="sd-card-title">
+                <i class="fas fa-bolt" aria-hidden="true"></i>
+                Quick Actions
+              </div>
+            </div>
+            <div class="sd-card-body" style="display:flex;flex-direction:column;gap:0.65rem;">
+              <a href="take-reading-test.html" class="sd-btn sd-btn-primary" style="justify-content:center;">
+                <i class="fas fa-microphone-alt"></i> Start Reading Assessment
+              </a>
+              <a href="student-progress.html" class="sd-btn sd-btn-outline" style="justify-content:center;">
+                <i class="fas fa-chart-line"></i> View My Progress
+              </a>
+              <a href="student-tests.html" class="sd-btn sd-btn-outline" style="justify-content:center;">
+                <i class="fas fa-tasks"></i> Browse All Tests
+              </a>
+            </div>
+          </div>
+
+        </div>
+      </div>
+
+    </main><!-- /sd-body -->
+  </div><!-- /sd-main -->
+</div><!-- /sd-shell -->
+
+
+<!-- ══════════════════════════════════════
+     TEST DETAILS MODAL
+══════════════════════════════════════ -->
+<div class="sd-modal-backdrop" id="test-details-modal" role="dialog" aria-modal="true" aria-labelledby="modal-title">
+  <div class="sd-modal" id="sd-modal-box">
+
+    <div class="sd-modal-header">
+      <div class="sd-modal-title" id="modal-title">
+        <i class="fas fa-clipboard-list"></i>
+        <span id="test-details-title">Test Details</span>
+      </div>
+      <button class="sd-modal-close" onclick="closeTestDetailsModal()" aria-label="Close">
+        <i class="fas fa-times"></i>
+      </button>
     </div>
 
-    <!-- Firebase SDK -->
-    <script type="module">
-        // Import Firebase configuration
-        import { app, auth, db } from './js/firebase-config.js';
-        import { requireAuth } from './js/auth-check.js';
-        import { signOut } from 'https://www.gstatic.com/firebasejs/12.1.0/firebase-auth.js';
-        import {
-            doc, getDoc, collection, query, where, getDocs, orderBy, limit
-        } from 'https://www.gstatic.com/firebasejs/12.1.0/firebase-firestore.js';
+    <div class="sd-modal-body">
+      <!-- Score summary -->
+      <div class="sd-score-summary">
+        <div class="sd-score-box">
+          <div class="sd-score-box-label">Score</div>
+          <div class="sd-score-box-val" id="test-total-score">—</div>
+        </div>
+        <div class="sd-score-box">
+          <div class="sd-score-box-label">Max Score</div>
+          <div class="sd-score-box-val" id="test-total-possible">—</div>
+        </div>
+        <div class="sd-score-box">
+          <div class="sd-score-box-label">Overall</div>
+          <div class="sd-score-box-val" id="test-percentage" style="color:var(--sd-primary);">—%</div>
+        </div>
+      </div>
 
-        // Make functions globally available for inline event handlers if needed
-        window.formatDate = formatDate;
+      <!-- Section breakdown -->
+      <div style="font-size:0.82rem;font-weight:700;color:var(--sd-text-3);text-transform:uppercase;letter-spacing:0.06em;margin-bottom:0.75rem;">
+        Section Breakdown
+      </div>
+      <div id="sections-summary">
+        <!-- Populated by JS -->
+      </div>
+    </div>
+
+    <div class="sd-modal-footer">
+      <button class="sd-btn sd-btn-outline" id="closeTestDetailsBtn" onclick="closeTestDetailsModal()">
+        Close
+      </button>
+    </div>
+  </div>
+</div>
 
 
-        // DOM Elements
-        const userNameElement = document.querySelector('.welcome-section h1 .text-primary');
-        const userAvatar = document.querySelector('.user-avatar img');
-        const upcomingTestsCount = document.querySelector('.welcome-section .lead strong');
-        const completedTestsElement = document.querySelector('.stat-card:nth-child(1) .stat-value');
-        const averageScoreElement = document.querySelector('.stat-card:nth-child(2) .stat-value');
-        const streakCountElement = document.querySelector('.stat-card:nth-child(3) .stat-value');
-        const recentActivityList = document.querySelector('.recent-activity .activity-list');
-        const upcomingTestsList = document.querySelector('.upcoming-tests .test-list');
-        const progressBars = document.querySelectorAll('.progress-bar');
-        const signOutBtn = document.getElementById('sign-out-btn');
+<!-- ══════════════════════════════════════
+     SCRIPTS
+══════════════════════════════════════ -->
 
-        // Format date
-        function formatDate(date) {
-            return new Date(date).toLocaleDateString('en-US', {
-                year: 'numeric',
-                month: 'short',
-                day: 'numeric'
-            });
+<!-- Mobile sidebar toggle -->
+<script>
+(function () {
+  var sidebar = document.getElementById('sd-sidebar');
+  var overlay = document.getElementById('sd-overlay');
+  var toggle  = document.getElementById('sd-menu-toggle');
+
+  function openSidebar() {
+    sidebar.classList.add('open');
+    overlay.classList.add('open');
+    toggle.setAttribute('aria-expanded', 'true');
+    document.body.style.overflow = 'hidden';
+  }
+
+  function closeSidebar() {
+    sidebar.classList.remove('open');
+    overlay.classList.remove('open');
+    toggle.setAttribute('aria-expanded', 'false');
+    document.body.style.overflow = '';
+  }
+
+  if (toggle) toggle.addEventListener('click', function () {
+    sidebar.classList.contains('open') ? closeSidebar() : openSidebar();
+  });
+
+  if (overlay) overlay.addEventListener('click', closeSidebar);
+
+  // Close on Escape
+  document.addEventListener('keydown', function (e) {
+    if (e.key === 'Escape') closeSidebar();
+  });
+})();
+</script>
+
+<!-- Firebase + Dashboard Logic (original, fully preserved) -->
+<script type="module">
+  import { app, auth, db } from './js/firebase-config.js';
+  import { requireAuth } from './js/auth-check.js';
+  import { signOut } from 'https://www.gstatic.com/firebasejs/12.1.0/firebase-auth.js';
+  import {
+    doc, getDoc, collection, query, where, getDocs, orderBy, limit
+  } from 'https://www.gstatic.com/firebasejs/12.1.0/firebase-firestore.js';
+
+  window.formatDate = formatDate;
+
+  /* ── DOM refs ── */
+  const userNameEl       = document.getElementById('user-name');
+  const sidebarNameEl    = document.getElementById('sd-sidebar-name');
+  const userAvatar       = document.getElementById('user-avatar');
+  const sidebarAvatar    = document.getElementById('sd-sidebar-avatar');
+  const upcomingCount    = document.getElementById('upcoming-tests-count');
+  const signOutBtn       = document.getElementById('sign-out-btn');
+
+  /* welcome cards */
+  const wcTests  = document.getElementById('wc-tests');
+  const wcScore  = document.getElementById('wc-score');
+  const wcStreak = document.getElementById('wc-streak');
+
+  /* stat cards */
+  const statCompleted = document.getElementById('stat-completed');
+  const statAvg       = document.getElementById('stat-avg');
+  const statUpcoming  = document.getElementById('stat-upcoming');
+
+  /* Badge */
+  const badgeTests = document.getElementById('sd-badge-tests');
+
+  /* ── Helpers ── */
+  function formatDate(date) {
+    return new Date(date).toLocaleDateString('en-US', {
+      year: 'numeric', month: 'short', day: 'numeric'
+    });
+  }
+
+  function scoreColour(pct) {
+    return pct >= 70 ? 'score-high' : pct >= 50 ? 'score-medium' : 'score-low';
+  }
+
+  function setAvatar(el, user, name) {
+    if (!el) return;
+    el.alt = name || 'User';
+    if (user.photoURL) {
+      el.src = user.photoURL;
+    } else {
+      const initials = (name || 'S').split(' ').map(n => n[0]).join('').toUpperCase();
+      el.src = `https://ui-avatars.com/api/?name=${encodeURIComponent(initials)}&background=4f46e5&color=fff`;
+    }
+  }
+
+  /* ── Load user data ── */
+  async function loadUserData(user) {
+    try {
+      const [userDoc, studentDoc] = await Promise.all([
+        getDoc(doc(db, 'users', user.uid)),
+        getDoc(doc(db, 'students', user.uid))
+      ]);
+
+      let displayName = 'Student';
+
+      if (userDoc.exists()) {
+        const d = userDoc.data();
+        displayName = d.name || 'Student';
+        if (userNameEl)    userNameEl.textContent    = displayName;
+        if (sidebarNameEl) sidebarNameEl.textContent = displayName;
+        setAvatar(userAvatar, user, displayName);
+        setAvatar(sidebarAvatar, user, displayName);
+      }
+
+      if (studentDoc.exists()) {
+        const d = studentDoc.data();
+        if (wcStreak) wcStreak.textContent = (d.streakDays || 0) + ' days';
+      }
+
+      await Promise.all([
+        loadStatistics(user.uid),
+        loadRecentTests(user.uid),
+        loadUpcomingTests(user.uid)
+      ]);
+
+    } catch (err) {
+      console.error('Error loading user data:', err);
+    }
+  }
+
+  /* ── Statistics ── */
+  async function loadStatistics(userId) {
+    try {
+      const attRef   = collection(db, 'students', userId, 'testAttempts');
+      const snap     = await getDocs(attRef);
+
+      let completed  = 0, totalScore = 0;
+      const doneIds  = [];
+
+      snap.forEach(d => {
+        const a = d.data();
+        if (a.percentage !== undefined) {
+          completed++;
+          totalScore += parseFloat(a.percentage);
+        }
+        if (a.testId) doneIds.push(a.testId);
+      });
+
+      const avg = completed > 0 ? Math.round(totalScore / completed) : 0;
+
+      /* upcoming = published tests not yet completed */
+      const allTests = await getDocs(query(
+        collection(db, 'tests'),
+        where('status', '==', 'published')
+      ));
+      let upcoming = 0;
+      allTests.forEach(d => { if (!doneIds.includes(d.id)) upcoming++; });
+
+      /* Update stat cards */
+      if (statCompleted) statCompleted.textContent = completed;
+      if (statAvg)       statAvg.textContent       = avg + '%';
+      if (statUpcoming)  statUpcoming.textContent  = upcoming;
+      if (wcTests)       wcTests.textContent       = completed;
+      if (wcScore)       wcScore.textContent       = avg + '%';
+      if (upcomingCount) upcomingCount.textContent = `${upcoming} upcoming test${upcoming !== 1 ? 's' : ''}`;
+      if (badgeTests)    badgeTests.textContent    = upcoming || '0';
+
+    } catch (err) {
+      console.error('Error loading statistics:', err);
+    }
+  }
+
+  /* ── Recent Tests ── */
+  async function loadRecentTests(userId) {
+    const container = document.getElementById('recent-tests-list');
+    if (!container) return;
+
+    try {
+      const attRef   = collection(db, 'students', userId, 'testAttempts');
+      const attSnap  = await getDocs(query(attRef, orderBy('submittedAt', 'desc')));
+
+      const testIds = [];
+      const attMap  = new Map();
+
+      attSnap.forEach(d => {
+        const a = { id: d.id, ...d.data() };
+        if (a.testId && !testIds.includes(a.testId)) {
+          testIds.push(a.testId);
+          attMap.set(a.testId, a);
+        }
+      });
+
+      if (testIds.length === 0) {
+        container.innerHTML = emptyState('No tests attempted yet', 'Complete your first reading assessment to see results here.');
+        return;
+      }
+
+      const testsSnap = await getDocs(query(
+        collection(db, 'tests'),
+        where('__name__', 'in', testIds)
+      ));
+
+      let tests = [];
+      testsSnap.forEach(d => {
+        const att = attMap.get(d.id);
+        const sub = att?.submittedAt;
+        const ts  = sub ? (typeof sub.toDate === 'function' ? sub.toDate() : new Date(sub)) : new Date(0);
+        tests.push({ id: d.id, ...d.data(), attempt: att, submittedAt: ts });
+      });
+
+      tests.sort((a, b) => b.submittedAt - a.submittedAt);
+      tests = tests.slice(0, 5);
+
+      container.innerHTML = '';
+      tests.forEach(test => {
+        const att = test.attempt;
+        let pct = 0;
+        if (att) {
+          pct = att.percentage || att.scorePercentage ||
+            (att.totalScore && att.maxPossibleScore ? att.totalScore / att.maxPossibleScore * 100 : 0);
+          pct = Math.min(100, Math.max(0, Math.round(parseFloat(pct))));
         }
 
-        // Load user data
-        async function loadUserData(user) {
-            try {
-                // Get user document from Firestore
-                const userDoc = await getDoc(doc(db, 'users', user.uid));
-                const studentDoc = await getDoc(doc(db, 'students', user.uid));
+        const item = document.createElement('div');
+        item.className = 'sd-test-item';
+        item.innerHTML = `
+          <div class="sd-test-icon ic-completed">
+            <i class="fas fa-check-circle"></i>
+          </div>
+          <div class="sd-test-body">
+            <div class="sd-test-name">${test.title || 'Untitled Test'}</div>
+            <div class="sd-test-meta">
+              <span><i class="fas fa-layer-group"></i> ${test.sections?.length || 0} sections</span>
+              <span><i class="far fa-calendar-alt"></i> ${test.submittedAt ? formatDate(test.submittedAt) : 'N/A'}</span>
+            </div>
+            ${att ? `
+              <div style="display:flex;align-items:center;gap:0.5rem;margin-top:0.3rem;">
+                <span class="sd-score-chip ${scoreColour(pct)}">${pct}%</span>
+                <div class="sd-progress" style="flex:1;">
+                  <div class="sd-progress-fill pf-blue" style="width:${pct}%;"></div>
+                </div>
+              </div>` : ''}
+          </div>
+          <div class="sd-test-actions">
+            <button onclick="showTestDetails(${JSON.stringify(test).replace(/"/g, '&quot;').replace(/'/g, '&apos;')})"
+                    class="sd-btn sd-btn-outline" style="font-size:0.78rem;padding:0.4rem 0.85rem;">
+              Details
+            </button>
+          </div>
+        `;
+        container.appendChild(item);
+      });
 
-                if (userDoc.exists()) {
-                    const userData = userDoc.data();
+    } catch (err) {
+      console.error('Error loading recent tests:', err);
+      if (container) {
+        container.innerHTML = `<div class="sd-empty">
+          <div class="sd-empty-icon"><i class="fas fa-exclamation-triangle" style="color:var(--sd-red);"></i></div>
+          <div class="sd-empty-title">Could not load tests</div>
+          <div class="sd-empty-sub">Please refresh the page and try again.</div>
+        </div>`;
+      }
+    }
+  }
 
-                    // Update user info
-                    if (userNameElement) {
-                        userNameElement.textContent = userData.name || 'Student';
-                    }
+  /* ── Upcoming Tests ── */
+  async function loadUpcomingTests(userId) {
+    const container = document.getElementById('upcoming-tests-list');
+    if (!container) return;
 
-                    // Update avatar with user's first letter if no photo
-                    if (userAvatar) {
-                        userAvatar.alt = userData.name || 'User';
-                        if (!user.photoURL) {
-                            const name = userData.name || 'S';
-                            const initials = name.split(' ').map(n => n[0]).join('').toUpperCase();
-                            userAvatar.src = `https://ui-avatars.com/api/?name=${encodeURIComponent(initials)}&background=4361ee&color=fff`;
-                        } else {
-                            userAvatar.src = user.photoURL;
-                        }
-                    }
-                }
+    try {
+      const testsSnap = await getDocs(query(
+        collection(db, 'tests'),
+        where('status', '==', 'published')
+      ));
 
-                if (studentDoc.exists()) {
-                    const studentData = studentDoc.data();
-
-                    // Update stats
-                    if (completedTestsElement) {
-                        completedTestsElement.textContent = studentData.testsCompleted || 0;
-                    }
-
-                    if (averageScoreElement) {
-                        averageScoreElement.textContent = studentData.averageScore ? `${studentData.averageScore}%` : 'N/A';
-                    }
-
-                    if (streakCountElement) {
-                        streakCountElement.textContent = studentData.streakDays || 0;
-                    }
-
-                    // Update progress bars
-                    if (studentData.skills) {
-                        progressBars.forEach(bar => {
-                            const skillName = bar.getAttribute('data-skill');
-                            const skill = studentData.skills[skillName];
-                            if (skill) {
-                                const percentage = Math.min(100, Math.max(0, skill.level * 20));
-                                bar.style.width = `${percentage}%`;
-                                bar.setAttribute('aria-valuenow', percentage);
-                                bar.textContent = `${percentage}%`;
-                            }
-                        });
-                    }
-                }
-
-                // Load user's tests and statistics
-                await Promise.all([
-                    loadUpcomingTests(user.uid),
-                    loadRecentTests(user.uid),
-                    loadStatistics(user.uid)
-                ]);
-
-            } catch (error) {
-                console.error('Error loading user data:', error);
-            }
+      let tests = [];
+      testsSnap.forEach(d => {
+        const t = d.data();
+        if (t.isActive !== false) {
+          tests.push({ id: d.id, ...t, dueDate: t.dueDate?.toDate() || null });
         }
+      });
+
+      tests.sort((a, b) => (a.dueDate || new Date(0)) - (b.dueDate || new Date(0)));
+      tests = tests.slice(0, 3);
+
+      if (tests.length === 0) {
+        container.innerHTML = emptyState('No upcoming tests', 'Check back later for new assessments.');
+        return;
+      }
+
+      container.innerHTML = '';
+      tests.forEach(test => {
+        const item = document.createElement('div');
+        item.className = 'sd-test-item';
+        item.innerHTML = `
+          <div class="sd-test-icon ic-upcoming">
+            <i class="fas fa-clipboard-list"></i>
+          </div>
+          <div class="sd-test-body">
+            <div class="sd-test-name">${test.title || 'Untitled Test'}</div>
+            <div class="sd-test-meta">
+              <span><i class="far fa-calendar-alt"></i>
+                ${test.dueDate ? 'Due ' + formatDate(test.dueDate) : 'No due date'}</span>
+            </div>
+          </div>
+          <div class="sd-test-actions">
+            <a href="take-test.html?testId=${test.id}" class="sd-btn sd-btn-primary"
+               style="font-size:0.78rem;padding:0.4rem 0.85rem;">
+              Start
+            </a>
+          </div>
+        `;
+        container.appendChild(item);
+      });
+
+    } catch (err) {
+      console.error('Error loading upcoming tests:', err);
+    }
+  }
+
+  /* ── Empty state helper ── */
+  function emptyState(title, sub) {
+    return `<div class="sd-empty">
+      <div class="sd-empty-icon"><i class="fas fa-inbox"></i></div>
+      <div class="sd-empty-title">${title}</div>
+      <div class="sd-empty-sub">${sub}</div>
+    </div>`;
+  }
+
+  /* ── Sign out ── */
+  if (signOutBtn) {
+    signOutBtn.addEventListener('click', async () => {
+      try {
+        await signOut(auth);
+        window.location.href = 'auth/login-fixed.html';
+      } catch (err) {
+        console.error('Error signing out:', err);
+        alert('Error signing out. Please try again.');
+      }
+    });
+  }
+
+  /* ── Show Test Details Modal ── */
+  window.showTestDetails = function (testData) {
+    const modal     = document.getElementById('test-details-modal');
+    const titleEl   = document.getElementById('test-details-title');
+    const scoreEl   = document.getElementById('test-total-score');
+    const possEl    = document.getElementById('test-total-possible');
+    const pctEl     = document.getElementById('test-percentage');
+    const sectionsEl= document.getElementById('sections-summary');
+
+    if (!modal || !testData?.attempt) return;
+
+    const att   = testData.attempt;
+    const total      = att.totalScore || 0;
+    const possible   = att.maxPossibleScore || 1;
+    const pct        = att.percentage || Math.round((total / possible) * 100);
+
+    titleEl.textContent = att.testTitle || testData.title || 'Test Details';
+    scoreEl.textContent  = total;
+    possEl.textContent   = possible;
+    pctEl.textContent    = pct + '%';
+    pctEl.style.color    = pct >= 70 ? 'var(--sd-green)' : pct >= 50 ? 'var(--sd-amber)' : 'var(--sd-red)';
+
+    sectionsEl.innerHTML = '';
+
+    if (att.sections && Array.isArray(att.sections)) {
+      att.sections.forEach((s, i) => {
+        const name    = s.sectionTitle || `Section ${i + 1}`;
+        const items   = s.items || [];
+        const correct = items.filter(it => it.isCorrect).length;
+        const sScore  = s.score !== undefined ? s.score : correct;
+        const sPoss   = s.maxPossibleScore || items.length || 1;
+        const sPct    = Math.round((sScore / sPoss) * 100) || 0;
+        const bar     = sPct >= 70 ? 'pf-green' : sPct >= 50 ? 'pf-amber' : '';
+
+        const el = document.createElement('div');
+        el.className = 'sd-section-result';
+        el.innerHTML = `
+          <div class="sd-section-result-header">
+            <div class="sd-section-result-name">${name}</div>
+            <span class="sd-score-chip ${scoreColour(sPct)}">${sPct}%</span>
+          </div>
+          <div class="sd-progress">
+            <div class="sd-progress-fill ${bar}" style="width:${sPct}%;"></div>
+          </div>
+          <div class="sd-section-result-meta">
+            Score: ${sScore}/${sPoss} &nbsp;·&nbsp; ${items.length} items
+          </div>
+        `;
+        sectionsEl.appendChild(el);
+      });
+    }
+
+    modal.classList.add('open');
+    document.body.style.overflow = 'hidden';
+  };
+
+  /* ── Close Modal ── */
+  window.closeTestDetailsModal = function () {
+    const modal = document.getElementById('test-details-modal');
+    if (modal) {
+      modal.classList.remove('open');
+      document.body.style.overflow = '';
+    }
+    return false;
+  };
+
+  /* Click outside modal to close */
+  document.getElementById('test-details-modal').addEventListener('click', function (e) {
+    if (e.target === this) closeTestDetailsModal();
+  });
+
+  /* Escape key */
+  document.addEventListener('keydown', e => {
+    if (e.key === 'Escape') closeTestDetailsModal();
+  });
+
+  /* ── Bootstrap ── */
+  requireAuth(['student'])
+    .then(({ user }) => loadUserData(user))
+    .catch(err => console.error('Auth Check Failed:', err));
+</script>
 
-        // Load upcoming tests
-        async function loadUpcomingTests(userId) {
-            try {
-                const now = new Date();
-                const testsRef = collection(db, 'tests');
-
-                // For now, bypass grade check and get all published tests
-                console.log('Loading all published tests (grade check disabled)');
-
-                const testsQuery = query(
-                    testsRef,
-                    where('status', '==', 'published')
-                );
-
-                const querySnapshot = await getDocs(testsQuery);
-                let upcomingTests = [];
-
-                console.log(`Found ${querySnapshot.size} published tests`);
-
-                // Process all tests - show all active tests regardless of due date or assignment
-                querySnapshot.forEach((doc) => {
-                    const testData = doc.data();
-                    console.log('Test data:', { id: doc.id, ...testData });
-
-                    if (testData.isActive !== false) {
-                        const dueDate = testData.dueDate?.toDate();
-                        console.log(`Adding test ${doc.id}`, dueDate ? `(Due: ${dueDate})` : '(No due date)');
-                        upcomingTests.push({
-                            id: doc.id,
-                            ...testData,
-                            dueDate: dueDate  // Ensure we have a proper Date object
-                        });
-                    } else {
-                        console.log(`Test ${doc.id} is not active`);
-                    }
-                });
-
-                console.log(`Found ${upcomingTests.length} upcoming tests for user ${userId}`);
-
-                // Sort by due date (ascending - soonest first)
-                upcomingTests.sort((a, b) => {
-                    return (a.dueDate || new Date(0)) - (b.dueDate || new Date(0));
-                });
-
-                // Take only the next 3 upcoming tests
-                upcomingTests = upcomingTests.slice(0, 3);
-                console.log('Final upcoming tests to display:', upcomingTests);
-
-                // Update UI
-                if (upcomingTestsCount) {
-                    upcomingTestsCount.textContent = upcomingTests.length;
-                }
-
-                if (upcomingTestsList) {
-                    upcomingTestsList.innerHTML = '';
-
-                    if (upcomingTests.length === 0) {
-                        upcomingTestsList.innerHTML = `
-                            <div class="text-center py-4">
-                                <i class="fas fa-inbox fa-3x text-muted mb-3"></i>
-                                <p class="text-muted">No upcoming tests</p>
-                            </div>
-                        `;
-                        return;
-                    }
-
-                    upcomingTests.forEach(test => {
-                        const testElement = document.createElement('div');
-                        testElement.className = 'activity-item';
-                        testElement.innerHTML = `
-                            <div class="activity-icon">
-                                <i class="fas fa-clipboard-list"></i>
-                            </div>
-                            <div class="activity-details">
-                                <h4>${test.title || 'Untitled Test'}</h4>
-                                <p class="text-muted">
-                                    <i class="far fa-calendar-alt me-1"></i>
-                                    Due: ${test.dueDate ? formatDate(test.dueDate.toDate()) : 'No due date'}
-                                </p>
-                                <div class="d-flex justify-content-between align-items-center mt-2">
-                                    <small class="text-muted">
-                                        ${test.sections ? test.sections.length : 0} sections • 
-                                        ${test.totalQuestions || 0} questions
-                                    </small>
-                                    <a href="take-test.html?testId=${test.id}" class="btn btn-sm btn-primary">
-                                        Start Test
-                                    </a>
-                                </div>
-                            </div>
-                        `;
-                        upcomingTestsList.appendChild(testElement);
-                    });
-                }
-
-            } catch (error) {
-                console.error('Error loading upcoming tests:', error);
-            }
-        }
-
-        // Debug function to log all tests in Firestore
-        async function debugLogAllTests() {
-            try {
-                console.log('--- DEBUG: Listing all tests in Firestore ---');
-                const testsRef = collection(db, 'tests');
-                const querySnapshot = await getDocs(testsRef);
-
-                if (querySnapshot.empty) {
-                    console.log('No tests found in Firestore');
-                    return;
-                }
-
-                querySnapshot.forEach((doc) => {
-                    console.log(`Test ID: ${doc.id}`, doc.data());
-                });
-                console.log('--- End of tests list ---');
-
-            } catch (error) {
-                console.error('Error fetching tests for debug:', error);
-            }
-        }
-
-        // Load recent tests
-        async function loadRecentTests(userId) {
-            try {
-                // First, get all test attempts from the student's testAttempts subcollection
-                const testAttemptsRef = collection(db, 'students', userId, 'testAttempts');
-                const attemptsQuery = query(testAttemptsRef, orderBy('submittedAt', 'desc'));
-                const attemptsSnapshot = await getDocs(attemptsQuery);
-
-                // Get unique test IDs from attempts (most recent first)
-                const testIds = [];
-                const testAttemptsMap = new Map();
-
-                attemptsSnapshot.forEach(doc => {
-                    const attempt = { id: doc.id, ...doc.data() };
-                    if (attempt.testId && !testIds.includes(attempt.testId)) {
-                        testIds.push(attempt.testId);
-                        testAttemptsMap.set(attempt.testId, attempt);
-                    }
-                });
-
-                // If no test attempts, show empty state
-                if (testIds.length === 0) {
-                    const recentTestsList = document.getElementById('recent-tests-list');
-                    if (recentTestsList) {
-                        recentTestsList.innerHTML = `
-                            <div class="text-center py-4">
-                                <i class="fas fa-inbox fa-3x text-muted mb-3"></i>
-                                <p class="text-muted">No test attempts found</p>
-                            </div>
-                        `;
-                    }
-                    return;
-                }
-
-                // Get test details for each attempted test
-                const testsRef = collection(db, 'tests');
-                const testsQuery = query(testsRef, where('__name__', 'in', testIds));
-                const testsSnapshot = await getDocs(testsQuery);
-
-                let recentTests = [];
-
-                // Combine test data with attempt data
-                testsSnapshot.forEach(doc => {
-                    const testData = doc.data();
-                    const attempt = testAttemptsMap.get(doc.id);
-
-                    if (testData) {
-                        // Handle both Timestamp and Date objects for submittedAt
-                        const submittedAt = attempt?.submittedAt;
-                        const sortTimestamp = submittedAt ?
-                            (typeof submittedAt.toDate === 'function' ? submittedAt.toDate() : new Date(submittedAt)) :
-                            new Date(0);
-
-                        recentTests.push({
-                            id: doc.id,
-                            ...testData,
-                            attempt: attempt,
-                            isCompleted: true,
-                            sortTimestamp: sortTimestamp,
-                            submittedAt: sortTimestamp // Add for easy access in template
-                        });
-                    }
-                });
-
-                // Sort by most recent attempt
-                recentTests.sort((a, b) => b.sortTimestamp - a.sortTimestamp);
-
-                // Take only the most recent 5 tests
-                recentTests = recentTests.slice(0, 5);
-
-                // Update UI
-                const recentTestsList = document.getElementById('recent-tests-list');
-
-                if (recentTestsList) {
-                    recentTestsList.innerHTML = '';
-
-                    if (recentTests.length === 0) {
-                        recentTestsList.innerHTML = `
-                            <div class="text-center py-4">
-                                <i class="fas fa-inbox fa-3x text-muted mb-3"></i>
-                                <p class="text-muted">No test attempts found</p>
-                            </div>
-                        `;
-                        return;
-                    }
-
-                    recentTests.forEach(test => {
-                        const testElement = document.createElement('div');
-                        testElement.className = 'activity-item';
-
-                        // All tests in recentTests are completed
-                        const isCompleted = true;
-
-                        // Get score from attempt
-                        let score = 0;
-                        let scoreClass = '';
-                        let scoreDisplay = '';
-
-                        if (test.attempt) {
-                            // Try different possible score fields
-                            score = test.attempt.percentage ||
-                                test.attempt.scorePercentage ||
-                                (test.attempt.totalScore / test.attempt.maxPossibleScore * 100) || 0;
-
-                            // Ensure score is between 0 and 100
-                            score = Math.min(100, Math.max(0, Math.round(parseFloat(score))));
-                            scoreClass = score >= 70 ? 'text-success' :
-                                score >= 50 ? 'text-warning' : 'text-danger';
-
-                            scoreDisplay = `
-                                <div class="d-flex align-items-center">
-                                    <span class="me-2">Your Score:</span>
-                                    <span class="fw-bold ${scoreClass}">${score}%</span>
-                                </div>
-                            `;
-
-                            console.log('Final score calculation:', {
-                                testId: test.id,
-                                score,
-                                scoreClass,
-                                attemptData: test.attempt
-                            });
-                        }
-
-                        testElement.innerHTML = `
-                            <div class="activity-icon">
-                                <i class="fas ${isCompleted ? 'fa-check-circle text-success' : 'fa-clipboard-list'}"></i>
-                            </div>
-                            <div class="activity-details">
-                                <h4 class="mb-2">${test.title || 'Untitled Test'}</h4>
-                                <div class="d-flex justify-content-between align-items-center mb-2">
-                                    <span class="text-muted">
-                                        <i class="fas fa-layer-group me-1"></i>
-                                        ${test.sections ? test.sections.length : 0} sections • 
-                                        ${test.totalQuestions || 0} questions
-                                    </span>
-                                </div>
-                                ${isCompleted ? scoreDisplay : ''}
-                                <div class="d-flex justify-content-between align-items-center mt-2">
-                                    <small class="text-muted">
-                                        <i class="far fa-calendar-alt me-1"></i>
-                                        Submitted: ${test.submittedAt ? formatDate(test.submittedAt) : 'N/A'}
-                                    </small>
-                                    <button onclick="showTestDetails(${JSON.stringify(test).replace(/"/g, '&quot;').replace(/'/g, '&apos;')})" class="btn btn-sm btn-outline-primary">
-                                        View Details
-                                    </button>
-                                </div>
-                            </div>
-                        `;
-                        recentTestsList.appendChild(testElement);
-                    });
-                }
-
-            } catch (error) {
-                console.error('Error loading recent tests:', error);
-                const recentTestsList = document.getElementById('recent-tests-list');
-                if (recentTestsList) {
-                    recentTestsList.innerHTML = `
-                        <div class="alert alert-danger">
-                            <i class="fas fa-exclamation-triangle me-2"></i>
-                            Error loading tests. Please try again later.
-                        </div>
-                    `;
-                }
-            }
-        }
-
-        // Function to load and display statistics
-        async function loadStatistics(userId) {
-            try {
-                // Get completed tests count and scores from the student's testAttempts subcollection
-                const testAttemptsRef = collection(db, 'students', userId, 'testAttempts');
-                const testAttemptsQuery = query(testAttemptsRef);
-
-                const querySnapshot = await getDocs(testAttemptsQuery);
-                let completedTests = 0;
-                let totalScore = 0;
-
-                querySnapshot.forEach((doc) => {
-                    const attempt = doc.data();
-                    if (attempt.percentage !== undefined) {
-                        completedTests++;
-                        totalScore += parseFloat(attempt.percentage);
-                    }
-                });
-
-                // Calculate average score
-                const averageScore = completedTests > 0 ? Math.round(totalScore / completedTests) : 0;
-
-                // Get completed test IDs
-                const completedTestIds = [];
-                querySnapshot.forEach(doc => {
-                    const attempt = doc.data();
-                    if (attempt.testId) {
-                        completedTestIds.push(attempt.testId);
-                    }
-                });
-
-                // Get all published tests that the student hasn't completed
-                let upcomingTestsQuery = query(
-                    collection(db, 'tests'),
-                    where('status', '==', 'published')
-                );
-
-                const allTestsSnapshot = await getDocs(upcomingTestsQuery);
-                let upcomingTests = 0;
-
-                // Filter out completed tests
-                allTestsSnapshot.forEach(doc => {
-                    if (!completedTestIds.includes(doc.id)) {
-                        upcomingTests++;
-                    }
-                });
-
-                // Update the UI
-                document.querySelector('.stat-card:nth-child(1) h3').textContent = completedTests;
-                document.querySelector('.stat-card:nth-child(2) h3').textContent = `${averageScore}%`;
-                document.querySelector('.stat-card:nth-child(3) h3').textContent = upcomingTests;
-
-                // Update the welcome message with the upcoming tests count
-                const upcomingTestsCount = document.getElementById('upcoming-tests-count');
-                if (upcomingTestsCount) {
-                    upcomingTestsCount.textContent = `${upcomingTests} upcoming test${upcomingTests !== 1 ? 's' : ''}`;
-                }
-
-                console.log('Statistics loaded:', { completedTests, averageScore, upcomingTests });
-
-            } catch (error) {
-                console.error('Error loading statistics:', error);
-            }
-        }
-
-        // Helper function to extract numeric grade from grade string
-        function extractGrade(grade) {
-            if (!grade) return null;
-            if (typeof grade === 'number') return grade.toString();
-            if (typeof grade === 'string') {
-                const match = grade.match(/\d+/);
-                return match ? match[0] : null;
-            }
-            return null;
-        }
-
-        // Get student's grade level
-        async function getStudentGrade(userId) {
-            try {
-                const studentDoc = await getDoc(doc(db, 'students', userId));
-                if (!studentDoc.exists()) {
-                    console.log('Student document not found');
-                    return null;
-                }
-
-                const studentData = studentDoc.data();
-                const grade = extractGrade(studentData.grade);
-
-                if (!grade) {
-                    console.log('Could not extract grade from:', studentData.grade);
-                    return null;
-                }
-
-                console.log('Student grade:', grade);
-                return grade;
-
-            } catch (error) {
-                console.error('Error getting student grade:', error);
-                return null;
-            }
-        }
-
-        // Get appropriate icon for activity type
-        function getActivityIcon(type) {
-            const icons = {
-                'test_completed': 'fa-check-circle',
-                'test_started': 'fa-play-circle',
-                'level_up': 'fa-trophy',
-                'badge_earned': 'fa-award',
-                'default': 'fa-circle'
-            };
-            return icons[type] || icons['default'];
-        }
-
-        // Sign out
-        if (signOutBtn) {
-            signOutBtn.addEventListener('click', async () => {
-                try {
-                    await signOut(auth);
-                    window.location.href = 'auth/login-fixed.html';
-                } catch (error) {
-                    console.error('Error signing out:', error);
-                    alert('Error signing out. Please try again.');
-                }
-            });
-        }
-
-        // Initialize the app when the DOM is loaded
-        document.addEventListener('DOMContentLoaded', function () {
-            // Mobile menu toggle
-            const menuToggle = document.querySelector('.mobile-menu-toggle');
-            const sidebar = document.querySelector('.sidebar');
-
-            if (menuToggle) {
-                menuToggle.addEventListener('click', function () {
-                    sidebar.classList.toggle('active');
-                });
-            }
-
-            // Close mobile menu when clicking outside
-            document.addEventListener('click', function (event) {
-                if (!event.target.closest('.sidebar') && !event.target.closest('.mobile-menu-toggle')) {
-                    sidebar.classList.remove('active');
-                }
-            });
-
-            // Make showTestDetails globally available
-            window.showTestDetails = function (testData) {
-                console.log('showTestDetails called with testData:', testData);
-                console.log('Attempt data:', testData.attempt);
-                console.log('Test sections:', testData.sections);
-                console.log('Attempt sections:', testData.attempt?.sections);
-
-                const modal = document.getElementById('test-details-modal');
-                const titleElement = document.getElementById('test-details-title');
-                const sectionsContainer = document.getElementById('sections-summary');
-                const totalScoreElement = document.getElementById('test-total-score');
-                const totalPossibleElement = document.getElementById('test-total-possible');
-                const percentageElement = document.getElementById('test-percentage');
-
-                if (!modal) {
-                    console.error('Modal element not found');
-                    return;
-                }
-
-                if (!testData) {
-                    console.error('No test data provided');
-                    return;
-                }
-
-                if (!testData.attempt) {
-                    console.error('No attempt data found in test data');
-                    console.log('Available test data keys:', Object.keys(testData));
-                    return;
-                }
-
-                console.log('Attempt data:', testData.attempt);
-
-                // Get score values from attempt data
-                const totalScore = testData.attempt.totalScore || 0;
-                const totalPossible = testData.attempt.maxPossibleScore || 1;
-                const calculatedPercentage = testData.attempt.percentage ||
-                    Math.round((totalScore / totalPossible) * 100);
-
-                // Update the modal with test details
-                titleElement.textContent = testData.attempt.testTitle || 'Test Details';
-                totalScoreElement.textContent = totalScore;
-                totalPossibleElement.textContent = totalPossible;
-                percentageElement.textContent = `${calculatedPercentage}%`;
-
-                // Update badge color based on percentage
-                percentageElement.className = 'badge text-white ' +
-                    (calculatedPercentage >= 70 ? 'bg-success' :
-                        calculatedPercentage >= 50 ? 'bg-warning' : 'bg-danger');
-
-                // Clear previous sections
-                sectionsContainer.innerHTML = '';
-
-                // Process each section from the attempt data
-                if (testData.attempt.sections && Array.isArray(testData.attempt.sections)) {
-                    testData.attempt.sections.forEach((sectionAttempt, index) => {
-                        // Get section data from the attempt
-                        const sectionId = sectionAttempt.sectionId || `section-${index + 1}`;
-                        const sectionName = sectionAttempt.sectionTitle || `Section ${index + 1}`;
-                        const sectionItems = sectionAttempt.items || [];
-
-                        // Calculate scores
-                        console.log('Section attempt data:', sectionAttempt);
-                        console.log('Section items:', sectionItems);
-
-                        // Calculate correct answers from items
-                        const correctAnswers = sectionItems.filter(item => item.isCorrect).length;
-                        const sectionScore = sectionAttempt.score !== undefined ? sectionAttempt.score : correctAnswers;
-                        const sectionPossible = sectionAttempt.maxPossibleScore || sectionItems.length || 1;
-                        const percentage = Math.round((sectionScore / sectionPossible) * 100) || 0;
-
-                        console.log('Calculated scores:', { sectionScore, sectionPossible, percentage });
-
-                        const sectionElement = document.createElement('div');
-                        sectionElement.className = 'section-summary-item mb-3 p-3 border rounded';
-                        sectionElement.innerHTML = `
-                            <div class="d-flex justify-content-between align-items-center mb-2">
-                                <h5 class="mb-0">${sectionName}</h5>
-                                <span class="badge ${percentage >= 70 ? 'bg-success' : percentage >= 50 ? 'bg-warning' : 'bg-danger'}">
-                                    ${percentage}%
-                                </span>
-                            </div>
-                            <div class="progress">
-                                <div class="progress-bar" role="progressbar" 
-                                     style="width: ${percentage}%; ${percentage >= 70 ? 'background-color: #28a745' : 'background-color: #dc3545'}" 
-                                     aria-valuenow="${percentage}" 
-                                     aria-valuemin="0" 
-                                     aria-valuemax="100">
-                                    ${percentage}%
-                                </div>
-                            </div>
-                            <div class="d-flex justify-content-between text-muted small">
-                                <span>Score: ${sectionScore}/${sectionPossible}</span>
-                                <span>${sectionItems.length} items</span>
-                            </div>
-                        `;
-
-                        sectionsContainer.appendChild(sectionElement);
-                    });
-                }
-
-                // Update totals with data from attempt
-                totalScoreElement.textContent = totalScore;
-                totalPossibleElement.textContent = totalPossible;
-                percentageElement.textContent = `${calculatedPercentage}%`;
-
-                // Update percentage badge color
-                percentageElement.className = `badge text-white ${calculatedPercentage >= 70 ? 'bg-success' :
-                    calculatedPercentage >= 50 ? 'bg-warning' : 'bg-danger'
-                    }`;
-
-                // Show the modal
-                modal.style.display = 'block';
-                document.body.style.overflow = 'hidden';
-            }
-
-            // Global function to close the modal
-            window.closeTestDetailsModal = function () {
-                console.log('closeTestDetailsModal called');
-                const modal = document.getElementById('test-details-modal');
-                if (modal) {
-                    console.log('Hiding modal');
-                    modal.style.display = 'none';
-                    document.body.style.overflow = ''; // Re-enable scrolling
-                    return false; // Prevent default behavior
-                } else {
-                    console.error('Modal element not found!');
-                    return false;
-                }
-            };
-
-            // Initialize modals
-            function initializeModals() {
-                console.log('Initializing modals...');
-
-                // Use event delegation for close buttons
-                document.addEventListener('click', function (e) {
-                    // Check if clicked element is a close button or inside a close button
-                    const closeButton = e.target.closest('.close, #closeTestDetailsBtn');
-                    if (closeButton) {
-                        console.log('Close button clicked:', closeButton);
-                        e.preventDefault();
-                        closeTestDetailsModal();
-                        return false;
-                    }
-
-                    // Check for click outside modal content
-                    const modal = document.getElementById('test-details-modal');
-                    if (modal && e.target === modal) {
-                        console.log('Clicked outside modal content');
-                        closeTestDetailsModal();
-                        return false;
-                    }
-                });
-
-                // Also add direct event listeners to any existing buttons
-                const closeButtons = document.querySelectorAll('.close, #closeTestDetailsBtn');
-                closeButtons.forEach(button => {
-                    button.onclick = closeTestDetailsModal;
-                });
-
-                console.log('Modal initialization complete');
-            }
-
-            // Check auth state with requireAuth
-            requireAuth(['student']).then(({ user }) => {
-                loadUserData(user);
-            }).catch(error => {
-                console.error('Auth Check Failed:', error);
-            });
-        });
-    </script>
 </body>
-
 </html>
