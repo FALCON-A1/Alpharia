@@ -1238,7 +1238,12 @@ function speakAndShow(text, onEnd) {
 
         u.onend = complete;
         u.onerror = complete;
-        window.speechSynthesis.speak(u);
+        
+        try {
+            window.speechSynthesis.speak(u);
+        } catch (err) {
+            console.warn("Speech Synthesis blocked by browser:", err);
+        }
 
         // Mobile fallback: Safari/Chrome aggressively block autoplay speech on page load.
         // If the speech API doesn't end (or start) within estimated time, unblock the UI.
