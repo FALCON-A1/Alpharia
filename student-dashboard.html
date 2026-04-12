@@ -63,7 +63,7 @@
         <span>Resources</span>
       </a>
 
-      <a href="#" class="sd-nav-link">
+      <a href="student-achievements.html" class="sd-nav-link">
         <i class="fas fa-trophy"></i>
         <span>Achievements</span>
       </a>
@@ -84,9 +84,8 @@
           <div class="sd-sidebar-user-name" id="sd-sidebar-name">Loading…</div>
           <div class="sd-sidebar-user-role">Student</div>
         </div>
-        <i class="fas fa-ellipsis-v" style="color:rgba(255,255,255,.25); font-size:0.8rem;"></i>
+        </div>
       </div>
-    </div>
   </aside>
 
   <!-- Sidebar overlay (mobile) -->
@@ -124,16 +123,16 @@
       <!-- ── Welcome Hero ── -->
       <section class="sd-welcome" aria-labelledby="welcome-heading">
         <div class="sd-welcome-text">
-          <div class="sd-welcome-eyebrow">
-            <i class="fas fa-sun" style="margin-right:4px;"></i>
-            Good day!
+          <div class="sd-welcome-eyebrow" id="greet-eyebrow">
+            <i class="fas fa-sun" style="margin-right:4px;" id="greet-icon"></i>
+            <span id="greet-text">Good day!</span>
           </div>
           <h1 class="sd-welcome-h1" id="welcome-heading">
             Welcome back, <span id="user-name">Student</span>!
           </h1>
           <p class="sd-welcome-sub">
             You have <strong id="upcoming-tests-count" style="color:#a5b4fc;">0 upcoming tests</strong>.
-            Keep reading — every session makes you stronger!
+            <span id="motivational-msg">Keep reading — every session makes you stronger!</span>
           </p>
           <div class="sd-welcome-actions">
             <a href="take-reading-test.html" class="sd-btn sd-btn-primary">
@@ -162,9 +161,9 @@
             </div>
           </div>
           <div class="sd-mini-card">
-            <div class="sd-mini-card-icon mc-green"><i class="fas fa-fire"></i></div>
+            <div class="sd-mini-card-icon mc-green"><i class="fas fa-star"></i></div>
             <div>
-              <div class="sd-mini-card-label">Day Streak</div>
+              <div class="sd-mini-card-label">Points</div>
               <div class="sd-mini-card-val" id="wc-streak">—</div>
             </div>
           </div>
@@ -292,6 +291,64 @@
         </div>
       </div>
 
+      <!-- ── Gamification & Fluency Row ── -->
+      <div class="sd-content-grid">
+
+        <!-- Badges + Points Card -->
+        <div class="sd-card" role="region" aria-labelledby="badges-heading">
+          <div class="sd-card-header">
+            <div class="sd-card-title" id="badges-heading">
+              <i class="fas fa-trophy" aria-hidden="true"></i>
+              My Badges
+            </div>
+            <a href="student-achievements.html" class="sd-card-link">
+              View all <i class="fas fa-arrow-right"></i>
+            </a>
+          </div>
+          <div class="sd-card-body" id="dashboard-badges">
+            <div style="text-align:center;padding:1.5rem;color:var(--sd-text-3);font-size:0.85rem;">
+              <i class="fas fa-trophy" style="font-size:1.5rem;opacity:0.3;display:block;margin-bottom:0.5rem;"></i>
+              Loading badges…
+            </div>
+          </div>
+        </div>
+
+        <!-- Latest Fluency + Recommendations Card -->
+        <div style="display:flex;flex-direction:column;gap:1.25rem;">
+
+          <!-- Fluency Snapshot -->
+          <div class="sd-card" role="region" aria-labelledby="fluency-heading">
+            <div class="sd-card-header">
+              <div class="sd-card-title" id="fluency-heading">
+                <i class="fas fa-tachometer-alt" aria-hidden="true"></i>
+                Latest Fluency
+              </div>
+            </div>
+            <div class="sd-card-body" id="dashboard-fluency">
+              <div style="text-align:center;padding:1rem;color:var(--sd-text-3);font-size:0.85rem;">
+                Complete a reading assessment to see fluency data.
+              </div>
+            </div>
+          </div>
+
+          <!-- Top Recommendations -->
+          <div class="sd-card" role="region" aria-labelledby="recs-heading">
+            <div class="sd-card-header">
+              <div class="sd-card-title" id="recs-heading">
+                <i class="fas fa-robot" aria-hidden="true"></i>
+                Alex's Tips
+              </div>
+            </div>
+            <div class="sd-card-body" id="dashboard-recs">
+              <div style="text-align:center;padding:1rem;color:var(--sd-text-3);font-size:0.85rem;">
+                Tips will appear after your first assessment.
+              </div>
+            </div>
+          </div>
+
+        </div>
+      </div>
+
     </main><!-- /sd-body -->
   </div><!-- /sd-main -->
 </div><!-- /sd-shell -->
@@ -383,7 +440,43 @@
   document.addEventListener('keydown', function (e) {
     if (e.key === 'Escape') closeSidebar();
   });
+
+  // Dynamic greeting
+  var hour = new Date().getHours();
+  var icon = document.getElementById('greet-icon');
+  var text = document.getElementById('greet-text');
+  var msg  = document.getElementById('motivational-msg');
+  var msgs = [
+    'Keep reading — every session makes you stronger!',
+    'Practice makes progress. Let\'s keep going!',
+    'Great readers are made one page at a time.',
+    'Your words have power. Keep using them!',
+    'Every book is a new adventure waiting for you!'
+  ];
+  if (text) {
+    if (hour < 12)       { text.textContent = 'Good morning!'; if (icon) icon.className = 'fas fa-sun'; }
+    else if (hour < 17)  { text.textContent = 'Good afternoon!'; if (icon) icon.className = 'fas fa-cloud-sun'; }
+    else                 { text.textContent = 'Good evening!'; if (icon) icon.className = 'fas fa-moon'; }
+  }
+  if (msg) msg.textContent = msgs[Math.floor(Math.random() * msgs.length)];
 })();
+
+// Animated counter utility
+function animateCounter(el, target, suffix) {
+  if (!el || isNaN(target)) { if (el) el.textContent = target + (suffix || ''); return; }
+  var start = 0;
+  var duration = 800;
+  var startTime = null;
+  target = parseInt(target) || 0;
+  function step(ts) {
+    if (!startTime) startTime = ts;
+    var progress = Math.min((ts - startTime) / duration, 1);
+    var eased = 1 - Math.pow(1 - progress, 3);
+    el.textContent = Math.round(start + (target - start) * eased) + (suffix || '');
+    if (progress < 1) requestAnimationFrame(step);
+  }
+  requestAnimationFrame(step);
+}
 </script>
 
 <!-- Firebase + Dashboard Logic (original, fully preserved) -->
@@ -459,15 +552,12 @@
         setAvatar(sidebarAvatar, user, displayName);
       }
 
-      if (studentDoc.exists()) {
-        const d = studentDoc.data();
-        if (wcStreak) wcStreak.textContent = (d.streakDays || 0) + ' days';
-      }
-
       await Promise.all([
         loadStatistics(user.uid),
         loadRecentTests(user.uid),
-        loadUpcomingTests(user.uid)
+        loadUpcomingTests(user.uid),
+        loadGamificationData(user.uid),
+        loadLatestResults(user.uid)
       ]);
 
     } catch (err) {
@@ -503,12 +593,12 @@
       let upcoming = 0;
       allTests.forEach(d => { if (!doneIds.includes(d.id)) upcoming++; });
 
-      /* Update stat cards */
-      if (statCompleted) statCompleted.textContent = completed;
-      if (statAvg)       statAvg.textContent       = avg + '%';
-      if (statUpcoming)  statUpcoming.textContent  = upcoming;
-      if (wcTests)       wcTests.textContent       = completed;
-      if (wcScore)       wcScore.textContent       = avg + '%';
+      /* Update stat cards with animated counters */
+      if (statCompleted) animateCounter(statCompleted, completed, '');
+      if (statAvg)       animateCounter(statAvg, avg, '%');
+      if (statUpcoming)  animateCounter(statUpcoming, upcoming, '');
+      if (wcTests)       animateCounter(wcTests, completed, '');
+      if (wcScore)       animateCounter(wcScore, avg, '%');
       if (upcomingCount) upcomingCount.textContent = `${upcoming} upcoming test${upcoming !== 1 ? 's' : ''}`;
       if (badgeTests)    badgeTests.textContent    = upcoming || '0';
 
@@ -687,6 +777,130 @@
         alert('Error signing out. Please try again.');
       }
     });
+  }
+
+  /* ── Load Gamification Data ── */
+  async function loadGamificationData(userId) {
+    try {
+      const gamDoc = await getDoc(doc(db, 'students', userId, 'gamification', 'profile'));
+      const container = document.getElementById('dashboard-badges');
+      if (!container) return;
+
+      if (!gamDoc.exists()) {
+        container.innerHTML = `
+          <div style="text-align:center;padding:1.5rem 1rem;">
+            <div style="font-size:1.5rem;margin-bottom:0.5rem;opacity:0.4;">🏆</div>
+            <div style="font-size:0.85rem;color:var(--sd-text-3);">No badges yet</div>
+            <a href="take-reading-test.html" class="sd-btn sd-btn-primary" style="margin-top:0.75rem;font-size:0.8rem;display:inline-flex;">
+              <i class="fas fa-play"></i> Take a Test
+            </a>
+          </div>`;
+        return;
+      }
+
+      const data = gamDoc.data();
+      const badges = data.badges || [];
+      const totalPoints = data.totalPoints || 0;
+
+      // Update the welcome mini-card
+      if (wcStreak) wcStreak.textContent = totalPoints.toLocaleString();
+
+      if (badges.length === 0) {
+        container.innerHTML = `
+          <div style="text-align:center;padding:1.5rem 1rem;">
+            <div style="font-size:1.5rem;margin-bottom:0.5rem;opacity:0.4;">🏆</div>
+            <div style="font-size:0.85rem;color:var(--sd-text-3);">Complete an assessment to earn badges!</div>
+          </div>`;
+        return;
+      }
+
+      // Show latest 5 badges
+      const displayBadges = badges.slice(-5).reverse();
+      container.innerHTML = `
+        <div style="display:flex;flex-wrap:wrap;gap:0.6rem;align-items:center;">
+          ${displayBadges.map(b => `
+            <div style="display:flex;align-items:center;gap:0.4rem;padding:0.4rem 0.7rem;background:${b.color || '#4f46e5'}10;border:1px solid ${b.color || '#4f46e5'}25;border-radius:10px;" title="${b.description || ''}">
+              <span style="font-size:1.1rem;">${b.emoji || '🏅'}</span>
+              <span style="font-size:0.72rem;font-weight:700;color:${b.color || '#4f46e5'};">${b.name}</span>
+            </div>
+          `).join('')}
+        </div>
+        <div style="display:flex;align-items:center;justify-content:space-between;margin-top:0.75rem;padding-top:0.75rem;border-top:1px solid var(--sd-border);">
+          <span style="font-size:0.78rem;color:var(--sd-text-3);">
+            <strong style="color:var(--sd-text);">${badges.length}</strong> badge${badges.length !== 1 ? 's' : ''} earned
+          </span>
+          <span style="font-size:0.78rem;font-weight:700;color:#f59e0b;">
+            ⭐ ${totalPoints.toLocaleString()} pts
+          </span>
+        </div>
+      `;
+    } catch (err) {
+      console.error('Error loading gamification:', err);
+    }
+  }
+
+  /* ── Load Latest Results (Fluency + Recs) ── */
+  async function loadLatestResults(userId) {
+    try {
+      const resultsSnap = await getDocs(
+        query(collection(db, 'results'), orderBy('timestamp', 'desc'), limit(5))
+      );
+      const myResults = resultsSnap.docs
+        .map(d => d.data())
+        .filter(r => r.userId === userId);
+
+      if (myResults.length === 0) return;
+      const latest = myResults[0];
+
+      // Fluency card
+      const fluencyContainer = document.getElementById('dashboard-fluency');
+      if (fluencyContainer && latest.fluency) {
+        const f = latest.fluency;
+        const fluencyColor = f.classification === 'Fluent' ? '#10b981' : f.classification === 'Developing' ? '#f59e0b' : '#ef4444';
+        const timeSec = Math.round((f.readingTimeMs || 0) / 1000);
+        const timeDisplay = timeSec >= 60 ? `${Math.floor(timeSec/60)}m ${timeSec%60}s` : `${timeSec}s`;
+
+        fluencyContainer.innerHTML = `
+          <div style="display:flex;justify-content:space-around;text-align:center;gap:0.5rem;flex-wrap:wrap;">
+            <div>
+              <div style="font-size:1.5rem;font-weight:800;color:#4f46e5;">${f.wordsPerMinute || 0}</div>
+              <div style="font-size:0.65rem;font-weight:700;color:var(--sd-text-3);text-transform:uppercase;">WPM</div>
+            </div>
+            <div>
+              <div style="font-size:1.5rem;font-weight:800;color:#10b981;">${f.accuracyRate || 0}%</div>
+              <div style="font-size:0.65rem;font-weight:700;color:var(--sd-text-3);text-transform:uppercase;">Accuracy</div>
+            </div>
+            <div>
+              <div style="font-size:1.5rem;font-weight:800;color:#f59e0b;">${timeDisplay}</div>
+              <div style="font-size:0.65rem;font-weight:700;color:var(--sd-text-3);text-transform:uppercase;">Time</div>
+            </div>
+          </div>
+          <div style="text-align:center;margin-top:0.6rem;">
+            <span style="display:inline-block;padding:0.25rem 0.75rem;border-radius:50px;font-size:0.72rem;font-weight:700;color:white;background:${fluencyColor};">
+              ${f.classification || 'N/A'} Reader
+            </span>
+          </div>
+        `;
+      }
+
+      // Recommendations card
+      const recsContainer = document.getElementById('dashboard-recs');
+      if (recsContainer && latest.recommendations && latest.recommendations.length > 0) {
+        const topRecs = latest.recommendations.slice(0, 3);
+        const colors = { high: '#ef4444', medium: '#f59e0b', low: '#10b981' };
+        recsContainer.innerHTML = topRecs.map(r => `
+          <div style="display:flex;align-items:flex-start;gap:0.5rem;padding:0.5rem 0;border-bottom:1px solid var(--sd-border);">
+            <div style="width:4px;height:4px;min-width:4px;border-radius:50%;background:${colors[r.priority] || '#64748b'};margin-top:6px;"></div>
+            <div style="flex:1;min-width:0;">
+              <div style="font-size:0.8rem;font-weight:700;color:var(--sd-text);">${r.title}</div>
+              <div style="font-size:0.72rem;color:var(--sd-text-3);line-height:1.4;margin-top:0.1rem;">${r.detail.substring(0, 80)}${r.detail.length > 80 ? '…' : ''}</div>
+            </div>
+          </div>
+        `).join('');
+      }
+    } catch (err) {
+      console.error('Error loading latest results:', err);
+    }
   }
 
   /* ── Show Test Details Modal ── */

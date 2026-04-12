@@ -47,6 +47,24 @@ body.sd-page {
   min-height: 100vh;
 }
 
+/* ── Focus-visible ring (accessibility) ── */
+*:focus-visible {
+  outline: 2px solid var(--sd-primary);
+  outline-offset: 2px;
+  border-radius: 4px;
+}
+
+/* ── Custom Scrollbar (Webkit) ── */
+::-webkit-scrollbar { width: 6px; height: 6px; }
+::-webkit-scrollbar-track { background: transparent; }
+::-webkit-scrollbar-thumb {
+  background: rgba(148,163,184,.35);
+  border-radius: 50px;
+}
+::-webkit-scrollbar-thumb:hover { background: rgba(148,163,184,.55); }
+.sd-sidebar::-webkit-scrollbar-thumb { background: rgba(255,255,255,.12); }
+.sd-sidebar::-webkit-scrollbar-thumb:hover { background: rgba(255,255,255,.2); }
+
 /* ============================================================
    LAYOUT SHELL
    ============================================================ */
@@ -148,6 +166,18 @@ body.sd-page {
   color: white;
   background: rgba(79,70,229,.3);
   box-shadow: inset 0 0 0 1px rgba(129,140,248,.25);
+}
+
+.sd-nav-link.active::before {
+  content: '';
+  position: absolute;
+  left: -0.75rem;
+  top: 50%;
+  transform: translateY(-50%);
+  width: 4px;
+  height: 60%;
+  border-radius: 0 4px 4px 0;
+  background: linear-gradient(180deg, #818cf8, #4f46e5);
 }
 
 .sd-nav-link.active i {
@@ -350,6 +380,29 @@ body.sd-page {
   display: flex;
   flex-direction: column;
   gap: 1.5rem;
+  animation: sd-page-in 0.5s ease-out both;
+}
+
+@keyframes sd-page-in {
+  from { opacity: 0; transform: translateY(10px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+
+/* ── Card entrance stagger ── */
+.sd-stat,
+.sd-card,
+.sd-welcome {
+  animation: sd-card-rise 0.5s ease-out both;
+}
+
+.sd-stat:nth-child(1) { animation-delay: 0.05s; }
+.sd-stat:nth-child(2) { animation-delay: 0.1s; }
+.sd-stat:nth-child(3) { animation-delay: 0.15s; }
+.sd-stat:nth-child(4) { animation-delay: 0.2s; }
+
+@keyframes sd-card-rise {
+  from { opacity: 0; transform: translateY(16px); }
+  to   { opacity: 1; transform: translateY(0); }
 }
 
 /* ============================================================
@@ -568,7 +621,7 @@ body.sd-page {
 }
 
 .sd-stat:hover {
-  box-shadow: var(--sd-shadow-md);
+  box-shadow: 0 4px 20px rgba(0,0,0,.08), 0 0 0 1px rgba(79,70,229,.06);
   transform: translateY(-3px);
   border-color: transparent;
 }
@@ -638,6 +691,11 @@ body.sd-page {
   overflow: hidden;
   display: flex;
   flex-direction: column;
+  transition: var(--sd-transition);
+}
+
+.sd-card:hover {
+  box-shadow: 0 4px 20px rgba(0,0,0,.06);
 }
 
 .sd-card-header {

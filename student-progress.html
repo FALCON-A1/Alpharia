@@ -321,7 +321,11 @@
     }
 
     @media (max-width: 700px) {
-      .pg-stats-grid { grid-template-columns: 1fr; }
+      .pg-stats-grid { grid-template-columns: repeat(2, 1fr) !important; }
+    }
+
+    @media (max-width: 450px) {
+      .pg-stats-grid { grid-template-columns: 1fr !important; }
     }
   </style>
 </head>
@@ -362,7 +366,7 @@
         <i class="fas fa-book-open"></i><span>Resources</span>
       </a>
 
-      <a href="#" class="sd-nav-link">
+      <a href="student-achievements.html" class="sd-nav-link">
         <i class="fas fa-trophy"></i><span>Achievements</span>
       </a>
 
@@ -431,7 +435,7 @@
 
       <!-- ── STAT CARDS ── -->
       <!-- .stat-card class kept for JS querySelector('.stat-card .mt-3') -->
-      <div class="pg-stats-grid">
+      <div class="pg-stats-grid" style="grid-template-columns:repeat(4,1fr);">
 
         <div class="stat-card pg-stat" style="--stat-color:#4f46e5;--stat-bg:rgba(79,70,229,.1);">
           <div class="pg-stat-icon"><i class="fas fa-check-circle"></i></div>
@@ -451,12 +455,21 @@
           </div>
         </div>
 
-        <div class="stat-card pg-stat" style="--stat-color:#f59e0b;--stat-bg:rgba(245,158,11,.1);">
-          <div class="pg-stat-icon"><i class="fas fa-star"></i></div>
+        <div class="stat-card pg-stat" style="--stat-color:#8b5cf6;--stat-bg:rgba(139,92,246,.1);">
+          <div class="pg-stat-icon"><i class="fas fa-tachometer-alt"></i></div>
           <div class="pg-stat-info">
-            <div class="pg-stat-label">Words Mastered</div>
-            <div class="pg-stat-value" id="words-mastered">—</div>
-            <div class="pg-stat-sub mt-3">Unique vocabulary words</div>
+            <div class="pg-stat-label">Latest WPM</div>
+            <div class="pg-stat-value" id="latest-wpm">—</div>
+            <div class="pg-stat-sub" id="latest-fluency-label">Words per minute</div>
+          </div>
+        </div>
+
+        <div class="stat-card pg-stat" style="--stat-color:#f59e0b;--stat-bg:rgba(245,158,11,.1);">
+          <div class="pg-stat-icon"><i class="fas fa-trophy"></i></div>
+          <div class="pg-stat-info">
+            <div class="pg-stat-label">Points</div>
+            <div class="pg-stat-value" id="total-points">—</div>
+            <div class="pg-stat-sub" id="badges-count-label">0 badges earned</div>
           </div>
         </div>
 
@@ -515,6 +528,11 @@
               <div class="pg-skill-bar"><div class="pg-skill-fill" style="background:#ec4899;width:0%;" id="skill-comp"></div></div>
               <div class="pg-skill-pct" id="skill-comp-pct">—</div>
             </div>
+            <div class="pg-skill-row">
+              <div class="pg-skill-name">Fluency</div>
+              <div class="pg-skill-bar"><div class="pg-skill-fill" style="background:#6366f1;width:0%;" id="skill-fluency"></div></div>
+              <div class="pg-skill-pct" id="skill-fluency-pct">—</div>
+            </div>
 
             <div style="margin-top:1.5rem;padding-top:1.25rem;border-top:1px solid var(--sd-border);">
               <div style="font-size:0.74rem;font-weight:700;color:var(--sd-text-3);text-transform:uppercase;letter-spacing:.06em;margin-bottom:0.75rem;">
@@ -551,6 +569,55 @@
               Loading activity…
             </li>
           </ul>
+        </div>
+      </div>
+
+      <!-- ── BADGES PROGRESS ── -->
+      <div class="pg-chart-card">
+        <div class="pg-card-header">
+          <div class="pg-card-title">
+            <i class="fas fa-trophy"></i>
+            Badge Collection
+          </div>
+          <a href="student-achievements.html" class="sd-btn sd-btn-outline" style="font-size:0.8rem;padding:0.4rem 0.9rem;">
+            View All
+          </a>
+        </div>
+        <div class="pg-card-body" id="badges-collection">
+          <!-- Badge progress bar -->
+          <div style="margin-bottom:1rem;" id="badge-progress-wrap">
+            <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:0.4rem;">
+              <span style="font-size:0.75rem;font-weight:700;color:var(--sd-text-3);text-transform:uppercase;letter-spacing:.05em;">Progress</span>
+              <span style="font-size:0.75rem;font-weight:700;color:var(--sd-primary);" id="badge-progress-label">0 / 10</span>
+            </div>
+            <div style="display:flex;gap:3px;" id="badge-progress-bar">
+              <div style="flex:1;height:6px;border-radius:50px;background:var(--sd-border);"></div>
+              <div style="flex:1;height:6px;border-radius:50px;background:var(--sd-border);"></div>
+              <div style="flex:1;height:6px;border-radius:50px;background:var(--sd-border);"></div>
+              <div style="flex:1;height:6px;border-radius:50px;background:var(--sd-border);"></div>
+              <div style="flex:1;height:6px;border-radius:50px;background:var(--sd-border);"></div>
+              <div style="flex:1;height:6px;border-radius:50px;background:var(--sd-border);"></div>
+              <div style="flex:1;height:6px;border-radius:50px;background:var(--sd-border);"></div>
+              <div style="flex:1;height:6px;border-radius:50px;background:var(--sd-border);"></div>
+              <div style="flex:1;height:6px;border-radius:50px;background:var(--sd-border);"></div>
+              <div style="flex:1;height:6px;border-radius:50px;background:var(--sd-border);"></div>
+            </div>
+          </div>
+          <!-- Badge grid injected by JS -->
+          <div style="text-align:center;padding:1rem;color:var(--sd-text-3);font-size:0.85rem;">Loading badges…</div>
+        </div>
+      </div>
+
+      <!-- ── LATEST RECOMMENDATIONS ── -->
+      <div class="pg-chart-card">
+        <div class="pg-card-header">
+          <div class="pg-card-title">
+            <i class="fas fa-robot"></i>
+            Alex's Recommendations
+          </div>
+        </div>
+        <div class="pg-card-body" id="progress-recs">
+          <div style="text-align:center;padding:1.5rem;color:var(--sd-text-3);font-size:0.85rem;">Complete a test to see recommendations.</div>
         </div>
       </div>
 
@@ -638,9 +705,10 @@
     const ctx = document.getElementById('performanceChart').getContext('2d');
     if (performanceChart) performanceChart.destroy();
 
-    const root = getComputedStyle(document.documentElement);
     const primary = '#4f46e5';
     const teal    = '#14b8a6';
+    const bestScore = scores.length > 0 ? Math.max(...scores) : 0;
+    const avgScore = scores.length > 0 ? Math.round(scores.reduce((a,b) => a+b, 0) / scores.length) : 0;
 
     performanceChart = new Chart(ctx, {
       type: 'line',
@@ -653,11 +721,11 @@
           backgroundColor: 'rgba(79,70,229,0.07)',
           tension: 0.4,
           fill: true,
-          pointBackgroundColor: primary,
+          pointBackgroundColor: scores.map(s => s === bestScore && scores.length > 1 ? '#10b981' : primary),
           pointBorderColor: '#fff',
           pointBorderWidth: 2,
-          pointRadius: 4,
-          pointHoverRadius: 6,
+          pointRadius: scores.map(s => s === bestScore && scores.length > 1 ? 6 : 4),
+          pointHoverRadius: 7,
           pointHoverBackgroundColor: teal,
           pointHitRadius: 12
         }]
@@ -674,7 +742,11 @@
             padding: 12,
             cornerRadius: 10,
             callbacks: {
-              label: ctx => ` Score: ${ctx.parsed.y}%`
+              label: ctx => {
+                let label = ` Score: ${ctx.parsed.y}%`;
+                if (ctx.parsed.y === bestScore && scores.length > 1) label += ' ⭐ Best';
+                return label;
+              }
             }
           }
         },
@@ -706,18 +778,10 @@
     const totalScore   = attempts.reduce((s, a) => s + (parseFloat(a.percentage) || 0), 0);
     const averageScore = Math.round(totalScore / totalTests);
 
-    const wordsMastered = new Set();
-    attempts.forEach(a => {
-      if (a.wordsMastered && Array.isArray(a.wordsMastered)) {
-        a.wordsMastered.forEach(w => wordsMastered.add(w));
-      }
-    });
-
     document.getElementById('tests-completed').textContent = totalTests;
     document.getElementById('average-score').textContent   = `${averageScore}%`;
-    document.getElementById('words-mastered').textContent  = wordsMastered.size || '—';
 
-    // JS hides these in original — we just let the stat-sub text fade
+    // JS hides these in original
     document.querySelectorAll('.stat-card .mt-3').forEach(el => { el.style.display = 'none'; });
 
     // Colour average score
@@ -725,13 +789,6 @@
     if (avgEl) {
       avgEl.style.color = averageScore >= 70 ? 'var(--sd-green)' : averageScore >= 50 ? 'var(--sd-amber)' : 'var(--sd-red)';
     }
-
-    // Animate skill bars using best available data
-    setSkillBar('skill-letters', 'skill-letters-pct', averageScore);
-    setSkillBar('skill-sounds',  'skill-sounds-pct',  Math.max(0, averageScore - 5));
-    setSkillBar('skill-words',   'skill-words-pct',   Math.max(0, averageScore - 10));
-    setSkillBar('skill-oral',    'skill-oral-pct',    Math.max(0, averageScore - 8));
-    setSkillBar('skill-comp',    'skill-comp-pct',    Math.max(0, averageScore - 15));
   }
 
   function setSkillBar(barId, pctId, value) {
@@ -876,8 +933,10 @@
 
       initializeChart(labels, scores);
 
-      /* Reading level */
+      /* Reading level + real skill bars + gamification + fluency */
       await loadReadingLevel(user.uid);
+      await loadResultsData(user.uid);
+      await loadGamificationProgress(user.uid);
 
     } catch (error) {
       console.error('Error loading student data:', error);
@@ -889,6 +948,159 @@
       document.querySelector('.container-fluid').prepend(errorEl);
     }
   });
+
+  /* ── Load real results data for skill bars, fluency, and recommendations ── */
+  async function loadResultsData(userId) {
+    try {
+      const resultsSnap = await getDocs(
+        query(collection(db, 'results'), orderBy('timestamp', 'desc'))
+      );
+      const myResults = resultsSnap.docs
+        .map(d => d.data())
+        .filter(r => r.userId === userId);
+
+      if (myResults.length === 0) return;
+      const latest = myResults[0];
+
+      // --- Skill bars from latest result logs ---
+      const logs = latest.logs || {};
+
+      // Letters
+      if (logs.letters && logs.letters.length > 0) {
+        const names = logs.letters.filter(l => l.step === 'name');
+        const sounds = logs.letters.filter(l => l.step === 'sound');
+        const namesPct = names.length > 0 ? Math.round(names.filter(l => l.status === 'correct').length / names.length * 100) : 0;
+        const soundsPct = sounds.length > 0 ? Math.round(sounds.filter(l => l.status === 'correct').length / sounds.length * 100) : 0;
+        setSkillBar('skill-letters', 'skill-letters-pct', namesPct);
+        setSkillBar('skill-sounds', 'skill-sounds-pct', soundsPct);
+      }
+
+      // Words
+      if (logs.words && logs.words.length > 0) {
+        const wordsPct = Math.round(logs.words.filter(l => l.status === 'correct').length / logs.words.length * 100);
+        setSkillBar('skill-words', 'skill-words-pct', wordsPct);
+      }
+
+      // Oral Reading
+      const oralPct = latest.oralClassification === 'Independent' ? 95
+        : latest.oralClassification === 'Instructional' ? 70 : 40;
+      setSkillBar('skill-oral', 'skill-oral-pct', oralPct);
+
+      // Comprehension
+      setSkillBar('skill-comp', 'skill-comp-pct', latest.comprehensionPercent || 0);
+
+      // Fluency
+      if (latest.fluency) {
+        const f = latest.fluency;
+        // Normalize WPM to 0-100 scale (cap at 150 WPM)
+        const fluencyPct = Math.min(100, Math.round((f.wordsPerMinute || 0) / 1.5));
+        setSkillBar('skill-fluency', 'skill-fluency-pct', `${f.wordsPerMinute || 0} wpm`);
+        const fluencyBar = document.getElementById('skill-fluency');
+        if (fluencyBar) setTimeout(() => { fluencyBar.style.width = fluencyPct + '%'; }, 300);
+
+        // Update WPM stat card
+        const wpmEl = document.getElementById('latest-wpm');
+        const fluencyLabel = document.getElementById('latest-fluency-label');
+        if (wpmEl) wpmEl.textContent = f.wordsPerMinute || 0;
+        if (fluencyLabel) {
+          const fluencyColor = f.classification === 'Fluent' ? 'var(--sd-green)' : f.classification === 'Developing' ? 'var(--sd-amber)' : 'var(--sd-red)';
+          fluencyLabel.innerHTML = `<span style="color:${fluencyColor};font-weight:700;">${f.classification || 'N/A'}</span> · ${f.accuracyRate || 0}% accuracy`;
+        }
+      }
+
+      // --- Recommendations ---
+      const recsContainer = document.getElementById('progress-recs');
+      if (recsContainer && latest.recommendations && latest.recommendations.length > 0) {
+        const colors = { high: '#ef4444', medium: '#f59e0b', low: '#10b981' };
+        const icons = { high: 'exclamation-triangle', medium: 'info-circle', low: 'lightbulb' };
+        recsContainer.innerHTML = latest.recommendations.map(r => `
+          <div style="display:flex;align-items:flex-start;gap:0.7rem;padding:0.75rem 0;border-bottom:1px solid var(--sd-border);">
+            <i class="fas fa-${icons[r.priority] || 'info-circle'}" style="color:${colors[r.priority] || '#64748b'};margin-top:2px;flex-shrink:0;"></i>
+            <div style="flex:1;min-width:0;">
+              <div style="font-size:0.85rem;font-weight:700;color:var(--sd-text);">${r.title}</div>
+              <div style="font-size:0.76rem;color:var(--sd-text-3);line-height:1.4;margin-top:0.15rem;">${r.detail}</div>
+            </div>
+            <span style="font-size:0.6rem;font-weight:700;color:${colors[r.priority] || '#64748b'};background:${colors[r.priority] || '#64748b'}12;padding:0.2rem 0.45rem;border-radius:50px;white-space:nowrap;flex-shrink:0;text-transform:uppercase;">${r.priority === 'high' ? 'Priority' : r.priority === 'medium' ? 'Suggested' : 'Bonus'}</span>
+          </div>
+        `).join('');
+      }
+    } catch (e) {
+      console.error('Error loading results data:', e);
+    }
+  }
+
+  /* ── Load gamification for progress page ── */
+  async function loadGamificationProgress(userId) {
+    try {
+      const gamDoc = await getDoc(doc(db, 'students', userId, 'gamification', 'profile'));
+      const container = document.getElementById('badges-collection');
+      const pointsEl = document.getElementById('total-points');
+      const badgesLabel = document.getElementById('badges-count-label');
+
+      if (!gamDoc.exists()) {
+        if (container) container.innerHTML = `<div style="text-align:center;padding:1.5rem;color:var(--sd-text-3);font-size:0.85rem;"><i class="fas fa-trophy" style="font-size:1.5rem;opacity:0.3;display:block;margin-bottom:0.5rem;"></i>No badges yet. Take a test to start earning!</div>`;
+        return;
+      }
+
+      const data = gamDoc.data();
+      const badges = data.badges || [];
+      const totalPoints = data.totalPoints || 0;
+
+      if (pointsEl) pointsEl.textContent = totalPoints.toLocaleString();
+      if (badgesLabel) badgesLabel.textContent = `${badges.length} badge${badges.length !== 1 ? 's' : ''} earned`;
+
+      // Animate segmented badge progress bar
+      const progressBar = document.getElementById('badge-progress-bar');
+      const progressLabel = document.getElementById('badge-progress-label');
+      if (progressLabel) progressLabel.textContent = `${badges.length} / 10`;
+      if (progressBar) {
+        const segments = progressBar.children;
+        for (let i = 0; i < segments.length; i++) {
+          if (i < badges.length) {
+            setTimeout(() => {
+              segments[i].style.background = 'linear-gradient(90deg, #4f46e5, #818cf8)';
+              segments[i].style.transition = 'background 0.3s ease';
+            }, i * 80);
+          }
+        }
+      }
+
+      // All possible badges for locked display
+      const ALL_BADGE_IDS = [
+        { id: 'first_steps', name: 'First Steps', emoji: '🎯', color: '#4f46e5' },
+        { id: 'letter_master', name: 'Letter Master', emoji: '🔤', color: '#10b981' },
+        { id: 'sound_expert', name: 'Sound Expert', emoji: '🔊', color: '#14b8a6' },
+        { id: 'word_wizard', name: 'Word Wizard', emoji: '✨', color: '#8b5cf6' },
+        { id: 'speed_reader', name: 'Speed Reader', emoji: '⚡', color: '#f59e0b' },
+        { id: 'sharp_eye', name: 'Sharp Eye', emoji: '🎯', color: '#10b981' },
+        { id: 'comprehension_star', name: 'Comp. Star', emoji: '🧠', color: '#ec4899' },
+        { id: 'fluent_reader', name: 'Fluent Reader', emoji: '📖', color: '#059669' },
+        { id: 'brave_voice', name: 'Brave Voice', emoji: '🎤', color: '#6366f1' },
+        { id: 'perfect_score', name: 'Perfect Score', emoji: '🏆', color: '#f59e0b' }
+      ];
+      const earnedIds = new Set(badges.map(b => b.id));
+
+      if (container) {
+        container.innerHTML = `
+          <div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(85px,1fr));gap:0.6rem;">
+            ${ALL_BADGE_IDS.map(def => {
+              const earned = earnedIds.has(def.id);
+              const b = badges.find(b => b.id === def.id) || def;
+              return `
+                <div style="text-align:center;padding:0.6rem 0.3rem;border-radius:12px;border:1.5px solid ${earned ? def.color + '30' : 'var(--sd-border)'};background:${earned ? def.color + '08' : 'transparent'};opacity:${earned ? '1' : '0.35'};transition:var(--sd-transition);">
+                  <div style="font-size:1.4rem;">${def.emoji}</div>
+                  <div style="font-size:0.6rem;font-weight:700;color:${earned ? def.color : 'var(--sd-text-3)'};margin-top:0.15rem;">${def.name}</div>
+                  ${earned ? '<div style="font-size:0.5rem;color:var(--sd-primary);margin-top:0.1rem;">✓ Earned</div>' : '<div style="font-size:0.5rem;color:var(--sd-text-3);margin-top:0.1rem;"><i class="fas fa-lock" style="font-size:0.45rem;"></i> Locked</div>'}
+                </div>
+              `;
+            }).join('')}
+          </div>
+        `;
+      }
+    } catch (e) {
+      console.error('Error loading gamification progress:', e);
+    }
+  }
 </script>
 
 </body>

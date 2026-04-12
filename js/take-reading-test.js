@@ -1,7 +1,7 @@
 import { app, auth, db } from './firebase-config.js';
 import { requireAuth } from './auth-check.js';
 import {
-    doc, getDoc, addDoc, collection, serverTimestamp
+    doc, getDoc, setDoc, addDoc, collection, serverTimestamp
 } from 'https://www.gstatic.com/firebasejs/12.1.0/firebase-firestore.js';
 
 console.log("Take Reading Test Script START");
@@ -61,9 +61,90 @@ let testState = {
     passageLogs: [],  // { word, spoken, status, errorType }
     comprehensionLogs: [], // { question, answer, spoken, matched: bool }
 
+    // FLUENCY SPEED TRACKER (Feature #4)
+    passageStartTime: null,   // Date.now() when passage recording starts
+    passageEndTime: null,     // Date.now() when student clicks "I'm Done"
+    passageWPM: 0,            // Words Per Minute
+    passageAccuracy: 0,       // Accuracy rate (correct/total * 100)
+    fluencyClassification: '', // Fluent / Developing / Disfluent
+
     // Safety
     setupDone: false
 };
+
+// ── LIVE UI TRACKING ──
+let livePoints = 0;
+let testTimerInterval = null;
+let testStartTimestamp = null;
+
+function getSectionNames() {
+    if (!pTest || !pTest.stages) return [];
+    const icons = { letter_recognition: 'fa-font', word_list: 'fa-spell-check', sentence_reading: 'fa-align-left', oral_reading: 'fa-book-open', comprehension: 'fa-brain' };
+    const names = { letter_recognition: 'Letters', word_list: 'Words', sentence_reading: 'Sentences', oral_reading: 'Reading', comprehension: 'Comprehension' };
+    return pTest.stages.map(s => ({ name: names[s.type] || s.type, icon: icons[s.type] || 'fa-circle', type: s.type }));
+}
+
+function updateFloatingBar() {
+    const bar = document.getElementById('rt-float-bar');
+    if (!bar || !pTest) return;
+    bar.classList.add('visible');
+    
+    const sections = getSectionNames();
+    const stepperEl = document.getElementById('rt-fb-stepper');
+    if (stepperEl) {
+        let html = '';
+        sections.forEach((s, i) => {
+            const cls = i < currentStageIndex ? 'done' : i === currentStageIndex ? 'active' : '';
+            html += `<div class="rt-fb-dot ${cls}" title="${s.name}"></div>`;
+            if (i < sections.length - 1) html += `<div class="rt-fb-dot-line ${i < currentStageIndex ? 'done' : ''}"></div>`;
+        });
+        html += `<span class="rt-fb-label">${sections[currentStageIndex]?.name || ''}</span>`;
+        stepperEl.innerHTML = html;
+    }
+    
+    // Item count
+    const itemEl = document.getElementById('rt-fb-item');
+    if (itemEl) {
+        const stage = pTest.stages[currentStageIndex];
+        const total = stage?.items?.length || 1;
+        const current = Math.min(currentSubIndex + 1, total);
+        itemEl.textContent = `Item ${current} of ${total}`;
+    }
+    
+    // Points
+    const ptsEl = document.getElementById('rt-fb-pts');
+    if (ptsEl) ptsEl.textContent = livePoints;
+}
+
+function updateBreadcrumb() {
+    const bc = document.getElementById('rt-breadcrumb');
+    if (!bc || !pTest) return;
+    const sections = getSectionNames();
+    let html = '';
+    sections.forEach((s, i) => {
+        const cls = i < currentStageIndex ? 'done' : i === currentStageIndex ? 'active' : '';
+        const icon = i < currentStageIndex ? 'fa-check' : `${s.icon}`;
+        html += `<span class="rt-bc-item ${cls}"><i class="fas ${icon}"></i> ${s.name}</span>`;
+        if (i < sections.length - 1) html += `<span class="rt-bc-sep"><i class="fas fa-chevron-right"></i></span>`;
+    });
+    bc.innerHTML = html;
+}
+
+function startTestTimer() {
+    testStartTimestamp = Date.now();
+    testTimerInterval = setInterval(() => {
+        const elapsed = Math.floor((Date.now() - testStartTimestamp) / 1000);
+        const min = Math.floor(elapsed / 60);
+        const sec = elapsed % 60;
+        const el = document.getElementById('rt-timer-val');
+        if (el) el.textContent = `${min}:${sec.toString().padStart(2, '0')}`;
+    }, 1000);
+}
+
+function addLivePoints(pts) {
+    livePoints += pts;
+    updateFloatingBar();
+}
 
 // DOM Elements
 const testContent = document.getElementById('test-content');
@@ -330,6 +411,8 @@ function prepareReadingPassage(stage) {
     }));
     passageMode = 'reading';
     testState.setupDone = true;
+    testState.passageStartTime = null; // Will be set on first recording
+    testState.passageEndTime = null;
     currentSubIndex = 0; // Question index later
 }
 
@@ -348,7 +431,46 @@ function renderReadingPassageStage(stage) {
         `;
         testContent.innerHTML = getStageWrapper(html, "Read the story aloud.");
 
+        // FLUENCY FIX: Start the timer when the passage is first DISPLAYED,
+        // not on first speech input (which may arrive late or never).
+        if (!testState.passageStartTime) {
+            testState.passageStartTime = Date.now();
+            console.log('Fluency timer started (passage rendered)');
+        }
+
         document.getElementById('finish-btn').addEventListener('click', () => {
+            // FLUENCY: Stop the timer when done reading
+            testState.passageEndTime = Date.now();
+            stopRecording();
+
+            // Calculate fluency metrics
+            const totalWords = testState.passageWords.length;
+            const correctWords = testState.passageWords.filter(w => w.status === 'correct').length;
+
+            // FIX: Use actual elapsed time with a minimum floor of 5 seconds
+            // to prevent absurd WPM from tiny time intervals.
+            const rawTimeMs = testState.passageStartTime
+                ? (testState.passageEndTime - testState.passageStartTime)
+                : 0;
+            const readingTimeMs = Math.max(rawTimeMs, 5000); // At least 5 seconds
+            const readingTimeMin = readingTimeMs / 60000;
+
+            const rawWPM = readingTimeMin > 0 ? Math.round(correctWords / readingTimeMin) : 0;
+            // FIX: Cap WPM at 300 — anything higher is unrealistic for reading aloud
+            testState.passageWPM = Math.min(rawWPM, 300);
+            testState.passageAccuracy = totalWords > 0 ? Math.round((correctWords / totalWords) * 100) : 0;
+
+            // Classify fluency based on WPM (grade-appropriate benchmarks)
+            if (testState.passageWPM >= 90 && testState.passageAccuracy >= 95) {
+                testState.fluencyClassification = 'Fluent';
+            } else if (testState.passageWPM >= 50 && testState.passageAccuracy >= 85) {
+                testState.fluencyClassification = 'Developing';
+            } else {
+                testState.fluencyClassification = 'Disfluent';
+            }
+
+            console.log(`Fluency: ${testState.passageWPM} WPM (raw: ${rawWPM}), ${testState.passageAccuracy}% accuracy, time: ${Math.round(readingTimeMs/1000)}s → ${testState.fluencyClassification}`);
+
             passageMode = 'questions';
             currentSubIndex = 0;
             renderReadingPassageStage(stage);
@@ -983,6 +1105,9 @@ function handleInput(text, isInterim = false) {
     }
     // 4. Passage Reading
     else if (stage.type === 'oral_reading' && passageMode === 'reading') {
+        // NOTE: passageStartTime is now set when the passage renders (renderReadingPassageStage),
+        // not here. This ensures the timer runs even if speech recognition is delayed.
+
         const words = testState.passageWords;
         let changed = false;
 
@@ -1271,6 +1396,10 @@ window.startTestFromGreeting = function () {
     document.getElementById('greeting-container').style.display = 'none';
     document.getElementById('test-content-wrapper').style.display = 'block';
     interactionMode = 'TEST';
+    // Start live timer and floating bar
+    startTestTimer();
+    updateFloatingBar();
+    updateBreadcrumb();
     renderCurrentStage();
 };
 
@@ -1329,23 +1458,33 @@ window.nextStageFromModal = function () {
 
 // --- UTILS ---
 function getStageWrapper(content, help) {
-    // Determine header text and type based on content inspection or current stage index
-    // Ideally pass type as arg, but we can infer for now
     let headerText = "READ THIS:";
     let type = "letter";
+    let sectionName = "Section";
+    let sectionIcon = "fa-circle";
     const stage = pTest.stages[currentStageIndex];
     if (stage) {
-        if (stage.type === 'letter_recognition') { headerText = "READ THIS LETTER:"; type = "letter"; }
-        else if (stage.type === 'word_list') { headerText = "READ THIS WORD:"; type = "word"; }
-        else if (stage.type === 'sentence_reading') { headerText = "READ THIS SENTENCE:"; type = "sentence"; }
-        else if (stage.type === 'oral_reading') { headerText = "READ THIS PASSAGE:"; type = "passage"; }
+        if (stage.type === 'letter_recognition') { headerText = "READ THIS LETTER:"; type = "letter"; sectionName = "Letter Recognition"; sectionIcon = "fa-font"; }
+        else if (stage.type === 'word_list') { headerText = "READ THIS WORD:"; type = "word"; sectionName = "Word List"; sectionIcon = "fa-spell-check"; }
+        else if (stage.type === 'sentence_reading') { headerText = "READ THIS SENTENCE:"; type = "sentence"; sectionName = "Sentence Reading"; sectionIcon = "fa-align-left"; }
+        else if (stage.type === 'oral_reading') { headerText = "READ THIS PASSAGE:"; type = "passage"; sectionName = "Oral Reading"; sectionIcon = "fa-book-open"; }
     }
+
+    const totalItems = stage?.items?.length || 1;
+    const currentItem = Math.min(currentSubIndex + 1, totalItems);
+
+    // Update floating bar & breadcrumb
+    updateFloatingBar();
+    updateBreadcrumb();
 
     return `
     <div class="question-container fade-in">
         <div class="question-header">
             <h2 class="question-title">${headerText}</h2>
-            <div class="question-points">1 point</div>
+            <div style="display:flex;align-items:center;gap:0.75rem;flex-wrap:wrap;">
+                <span class="rt-section-badge"><i class="fas ${sectionIcon}"></i> ${sectionName}</span>
+                <span class="rt-item-counter">${currentItem} / ${totalItems}</span>
+            </div>
         </div>
         
         <!-- Content Area -->
@@ -1357,17 +1496,15 @@ function getStageWrapper(content, help) {
         <div class="mt-4 text-center">
             <p class="text-secondary fw-medium mb-3">${help}</p>
             
-            <div class="mb-4">
-               <button id="record-toggle-btn" class="btn btn-outline-primary btn-lg rounded-pill shadow-sm px-4 py-2" onclick="window.toggleRecording()">
-                   <i class="fas fa-microphone me-2"></i> Start Recording
+            <div class="rt-mic-wrap">
+               <button id="record-toggle-btn" class="rt-mic-btn" onclick="window.toggleRecording()">
+                   <i class="fas fa-microphone"></i>
                </button>
-               <div id="recording-spinner" class="spinner-border text-primary ms-3" role="status" style="width: 1.5rem; height: 1.5rem; display: none; vertical-align: middle;"></div>
+               <div id="mic-status" class="rt-mic-label" style="opacity:0">
+                   <i class="fas fa-microphone-alt"></i> Tap to start
+               </div>
             </div>
 
-            <div id="mic-status" class="transition-all text-danger fw-bold mb-2" style="opacity:0">
-                <i class="fas fa-microphone-alt me-2"></i> Recording...
-            </div>
-            
             <div id="live-feedback" class="text-muted fst-italic transition-all" style="height:24px; opacity:0"></div>
             
             <!-- Timer Bar Container -->
@@ -1386,38 +1523,43 @@ function updateUI(on) {
 function updateRecordingUI(state) {
     const el = document.getElementById('mic-status');
     const btn = document.getElementById('record-toggle-btn');
-    const spinner = document.getElementById('recording-spinner');
     
     // Check if we are in greeting mode
     const isGreeting = (typeof interactionMode !== 'undefined' && interactionMode === 'GREETING');
     
     if (state === "ready") {
         if(btn) { 
-            btn.innerHTML = isGreeting ? '<i class="fas fa-microphone"></i>' : '<i class="fas fa-microphone me-2"></i> Start Recording'; 
-            btn.classList.remove('btn-danger', 'btn-secondary'); 
-            btn.classList.add('btn-outline-primary'); 
+            if (isGreeting) {
+                btn.innerHTML = '<i class="fas fa-microphone"></i>';
+            } else {
+                btn.innerHTML = '<i class="fas fa-microphone"></i>';
+                btn.className = 'rt-mic-btn';
+            }
             btn.disabled = false;
         }
-        if(spinner) spinner.style.display = 'none';
-        if (el) { el.style.opacity = '0'; el.style.display = 'none'; }
+        if (el) { el.style.opacity = '0'; el.className = 'rt-mic-label'; }
     } else if (state === "recording") {
         if(btn) { 
-            btn.innerHTML = isGreeting ? '<i class="fas fa-stop"></i>' : '<i class="fas fa-stop me-2"></i> Stop Recording'; 
-            btn.classList.remove('btn-outline-primary', 'btn-secondary'); 
-            btn.classList.add('btn-danger'); 
+            if (isGreeting) {
+                btn.innerHTML = '<i class="fas fa-stop"></i>';
+            } else {
+                btn.innerHTML = '<i class="fas fa-stop"></i>';
+                btn.className = 'rt-mic-btn recording';
+            }
             btn.disabled = false;
         }
-        if(spinner) spinner.style.display = 'none';
-        if (el) { el.style.opacity = '1'; el.style.display = 'block'; el.innerHTML = '<i class="fas fa-microphone-alt me-2 text-danger"></i> Recording...'; }
+        if (el) { el.style.opacity = '1'; el.className = 'rt-mic-label recording'; el.innerHTML = '<i class="fas fa-circle" style="font-size:0.5rem;"></i> Recording…'; }
     } else if (state === "processing") {
         if(btn) { 
-            btn.innerHTML = isGreeting ? '<i class="fas fa-cog fa-spin"></i>' : 'Processing...'; 
-            btn.classList.remove('btn-danger', 'btn-outline-primary'); 
-            btn.classList.add('btn-secondary'); 
+            if (isGreeting) {
+                btn.innerHTML = '<i class="fas fa-cog fa-spin"></i>';
+            } else {
+                btn.innerHTML = '<i class="fas fa-cog fa-spin"></i>';
+                btn.className = 'rt-mic-btn processing';
+            }
             btn.disabled = true; 
         }
-        if(spinner && !isGreeting) spinner.style.display = 'inline-block';
-        if (el) { el.style.opacity = '1'; el.style.display = 'block'; el.innerHTML = '<i class="fas fa-cog fa-spin me-2 text-primary"></i> Processing audio...'; }
+        if (el) { el.style.opacity = '1'; el.className = 'rt-mic-label processing'; el.innerHTML = '<i class="fas fa-cog fa-spin" style="font-size:0.7rem;"></i> Processing…'; }
     }
 }
 function updateTimerBar(duration) {
@@ -1518,23 +1660,31 @@ function showSectionCompleteModal(currentStage) {
     const modal = document.getElementById('section-transition-modal');
     const scoreEl = document.getElementById('section-score-display');
     const msgEl = document.getElementById('section-transition-msg');
+    const titleEl = document.getElementById('rt-modal-title');
+    const ringEl = document.getElementById('rt-modal-ring');
+    const ringPctEl = document.getElementById('rt-modal-ring-pct');
+    const ptsEl = document.getElementById('rt-modal-pts');
+    const stepperEl = document.getElementById('rt-modal-stepper');
+    const confettiEl = document.getElementById('rt-confetti');
 
     // Calculate Score based on TEST STATE LOGS (Evidence) of current stage
     let scoreHtml = '';
+    let sectionCorrect = 0;
+    let sectionTotal = 0;
+    let sectionTitle = 'Section Complete!';
 
     // ISSUE 1 FIX: Show separate Name/Sound scores for letters
     if (currentStage.type === 'letter_recognition') {
-        // Only count logs for letters in THIS stage (avoids cross-stage contamination)
+        sectionTitle = '🔤 Letters Complete!';
         const stageLetters = new Set(currentStage.items || []);
         const stageLogs = testState.letterLogs.filter(l => stageLetters.has(l.letter));
 
         const nameLogs = stageLogs.filter(l => l.step === 'name');
         const soundLogs = stageLogs.filter(l => l.step === 'sound');
 
-        // Deduplicate: For each letter, take the LAST log entry (most recent attempt)
         const deduplicateLogs = (logs) => {
             const map = {};
-            logs.forEach(l => { map[l.letter] = l; }); // latest overwrites earlier
+            logs.forEach(l => { map[l.letter] = l; });
             return Object.values(map);
         };
 
@@ -1545,20 +1695,20 @@ function showSectionCompleteModal(currentStage) {
         const soundCorrect = uniqueSoundLogs.filter(l => l.status === 'correct').length;
         const totalLetters = currentStage.items ? currentStage.items.length : 26;
 
-        // AUDIT FIX: Handle name-only stages (common letters per document)
         const isNameOnly = currentStage.id === 'letters_common';
+        sectionCorrect = nameCorrect + (isNameOnly ? 0 : soundCorrect);
+        sectionTotal = totalLetters * (isNameOnly ? 1 : 2);
 
-        // ENHANCED: Build detailed table for letters
         if (isNameOnly) {
             scoreHtml = `
-                <div style="max-height: 400px; overflow-y: auto; margin-top: 15px;">
-                    <table class="table table-bordered table-sm">
-                        <thead class="table-light">
+                <div style="max-height: 350px; overflow-y: auto; margin-top: 10px;">
+                    <table class="rt-table">
+                        <thead>
                             <tr>
-                                <th>Capital Letters</th>
-                                <th>Letter Names</th>
+                                <th>Letter</th>
+                                <th>Name</th>
                                 <th>No Response</th>
-                                <th>Letter Substituted</th>
+                                <th>Substituted</th>
                             </tr>
                         </thead>
                         <tbody>
@@ -1570,34 +1720,34 @@ function showSectionCompleteModal(currentStage) {
                 return `
                                     <tr>
                                         <td><strong>${letter.toUpperCase()}</strong></td>
-                                        <td class="text-center">${correct ? '✓' : ''}</td>
-                                        <td class="text-center">${noResp ? '✗' : ''}</td>
-                                        <td class="text-center">${subst ? log.spoken : ''}</td>
+                                        <td class="text-center">${correct ? '<span class="rt-correct">✓</span>' : ''}</td>
+                                        <td class="text-center">${noResp ? '<span class="rt-wrong">✗</span>' : ''}</td>
+                                        <td class="text-center">${subst ? '<span class="rt-sub">' + log.spoken + '</span>' : ''}</td>
                                     </tr>
                                 `;
             }).join('')}
                         </tbody>
-                        <tfoot class="table-light">
-                            <tr><td colspan="4"><strong>Reader's Score: ${nameCorrect}/${totalLetters}</strong></td></tr>
+                        <tfoot>
+                            <tr><td colspan="4">Score: ${nameCorrect}/${totalLetters}</td></tr>
                         </tfoot>
                     </table>
                 </div>
             `;
         } else {
             scoreHtml = `
-                <div style="max-height: 400px; overflow-y: auto; margin-top: 15px;">
-                    <table class="table table-bordered table-sm">
-                        <thead class="table-light">
+                <div style="max-height: 350px; overflow-y: auto; margin-top: 10px;">
+                    <table class="rt-table">
+                        <thead>
                             <tr>
-                                <th rowspan="2" class="align-middle">Capital<br>Letters</th>
-                                <th colspan="2" class="text-center">Letter Names</th>
-                                <th colspan="2" class="text-center">Letter Sounds</th>
+                                <th rowspan="2">Letter</th>
+                                <th colspan="2" style="text-align:center;">Names</th>
+                                <th colspan="2" style="text-align:center;">Sounds</th>
                             </tr>
                             <tr>
-                                <th>No<br>Response</th>
-                                <th>Letter<br>Substituted</th>
-                                <th>No<br>Response</th>
-                                <th>Sound<br>Substituted</th>
+                                <th>No Resp</th>
+                                <th>Subst</th>
+                                <th>No Resp</th>
+                                <th>Subst</th>
                             </tr>
                         </thead>
                         <tbody>
@@ -1616,40 +1766,36 @@ function showSectionCompleteModal(currentStage) {
                 return `
                                     <tr>
                                         <td><strong>${letter.toUpperCase()}</strong></td>
-                                        <td class="text-center">${nameNoResp ? '✗' : (nameCorrectMark ? '✓' : '')}</td>
-                                        <td class="text-center">${nameSubst ? nameLog.spoken : ''}</td>
-                                        <td class="text-center">${soundNoResp ? '✗' : (soundCorrectMark ? '✓' : '')}</td>
-                                        <td class="text-center">${soundSubst ? soundLog.spoken : ''}</td>
+                                        <td class="text-center">${nameNoResp ? '<span class="rt-wrong">✗</span>' : (nameCorrectMark ? '<span class="rt-correct">✓</span>' : '')}</td>
+                                        <td class="text-center">${nameSubst ? '<span class="rt-sub">' + nameLog.spoken + '</span>' : ''}</td>
+                                        <td class="text-center">${soundNoResp ? '<span class="rt-wrong">✗</span>' : (soundCorrectMark ? '<span class="rt-correct">✓</span>' : '')}</td>
+                                        <td class="text-center">${soundSubst ? '<span class="rt-sub">' + soundLog.spoken + '</span>' : ''}</td>
                                     </tr>
                                 `;
             }).join('')}
                         </tbody>
-                        <tfoot class="table-light">
-                            <tr><td colspan="5"><strong>Reader's Score: ${nameCorrect}/${totalLetters} names, ${soundCorrect}/${totalLetters} sounds</strong></td></tr>
+                        <tfoot>
+                            <tr><td colspan="5">Score: ${nameCorrect}/${totalLetters} names, ${soundCorrect}/${totalLetters} sounds</td></tr>
                         </tfoot>
                     </table>
                 </div>
             `;
         }
     } else if (currentStage.type === 'word_list') {
+        sectionTitle = '✨ Words Complete!';
         const total = testState.wordLogs.length;
         const score = testState.wordLogs.filter(l => l.status === 'correct').length;
+        sectionCorrect = score;
+        sectionTotal = total;
 
-        // ENHANCED: Build detailed table for words
         const levelName = testState.wordListLevel.replace('_', ' ').replace(/\b\w/g, l => l.toUpperCase());
         scoreHtml = `
-            <div style="max-height: 400px; overflow-y: auto; margin-top: 15px;">
-                <table class="table table-bordered table-sm">
-                    <thead class="table-light">
+            <div style="max-height: 350px; overflow-y: auto; margin-top: 10px;">
+                <table class="rt-table">
+                    <thead>
                         <tr>
                             <th>${levelName} Words</th>
-                            <th>Correct<br>Response</th>
-                            <th colspan="2" class="text-center">Substitution</th>
-                        </tr>
-                        <tr>
-                            <th></th>
-                            <th></th>
-                            <th>Word in Text</th>
+                            <th>Result</th>
                             <th>Word Given</th>
                         </tr>
                     </thead>
@@ -1660,59 +1806,155 @@ function showSectionCompleteModal(currentStage) {
             return `
                                 <tr>
                                     <td><strong>${log.target}</strong></td>
-                                    <td class="text-center">${correct ? '✓' : ''}</td>
-                                    <td class="text-center">${!correct && !noResp ? log.target : ''}</td>
-                                    <td class="text-center">${!correct ? log.spoken : ''}</td>
+                                    <td class="text-center">${correct ? '<span class="rt-correct">✓</span>' : '<span class="rt-wrong">✗</span>'}</td>
+                                    <td class="text-center">${!correct ? '<span class="rt-sub">' + (log.spoken || '—') + '</span>' : ''}</td>
                                 </tr>
                             `;
         }).join('')}
                     </tbody>
-                    <tfoot class="table-light">
-                        <tr><td colspan="4"><strong>Total: ${score}/${total}</strong></td></tr>
+                    <tfoot>
+                        <tr><td colspan="3">Total: ${score}/${total}</td></tr>
                     </tfoot>
                 </table>
             </div>
         `;
     } else if (currentStage.type === 'sentence_reading') {
+        sectionTitle = '📝 Sentences Complete!';
         const completed = testState.sentenceLogs.filter(l => l.completed).length;
         const total = testState.sentenceLogs.length;
-        scoreHtml = `Sentences Completed: ${completed} / ${total}`;
+        sectionCorrect = completed;
+        sectionTotal = total;
+        scoreHtml = `<div style="text-align:center;font-size:0.9rem;color:var(--sd-text-2);margin-top:0.5rem;">Sentences Completed: <strong>${completed} / ${total}</strong></div>`;
     } else if (currentStage.type === 'oral_reading') {
+        sectionTitle = '📖 Reading Complete!';
         const words = testState.passageWords || [];
         const total = words.length;
         const correct = words.filter(w => w.status === 'correct').length;
         const incorrect = words.filter(w => w.status === 'incorrect').length;
         const skipped = words.filter(w => w.status === 'pending').length;
+        sectionCorrect = correct;
+        sectionTotal = total;
+
+        // FLUENCY METRICS
+        const wpm = testState.passageWPM || 0;
+        const accuracy = testState.passageAccuracy || 0;
+        const fluency = testState.fluencyClassification || 'N/A';
+        const fluencyColor = fluency === 'Fluent' ? '#10b981' : fluency === 'Developing' ? '#f59e0b' : '#ef4444';
+        const readingTimeSec = testState.passageStartTime && testState.passageEndTime
+            ? Math.round((testState.passageEndTime - testState.passageStartTime) / 1000)
+            : 0;
+        const readingTimeDisplay = readingTimeSec >= 60
+            ? `${Math.floor(readingTimeSec / 60)}m ${readingTimeSec % 60}s`
+            : `${readingTimeSec}s`;
 
         scoreHtml = `
-            <div style="margin-top: 15px;">
-                <table class="table table-bordered table-sm text-center">
-                    <thead class="table-light">
+            <div style="margin-top: 10px;">
+                <div style="display:flex; justify-content:center; gap:1rem; margin-bottom:1rem; flex-wrap:wrap;">
+                    <div style="text-align:center; padding:0.6rem 0.8rem; background:rgba(79,70,229,.07); border-radius:12px; min-width:70px;">
+                        <div style="font-size:1.3rem; font-weight:800; color:#4f46e5;">${wpm}</div>
+                        <div style="font-size:0.6rem; font-weight:700; color:#64748b; text-transform:uppercase;">WPM</div>
+                    </div>
+                    <div style="text-align:center; padding:0.6rem 0.8rem; background:rgba(16,185,129,.07); border-radius:12px; min-width:70px;">
+                        <div style="font-size:1.3rem; font-weight:800; color:#10b981;">${accuracy}%</div>
+                        <div style="font-size:0.6rem; font-weight:700; color:#64748b; text-transform:uppercase;">Accuracy</div>
+                    </div>
+                    <div style="text-align:center; padding:0.6rem 0.8rem; background:rgba(245,158,11,.07); border-radius:12px; min-width:70px;">
+                        <div style="font-size:1.3rem; font-weight:800; color:#f59e0b;">${readingTimeDisplay}</div>
+                        <div style="font-size:0.6rem; font-weight:700; color:#64748b; text-transform:uppercase;">Time</div>
+                    </div>
+                </div>
+                <div style="text-align:center; margin-bottom:0.75rem;">
+                    <span style="display:inline-block; padding:0.3rem 0.85rem; border-radius:50px; font-size:0.75rem; font-weight:700; color:white; background:${fluencyColor};">
+                        ${fluency === 'Fluent' ? '⭐' : fluency === 'Developing' ? '📈' : '⚠️'} ${fluency} Reader
+                    </span>
+                </div>
+
+                <table class="rt-table" style="text-align:center;">
+                    <thead>
                         <tr>
-                            <th>Total Words</th>
-                            <th class="text-success">✓ Correct</th>
-                            <th class="text-danger">✗ Errors</th>
+                            <th>Total</th>
+                            <th class="rt-correct">✓ Correct</th>
+                            <th class="rt-wrong">✗ Errors</th>
                             <th>Skipped</th>
                         </tr>
                     </thead>
                     <tbody>
                         <tr>
                             <td><strong>${total}</strong></td>
-                            <td class="text-success"><strong>${correct}</strong></td>
-                            <td class="text-danger"><strong>${incorrect}</strong></td>
+                            <td class="rt-correct"><strong>${correct}</strong></td>
+                            <td class="rt-wrong"><strong>${incorrect}</strong></td>
                             <td><strong>${skipped}</strong></td>
                         </tr>
                     </tbody>
-                    <tfoot class="table-light">
-                        <tr><td colspan="4"><strong>Reader's Score: ${correct} / ${total}</strong></td></tr>
-                    </tfoot>
                 </table>
             </div>
         `;
     } else {
-        // Fallback
         const total = currentStage.items ? currentStage.items.length : 0;
+        sectionTotal = total;
         scoreHtml = `Score: 0 / ${total}`;
+    }
+
+    // Calculate score percentage and points
+    const scorePct = sectionTotal > 0 ? Math.round((sectionCorrect / sectionTotal) * 100) : 0;
+    const sectionPoints = sectionCorrect * 5; // 5 points per correct answer
+    addLivePoints(sectionPoints);
+
+    // Update title
+    if (titleEl) titleEl.textContent = sectionTitle;
+
+    // Animate score ring
+    const circumference = 2 * Math.PI * 42;
+    if (ringEl) {
+        ringEl.setAttribute('stroke-dasharray', '0 ' + circumference);
+        const ringColor = scorePct >= 80 ? '#10b981' : scorePct >= 50 ? '#f59e0b' : '#ef4444';
+        ringEl.setAttribute('stroke', ringColor);
+        setTimeout(() => {
+            ringEl.setAttribute('stroke-dasharray', `${(scorePct / 100) * circumference} ${circumference}`);
+        }, 200);
+    }
+    if (ringPctEl) {
+        ringPctEl.textContent = scorePct + '%';
+    }
+
+    // Points earned badge
+    if (ptsEl) {
+        ptsEl.textContent = `+${sectionPoints} pts`;
+        // Re-trigger bounce animation
+        ptsEl.style.animation = 'none';
+        ptsEl.offsetHeight; // force reflow
+        ptsEl.style.animation = '';
+    }
+
+    // Build section stepper
+    if (stepperEl && pTest) {
+        const sections = getSectionNames();
+        let html = '';
+        sections.forEach((s, i) => {
+            const cls = i < currentStageIndex ? 'done' : i === currentStageIndex ? 'active' : '';
+            const icon = i < currentStageIndex ? '<i class="fas fa-check"></i>' : (i + 1).toString();
+            html += `<div class="rt-step ${cls}">${icon}</div>`;
+            if (i < sections.length - 1) html += `<div class="rt-step-line ${i < currentStageIndex ? 'done' : ''}"></div>`;
+        });
+        stepperEl.innerHTML = html;
+    }
+
+    // Confetti for high scores (>= 80%)
+    if (confettiEl) {
+        confettiEl.innerHTML = '';
+        if (scorePct >= 80) {
+            const colors = ['#4f46e5', '#10b981', '#f59e0b', '#ec4899', '#14b8a6', '#8b5cf6'];
+            for (let i = 0; i < 20; i++) {
+                const p = document.createElement('div');
+                p.className = 'rt-confetti';
+                p.style.left = Math.random() * 100 + '%';
+                p.style.top = Math.random() * 30 + '%';
+                p.style.background = colors[Math.floor(Math.random() * colors.length)];
+                p.style.animationDelay = Math.random() * 0.5 + 's';
+                p.style.animationDuration = (1 + Math.random()) + 's';
+                confettiEl.appendChild(p);
+            }
+        }
     }
 
     // Update Score text
@@ -1728,11 +1970,11 @@ function showSectionCompleteModal(currentStage) {
     }
 
     if (nextStage.type === 'word_list') {
-        msg = "Thank you.<br>Please Prepare to Call some Words.";
+        msg = "Great work! 🌟<br>Up next: <strong>Word Reading</strong>";
     } else if (nextStage.type === 'sentence_reading') {
-        msg = "Thank you.<br>Please Prepare to Call some Sentences.";
+        msg = "Well done! 🚀<br>Up next: <strong>Sentence Reading</strong>";
     } else if (nextStage.type === 'oral_reading') {
-        msg = "Thank you.<br>Please Prepare to Read a Passage.";
+        msg = "Excellent! 📚<br>Up next: <strong>Passage Reading</strong>";
     } else {
         msg = "Thank you.<br>Proceeding to next section.";
     }
@@ -1755,6 +1997,10 @@ function nextStageFromModal() {
     // Advance to next stage
     currentStageIndex++;
     currentSubIndex = 0;
+
+    // Update live UI
+    updateFloatingBar();
+    updateBreadcrumb();
 
     // Render next stage
     renderCurrentStage();
@@ -1941,17 +2187,19 @@ function dist(a, b) {
 }
 
 function finishTest() {
+    // Stop timer and hide floating bar
+    if (testTimerInterval) clearInterval(testTimerInterval);
+    const floatBar = document.getElementById('rt-float-bar');
+    if (floatBar) floatBar.classList.remove('visible');
+
     // === FINAL PLACEMENT ANALYSIS ===
 
     // 1. ORAL READING ERROR ANALYSIS
-    // errors = omitted_words + substitutions + mispronunciations
-    // Currently we track 'pending' = omitted, we don't have separate sub/mispronunciation tracking
     const oralErrors = testState.passageWords.filter(w => w.status !== 'correct').length;
 
     let oralClassification = 'Independent';
     if (oralErrors >= 5) oralClassification = 'Frustrational';
     else if (oralErrors >= 3) oralClassification = 'Instructional';
-    // 0-2 = Independent
 
     // 2. COMPREHENSION SCORING
     const compTotal = testState.comprehensionLogs.length;
@@ -1961,40 +2209,378 @@ function finishTest() {
     let compClassification = 'Independent';
     if (compPercent < 40) compClassification = 'Frustrational';
     else if (compPercent < 80) compClassification = 'Instructional';
-    // 80-100 = Independent
 
-    // 3. FINAL RECOMMENDATION
-    // If oral OR comprehension is Frustrational => drop one level
+    // 3. FINAL LEVEL
     let finalLevel = testState.passageLevel;
-    let dropped = false;
-
     if (oralClassification === 'Frustrational' || compClassification === 'Frustrational') {
         const idx = LEVEL_ORDER.indexOf(finalLevel);
-        if (idx > 0) {
-            finalLevel = LEVEL_ORDER[idx - 1];
-            dropped = true;
+        if (idx > 0) finalLevel = LEVEL_ORDER[idx - 1];
+    }
+
+    // 4. AI INTERVENTION RECOMMENDATIONS (Feature #5)
+    const recommendations = generateRecommendations(oralErrors, oralClassification, compPercent, compClassification);
+    const recsHtml = recommendations.map(rec => {
+        const priorityColors = { high: '#ef4444', medium: '#f59e0b', low: '#10b981' };
+        const priorityIcons = { high: 'exclamation-triangle', medium: 'info-circle', low: 'lightbulb' };
+        const priorityLabels = { high: 'Priority', medium: 'Suggested', low: 'Bonus' };
+        const color = priorityColors[rec.priority] || '#64748b';
+        const icon = priorityIcons[rec.priority] || 'info-circle';
+        return `
+            <div style="display:flex; align-items:flex-start; gap:0.75rem; padding:0.85rem 1rem; background:${color}0d; border-radius:10px; border-left:3px solid ${color}; margin-bottom:0.6rem; text-align:left;">
+                <i class="fas fa-${rec.icon || icon}" style="color:${color}; margin-top:2px; flex-shrink:0;"></i>
+                <div style="flex:1; min-width:0;">
+                    <div style="font-weight:700; font-size:0.85rem; color:#1e293b; margin-bottom:0.15rem;">${rec.title}</div>
+                    <div style="font-size:0.78rem; color:#64748b; line-height:1.45;">${rec.detail}</div>
+                </div>
+                <span style="font-size:0.65rem; font-weight:700; color:${color}; background:${color}15; padding:0.2rem 0.5rem; border-radius:50px; white-space:nowrap; flex-shrink:0; text-transform:uppercase;">${priorityLabels[rec.priority]}</span>
+            </div>
+        `;
+    }).join('');
+
+    const levelDisplay = (finalLevel || '').replace(/_/g, ' ').replace(/\b\w/g, l => l.toUpperCase());
+
+    // 5. GAMIFICATION — BADGES & POINTS (Feature #15)
+    const earnedBadges = calculateBadges(oralErrors, oralClassification, compPercent, finalLevel);
+    const points = calculatePoints();
+
+    const badgesHtml = earnedBadges.length > 0 ? `
+        <div style="margin-bottom:1.5rem;">
+            <div style="display:flex; align-items:center; justify-content:center; gap:0.5rem; margin-bottom:0.75rem;">
+                <i class="fas fa-trophy" style="color:#f59e0b;"></i>
+                <span style="font-weight:800; font-size:0.95rem; color:#1e293b;">Badges Earned!</span>
+            </div>
+            <div style="display:flex; flex-wrap:wrap; justify-content:center; gap:0.6rem;">
+                ${earnedBadges.map(b => `
+                    <div style="display:flex; flex-direction:column; align-items:center; padding:0.6rem 0.5rem; background:${b.color}10; border:1.5px solid ${b.color}30; border-radius:14px; min-width:75px; max-width:90px; transition: transform 0.2s;" title="${b.description}">
+                        <div style="font-size:1.6rem; margin-bottom:0.2rem;">${b.emoji}</div>
+                        <div style="font-size:0.6rem; font-weight:700; color:${b.color}; text-align:center; line-height:1.2;">${b.name}</div>
+                    </div>
+                `).join('')}
+            </div>
+            <div style="margin-top:0.75rem;">
+                <span style="display:inline-block; padding:0.3rem 1rem; border-radius:50px; font-size:0.85rem; font-weight:800; color:#f59e0b; background:rgba(245,158,11,.1); border:1.5px solid rgba(245,158,11,.2);">
+                    ⭐ ${points} Points Earned
+                </span>
+            </div>
+        </div>
+    ` : '';
+
+    // Display Results
+    const wpm = testState.passageWPM || 0;
+    const accuracy = testState.passageAccuracy || 0;
+    const fluency = testState.fluencyClassification || 'N/A';
+    const fluencyColor = fluency === 'Fluent' ? '#10b981' : fluency === 'Developing' ? '#f59e0b' : '#ef4444';
+
+    // Calculate overall score percentage
+    const totalCorrect = testState.letterLogs.filter(l => l.status === 'correct').length
+        + testState.wordLogs.filter(l => l.status === 'correct').length
+        + testState.sentenceLogs.filter(l => l.completed).length
+        + (testState.passageWords || []).filter(w => w.status === 'correct').length;
+    const totalItems = testState.letterLogs.length + testState.wordLogs.length
+        + testState.sentenceLogs.length + (testState.passageWords || []).length;
+    const overallPct = totalItems > 0 ? Math.round((totalCorrect / totalItems) * 100) : 0;
+    const overallColor = overallPct >= 80 ? '#10b981' : overallPct >= 50 ? '#f59e0b' : '#ef4444';
+
+    testContent.innerHTML = `
+        <div style="max-width:680px; margin:2rem auto; animation: fadeIn 0.5s ease-out;">
+
+            <!-- Hero Banner -->
+            <div style="background:linear-gradient(135deg, #1e1b4b 0%, #312e81 50%, #0f172a 100%); border-radius:20px; padding:2.5rem 2rem; text-align:center; position:relative; overflow:hidden; margin-bottom:1.5rem;">
+                <!-- Decorative glow -->
+                <div style="position:absolute; top:-40px; right:-40px; width:200px; height:200px; background:radial-gradient(circle, rgba(129,140,248,.25), transparent 70%); border-radius:50%; pointer-events:none;"></div>
+                <div style="position:absolute; bottom:-30px; left:-30px; width:150px; height:150px; background:radial-gradient(circle, rgba(16,185,129,.15), transparent 70%); border-radius:50%; pointer-events:none;"></div>
+
+                <!-- Animated confetti -->
+                <div id="rt-finish-confetti" style="position:absolute; inset:0; pointer-events:none; overflow:hidden;"></div>
+
+                <div style="position:relative; z-index:1;">
+
+                    <!-- Score ring -->
+                    <div style="width:110px; height:110px; position:relative; margin:0 auto 1rem;">
+                        <svg style="transform:rotate(-90deg);" width="110" height="110" viewBox="0 0 110 110">
+                            <circle cx="55" cy="55" r="46" fill="none" stroke="rgba(255,255,255,.1)" stroke-width="8"/>
+                            <circle id="rt-finish-ring" cx="55" cy="55" r="46" fill="none" stroke="${overallColor}" stroke-width="8" stroke-linecap="round" stroke-dasharray="0 289" style="transition: stroke-dasharray 1.5s cubic-bezier(0.4,0,0.2,1);"/>
+                        </svg>
+                        <div style="position:absolute; inset:0; display:flex; flex-direction:column; align-items:center; justify-content:center;">
+                            <div style="font-size:1.8rem; font-weight:900; color:white; line-height:1;">${overallPct}%</div>
+                            <div style="font-size:0.55rem; font-weight:700; color:rgba(255,255,255,.4); text-transform:uppercase; letter-spacing:.06em;">Overall</div>
+                        </div>
+                    </div>
+
+                    <div style="font-size:1.5rem; font-weight:900; color:white; letter-spacing:-0.5px; margin-bottom:0.3rem;">🎉 Assessment Complete!</div>
+                    <div style="font-size:0.85rem; color:rgba(255,255,255,.5); margin-bottom:1.25rem;">Your results have been saved successfully.</div>
+
+                    <!-- Placement badge -->
+                    <div style="display:inline-flex; align-items:center; gap:0.5rem; padding:0.5rem 1.5rem; border-radius:50px; font-size:0.95rem; font-weight:800; color:white; background:linear-gradient(135deg, #4f46e5, #6366f1); box-shadow:0 4px 15px rgba(79,70,229,.4);">
+                        📚 Placed at: ${levelDisplay}
+                    </div>
+                </div>
+            </div>
+
+            <!-- Stat Cards Row -->
+            <div style="display:grid; grid-template-columns: repeat(3, 1fr); gap:0.75rem; margin-bottom:1.5rem;">
+                <div style="background:var(--sd-surface); border:1.5px solid var(--sd-border); border-radius:14px; padding:1rem; text-align:center; transition: transform 0.2s, box-shadow 0.2s;" onmouseover="this.style.transform='translateY(-2px)';this.style.boxShadow='0 4px 15px rgba(0,0,0,.06)'" onmouseout="this.style.transform='';this.style.boxShadow=''">
+                    <div style="font-size:0.6rem; font-weight:700; color:var(--sd-text-3); text-transform:uppercase; letter-spacing:.06em; margin-bottom:0.2rem;">Level</div>
+                    <div style="font-size:1.3rem; font-weight:900; color:var(--sd-primary); letter-spacing:-0.5px;">${levelDisplay}</div>
+                </div>
+                <div style="background:var(--sd-surface); border:1.5px solid var(--sd-border); border-radius:14px; padding:1rem; text-align:center; transition: transform 0.2s, box-shadow 0.2s;" onmouseover="this.style.transform='translateY(-2px)';this.style.boxShadow='0 4px 15px rgba(0,0,0,.06)'" onmouseout="this.style.transform='';this.style.boxShadow=''">
+                    <div style="font-size:0.6rem; font-weight:700; color:var(--sd-text-3); text-transform:uppercase; letter-spacing:.06em; margin-bottom:0.2rem;">Speed</div>
+                    <div style="font-size:1.3rem; font-weight:900; color:#4f46e5; letter-spacing:-0.5px;">${wpm} <span style="font-size:0.6rem; font-weight:600; color:var(--sd-text-3);">WPM</span></div>
+                </div>
+                <div style="background:var(--sd-surface); border:1.5px solid var(--sd-border); border-radius:14px; padding:1rem; text-align:center; transition: transform 0.2s, box-shadow 0.2s;" onmouseover="this.style.transform='translateY(-2px)';this.style.boxShadow='0 4px 15px rgba(0,0,0,.06)'" onmouseout="this.style.transform='';this.style.boxShadow=''">
+                    <div style="font-size:0.6rem; font-weight:700; color:var(--sd-text-3); text-transform:uppercase; letter-spacing:.06em; margin-bottom:0.2rem;">Accuracy</div>
+                    <div style="font-size:1.3rem; font-weight:900; color:#10b981; letter-spacing:-0.5px;">${accuracy}%</div>
+                </div>
+            </div>
+
+            <!-- Fluency Badge -->
+            <div style="text-align:center; margin-bottom:1.5rem;">
+                <span style="display:inline-flex; align-items:center; gap:0.4rem; padding:0.35rem 1rem; border-radius:50px; font-size:0.78rem; font-weight:700; color:white; background:${fluencyColor};">
+                    ${fluency === 'Fluent' ? '⭐' : fluency === 'Developing' ? '📈' : '⚠️'} ${fluency} Reader
+                </span>
+            </div>
+
+            ${earnedBadges.length > 0 ? `
+            <!-- Badges Card -->
+            <div style="background:var(--sd-surface); border:1.5px solid var(--sd-border); border-radius:16px; padding:1.5rem; margin-bottom:1.25rem;">
+                <div style="display:flex; align-items:center; gap:0.5rem; margin-bottom:1rem;">
+                    <span style="font-size:1rem;">🏆</span>
+                    <span style="font-weight:800; font-size:0.9rem; color:var(--sd-text);">Badges Earned</span>
+                    <span style="font-size:0.68rem; font-weight:700; color:var(--sd-primary); background:var(--sd-primary-lt); padding:0.15rem 0.5rem; border-radius:50px; margin-left:auto;">${earnedBadges.length} badges</span>
+                </div>
+                <div style="display:flex; flex-wrap:wrap; justify-content:center; gap:0.6rem;">
+                    ${earnedBadges.map(b => `
+                        <div style="display:flex; flex-direction:column; align-items:center; padding:0.75rem 0.6rem; background:${b.color}0a; border:1.5px solid ${b.color}25; border-radius:14px; min-width:80px; max-width:95px; transition:transform 0.2s, box-shadow 0.2s; cursor:default;" title="${b.description}" onmouseover="this.style.transform='translateY(-3px)';this.style.boxShadow='0 4px 12px ${b.color}20'" onmouseout="this.style.transform='';this.style.boxShadow=''">
+                            <div style="font-size:1.8rem; margin-bottom:0.25rem;">${b.emoji}</div>
+                            <div style="font-size:0.62rem; font-weight:700; color:${b.color}; text-align:center; line-height:1.2;">${b.name}</div>
+                        </div>
+                    `).join('')}
+                </div>
+                <div style="text-align:center; margin-top:1rem;">
+                    <span style="display:inline-flex; align-items:center; gap:0.35rem; padding:0.35rem 1rem; border-radius:50px; font-size:0.82rem; font-weight:800; color:#f59e0b; background:rgba(245,158,11,.08); border:1.5px solid rgba(245,158,11,.15);">
+                        ⭐ ${points} Points Earned
+                    </span>
+                </div>
+            </div>
+            ` : ''}
+
+            ${recommendations.length > 0 ? `
+            <!-- Recommendations Card -->
+            <div style="background:var(--sd-surface); border:1.5px solid var(--sd-border); border-radius:16px; padding:1.5rem; margin-bottom:1.25rem;">
+                <div style="display:flex; align-items:center; gap:0.5rem; margin-bottom:1rem;">
+                    <span style="font-size:0.85rem; color:var(--sd-primary);"><i class="fas fa-robot"></i></span>
+                    <span style="font-weight:800; font-size:0.9rem; color:var(--sd-text);">Alex's Recommendations</span>
+                </div>
+                ${recsHtml}
+            </div>
+            ` : ''}
+
+            <!-- CTA Button -->
+            <div style="text-align:center; margin-top:1.5rem; margin-bottom:2rem;">
+                <a href="student-dashboard.html" class="sd-btn sd-btn-primary" style="padding:0.85rem 2.5rem; font-size:1rem; border-radius:50px; display:inline-flex; align-items:center; gap:0.5rem; box-shadow:0 4px 15px rgba(79,70,229,.3);">
+                    <i class="fas fa-home"></i> Back to Dashboard
+                </a>
+                <div style="margin-top:0.75rem;">
+                    <a href="student-progress.html" style="font-size:0.8rem; font-weight:600; color:var(--sd-primary); text-decoration:none;">
+                        View detailed progress <i class="fas fa-arrow-right" style="font-size:0.65rem;"></i>
+                    </a>
+                </div>
+            </div>
+
+        </div>
+
+        <style>@keyframes fadeIn{from{opacity:0;transform:translateY(10px)}to{opacity:1;transform:translateY(0)}}</style>
+    `;
+
+    // Animate the finish ring
+    setTimeout(() => {
+        const ring = document.getElementById('rt-finish-ring');
+        const circumference = 2 * Math.PI * 46;
+        if (ring) ring.setAttribute('stroke-dasharray', `${(overallPct / 100) * circumference} ${circumference}`);
+    }, 300);
+
+    // Confetti on finish
+    const confettiWrap = document.getElementById('rt-finish-confetti');
+    if (confettiWrap) {
+        const colors = ['#4f46e5', '#10b981', '#f59e0b', '#ec4899', '#14b8a6', '#8b5cf6', '#818cf8', '#a78bfa'];
+        for (let i = 0; i < 30; i++) {
+            const p = document.createElement('div');
+            p.style.cssText = `position:absolute; width:${6 + Math.random()*6}px; height:${6 + Math.random()*6}px; border-radius:${Math.random() > 0.5 ? '50%' : '2px'}; background:${colors[Math.floor(Math.random() * colors.length)]}; left:${Math.random()*100}%; top:${-10 + Math.random()*30}%; animation: rt-confetti-fall ${1.5 + Math.random()*1.5}s ease-out ${Math.random()*0.8}s forwards;`;
+            confettiWrap.appendChild(p);
         }
     }
 
-    // Display Results
-    testContent.innerHTML = `
-        <div class="text-center py-5">
-            <h1 class="display-4 fw-bold mb-4">Assessment Complete</h1>
-            <div class="card shadow-sm p-5 mx-auto" style="max-width:700px">
-                <i class="fas fa-check-circle text-success fa-5x mb-4"></i>
-                <h2 class="display-6">Thank you for completing the assessment!</h2>
-                <p class="lead text-muted mt-3">Your results have been saved.</p>
-                
-                <hr class="my-4">
-                <button class="btn btn-primary btn-lg" onclick="location.href='student-dashboard.html'">Back to Dashboard</button>
-            </div>
-        </div>
-    `;
-
-    saveResult(finalLevel, oralErrors, oralClassification, compPercent, compClassification);
+    saveResult(finalLevel, oralErrors, oralClassification, compPercent, compClassification, testState.passageWPM, testState.passageAccuracy, testState.fluencyClassification, recommendations);
+    saveGamification(earnedBadges, points);
 }
 
-async function saveResult(finalLevel, oralErrors, oralClassification, compPercent, compClassification) {
+// === FEATURE #5: AI INTERVENTION RECOMMENDATION ENGINE ===
+function generateRecommendations(oralErrors, oralClassification, compPercent, compClassification) {
+    const recs = [];
+
+    // --- 1. LETTER RECOGNITION ANALYSIS ---
+    const letterTotal = testState.letterLogs.length;
+    const letterCorrect = testState.letterLogs.filter(l => l.status === 'correct').length;
+    const letterPercent = letterTotal > 0 ? Math.round((letterCorrect / letterTotal) * 100) : 100;
+
+    // Find specific failed letters
+    const failedLetters = [...new Set(testState.letterLogs.filter(l => l.status !== 'correct').map(l => l.letter))];
+    const failedNames = [...new Set(testState.letterLogs.filter(l => l.step === 'name' && l.status !== 'correct').map(l => l.letter.toUpperCase()))];
+    const failedSounds = [...new Set(testState.letterLogs.filter(l => l.step === 'sound' && l.status !== 'correct').map(l => l.letter.toUpperCase()))];
+
+    if (letterPercent < 70) {
+        recs.push({
+            title: 'Letter Recognition Practice',
+            detail: `Practice identifying letter names${failedNames.length > 0 ? ` — focus on: ${failedNames.slice(0, 6).join(', ')}` : ''}. Use flashcards, ABC songs, and tracing activities daily.`,
+            icon: 'font',
+            priority: 'high',
+            area: 'phonics'
+        });
+    } else if (letterPercent < 90) {
+        recs.push({
+            title: 'Letter Review',
+            detail: `Good letter knowledge! Review these letters for mastery: ${failedLetters.slice(0, 5).map(l => l.toUpperCase()).join(', ') || 'general practice'}.`,
+            icon: 'font',
+            priority: 'low',
+            area: 'phonics'
+        });
+    }
+
+    if (failedSounds.length >= 3) {
+        recs.push({
+            title: 'Phonics — Letter Sounds',
+            detail: `Work on letter-sound correspondence for: ${failedSounds.slice(0, 6).join(', ')}. Try sounding out words that start with these letters.`,
+            icon: 'volume-up',
+            priority: letterPercent < 60 ? 'high' : 'medium',
+            area: 'phonics'
+        });
+    }
+
+    // --- 2. WORD LIST ANALYSIS ---
+    const wordTotal = testState.wordLogs.length;
+    const wordCorrect = testState.wordLogs.filter(l => l.status === 'correct').length;
+    const wordPercent = wordTotal > 0 ? Math.round((wordCorrect / wordTotal) * 100) : 100;
+    const failedWords = testState.wordLogs.filter(l => l.status !== 'correct').map(l => l.target);
+    const noResponseWords = testState.wordLogs.filter(l => l.status === 'no_response').map(l => l.target);
+
+    if (wordPercent < 60) {
+        recs.push({
+            title: 'Sight Word Drills',
+            detail: `Sight word recognition needs significant practice. Focus on these words: ${failedWords.slice(0, 5).join(', ')}. Use daily flash card drills and word wall activities.`,
+            icon: 'spell-check',
+            priority: 'high',
+            area: 'vocabulary'
+        });
+    } else if (wordPercent < 85) {
+        recs.push({
+            title: 'Vocabulary Building',
+            detail: `Build reading vocabulary — practice these words: ${failedWords.slice(0, 5).join(', ')}. Try using them in sentences and reading them in context.`,
+            icon: 'book-open',
+            priority: 'medium',
+            area: 'vocabulary'
+        });
+    }
+
+    if (noResponseWords.length >= 2) {
+        recs.push({
+            title: 'Word Decoding Practice',
+            detail: `${noResponseWords.length} word(s) had no attempted response (${noResponseWords.slice(0, 4).join(', ')}). Practice breaking unknown words into syllables and sounding them out.`,
+            icon: 'puzzle-piece',
+            priority: 'medium',
+            area: 'vocabulary'
+        });
+    }
+
+    // --- 3. FLUENCY ANALYSIS ---
+    const wpm = testState.passageWPM || 0;
+    const accuracy = testState.passageAccuracy || 0;
+    const fluency = testState.fluencyClassification || '';
+
+    if (fluency === 'Disfluent') {
+        recs.push({
+            title: 'Fluency — Repeated Reading Practice',
+            detail: `Reading speed is ${wpm} WPM with ${accuracy}% accuracy. Practice re-reading familiar passages aloud 3–4 times each to build speed and confidence. Use a timer to track improvement.`,
+            icon: 'tachometer-alt',
+            priority: 'high',
+            area: 'fluency'
+        });
+    } else if (fluency === 'Developing') {
+        recs.push({
+            title: 'Fluency — Paired Reading',
+            detail: `Reading at ${wpm} WPM — developing well! Try reading aloud with a partner or following along with audiobooks to build natural reading rhythm and expression.`,
+            icon: 'users',
+            priority: 'medium',
+            area: 'fluency'
+        });
+    }
+
+    if (accuracy < 85 && accuracy > 0) {
+        recs.push({
+            title: 'Reading Accuracy Focus',
+            detail: `Accuracy rate is ${accuracy}%. Slow down and focus on reading each word carefully rather than rushing. Point to each word while reading to reduce skipping.`,
+            icon: 'crosshairs',
+            priority: accuracy < 70 ? 'high' : 'medium',
+            area: 'fluency'
+        });
+    }
+
+    // --- 4. ORAL READING ANALYSIS ---
+    if (oralClassification === 'Frustrational') {
+        recs.push({
+            title: 'Oral Reading Support',
+            detail: `This reading level is currently frustrating (${oralErrors} errors). Work with easier passages first and gradually build up. Echo reading (teacher reads, student repeats) is highly effective.`,
+            icon: 'book-reader',
+            priority: 'high',
+            area: 'fluency'
+        });
+    } else if (oralClassification === 'Instructional') {
+        recs.push({
+            title: 'Guided Oral Reading',
+            detail: `Reading is at instructional level (${oralErrors} errors). Continue reading at this level with teacher guidance. Pre-teach difficult vocabulary before reading passages.`,
+            icon: 'chalkboard-teacher',
+            priority: 'medium',
+            area: 'fluency'
+        });
+    }
+
+    // --- 5. COMPREHENSION ANALYSIS ---
+    if (compClassification === 'Frustrational') {
+        recs.push({
+            title: 'Comprehension — Story Understanding',
+            detail: `Comprehension score is ${compPercent}%. Practice the "Stop and Think" strategy: pause after each paragraph to ask "What just happened?" and "What will happen next?"`,
+            icon: 'brain',
+            priority: 'high',
+            area: 'comprehension'
+        });
+    } else if (compClassification === 'Instructional') {
+        recs.push({
+            title: 'Comprehension Strategies',
+            detail: `Comprehension at ${compPercent}% — room to grow! Practice asking who/what/where/when/why questions after reading. Drawing pictures of story events also helps.`,
+            icon: 'question-circle',
+            priority: 'medium',
+            area: 'comprehension'
+        });
+    }
+
+    // --- 6. GENERAL / POSITIVE REINFORCEMENT ---
+    if (recs.filter(r => r.priority === 'high').length === 0) {
+        recs.push({
+            title: 'Keep Up the Great Work!',
+            detail: 'Your reading skills are developing well. Keep reading every day — try new books at your level and challenge yourself with slightly harder texts.📖',
+            icon: 'star',
+            priority: 'low',
+            area: 'general'
+        });
+    }
+
+    // Sort: high → medium → low
+    const priorityOrder = { high: 0, medium: 1, low: 2 };
+    recs.sort((a, b) => (priorityOrder[a.priority] || 2) - (priorityOrder[b.priority] || 2));
+
+    return recs;
+}
+
+async function saveResult(finalLevel, oralErrors, oralClassification, compPercent, compClassification, wpm, accuracy, fluencyLevel, recommendations) {
     try {
         await addDoc(collection(db, 'results'), {
             userId: currentUser.uid,
@@ -2011,6 +2597,23 @@ async function saveResult(finalLevel, oralErrors, oralClassification, compPercen
             comprehensionPercent: compPercent,
             comprehensionClassification: compClassification,
 
+            // FLUENCY SPEED TRACKER (Feature #4)
+            fluency: {
+                wordsPerMinute: wpm || 0,
+                accuracyRate: accuracy || 0,
+                classification: fluencyLevel || 'N/A',
+                readingTimeMs: (testState.passageEndTime && testState.passageStartTime)
+                    ? (testState.passageEndTime - testState.passageStartTime) : 0
+            },
+
+            // AI INTERVENTION RECOMMENDATIONS (Feature #5)
+            recommendations: (recommendations || []).map(r => ({
+                title: r.title,
+                detail: r.detail,
+                area: r.area,
+                priority: r.priority
+            })),
+
             // Full Evidence Logs (Decision Tree)
             logs: {
                 letters: testState.letterLogs,
@@ -2024,5 +2627,207 @@ async function saveResult(finalLevel, oralErrors, oralClassification, compPercen
         console.log("Result saved with full evidence logs");
     } catch (e) {
         console.error("Save error:", e);
+    }
+}
+
+// ═══════════════════════════════════════════════════════════
+//  FEATURE #15: READING CHALLENGE GAMIFICATION ENGINE
+// ═══════════════════════════════════════════════════════════
+
+const BADGE_DEFINITIONS = [
+    {
+        id: 'first_steps',
+        name: 'First Steps',
+        emoji: '🎯',
+        description: 'Completed your first reading assessment',
+        color: '#4f46e5',
+        check: () => true // Always earned on completing a test
+    },
+    {
+        id: 'letter_master',
+        name: 'Letter Master',
+        emoji: '🔤',
+        description: 'Scored 100% on letter recognition',
+        color: '#10b981',
+        check: () => {
+            const total = testState.letterLogs.length;
+            if (total === 0) return false;
+            return testState.letterLogs.every(l => l.status === 'correct');
+        }
+    },
+    {
+        id: 'sound_expert',
+        name: 'Sound Expert',
+        emoji: '🔊',
+        description: 'Named all letter sounds correctly',
+        color: '#14b8a6',
+        check: () => {
+            const sounds = testState.letterLogs.filter(l => l.step === 'sound');
+            if (sounds.length === 0) return false;
+            return sounds.every(l => l.status === 'correct');
+        }
+    },
+    {
+        id: 'word_wizard',
+        name: 'Word Wizard',
+        emoji: '✨',
+        description: 'Scored 90%+ on the word list',
+        color: '#8b5cf6',
+        check: () => {
+            const total = testState.wordLogs.length;
+            if (total === 0) return false;
+            const correct = testState.wordLogs.filter(l => l.status === 'correct').length;
+            return (correct / total) >= 0.9;
+        }
+    },
+    {
+        id: 'speed_reader',
+        name: 'Speed Reader',
+        emoji: '⚡',
+        description: 'Read at 90+ words per minute',
+        color: '#f59e0b',
+        check: () => (testState.passageWPM || 0) >= 90
+    },
+    {
+        id: 'sharp_eye',
+        name: 'Sharp Eye',
+        emoji: '🎯',
+        description: 'Achieved 95%+ reading accuracy',
+        color: '#10b981',
+        check: () => (testState.passageAccuracy || 0) >= 95
+    },
+    {
+        id: 'comprehension_star',
+        name: 'Comprehension Star',
+        emoji: '🧠',
+        description: 'Answered all comprehension questions correctly',
+        color: '#ec4899',
+        check: () => {
+            const total = testState.comprehensionLogs.length;
+            if (total === 0) return false;
+            return testState.comprehensionLogs.every(l => l.status === 'correct');
+        }
+    },
+    {
+        id: 'fluent_reader',
+        name: 'Fluent Reader',
+        emoji: '📖',
+        description: 'Classified as a Fluent Reader',
+        color: '#059669',
+        check: () => testState.fluencyClassification === 'Fluent'
+    },
+    {
+        id: 'brave_voice',
+        name: 'Brave Voice',
+        emoji: '🎤',
+        description: 'Attempted every word in the passage (no skips)',
+        color: '#6366f1',
+        check: () => {
+            if (testState.passageWords.length === 0) return false;
+            return testState.passageWords.filter(w => w.status === 'pending').length === 0;
+        }
+    },
+    {
+        id: 'perfect_score',
+        name: 'Perfect Score',
+        emoji: '🏆',
+        description: 'Achieved a perfect assessment — no errors anywhere',
+        color: '#f59e0b',
+        check: (oralErrors, compPercent) => {
+            return oralErrors === 0 && compPercent === 100 &&
+                testState.wordLogs.every(l => l.status === 'correct') &&
+                testState.letterLogs.every(l => l.status === 'correct');
+        }
+    }
+];
+
+function calculateBadges(oralErrors, oralClassification, compPercent, finalLevel) {
+    const earned = [];
+    for (const badge of BADGE_DEFINITIONS) {
+        try {
+            if (badge.check(oralErrors, compPercent)) {
+                earned.push({
+                    id: badge.id,
+                    name: badge.name,
+                    emoji: badge.emoji,
+                    description: badge.description,
+                    color: badge.color,
+                    earnedAt: new Date().toISOString()
+                });
+            }
+        } catch (e) {
+            console.warn(`Badge check failed for ${badge.id}:`, e);
+        }
+    }
+    console.log(`Badges earned: ${earned.map(b => b.name).join(', ') || 'none'}`);
+    return earned;
+}
+
+function calculatePoints() {
+    let points = 0;
+
+    // Base points for completing an assessment
+    points += 50;
+
+    // Letter recognition: 2 pts each correct
+    points += testState.letterLogs.filter(l => l.status === 'correct').length * 2;
+
+    // Word list: 5 pts each correct
+    points += testState.wordLogs.filter(l => l.status === 'correct').length * 5;
+
+    // Passage words: 3 pts each correct
+    points += testState.passageWords.filter(w => w.status === 'correct').length * 3;
+
+    // Comprehension: 15 pts each correct
+    points += testState.comprehensionLogs.filter(l => l.status === 'correct').length * 15;
+
+    // Fluency bonus
+    const wpm = testState.passageWPM || 0;
+    if (wpm >= 90) points += 50;
+    else if (wpm >= 60) points += 25;
+    else if (wpm >= 30) points += 10;
+
+    // Accuracy bonus
+    const acc = testState.passageAccuracy || 0;
+    if (acc >= 95) points += 40;
+    else if (acc >= 85) points += 20;
+
+    return points;
+}
+
+async function saveGamification(earnedBadges, points) {
+    if (!currentUser) return;
+    try {
+        const gamRef = doc(db, 'students', currentUser.uid, 'gamification', 'profile');
+        const gamDoc = await getDoc(gamRef);
+
+        let existingBadges = [];
+        let totalPoints = 0;
+        let assessmentCount = 0;
+
+        if (gamDoc.exists()) {
+            const data = gamDoc.data();
+            existingBadges = data.badges || [];
+            totalPoints = data.totalPoints || 0;
+            assessmentCount = data.assessmentCount || 0;
+        }
+
+        // Merge badges (don't duplicate)
+        const existingIds = new Set(existingBadges.map(b => b.id));
+        const newBadges = earnedBadges.filter(b => !existingIds.has(b.id));
+        const allBadges = [...existingBadges, ...newBadges];
+
+        await setDoc(gamRef, {
+            badges: allBadges,
+            totalPoints: totalPoints + points,
+            assessmentCount: assessmentCount + 1,
+            lastAssessment: serverTimestamp(),
+            latestPointsEarned: points,
+            latestBadgesEarned: newBadges.map(b => b.id)
+        });
+
+        console.log(`Gamification saved: ${newBadges.length} new badge(s), +${points} pts (total: ${totalPoints + points})`);
+    } catch (e) {
+        console.error('Gamification save error:', e);
     }
 }

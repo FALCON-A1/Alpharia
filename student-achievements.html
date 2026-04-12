@@ -1,0 +1,482 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Achievements — Alpharia</title>
+  <meta name="description" content="View your reading badges, points, and achievements.">
+
+  <!-- Fonts & Icons -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+
+  <!-- Shared Dashboard Design System -->
+  <link rel="stylesheet" href="css/student-dashboard-clean.css">
+
+  <style>
+    /* ── Achievements page styles ── */
+    .ach-header {
+      display: flex; align-items: center; justify-content: space-between;
+      gap: 1rem; flex-wrap: wrap; margin-bottom: 0.25rem;
+    }
+    .ach-title { font-size: 1.5rem; font-weight: 800; color: var(--sd-text); letter-spacing: -0.5px; }
+
+    /* Stats row */
+    .ach-stats {
+      display: grid; grid-template-columns: repeat(3, 1fr); gap: 1.25rem; margin-bottom: 1.5rem;
+    }
+    .ach-stat {
+      background: var(--sd-surface); border: 1.5px solid var(--sd-border); border-radius: var(--sd-radius);
+      padding: 1.4rem 1.5rem; text-align: center; transition: var(--sd-transition);
+    }
+    .ach-stat:hover { box-shadow: var(--sd-shadow-md); transform: translateY(-2px); }
+    .ach-stat-icon { font-size: 1.8rem; margin-bottom: 0.5rem; }
+    .ach-stat-value { font-size: 1.9rem; font-weight: 800; color: var(--sd-text); letter-spacing: -1px; }
+    .ach-stat-label { font-size: 0.74rem; font-weight: 700; color: var(--sd-text-3); text-transform: uppercase; letter-spacing: 0.06em; }
+
+    /* Badge grid */
+    .ach-section-title {
+      font-size: 0.95rem; font-weight: 700; color: var(--sd-text); display: flex;
+      align-items: center; gap: 0.5rem; margin-bottom: 1rem;
+    }
+    .ach-section-title i { color: var(--sd-primary); }
+
+    .ach-grid {
+      display: grid; grid-template-columns: repeat(auto-fill, minmax(150px, 1fr)); gap: 1rem; margin-bottom: 2rem;
+    }
+
+    .ach-badge {
+      background: var(--sd-surface); border: 1.5px solid var(--sd-border); border-radius: 16px;
+      padding: 1.25rem 1rem; text-align: center; transition: var(--sd-transition);
+      position: relative; overflow: hidden;
+    }
+    .ach-badge:hover { box-shadow: var(--sd-shadow-md); transform: translateY(-3px); }
+    .ach-badge.earned { border-color: var(--badge-color, var(--sd-primary)); }
+    .ach-badge.earned::after {
+      content: ''; position: absolute; bottom: 0; left: 0; right: 0; height: 3px;
+      background: var(--badge-color, var(--sd-primary));
+    }
+    .ach-badge.locked { opacity: 0.45; filter: grayscale(0.6); }
+    .ach-badge-emoji { font-size: 2.2rem; margin-bottom: 0.4rem; display: block; }
+    .ach-badge-name { font-size: 0.78rem; font-weight: 700; color: var(--sd-text); margin-bottom: 0.15rem; }
+    .ach-badge-desc { font-size: 0.68rem; color: var(--sd-text-3); line-height: 1.35; }
+    .ach-badge-date { font-size: 0.62rem; color: var(--sd-primary); font-weight: 600; margin-top: 0.4rem; }
+    .ach-badge-lock {
+      position: absolute; top: 8px; right: 8px; font-size: 0.65rem; color: var(--sd-text-3);
+    }
+
+    /* Empty / loading */
+    .ach-loading { text-align: center; padding: 3rem 1rem; color: var(--sd-text-3); }
+    .ach-spinner {
+      width: 30px; height: 30px; border: 3px solid var(--sd-border);
+      border-top-color: var(--sd-primary); border-radius: 50%;
+      animation: ach-spin 0.8s linear infinite; margin: 0 auto 0.75rem;
+    }
+    @keyframes ach-spin { to { transform: rotate(360deg); } }
+
+    /* Hero banner */
+    .ach-hero {
+      background: linear-gradient(120deg, #1e1b4b 0%, #312e81 50%, #0f172a 100%);
+      border-radius: var(--sd-radius);
+      padding: 2rem 2.5rem;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 2rem;
+      position: relative;
+      overflow: hidden;
+      margin-bottom: 0.5rem;
+    }
+    .ach-hero::before {
+      content: '';
+      position: absolute;
+      top: -60px; right: -60px;
+      width: 250px; height: 250px;
+      background: radial-gradient(circle, rgba(129,140,248,.25), transparent 70%);
+      border-radius: 50%;
+      pointer-events: none;
+    }
+    .ach-hero-text { position: relative; z-index: 1; }
+    .ach-hero-title {
+      font-size: 1.5rem; font-weight: 800; color: white; letter-spacing: -0.5px; margin-bottom: 0.4rem;
+    }
+    .ach-hero-sub {
+      font-size: 0.88rem; color: rgba(255,255,255,.55); max-width: 340px; line-height: 1.5;
+    }
+    .ach-hero-sub strong { color: #a5b4fc; }
+
+    /* Progress ring */
+    .ach-ring-wrap {
+      position: relative; z-index: 1; flex-shrink: 0;
+      width: 110px; height: 110px;
+    }
+    .ach-ring-svg { transform: rotate(-90deg); }
+    .ach-ring-bg { fill: none; stroke: rgba(255,255,255,.1); stroke-width: 8; }
+    .ach-ring-fill {
+      fill: none; stroke: url(#ach-gradient); stroke-width: 8;
+      stroke-linecap: round;
+      transition: stroke-dasharray 1.5s cubic-bezier(0.4,0,0.2,1);
+    }
+    .ach-ring-label {
+      position: absolute; inset: 0;
+      display: flex; flex-direction: column; align-items: center; justify-content: center;
+    }
+    .ach-ring-pct {
+      font-size: 1.6rem; font-weight: 800; color: white; line-height: 1;
+    }
+    .ach-ring-sub {
+      font-size: 0.62rem; font-weight: 600; color: rgba(255,255,255,.4); text-transform: uppercase; letter-spacing: 0.06em;
+    }
+
+    /* Sparkle effect on earned badges */
+    .ach-badge.earned::before {
+      content: ''; position: absolute; top: -50%; left: -50%; width: 200%; height: 200%;
+      background: linear-gradient(135deg, transparent 30%, rgba(255,255,255,.15) 50%, transparent 70%);
+      transform: rotate(45deg) translateX(-100%);
+      transition: transform 0.6s ease;
+      pointer-events: none;
+    }
+    .ach-badge.earned:hover::before {
+      transform: rotate(45deg) translateX(100%);
+    }
+
+    /* Locked badge tooltip */
+    .ach-badge.locked {
+      cursor: default;
+      position: relative;
+    }
+    .ach-badge-tip {
+      position: absolute; bottom: calc(100% + 6px); left: 50%; transform: translateX(-50%);
+      background: #1e293b; color: white; font-size: 0.66rem; font-weight: 600;
+      padding: 0.3rem 0.55rem; border-radius: 6px; white-space: nowrap;
+      opacity: 0; pointer-events: none; transition: opacity 0.2s;
+      z-index: 10;
+    }
+    .ach-badge-tip::after {
+      content: ''; position: absolute; top: 100%; left: 50%; transform: translateX(-50%);
+      border: 4px solid transparent; border-top-color: #1e293b;
+    }
+    .ach-badge.locked:hover .ach-badge-tip { opacity: 1; }
+
+    /* Badge card stagger */
+    .ach-badge { animation: sd-card-rise 0.4s ease-out both; }
+    .ach-badge:nth-child(1)  { animation-delay: 0.03s; }
+    .ach-badge:nth-child(2)  { animation-delay: 0.06s; }
+    .ach-badge:nth-child(3)  { animation-delay: 0.09s; }
+    .ach-badge:nth-child(4)  { animation-delay: 0.12s; }
+    .ach-badge:nth-child(5)  { animation-delay: 0.15s; }
+    .ach-badge:nth-child(6)  { animation-delay: 0.18s; }
+    .ach-badge:nth-child(7)  { animation-delay: 0.21s; }
+    .ach-badge:nth-child(8)  { animation-delay: 0.24s; }
+    .ach-badge:nth-child(9)  { animation-delay: 0.27s; }
+    .ach-badge:nth-child(10) { animation-delay: 0.30s; }
+
+    @keyframes sd-card-rise {
+      from { opacity: 0; transform: translateY(16px); }
+      to   { opacity: 1; transform: translateY(0); }
+    }
+
+    @media (max-width: 700px) {
+      .ach-stats { grid-template-columns: 1fr; }
+      .ach-grid { grid-template-columns: repeat(auto-fill, minmax(120px, 1fr)); }
+      .ach-hero { flex-direction: column; text-align: center; padding: 1.5rem; }
+      .ach-hero-sub { max-width: 100%; }
+    }
+  </style>
+</head>
+
+<body class="sd-page">
+<div class="sd-shell">
+
+  <!-- ═══════════ SIDEBAR ═══════════ -->
+  <aside class="sd-sidebar" id="sd-sidebar" aria-label="Main navigation">
+    <a href="index.html" class="sd-sidebar-brand" aria-label="Alpharia home">
+      <div class="sd-brand-icon"><i class="fas fa-book-reader"></i></div>
+      <span class="sd-brand-text">Alpharia</span>
+    </a>
+
+    <nav class="sd-nav" aria-label="Dashboard navigation">
+      <span class="sd-nav-section-label">Main</span>
+      <a href="student-dashboard.html" class="sd-nav-link"><i class="fas fa-home"></i><span>Overview</span></a>
+      <a href="student-tests.html" class="sd-nav-link"><i class="fas fa-tasks"></i><span>My Tests</span></a>
+      <a href="student-progress.html" class="sd-nav-link"><i class="fas fa-chart-line"></i><span>Progress</span></a>
+      <a href="take-reading-test.html" class="sd-nav-link"><i class="fas fa-microphone-alt"></i><span>Take a Test</span></a>
+
+      <span class="sd-nav-section-label">Library</span>
+      <a href="#" class="sd-nav-link"><i class="fas fa-book-open"></i><span>Resources</span></a>
+      <a href="student-achievements.html" class="sd-nav-link active" aria-current="page"><i class="fas fa-trophy"></i><span>Achievements</span></a>
+
+      <span class="sd-nav-section-label">Account</span>
+      <a href="student-settings.html" class="sd-nav-link"><i class="fas fa-cog"></i><span>Settings</span></a>
+    </nav>
+
+    <div class="sd-sidebar-footer">
+      <div class="sd-sidebar-user">
+        <img src="https://ui-avatars.com/api/?name=S&background=4f46e5&color=fff" alt="User" class="sd-sidebar-avatar" id="sidebar-avatar">
+        <div class="sd-sidebar-user-info">
+          <div class="sd-sidebar-user-name" id="sidebar-username">Student</div>
+          <div class="sd-sidebar-user-role">Student</div>
+        </div>
+      </div>
+    </div>
+  </aside>
+
+  <!-- Overlay (mobile) -->
+  <div class="sd-sidebar-overlay" id="sd-overlay" aria-hidden="true"></div>
+
+  <!-- ═══════════ MAIN ═══════════ -->
+  <div class="sd-main">
+
+    <!-- Top Bar -->
+    <header class="sd-topbar" role="banner">
+      <button class="sd-topbar-toggle" id="sd-menu-toggle" aria-label="Open navigation" aria-expanded="false">
+        <i class="fas fa-bars"></i>
+      </button>
+      <div class="sd-search" role="search">
+        <i class="fas fa-search" aria-hidden="true"></i>
+        <input type="text" placeholder="Search…" aria-label="Search">
+      </div>
+      <div class="sd-topbar-actions">
+        <button class="sd-icon-btn" aria-label="Notifications">
+          <i class="fas fa-bell"></i>
+          <span class="sd-notif-badge">0</span>
+        </button>
+        <div class="sd-avatar-btn">
+          <img src="https://ui-avatars.com/api/?name=S&background=4f46e5&color=fff" alt="Avatar" id="user-avatar" width="38" height="38">
+        </div>
+      </div>
+    </header>
+
+    <!-- Body -->
+    <main class="sd-body">
+
+      <div class="ach-header">
+        <h1 class="ach-title">🏆 Achievements</h1>
+      </div>
+
+      <!-- Hero -->
+      <div class="ach-hero">
+        <div class="ach-hero-text">
+          <div class="ach-hero-title">Your Badge Journey</div>
+          <div class="ach-hero-sub">
+            You've earned <strong id="hero-badge-count">0</strong> out of <strong>10</strong> badges.
+            Keep going to unlock them all!
+          </div>
+        </div>
+        <div class="ach-ring-wrap">
+          <svg class="ach-ring-svg" width="110" height="110" viewBox="0 0 110 110">
+            <defs>
+              <linearGradient id="ach-gradient" x1="0%" y1="0%" x2="100%" y2="0%">
+                <stop offset="0%" stop-color="#818cf8"/>
+                <stop offset="100%" stop-color="#14b8a6"/>
+              </linearGradient>
+            </defs>
+            <circle class="ach-ring-bg" cx="55" cy="55" r="46"/>
+            <circle class="ach-ring-fill" id="ach-ring" cx="55" cy="55" r="46" stroke-dasharray="0 289"/>
+          </svg>
+          <div class="ach-ring-label">
+            <div class="ach-ring-pct" id="ach-ring-pct">0%</div>
+            <div class="ach-ring-sub">Complete</div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Stats -->
+      <div class="ach-stats">
+        <div class="ach-stat">
+          <div class="ach-stat-icon">⭐</div>
+          <div class="ach-stat-value" id="total-points">—</div>
+          <div class="ach-stat-label">Total Points</div>
+        </div>
+        <div class="ach-stat">
+          <div class="ach-stat-icon">🏅</div>
+          <div class="ach-stat-value" id="badges-earned">—</div>
+          <div class="ach-stat-label">Badges Earned</div>
+        </div>
+        <div class="ach-stat">
+          <div class="ach-stat-icon">📝</div>
+          <div class="ach-stat-value" id="assessments-count">—</div>
+          <div class="ach-stat-label">Assessments</div>
+        </div>
+      </div>
+
+      <!-- Earned Badges -->
+      <div class="ach-section-title"><i class="fas fa-medal"></i> Earned Badges</div>
+      <div class="ach-grid" id="earned-badges">
+        <div class="ach-loading">
+          <div class="ach-spinner"></div>
+          Loading your achievements…
+        </div>
+      </div>
+
+      <!-- Locked Badges -->
+      <div class="ach-section-title"><i class="fas fa-lock"></i> Badges to Unlock</div>
+      <div class="ach-grid" id="locked-badges"></div>
+
+    </main>
+  </div><!-- /sd-main -->
+</div><!-- /sd-shell -->
+
+
+<!-- ══════════════════════════════════
+     SCRIPTS
+══════════════════════════════════ -->
+
+<!-- Sidebar toggle -->
+<script>
+(function () {
+  var sidebar = document.getElementById('sd-sidebar');
+  var overlay = document.getElementById('sd-overlay');
+  var toggle  = document.getElementById('sd-menu-toggle');
+
+  function open()  { sidebar.classList.add('open'); overlay.classList.add('open'); toggle.setAttribute('aria-expanded','true'); document.body.style.overflow='hidden'; }
+  function close() { sidebar.classList.remove('open'); overlay.classList.remove('open'); toggle.setAttribute('aria-expanded','false'); document.body.style.overflow=''; }
+
+  if (toggle)  toggle.addEventListener('click', function () { sidebar.classList.contains('open') ? close() : open(); });
+  if (overlay) overlay.addEventListener('click', close);
+  document.addEventListener('keydown', function (e) { if (e.key === 'Escape') close(); });
+})();
+</script>
+
+<!-- Firebase + Achievements Logic -->
+<script type="module">
+  import { app, auth, db } from './js/firebase-config.js';
+  import { requireAuth } from './js/auth-check.js';
+  import {
+    doc, getDoc
+  } from 'https://www.gstatic.com/firebasejs/12.1.0/firebase-firestore.js';
+
+  // All possible badges (must match BADGE_DEFINITIONS in take-reading-test.js)
+  const ALL_BADGES = [
+    { id: 'first_steps',        name: 'First Steps',        emoji: '🎯', description: 'Completed your first reading assessment', color: '#4f46e5' },
+    { id: 'letter_master',      name: 'Letter Master',      emoji: '🔤', description: 'Scored 100% on letter recognition',       color: '#10b981' },
+    { id: 'sound_expert',       name: 'Sound Expert',       emoji: '🔊', description: 'Named all letter sounds correctly',       color: '#14b8a6' },
+    { id: 'word_wizard',        name: 'Word Wizard',        emoji: '✨', description: 'Scored 90%+ on the word list',            color: '#8b5cf6' },
+    { id: 'speed_reader',       name: 'Speed Reader',       emoji: '⚡', description: 'Read at 90+ words per minute',            color: '#f59e0b' },
+    { id: 'sharp_eye',          name: 'Sharp Eye',          emoji: '🎯', description: 'Achieved 95%+ reading accuracy',          color: '#10b981' },
+    { id: 'comprehension_star', name: 'Comprehension Star', emoji: '🧠', description: 'Answered all comprehension questions correctly', color: '#ec4899' },
+    { id: 'fluent_reader',      name: 'Fluent Reader',      emoji: '📖', description: 'Classified as a Fluent Reader',           color: '#059669' },
+    { id: 'brave_voice',        name: 'Brave Voice',        emoji: '🎤', description: 'Attempted every word (no skips)',          color: '#6366f1' },
+    { id: 'perfect_score',      name: 'Perfect Score',      emoji: '🏆', description: 'Perfect assessment — no errors anywhere', color: '#f59e0b' }
+  ];
+
+  document.addEventListener('DOMContentLoaded', async () => {
+    try {
+      const { user } = await requireAuth(['student']);
+
+      // Load user profile
+      const userDoc = await getDoc(doc(db, 'students', user.uid));
+      if (userDoc.exists()) {
+        const data = userDoc.data();
+        const name = data.displayName || data.name || 'Student';
+        document.getElementById('sidebar-username').textContent = name;
+        const avatarSrc = data.photoURL || user.photoURL ||
+          `https://ui-avatars.com/api/?name=${encodeURIComponent(name)}&background=4f46e5&color=fff`;
+        document.getElementById('sidebar-avatar').src = avatarSrc;
+        document.getElementById('user-avatar').src = avatarSrc;
+      }
+
+      // Load gamification data
+      const gamDoc = await getDoc(doc(db, 'students', user.uid, 'gamification', 'profile'));
+
+      let badges = [];
+      let totalPoints = 0;
+      let assessmentCount = 0;
+
+      if (gamDoc.exists()) {
+        const data = gamDoc.data();
+        badges = data.badges || [];
+        totalPoints = data.totalPoints || 0;
+        assessmentCount = data.assessmentCount || 0;
+      }
+
+      // Update stats
+      document.getElementById('total-points').textContent = totalPoints.toLocaleString();
+      document.getElementById('badges-earned').textContent = `${badges.length} / ${ALL_BADGES.length}`;
+      document.getElementById('assessments-count').textContent = assessmentCount;
+
+      // Update hero ring
+      const heroBadgeCount = document.getElementById('hero-badge-count');
+      const achRing = document.getElementById('ach-ring');
+      const achRingPct = document.getElementById('ach-ring-pct');
+      const badgePct = Math.round((badges.length / ALL_BADGES.length) * 100);
+      const circumference = 2 * Math.PI * 46; // r=46
+      if (heroBadgeCount) heroBadgeCount.textContent = badges.length;
+      if (achRingPct) achRingPct.textContent = badgePct + '%';
+      if (achRing) {
+        setTimeout(() => {
+          achRing.setAttribute('stroke-dasharray', `${(badgePct / 100) * circumference} ${circumference}`);
+        }, 300);
+      }
+
+      // Render earned badges
+      const earnedContainer = document.getElementById('earned-badges');
+      const lockedContainer = document.getElementById('locked-badges');
+      const earnedIds = new Set(badges.map(b => b.id));
+
+      if (badges.length === 0) {
+        earnedContainer.innerHTML = `
+          <div style="grid-column:1/-1; text-align:center; padding:2rem 1rem; color:var(--sd-text-3);">
+            <div style="font-size:2rem; margin-bottom:0.5rem;">🎯</div>
+            <div style="font-size:0.9rem; font-weight:600;">No badges yet!</div>
+            <div style="font-size:0.8rem; margin-top:0.3rem;">Complete a reading assessment to start earning badges.</div>
+            <a href="take-reading-test.html" class="sd-btn sd-btn-primary" style="margin-top:1rem; display:inline-flex;">
+              <i class="fas fa-play"></i> Take a Test
+            </a>
+          </div>
+        `;
+      } else {
+        earnedContainer.innerHTML = '';
+        badges.forEach(b => {
+          const def = ALL_BADGES.find(d => d.id === b.id) || {};
+          const earnedDate = b.earnedAt ? new Date(b.earnedAt).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' }) : '';
+          earnedContainer.innerHTML += `
+            <div class="ach-badge earned" style="--badge-color:${def.color || b.color || '#4f46e5'};">
+              <span class="ach-badge-emoji">${b.emoji || def.emoji || '🏅'}</span>
+              <div class="ach-badge-name">${b.name || def.name}</div>
+              <div class="ach-badge-desc">${def.description || b.description || ''}</div>
+              ${earnedDate ? `<div class="ach-badge-date">Earned ${earnedDate}</div>` : ''}
+            </div>
+          `;
+        });
+      }
+
+      // Render locked badges
+      const lockedBadges = ALL_BADGES.filter(b => !earnedIds.has(b.id));
+      if (lockedBadges.length === 0) {
+        lockedContainer.innerHTML = `
+          <div style="grid-column:1/-1; text-align:center; padding:1.5rem; color:var(--sd-text-3);">
+            <div style="font-size:1.5rem;">🎉</div>
+            <div style="font-size:0.85rem; font-weight:600;">All badges unlocked! You're amazing!</div>
+          </div>
+        `;
+      } else {
+        lockedContainer.innerHTML = '';
+        lockedBadges.forEach(b => {
+          lockedContainer.innerHTML += `
+            <div class="ach-badge locked">
+              <div class="ach-badge-tip">💡 ${b.description}</div>
+              <span class="ach-badge-lock"><i class="fas fa-lock"></i></span>
+              <span class="ach-badge-emoji">${b.emoji}</span>
+              <div class="ach-badge-name">${b.name}</div>
+              <div class="ach-badge-desc">${b.description}</div>
+            </div>
+          `;
+        });
+      }
+
+    } catch (error) {
+      console.error('Error loading achievements:', error);
+      document.getElementById('earned-badges').innerHTML = `
+        <div style="grid-column:1/-1; text-align:center; padding:2rem; color:#dc2626;">
+          Error loading achievements. Please try again.
+        </div>
+      `;
+    }
+  });
+</script>
+
+</body>
+</html>

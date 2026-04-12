@@ -383,7 +383,240 @@
     /* Fade-in utility (keep for JS compatibility) */
     .fade-in { animation: rt-card-in 0.4s ease-out both; }
 
+    /* ═══ FLOATING POINTS BAR ═══ */
+    .rt-float-bar {
+      position: fixed;
+      bottom: 0; left: var(--sd-sidebar-w); right: 0;
+      background: rgba(15,23,42,.92);
+      backdrop-filter: blur(12px);
+      -webkit-backdrop-filter: blur(12px);
+      border-top: 1px solid rgba(255,255,255,.08);
+      padding: 0.55rem 1.75rem;
+      display: none; /* shown by JS when test starts */
+      align-items: center;
+      justify-content: space-between;
+      z-index: 150;
+      gap: 1rem;
+    }
+    .rt-float-bar.visible { display: flex; }
+
+    .rt-fb-section {
+      display: flex; align-items: center; gap: 0.35rem;
+    }
+    .rt-fb-dot {
+      width: 8px; height: 8px; border-radius: 50%;
+      background: rgba(255,255,255,.15);
+      transition: all 0.3s ease;
+    }
+    .rt-fb-dot.done  { background: #10b981; }
+    .rt-fb-dot.active { background: #818cf8; box-shadow: 0 0 6px rgba(129,140,248,.6); transform: scale(1.3); }
+    .rt-fb-dot-line {
+      width: 16px; height: 2px; background: rgba(255,255,255,.1);
+      border-radius: 2px;
+    }
+    .rt-fb-dot-line.done { background: rgba(16,185,129,.4); }
+
+    .rt-fb-label {
+      font-size: 0.7rem; font-weight: 600; color: rgba(255,255,255,.5);
+      text-transform: uppercase; letter-spacing: .05em;
+      margin-left: 0.5rem;
+    }
+
+    .rt-fb-points {
+      display: flex; align-items: center; gap: 0.5rem;
+    }
+    .rt-fb-pts-icon {
+      width: 28px; height: 28px; border-radius: 8px;
+      background: rgba(245,158,11,.15); color: #f59e0b;
+      display: flex; align-items: center; justify-content: center;
+      font-size: 0.8rem;
+    }
+    .rt-fb-pts-val {
+      font-size: 1.1rem; font-weight: 800; color: white;
+      letter-spacing: -0.5px;
+    }
+    .rt-fb-pts-label {
+      font-size: 0.6rem; font-weight: 600; color: rgba(255,255,255,.35);
+      text-transform: uppercase; letter-spacing: .05em;
+    }
+    .rt-fb-item-count {
+      font-size: 0.75rem; font-weight: 600; color: rgba(255,255,255,.55);
+      background: rgba(255,255,255,.07); padding: 0.3rem 0.7rem;
+      border-radius: 50px;
+    }
+
+    /* ═══ SCORE RING (modal) ═══ */
+    .rt-score-ring-wrap {
+      width: 100px; height: 100px;
+      position: relative; margin: 0 auto 1rem;
+    }
+    .rt-score-ring-svg { transform: rotate(-90deg); }
+    .rt-score-ring-bg { fill: none; stroke: var(--sd-border); stroke-width: 7; }
+    .rt-score-ring-fill {
+      fill: none; stroke-width: 7; stroke-linecap: round;
+      transition: stroke-dasharray 1.2s cubic-bezier(0.4,0,0.2,1);
+    }
+    .rt-score-ring-label {
+      position: absolute; inset: 0;
+      display: flex; flex-direction: column;
+      align-items: center; justify-content: center;
+    }
+    .rt-score-ring-pct {
+      font-size: 1.5rem; font-weight: 800; color: var(--sd-text); line-height: 1;
+    }
+    .rt-score-ring-sub {
+      font-size: 0.55rem; font-weight: 700; color: var(--sd-text-3);
+      text-transform: uppercase; letter-spacing: .05em;
+    }
+
+    /* Points bounce */
+    .rt-pts-earned {
+      display: inline-flex; align-items: center; gap: 0.4rem;
+      background: rgba(245,158,11,.1); border: 1px solid rgba(245,158,11,.2);
+      color: #f59e0b; font-size: 0.95rem; font-weight: 800;
+      padding: 0.35rem 1rem; border-radius: 50px;
+      animation: rt-pts-bounce 0.6s cubic-bezier(0.4,0,0.2,1) both;
+      animation-delay: 0.5s;
+    }
+    @keyframes rt-pts-bounce {
+      0%   { opacity: 0; transform: scale(0.5) translateY(10px); }
+      60%  { transform: scale(1.15) translateY(-2px); }
+      100% { opacity: 1; transform: scale(1) translateY(0); }
+    }
+
+    /* Section stepper in modal */
+    .rt-stepper {
+      display: flex; align-items: center; justify-content: center;
+      gap: 0.25rem; margin: 1rem 0;
+    }
+    .rt-step {
+      width: 28px; height: 28px; border-radius: 50%;
+      display: flex; align-items: center; justify-content: center;
+      font-size: 0.6rem; font-weight: 700;
+      border: 2px solid var(--sd-border); color: var(--sd-text-3);
+      background: var(--sd-surface); transition: all 0.3s;
+    }
+    .rt-step.done  { background: #10b981; border-color: #10b981; color: white; }
+    .rt-step.active { background: var(--sd-primary); border-color: var(--sd-primary); color: white; box-shadow: 0 0 0 3px rgba(79,70,229,.2); }
+    .rt-step-line {
+      width: 20px; height: 2px; background: var(--sd-border); border-radius: 2px;
+    }
+    .rt-step-line.done { background: #10b981; }
+
+    /* Confetti particles */
+    .rt-confetti-wrap {
+      position: absolute; inset: 0; pointer-events: none; overflow: hidden;
+    }
+    .rt-confetti {
+      position: absolute; width: 8px; height: 8px; border-radius: 2px;
+      animation: rt-confetti-fall 1.5s ease-out forwards;
+    }
+    @keyframes rt-confetti-fall {
+      0%   { opacity: 1; transform: translateY(0) rotate(0deg) scale(1); }
+      100% { opacity: 0; transform: translateY(120px) rotate(720deg) scale(0.3); }
+    }
+
+    /* ═══ REDESIGNED TABLES IN MODAL ═══ */
+    .rt-table {
+      width: 100%; border-collapse: collapse; font-size: 0.8rem;
+      margin-top: 0.75rem; border-radius: 10px; overflow: hidden;
+      border: 1px solid var(--sd-border);
+    }
+    .rt-table th {
+      background: var(--sd-surface-2); color: var(--sd-text-3);
+      font-size: 0.68rem; font-weight: 700; text-transform: uppercase;
+      letter-spacing: .04em; padding: 0.5rem 0.6rem;
+      border-bottom: 1.5px solid var(--sd-border);
+    }
+    .rt-table td {
+      padding: 0.4rem 0.6rem; border-bottom: 1px solid var(--sd-border);
+      color: var(--sd-text);
+    }
+    .rt-table tbody tr:last-child td { border-bottom: none; }
+    .rt-table tbody tr:hover { background: rgba(79,70,229,.03); }
+    .rt-table tfoot td {
+      background: var(--sd-surface-2); font-weight: 700;
+      padding: 0.5rem 0.6rem; border-top: 1.5px solid var(--sd-border);
+    }
+    .rt-table .rt-correct { color: #10b981; }
+    .rt-table .rt-wrong   { color: #ef4444; }
+    .rt-table .rt-sub     { color: #f59e0b; font-style: italic; }
+
+    /* ═══ RECORDING BUTTON REDESIGN ═══ */
+    .rt-mic-wrap {
+      display: flex; flex-direction: column; align-items: center; gap: 0.75rem;
+      margin: 1.5rem 0 0.5rem;
+    }
+    .rt-mic-btn {
+      width: 64px; height: 64px; border-radius: 50%;
+      border: none; cursor: pointer;
+      background: linear-gradient(135deg, #4f46e5, #6366f1);
+      color: white; font-size: 1.3rem;
+      display: flex; align-items: center; justify-content: center;
+      box-shadow: 0 4px 15px rgba(79,70,229,.4);
+      transition: all 0.25s ease; position: relative;
+    }
+    .rt-mic-btn:hover {
+      transform: scale(1.08); box-shadow: 0 6px 20px rgba(79,70,229,.5);
+    }
+    .rt-mic-btn:disabled {
+      opacity: 0.5; cursor: not-allowed; transform: none;
+    }
+    .rt-mic-btn.recording {
+      background: linear-gradient(135deg, #ef4444, #dc2626);
+      box-shadow: 0 4px 15px rgba(239,68,68,.4);
+      animation: rt-mic-pulse 1.5s ease-in-out infinite;
+    }
+    .rt-mic-btn.processing {
+      background: linear-gradient(135deg, #64748b, #475569);
+      box-shadow: 0 4px 15px rgba(100,116,139,.3);
+    }
+    @keyframes rt-mic-pulse {
+      0%, 100% { box-shadow: 0 0 0 0 rgba(239,68,68,.4), 0 4px 15px rgba(239,68,68,.3); }
+      50%      { box-shadow: 0 0 0 12px rgba(239,68,68,.0), 0 4px 15px rgba(239,68,68,.3); }
+    }
+    .rt-mic-label {
+      font-size: 0.78rem; font-weight: 600; color: var(--sd-text-3);
+    }
+    .rt-mic-label.recording { color: #ef4444; }
+    .rt-mic-label.processing { color: var(--sd-primary); }
+
+    /* ═══ SECTION INFO BADGE ═══ */
+    .rt-section-badge {
+      display: inline-flex; align-items: center; gap: 0.4rem;
+      font-size: 0.72rem; font-weight: 700; color: var(--sd-primary);
+      background: var(--sd-primary-lt); border: 1px solid rgba(79,70,229,.15);
+      padding: 0.25rem 0.75rem; border-radius: 50px;
+      text-transform: uppercase; letter-spacing: .05em;
+    }
+    .rt-item-counter {
+      font-size: 0.82rem; font-weight: 700; color: var(--sd-text-3);
+    }
+
+    /* ═══ TEST HEADER BREADCRUMB ═══ */
+    .rt-breadcrumb {
+      display: flex; align-items: center; gap: 0.4rem;
+      font-size: 0.72rem; font-weight: 600;
+    }
+    .rt-bc-item {
+      display: flex; align-items: center; gap: 0.2rem;
+      color: var(--sd-text-3);
+    }
+    .rt-bc-item.done { color: #10b981; }
+    .rt-bc-item.active { color: var(--sd-primary); font-weight: 700; }
+    .rt-bc-sep { color: var(--sd-border); font-size: 0.6rem; }
+
+    .rt-timer {
+      display: flex; align-items: center; gap: 0.35rem;
+      font-size: 0.8rem; font-weight: 700; color: var(--sd-primary);
+      background: var(--sd-primary-lt); padding: 0.3rem 0.75rem;
+      border-radius: 50px;
+    }
+
     /* ── Responsive ── */
+    @media (max-width: 768px) {
+      .rt-float-bar { left: 0; padding: 0.5rem 1rem; }
+    }
     @media (max-width: 600px) {
       .rt-chat-card { padding: 2rem 1.25rem 1.75rem; }
       .rt-bubble { font-size: 1rem; padding: 1.1rem 1.2rem; }
@@ -403,6 +636,10 @@
       .prompt-text[data-type="sentence"] { font-size: clamp(1.2rem, 5vw, 1.8rem); }
       .prompt-text[data-type="passage"]  { font-size: clamp(0.95rem, 3.5vw, 1.3rem); }
 
+      .rt-float-bar { flex-wrap: wrap; gap: 0.5rem; justify-content: center; }
+      .rt-fb-label { display: none; }
+      .rt-mic-btn { width: 56px; height: 56px; font-size: 1.1rem; }
+
       /* Modal fixes for small screens */
       #section-transition-modal .modal-content {
         padding: 1.5rem 0.75rem !important;
@@ -414,18 +651,22 @@
       .rt-modal-score { font-size: 0.95rem; }
       .rt-modal-msg { font-size: 0.9rem; }
       .rt-modal-check { width: 60px; height: 60px; font-size: 1.6rem; margin-bottom: 1rem; }
+      .rt-score-ring-wrap { width: 80px; height: 80px; }
+      .rt-stepper { gap: 0.15rem; }
+      .rt-step { width: 22px; height: 22px; font-size: 0.5rem; }
+      .rt-step-line { width: 12px; }
 
       /* Make all tables inside modal scroll horizontally */
       #section-score-display {
         overflow-x: auto;
         -webkit-overflow-scrolling: touch;
       }
-      #section-score-display table {
-        font-size: 0.75rem;
+      .rt-table {
+        font-size: 0.72rem;
         min-width: 320px;
       }
-      #section-score-display th,
-      #section-score-display td {
+      .rt-table th,
+      .rt-table td {
         padding: 0.3rem 0.4rem !important;
         white-space: nowrap;
       }
@@ -469,7 +710,7 @@
         <i class="fas fa-book-open"></i><span>Resources</span>
       </a>
 
-      <a href="#" class="sd-nav-link">
+      <a href="student-achievements.html" class="sd-nav-link">
         <i class="fas fa-trophy"></i><span>Achievements</span>
       </a>
 
@@ -563,13 +804,17 @@
             <i class="fas fa-clipboard-list"></i>
             <span id="test-title">Reading Assessment</span>
           </div>
-          <div class="test-info">
-            <!-- Timer / section info injected by JS -->
+          <div style="display:flex;align-items:center;gap:1rem;flex-wrap:wrap;">
+            <div class="rt-timer" id="rt-live-timer">
+              <i class="fas fa-clock"></i>
+              <span id="rt-timer-val">0:00</span>
+            </div>
+            <div class="rt-breadcrumb" id="rt-breadcrumb"></div>
           </div>
         </div>
 
         <!-- Test content (question cards injected by take-reading-test.js) -->
-        <div id="test-content" style="padding-bottom:2rem;"></div>
+        <div id="test-content" style="padding-bottom:4rem;"></div>
 
       </div>
 
@@ -591,17 +836,37 @@
 <div id="section-transition-modal" class="modal" tabindex="-1" role="dialog"
      style="background:rgba(0,0,0,0.7);">
   <div class="modal-dialog modal-dialog-centered" role="document">
-    <div class="modal-content" style="max-width:480px;margin:auto;">
+    <div class="modal-content" style="max-width:520px;margin:auto;position:relative;">
       <div class="modal-body" style="padding:2.5rem 2rem;text-align:center;">
 
-        <!-- Check icon -->
-        <div class="rt-modal-check" aria-hidden="true">
-          <i class="fas fa-check"></i>
+        <!-- Confetti container (for high scores) -->
+        <div class="rt-confetti-wrap" id="rt-confetti"></div>
+
+        <!-- Score Ring -->
+        <div class="rt-score-ring-wrap">
+          <svg class="rt-score-ring-svg" width="100" height="100" viewBox="0 0 100 100">
+            <circle class="rt-score-ring-bg" cx="50" cy="50" r="42"/>
+            <circle class="rt-score-ring-fill" id="rt-modal-ring" cx="50" cy="50" r="42"
+                    stroke="#4f46e5" stroke-dasharray="0 264"/>
+          </svg>
+          <div class="rt-score-ring-label">
+            <div class="rt-score-ring-pct" id="rt-modal-ring-pct">0%</div>
+            <div class="rt-score-ring-sub">Score</div>
+          </div>
         </div>
 
-        <div class="rt-modal-title">Section Complete!</div>
+        <div class="rt-modal-title" id="rt-modal-title">Section Complete!</div>
 
-        <div class="rt-modal-score" id="section-score-display">Score: 0 / 0</div>
+        <!-- Points earned -->
+        <div style="margin:0.5rem 0 0.75rem;" id="rt-modal-pts-wrap">
+          <span class="rt-pts-earned" id="rt-modal-pts">+0 pts</span>
+        </div>
+
+        <!-- Section stepper -->
+        <div class="rt-stepper" id="rt-modal-stepper"></div>
+
+        <!-- Score detail (tables etc) -->
+        <div class="rt-modal-score" id="section-score-display" style="text-align:left;">Score: 0 / 0</div>
 
         <hr style="border-color:var(--sd-border);margin:1.25rem 0;">
 
@@ -616,6 +881,21 @@
         </button>
 
       </div>
+    </div>
+  </div>
+</div>
+
+<!-- Floating Points Bar (shown during test) -->
+<div class="rt-float-bar" id="rt-float-bar">
+  <div class="rt-fb-section" id="rt-fb-stepper">
+    <!-- Dots injected by JS -->
+  </div>
+  <div class="rt-fb-item-count" id="rt-fb-item">Item 1 of 26</div>
+  <div class="rt-fb-points">
+    <div class="rt-fb-pts-icon"><i class="fas fa-star"></i></div>
+    <div>
+      <div class="rt-fb-pts-val" id="rt-fb-pts">0</div>
+      <div class="rt-fb-pts-label">Points</div>
     </div>
   </div>
 </div>

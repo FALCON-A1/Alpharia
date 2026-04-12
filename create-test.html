@@ -6,128 +6,113 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Create Reading Test - Alpharia</title>
 
-    <!-- Google Fonts -->
-    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap"
-        rel="stylesheet">
-
-    <!-- Font Awesome Icons -->
+    <!-- Fonts & Icons -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
 
-    <!-- Custom CSS -->
-    <link rel="stylesheet" href="css/teacher-dashboard.css">
+    <!-- Design System CSS -->
+    <link rel="stylesheet" href="css/student-dashboard-clean.css">
+    <link rel="stylesheet" href="css/teacher-dashboard-clean.css">
     <link rel="stylesheet" href="css/test-creator.css">
+    <style>
+        .test-creator-container { padding: 1.5rem; }
+    </style>
 </head>
 
-<body class="teacher-dashboard">
-    <div class="dashboard-container">
-        <!-- Sidebar -->
-        <aside class="sidebar" id="sidebar">
-            <div class="logo">
-                <div class="logo-icon">
-                    <i class="fas fa-book-open"></i>
+<body class="sd-page">
+<div class="sd-shell">
+    <!-- ═══════════ SIDEBAR ═══════════ -->
+    <aside class="sd-sidebar" id="sidebar" aria-label="Main navigation">
+        <a href="teacher-dashboard.html" class="sd-sidebar-brand" aria-label="Alpharia home">
+            <div class="sd-brand-icon"><i class="fas fa-book-open"></i></div>
+            <span class="sd-brand-text">Alpharia</span>
+        </a>
+        <nav class="sd-nav" aria-label="Dashboard navigation">
+            <span class="sd-nav-section-label">Main Menu</span>
+            <a href="teacher-dashboard.html" class="sd-nav-link">
+                <i class="fas fa-tachometer-alt"></i><span>Dashboard</span>
+            </a>
+            <a href="create-test.html" class="sd-nav-link active" aria-current="page">
+                <i class="fas fa-plus-circle"></i><span>Create Test</span>
+            </a>
+            <a href="my-tests.html" class="sd-nav-link">
+                <i class="fas fa-clipboard-list"></i><span>My Tests</span>
+            </a>
+
+            <span class="sd-nav-section-label">Analytics</span>
+            <a href="teacher-progress.html" class="sd-nav-link">
+                <i class="fas fa-chart-line"></i><span>Progress</span>
+            </a>
+            <a href="resources.html" class="sd-nav-link">
+                <i class="fas fa-book"></i><span>Resources</span>
+            </a>
+
+            <span class="sd-nav-section-label">Account</span>
+            <a href="teacher-settings.html" class="sd-nav-link">
+                <i class="fas fa-cog"></i><span>Settings</span>
+            </a>
+            <a href="help.html" class="sd-nav-link">
+                <i class="fas fa-question-circle"></i><span>Help & Support</span>
+            </a>
+        </nav>
+        <div class="sd-sidebar-footer">
+            <div class="sd-sidebar-user" title="Your account">
+                <img src="" alt="User" class="sd-sidebar-avatar" id="user-avatar-sidebar">
+                <div class="sd-sidebar-user-info">
+                    <div class="sd-sidebar-user-name" id="sidebar-teacher-name">Loading…</div>
+                    <div class="sd-sidebar-user-role">Teacher</div>
                 </div>
-                <h2>Alpharia</h2>
+                <button class="sd-icon-btn" id="logout-btn" title="Sign Out" style="margin-left:auto; color:var(--sd-text-3);">
+                    <i class="fas fa-sign-out-alt"></i>
+                </button>
             </div>
+        </div>
+    </aside>
 
-            <nav class="nav-menu">
-                <div class="menu-title">Main Menu</div>
+    <div class="sd-sidebar-overlay" id="sidebar-overlay" aria-hidden="true"></div>
 
-                <div class="nav-item">
-                    <a href="teacher-dashboard.html" class="nav-link">
-                        <i class="fas fa-tachometer-alt"></i>
-                        <span>Dashboard</span>
-                    </a>
-                </div>
-
-                <div class="nav-item">
-                    <a href="create-test.html" class="nav-link active">
-                        <i class="fas fa-plus-circle"></i>
-                        <span>Create Test</span>
-                    </a>
-                </div>
-
-                <div class="nav-item">
-                    <a href="my-tests.html" class="nav-link">
-                        <i class="fas fa-clipboard-list"></i>
-                        <span>My Tests</span>
-                    </a>
-                </div>
-
-                <div class="menu-title mt-4">Analytics</div>
-
-                <div class="nav-item">
-                    <a href="teacher-progress.html" class="nav-link">
-                        <i class="fas fa-chart-line"></i>
-                        <span>Progress</span>
-                    </a>
-                </div>
-
-                <div class="nav-item">
-                    <a href="resources.html" class="nav-link">
-                        <i class="fas fa-book"></i>
-                        <span>Resources</span>
-                    </a>
-                </div>
-
-                <div class="menu-title mt-4">Account</div>
-
-                <div class="nav-item">
-                    <a href="teacher-settings.html" class="nav-link">
-                        <i class="fas fa-cog"></i>
-                        <span>Settings</span>
-                    </a>
-                </div>
-
-                <div class="nav-item">
-                    <a href="help.html" class="nav-link">
-                        <i class="fas fa-question-circle"></i>
-                        <span>Help & Support</span>
-                    </a>
-                </div>
-            </nav>
-
-            <div class="sidebar-footer">
-                <div class="user-profile">
-                    <img src="https://ui-avatars.com/api/?name=Teacher&background=4a6cf7&color=fff" alt="User"
-                        class="user-avatar" id="user-avatar-sidebar">
-                    <div class="user-info">
-                        <h4 class="user-name" id="sidebar-teacher-name">Loading...</h4>
-                        <span class="user-role">Teacher</span>
-                    </div>
-                    <button class="sign-out" id="logout-btn" title="Sign Out">
-                        <i class="fas fa-sign-out-alt"></i>
-                    </button>
+    <!-- ═══════════ MAIN ═══════════ -->
+    <div class="sd-main">
+        <header class="sd-topbar" role="banner">
+            <button class="sd-topbar-toggle menu-toggle d-lg-none" id="sidebar-toggle" aria-label="Open navigation">
+                <i class="fas fa-bars"></i>
+            </button>
+            <div class="sd-search" role="search">
+                <i class="fas fa-search" aria-hidden="true"></i>
+                <input type="text" id="search-input" placeholder="Search tests, students…" aria-label="Search">
+            </div>
+            <div class="sd-topbar-actions">
+                <button class="sd-icon-btn" aria-label="Notifications" title="Notifications">
+                    <i class="fas fa-bell"></i>
+                </button>
+                <div class="sd-avatar-btn" title="Your profile">
+                    <img src="" alt="User avatar" id="user-avatar" class="user-avatar" width="38" height="38">
                 </div>
             </div>
-        </aside>
+        </header>
 
-        <!-- Main Content -->
-        <main class="main-content">
-            <header class="top-bar">
-                <h1>Create New Reading Test</h1>
-                <div class="user-menu">
-                    <div class="user-avatar">
-                        <img src="https://ui-avatars.com/api/?name=Teacher+Name" alt="User" class="rounded-circle">
-                    </div>
-                </div>
-            </header>
+        <main class="sd-body" id="main-content" style="animation: fadeIn 0.4s ease-out;">
+            <div class="td-page-header">
+                <h1 class="td-page-title">Create New Reading Test</h1>
+            </div>
 
-            <div class="test-creator-container">
+            <div class="test-creator-container p-4">
                 <!-- Test Info Section -->
-                <div class="card">
-                    <div class="card-header">
-                        <h3><i class="fas fa-info-circle"></i> Test Information</h3>
-                    </div>
-                    <div class="card-body">
-                        <div class="form-group">
-                            <label for="test-title">Test Title</label>
-                            <input type="text" id="test-title" class="form-control" placeholder="Enter test title"
+                <div class="td-card mb-4" style="border: 1px solid var(--sd-border);">
+                    <div class="td-card-body">
+                        <h2 style="font-size: 1.1rem; font-weight: 600; margin-bottom: 1.5rem; color: var(--sd-text);"><i class="fas fa-info-circle me-2"></i> Test Information</h2>
+                        
+                        <div class="td-form-group">
+                            <label class="td-form-label" for="test-title">Test Title</label>
+                            <input type="text" id="test-title" class="td-form-input" placeholder="Enter test title"
                                 required>
                         </div>
-                        <div class="form-row">
-                            <div class="form-group">
-                                <label for="test-grade">Grade Level</label>
-                                <select id="test-grade" class="form-control" required>
+                        <div class="td-form-row">
+                            <div class="td-form-group">
+                                <label class="td-form-label" for="test-grade">Grade Level</label>
+                                <select id="test-grade" class="td-form-input" required>
                                     <option value="">Select grade</option>
                                     <option value="1">Grade 1</option>
                                     <option value="2">Grade 2</option>
@@ -143,14 +128,14 @@
                                     <option value="12">Grade 12</option>
                                 </select>
                             </div>
-                            <div class="form-group">
-                                <label for="test-time-limit">Time Limit (minutes)</label>
-                                <input type="number" id="test-time-limit" class="form-control" min="1" value="30">
+                            <div class="td-form-group">
+                                <label class="td-form-label" for="test-time-limit">Time Limit (minutes)</label>
+                                <input type="number" id="test-time-limit" class="td-form-input" min="1" value="30">
                             </div>
                         </div>
-                        <div class="form-group">
-                            <label for="test-instructions">Instructions (Optional)</label>
-                            <textarea id="test-instructions" class="form-control" rows="3"
+                        <div class="td-form-group">
+                            <label class="td-form-label" for="test-instructions">Instructions (Optional)</label>
+                            <textarea id="test-instructions" class="td-form-input" rows="3"
                                 placeholder="Enter test instructions"></textarea>
                         </div>
                     </div>
@@ -162,27 +147,29 @@
                 </div>
 
                 <!-- Add Section Button -->
-                <div class="text-center">
-                    <button type="button" class="btn btn-primary" id="add-section-btn">
+                <div style="text-align: center; margin: 2rem 0;">
+                    <button type="button" class="sd-btn sd-btn-primary" id="add-section-btn">
                         <i class="fas fa-plus-circle"></i> Add Section
                     </button>
                 </div>
 
                 <!-- Save & Preview Buttons -->
-                <div class="form-actions">
-                    <button type="button" class="btn btn-secondary" id="save-draft-btn">
+                <div class="form-actions" style="display:flex; justify-content:flex-end; gap:1rem; margin-top:2rem; padding-top:1.5rem; border-top:1px solid var(--sd-border);">
+                    <button type="button" class="sd-btn" style="background:var(--sd-surface-2); border:1.5px solid var(--sd-border);" id="save-draft-btn">
                         <i class="fas fa-save"></i> Save as Draft
                     </button>
-                    <button type="button" class="btn btn-outline-secondary" id="preview-test-btn">
+                    <button type="button" class="sd-btn" id="preview-test-btn" style="border:1.5px solid var(--sd-border); background:transparent;">
                         <i class="fas fa-eye"></i> Preview
                     </button>
-                    <button type="button" class="btn btn-success" id="publish-test-btn">
+                    <button type="button" class="sd-btn sd-btn-primary" id="publish-test-btn">
                         <i class="fas fa-paper-plane"></i> Publish Test
                     </button>
                 </div>
             </div>
+            </div>
         </main>
     </div>
+</div>
 
     <!-- Publish Modal -->
     <div id="publishModal" class="publish-modal">
@@ -200,39 +187,30 @@
         </div>
     </div>
 
-    <!-- Section Template (Hidden) -->
     <template id="section-template">
-        <div class="card section-card" data-section-id="">
-            <div class="card-header">
-                <div class="section-header">
-                    <h3 class="section-title">New Section</h3>
-                    <div class="section-actions">
-                        <button class="btn btn-sm btn-icon move-section-up" title="Move Up">
-                            <i class="fas fa-arrow-up"></i>
-                        </button>
-                        <button class="btn btn-sm btn-icon move-section-down" title="Move Down">
-                            <i class="fas fa-arrow-down"></i>
-                        </button>
-                        <button class="btn btn-sm btn-icon delete-section" title="Delete Section">
-                            <i class="fas fa-trash"></i>
-                        </button>
-                    </div>
+        <div class="td-card section-card" data-section-id="" style="margin-bottom: 2rem; border:1px solid var(--sd-border); border-radius:var(--sd-radius);">
+            <div class="td-card-header section-header" style="display:flex; justify-content:space-between; align-items:center;">
+                <h3 class="section-title m-0">New Section</h3>
+                <div class="section-actions" style="display:flex; gap:0.5rem;">
+                    <button class="sd-icon-btn move-section-up" title="Move Up"><i class="fas fa-arrow-up"></i></button>
+                    <button class="sd-icon-btn move-section-down" title="Move Down"><i class="fas fa-arrow-down"></i></button>
+                    <button class="sd-icon-btn delete-section" title="Delete Section" style="color:var(--sd-danger);"><i class="fas fa-trash"></i></button>
                 </div>
             </div>
-            <div class="card-body">
-                <div class="form-group">
-                    <label>Section Title</label>
-                    <input type="text" class="form-control section-title-input" placeholder="Enter section title"
+            <div class="td-card-body p-4">
+                <div class="td-form-group">
+                    <label class="td-form-label">Section Title</label>
+                    <input type="text" class="td-form-input section-title-input" placeholder="Enter section title"
                         required>
                 </div>
-                <div class="form-group">
-                    <label>Instructions (Optional)</label>
-                    <textarea class="form-control section-instructions" rows="2"
+                <div class="td-form-group">
+                    <label class="td-form-label">Instructions (Optional)</label>
+                    <textarea class="td-form-input section-instructions" rows="2"
                         placeholder="Enter section instructions"></textarea>
                 </div>
-                <div class="form-group">
-                    <label>Section Type</label>
-                    <select class="form-control section-type" required>
+                <div class="td-form-group">
+                    <label class="td-form-label">Section Type</label>
+                    <select class="td-form-input section-type" required>
                         <option value="letters">Letters</option>
                         <option value="words">Words</option>
                         <option value="sentences">Sentences</option>
@@ -246,61 +224,58 @@
                 </div>
 
                 <!-- Add Item Button -->
-                <button class="btn btn-outline btn-sm add-item-btn">
+                <button class="sd-btn add-item-btn" style="border:1.5px dashed var(--sd-border); background:var(--sd-surface-2); padding: 0.5rem 1rem; margin-top: 1rem; width: 100%; justify-content:center;">
                     <i class="fas fa-plus"></i> Add Item
                 </button>
             </div>
         </div>
     </template>
 
-    <!-- Word Item Template -->
     <template id="word-item-template">
-        <div class="item-card" data-item-type="word" data-item-id="">
-            <div class="item-content">
-                <div class="form-group">
-                    <label>Word</label>
-                    <input type="text" class="form-control item-text" placeholder="Enter word" required>
+        <div class="item-card" data-item-type="word" data-item-id="" style="border:1px solid var(--sd-border); border-radius:var(--sd-radius); background:var(--sd-surface-1);">
+            <div class="item-content" style="gap:1.5rem;">
+                <div class="td-form-group" style="margin-bottom:0;">
+                    <label class="td-form-label">Word</label>
+                    <input type="text" class="td-form-input item-text" placeholder="Enter word" required>
                 </div>
-                <div class="form-group">
-                    <label>Points</label>
-                    <input type="number" class="form-control item-points" min="1" value="1" required>
+                <div class="td-form-group" style="margin-bottom:0; max-width:120px;">
+                    <label class="td-form-label">Points</label>
+                    <input type="number" class="td-form-input item-points" min="1" value="1" required>
                 </div>
             </div>
             <div class="item-actions">
-                <button type="button" class="btn btn-sm btn-icon move-item-up" title="Move Up">
+                <button type="button" class="sd-icon-btn move-item-up" title="Move Up">
                     <i class="fas fa-arrow-up"></i>
                 </button>
-                <button type="button" class="btn btn-sm btn-icon move-item-down" title="Move Down">
+                <button type="button" class="sd-icon-btn move-item-down" title="Move Down">
                     <i class="fas fa-arrow-down"></i>
                 </button>
-                <button type="button" class="btn btn-sm btn-icon delete-item" title="Delete">
+                <button type="button" class="sd-icon-btn delete-item" title="Delete" style="color:var(--sd-danger);">
                     <i class="fas fa-times"></i>
                 </button>
             </div>
         </div>
     </template>
 
-    <!-- Letter Item Template -->
     <template id="letter-item-template">
-        <div class="item-card" data-item-type="letter" data-item-id="">
-            <div class="item-content">
-                <div class="form-group">
-                    <label>Letter</label>
-                    <input type="text" class="form-control item-text" placeholder="Enter letter" maxlength="1" required>
+        <div class="item-card" data-item-type="letter" data-item-id="" style="border:1px solid var(--sd-border); border-radius:var(--sd-radius); background:var(--sd-surface-1);">
+            <div class="item-content" style="gap:1.5rem;">
+                <div class="td-form-group" style="margin-bottom:0;">
+                    <label class="td-form-label">Letter</label>
+                    <input type="text" class="td-form-input item-text" placeholder="Enter letter" maxlength="1" required>
                 </div>
-                <div class="form-group">
-                    <label>Example Word</label>
-                    <input type="text" class="form-control item-example" placeholder="Example word with this letter">
+                <div class="td-form-group" style="margin-bottom:0;">
+                    <label class="td-form-label">Example Word</label>
+                    <input type="text" class="td-form-input item-example" placeholder="Example word with this letter">
                 </div>
-                <div class="form-group">
-                    <label>Points</label>
-                    <input type="number" class="form-control item-points" min="1" value="1" required>
+                <div class="td-form-group" style="margin-bottom:0; max-width:120px;">
+                    <label class="td-form-label">Points</label>
+                    <input type="number" class="td-form-input item-points" min="1" value="1" required>
                 </div>
             </div>
             <div class="item-actions">
                 <button type="button" class="btn btn-sm btn-icon move-item-up" title="Move Up">
                     <i class="fas fa-arrow-up"></i>
-                </button>
                 <button type="button" class="btn btn-sm btn-icon move-item-down" title="Move Down">
                     <i class="fas fa-arrow-down"></i>
                 </button>
@@ -313,19 +288,15 @@
 
     <!-- Sentence Item Template -->
     <template id="sentence-item-template">
-        <div class="item-card" data-item-type="sentence" data-item-id="">
-            <div class="item-content">
-                <div class="form-group">
-                    <label>Sentence</label>
-                    <textarea class="form-control item-text" rows="2" placeholder="Enter sentence" required></textarea>
+        <div class="item-card" data-item-type="sentence" data-item-id="" style="border:1px solid var(--sd-border); border-radius:var(--sd-radius); background:var(--sd-surface-1);">
+            <div class="item-content" style="gap:1.5rem;">
+                <div class="td-form-group" style="flex:1;">
+                    <label class="td-form-label">Sentence</label>
+                    <textarea class="td-form-input item-text" rows="2" placeholder="Enter sentence" required></textarea>
                 </div>
-                <div class="form-group">
-                    <label>Focus Word</label>
-                    <input type="text" class="form-control item-focus" placeholder="Word to focus on (optional)">
-                </div>
-                <div class="form-group">
-                    <label>Points</label>
-                    <input type="number" class="form-control item-points" min="1" value="2" required>
+                <div class="td-form-group" style="max-width:120px;">
+                    <label class="td-form-label">Points</label>
+                    <input type="number" class="td-form-input item-points" min="1" value="2" required>
                 </div>
             </div>
             <div class="item-actions">
@@ -344,25 +315,16 @@
 
     <!-- Passage Item Template -->
     <template id="passage-item-template">
-        <div class="item-card" data-item-type="passage" data-item-id="">
-            <div class="item-content">
-                <div class="form-group">
-                    <label>Passage Title</label>
-                    <input type="text" class="form-control item-title" placeholder="Enter passage title" required>
-                </div>
-                <div class="form-group">
-                    <label>Passage Content</label>
-                    <textarea class="form-control item-text" rows="4" placeholder="Enter passage content"
+        <div class="item-card" data-item-type="passage" data-item-id="" style="border:1px solid var(--sd-border); border-radius:var(--sd-radius); background:var(--sd-surface-1); flex-direction:column;">
+            <div class="item-content" style="width:100%; gap:1.5rem;">
+                <div class="td-form-group" style="flex:1;">
+                    <label class="td-form-label">Reading Passage</label>
+                    <textarea class="td-form-input item-text" rows="4" placeholder="Enter reading passage"
                         required></textarea>
                 </div>
-                <div class="form-group">
-                    <label>Comprehension Question (Optional)</label>
-                    <input type="text" class="form-control item-question"
-                        placeholder="Add a question about this passage">
-                </div>
-                <div class="form-group">
-                    <label>Points</label>
-                    <input type="number" class="form-control item-points" min="1" value="5" required>
+                <div class="td-form-group" style="max-width:120px;">
+                    <label class="td-form-label">Points</label>
+                    <input type="number" class="td-form-input item-points" min="1" value="5" required>
                 </div>
             </div>
             <div class="item-actions">
@@ -413,17 +375,32 @@
             console.log('Updating UI for user:', user.email);
 
             // Update user avatar
-            const userAvatar = document.querySelector('.user-avatar img');
+            const userAvatar = document.querySelector('.user-avatar');
+            const sidebarAvatar = document.getElementById('user-avatar-sidebar');
+            const sidebarName = document.getElementById('sidebar-teacher-name');
+
+            const displayName = user.name || user.firstName || user.displayName || user.email || 'Teacher';
+
+            if (sidebarName) {
+                sidebarName.textContent = displayName;
+            }
+
+            let photoUrl = '';
+            if (user.photoURL) {
+                photoUrl = user.photoURL;
+            } else {
+                photoUrl = `https://ui-avatars.com/api/?name=${encodeURIComponent(displayName)}&background=random`;
+            }
+
             if (userAvatar) {
-                if (user.photoURL) {
-                    userAvatar.src = user.photoURL;
-                } else {
-                    const name = user.displayName || user.email || 'U';
-                    userAvatar.src = `https://ui-avatars.com/api/?name=${encodeURIComponent(name)}&background=random`;
-                }
-                userAvatar.alt = user.displayName || user.email || 'User';
-                userAvatar.title = user.displayName || user.email || 'User';
+                userAvatar.src = photoUrl;
+                userAvatar.alt = displayName;
+                userAvatar.title = displayName;
                 userAvatar.style.display = 'block';
+            }
+
+            if (sidebarAvatar) {
+                sidebarAvatar.src = photoUrl;
             }
 
             // Logout

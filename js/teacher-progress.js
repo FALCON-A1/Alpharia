@@ -44,6 +44,14 @@ function initEventListeners() {
     if (addStudentBtn) {
         addStudentBtn.addEventListener('click', showAddStudentModal);
     }
+    
+    // Close modal buttons
+    document.querySelectorAll('.close-modal-btn').forEach(btn => {
+        btn.addEventListener('click', () => {
+            const modalEl = document.getElementById('addStudentModal');
+            if(modalEl) modalEl.classList.remove('show');
+        });
+    });
 
     // Confirm Add Students button
     const confirmAddBtn = document.getElementById('confirmAddStudents');
@@ -77,7 +85,6 @@ function initEventListeners() {
 
 // Show the Add Student modal and load available students
 async function showAddStudentModal() {
-    const modal = new bootstrap.Modal(document.getElementById('addStudentModal'));
     const modalEl = document.getElementById('addStudentModal');
 
     // Clear previous selections
@@ -176,7 +183,7 @@ async function showAddStudentModal() {
             </tr>`;
     } finally {
         // Show the modal
-        modal.show();
+        modalEl.classList.add('show');
     }
 }
 
@@ -219,8 +226,8 @@ async function addSelectedStudents() {
         alert(`Successfully added ${studentIds.length} student(s) to your class.`);
 
         // Close the modal and refresh the student list
-        const modal = bootstrap.Modal.getInstance(document.getElementById('addStudentModal'));
-        modal.hide();
+        const modalEl = document.getElementById('addStudentModal');
+        if(modalEl) modalEl.classList.remove('show');
 
         // Reload the student data
         if (user.uid) {
@@ -243,9 +250,9 @@ async function loadTeacherData(teacherId) {
         if (teacherDoc.exists()) {
             const teacherData = teacherDoc.data();
             // Update UI with teacher data
-            const displayName = teacherData.displayName || 'Teacher';
-            teacherNameElement.textContent = displayName;
-            userNameElement.textContent = displayName;
+            const displayName = teacherData.name || teacherData.firstName || teacherData.displayName || 'Teacher';
+            if (teacherNameElement) teacherNameElement.textContent = displayName;
+            if (userNameElement) userNameElement.textContent = displayName;
         }
     } catch (error) {
         console.error('Error loading teacher data:', error);
@@ -412,7 +419,7 @@ function updateStudentTable(students) {
         return;
     }
 
-    const table = document.querySelector('#studentProgressTable');
+    const table = document.querySelector('#student-progress-table');
     if (!table) {
         console.error('Student progress table not found in DOM');
         return;
@@ -420,17 +427,9 @@ function updateStudentTable(students) {
 
     console.log('Updating student table with data for', students.length, 'students');
 
-    // If DataTable is already initialized, just update the data
-    if (studentDataTable && $.fn.DataTable && $.fn.DataTable.isDataTable('#studentProgressTable')) {
-        try {
-            console.log('Updating existing DataTable with new data');
-            studentDataTable.clear().rows.add(students).draw();
-            return;
-        } catch (e) {
-            console.error('Error updating DataTable, will reinitialize:', e);
-            studentDataTable.destroy(true);
-            studentDataTable = null;
-        }
+    // Destroy any existing instance first
+    if ($.fn.DataTable.isDataTable('#student-progress-table')) {
+        $('#student-progress-table').DataTable().destroy();
     }
 
     // Get the table body
@@ -489,23 +488,18 @@ function updateStudentTable(students) {
             <td>${student.averageScore || 0}%</td>
             <td>${student.testsCompleted || 0}</td>
             <td>
-                <div class="progress" style="height: 6px;">
-                    <div class="progress-bar bg-primary" role="progressbar" 
-                         style="width: ${progress}%" 
-                         aria-valuenow="${progress}" 
-                         aria-valuemin="0" 
-                         aria-valuemax="100">
-                    </div>
+                <div class="td-progress">
+                    <div class="td-progress-fill" style="width: ${progress}%"></div>
                 </div>
-                <small class="text-muted">${progress}%</small>
+                <small class="text-muted" style="margin-top:0.25rem; display:block;">${progress}%</small>
             </td>
-            <td><span class="badge bg-${statusClass}">${status}</span></td>
+            <td><span class="td-badge td-badge-green" style="${status === 'Active' ? '' : 'background:rgba(245,158,11,.1); color:#f59e0b;'}">${status}</span></td>
             <td>
-                <div class="btn-group">
-                    <button class="btn btn-sm btn-outline-primary view-student" data-id="${student.id}">
+                <div class="td-activity-actions">
+                    <button class="sd-icon-btn view-student" data-id="${student.id}" title="View Details">
                         <i class="fas fa-eye"></i>
                     </button>
-                    <button class="btn btn-sm btn-outline-secondary" data-bs-toggle="modal" data-bs-target="#studentDetailsModal">
+                    <button class="sd-icon-btn" title="More Options" style="pointer-events:none; opacity:0.5;">
                         <i class="fas fa-ellipsis-v"></i>
                     </button>
                 </div>
@@ -520,13 +514,8 @@ function updateStudentTable(students) {
         try {
             console.log('Initializing DataTable with', students.length, 'students');
 
-            // Destroy any existing instance first
-            if ($.fn.DataTable.isDataTable('#studentProgressTable')) {
-                $('#studentProgressTable').DataTable().destroy(true);
-            }
-
             // Initialize DataTable with proper configuration
-            studentDataTable = $('#studentProgressTable').DataTable({
+            studentDataTable = $('#student-progress-table').DataTable({
                 pageLength: 10,
                 order: [[2, 'desc']], // Sort by average score by default
                 responsive: true,
@@ -537,7 +526,7 @@ function updateStudentTable(students) {
                 },
                 dom: '<"d-flex justify-content-between align-items-center mb-3"f<"ms-3"l>>rtip',
                 initComplete: function () {
-                    $('.dataTables_filter input').addClass('form-control');
+                    $('.dataTables_filter input').addClass('td-form-input');
                     console.log('DataTable initialization complete');
                 },
                 columnDefs: [
@@ -557,16 +546,17 @@ function updateStudentTable(students) {
         } catch (error) {
             console.error('Error initializing DataTable:', error);
             // Clean up if initialization fails
-            if ($.fn.DataTable.isDataTable('#studentProgressTable')) {
-                $('#studentProgressTable').DataTable().destroy(true);
+            if ($.fn.DataTable.isDataTable('#student-progress-table')) {
+                $('#student-progress-table').DataTable().destroy(true);
                 console.error('Error updating DataTable, will reinitialize:', error);
                 if (studentDataTable) {
                     studentDataTable.destroy(true);
                     studentDataTable = null;
                 }
-            }
         }
     }
+}
+}
 
     // Global chart state and instances
     const chartsState = {

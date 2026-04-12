@@ -6,212 +6,250 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Teacher Dashboard - Alpharia</title>
 
-    <!-- Google Fonts -->
-    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap"
-        rel="stylesheet">
-
-    <!-- Font Awesome Icons -->
+    <!-- Fonts & Icons -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
 
-    <!-- Custom CSS -->
-    <link rel="stylesheet" href="css/teacher-dashboard.css">
+    <!-- Design System CSS -->
+    <link rel="stylesheet" href="css/student-dashboard-clean.css">
+    <link rel="stylesheet" href="css/teacher-dashboard-clean.css">
 </head>
 
-<body class="teacher-dashboard">
-    <div class="dashboard-container">
-        <!-- Sidebar -->
-        <aside class="sidebar" id="sidebar">
-            <div class="logo">
-                <div class="logo-icon">
-                    <i class="fas fa-book-open"></i>
+<body class="sd-page">
+
+<div class="sd-shell">
+
+    <!-- ═══════════ SIDEBAR ═══════════ -->
+    <aside class="sd-sidebar" id="sidebar" aria-label="Main navigation">
+
+        <!-- Brand -->
+        <a href="teacher-dashboard.html" class="sd-sidebar-brand" aria-label="Alpharia home">
+            <div class="sd-brand-icon"><i class="fas fa-book-open"></i></div>
+            <span class="sd-brand-text">Alpharia</span>
+        </a>
+
+        <!-- Nav -->
+        <nav class="sd-nav" aria-label="Dashboard navigation">
+            <span class="sd-nav-section-label">Main Menu</span>
+
+            <a href="teacher-dashboard.html" class="sd-nav-link active" aria-current="page">
+                <i class="fas fa-tachometer-alt"></i>
+                <span>Dashboard</span>
+            </a>
+
+            <a href="create-test.html" class="sd-nav-link">
+                <i class="fas fa-plus-circle"></i>
+                <span>Create Test</span>
+            </a>
+
+            <a href="my-tests.html" class="sd-nav-link">
+                <i class="fas fa-clipboard-list"></i>
+                <span>My Tests</span>
+            </a>
+
+            <span class="sd-nav-section-label">Analytics</span>
+
+            <a href="teacher-progress.html" class="sd-nav-link">
+                <i class="fas fa-chart-line"></i>
+                <span>Progress</span>
+            </a>
+
+            <a href="resources.html" class="sd-nav-link">
+                <i class="fas fa-book"></i>
+                <span>Resources</span>
+            </a>
+
+            <span class="sd-nav-section-label">Account</span>
+
+            <a href="teacher-settings.html" class="sd-nav-link">
+                <i class="fas fa-cog"></i>
+                <span>Settings</span>
+            </a>
+
+            <a href="help.html" class="sd-nav-link">
+                <i class="fas fa-question-circle"></i>
+                <span>Help & Support</span>
+            </a>
+        </nav>
+
+        <!-- Sidebar footer: user info -->
+        <div class="sd-sidebar-footer">
+            <div class="sd-sidebar-user" title="Your account">
+                <img src="" alt="User" class="sd-sidebar-avatar" id="user-avatar-sidebar">
+                <div class="sd-sidebar-user-info">
+                    <div class="sd-sidebar-user-name" id="sidebar-teacher-name">Loading…</div>
+                    <div class="sd-sidebar-user-role">Teacher</div>
                 </div>
-                <h2>Alpharia</h2>
+                <!-- IMPORTANT: Reusing the same logout ID for the existing JS listener -->
+                <button class="sd-icon-btn" id="logout-btn" title="Sign Out" style="margin-left:auto; color:var(--sd-text-3);">
+                    <i class="fas fa-sign-out-alt"></i>
+                </button>
+            </div>
+        </div>
+    </aside>
+
+    <!-- Sidebar overlay (mobile) -->
+    <div class="sd-sidebar-overlay" id="sidebar-overlay" aria-hidden="true"></div>
+
+    <!-- ═══════════ MAIN ═══════════ -->
+    <div class="sd-main">
+
+        <!-- Top Bar -->
+        <header class="sd-topbar" role="banner">
+            <button class="sd-topbar-toggle menu-toggle d-lg-none" id="sidebar-toggle" aria-label="Open navigation">
+                <i class="fas fa-bars"></i>
+            </button>
+
+            <div class="sd-search" role="search">
+                <i class="fas fa-search" aria-hidden="true"></i>
+                <input type="text" id="search-input" placeholder="Search tests, students, or classes…" aria-label="Search">
             </div>
 
-            <nav class="nav-menu">
-                <div class="menu-title">Main Menu</div>
+            <div class="sd-topbar-actions">
+                <button class="sd-icon-btn" aria-label="Notifications" title="Notifications">
+                    <i class="fas fa-bell"></i>
+                    <span class="sd-notif-badge" aria-label="3 notifications">3</span>
+                </button>
 
-                <div class="nav-item">
-                    <a href="teacher-dashboard.html" class="nav-link active">
-                        <i class="fas fa-tachometer-alt"></i>
-                        <span>Dashboard</span>
+                <div class="sd-avatar-btn" title="Your profile">
+                    <img src="" alt="User avatar" id="user-avatar" width="38" height="38">
+                </div>
+            </div>
+        </header>
+
+        <!-- Page Body -->
+        <main class="sd-body" id="main-content" style="animation: fadeIn 0.4s ease-out;">
+
+            <!-- Welcome Hero -->
+            <section class="sd-welcome">
+                <div class="sd-welcome-text" id="welcome-content">
+                    <div class="sd-welcome-eyebrow">
+                        <i class="fas fa-chalkboard-teacher" style="margin-right:4px;"></i>
+                        <span>Teacher Dashboard</span>
+                    </div>
+                    <h1 class="sd-welcome-h1">
+                        Welcome back, <span id="teacher-name" style="color:var(--sd-primary);">Loading...</span>!
+                    </h1>
+                    <p class="sd-welcome-sub" id="welcome-message">
+                        Loading your dashboard...
+                    </p>
+                    <div id="loading-indicator">
+                        <i class="fas fa-circle-notch fa-spin text-primary mt-2"></i>
+                    </div>
+                </div>
+                <div class="sd-welcome-actions">
+                    <a href="create-test.html" class="sd-btn sd-btn-primary">
+                        <i class="fas fa-plus"></i> Create Test
                     </a>
                 </div>
+            </section>
 
-                <div class="nav-item">
-                    <a href="create-test.html" class="nav-link">
-                        <i class="fas fa-plus-circle"></i>
-                        <span>Create Test</span>
-                    </a>
+            <!-- Quick Stats Grid -->
+            <div class="td-stat-grid quick-stats">
+                <div class="td-stat-card stat-card">
+                    <div class="td-stat-icon indigo">
+                        <i class="fas fa-file-alt"></i>
+                    </div>
+                    <div class="td-stat-info stat-info">
+                        <h3>0</h3>
+                        <p>Total Tests</p>
+                    </div>
                 </div>
 
-                <div class="nav-item">
-                    <a href="my-tests.html" class="nav-link">
-                        <i class="fas fa-clipboard-list"></i>
-                        <span>My Tests</span>
-                    </a>
+                <div class="td-stat-card stat-card">
+                    <div class="td-stat-icon green">
+                        <i class="fas fa-users"></i>
+                    </div>
+                    <div class="td-stat-info stat-info">
+                        <h3>0</h3>
+                        <p>Students</p>
+                    </div>
                 </div>
 
-                <div class="menu-title mt-4">Analytics</div>
-
-                <div class="nav-item">
-                    <a href="teacher-progress.html" class="nav-link">
+                <div class="td-stat-card stat-card">
+                    <div class="td-stat-icon teal">
                         <i class="fas fa-chart-line"></i>
-                        <span>Progress</span>
-                    </a>
-                </div>
-
-                <div class="nav-item">
-                    <a href="resources.html" class="nav-link">
-                        <i class="fas fa-book"></i>
-                        <span>Resources</span>
-                    </a>
-                </div>
-
-                <div class="menu-title mt-4">Account</div>
-
-                <div class="nav-item">
-                    <a href="teacher-settings.html" class="nav-link">
-                        <i class="fas fa-cog"></i>
-                        <span>Settings</span>
-                    </a>
-                </div>
-
-                <div class="nav-item">
-                    <a href="help.html" class="nav-link">
-                        <i class="fas fa-question-circle"></i>
-                        <span>Help & Support</span>
-                    </a>
-                </div>
-            </nav>
-
-            <div class="sidebar-footer">
-                <div class="user-profile">
-                    <img src="https://ui-avatars.com/api/?name=Teacher&background=4a6cf7&color=fff" alt="User"
-                        class="user-avatar" id="user-avatar-sidebar">
-                    <div class="user-info">
-                        <h4 class="user-name" id="sidebar-teacher-name">Loading...</h4>
-                        <span class="user-role">Teacher</span>
                     </div>
-                    <button class="sign-out" id="logout-btn" title="Sign Out">
-                        <i class="fas fa-sign-out-alt"></i>
-                    </button>
+                    <div class="td-stat-info stat-info">
+                        <h3>N/A</h3>
+                        <p>Avg. Score</p>
+                    </div>
+                </div>
+
+                <div class="td-stat-card stat-card highlight">
+                    <div class="td-stat-icon amber">
+                        <i class="fas fa-tasks"></i>
+                    </div>
+                    <div class="td-stat-info stat-info">
+                        <h3>0</h3>
+                        <p>Pending Grading</p>
+                    </div>
                 </div>
             </div>
-        </aside>
 
-        <div class="sidebar-overlay" id="sidebar-overlay"></div>
-
-        <!-- Main Content -->
-        <main class="main-content">
-            <!-- Top Bar -->
-            <header class="top-bar">
-                <div class="top-bar-left d-flex align-items-center">
-                    <button class="sidebar-toggle menu-toggle d-lg-none me-3" id="sidebar-toggle"
-                        style="background:none;border:none;font-size:1.5rem;cursor:pointer;color:var(--text-color);">
-                        <i class="fas fa-bars"></i>
-                    </button>
-                </div>
-                <div class="search-bar">
-                    <i class="fas fa-search"></i>
-                    <input type="text" id="search-input" placeholder="Search tests, students, or classes...">
-                </div>
-
-                <div class="user-menu">
-                    <a href="#notifications" class="notification-icon">
-                        <i class="fas fa-bell"></i>
-                        <span class="badge">3</span>
-                    </a>
-
-                    <div class="user-avatar">
-                        <img src="" alt="User" class="rounded-circle" width="40" height="40" id="user-avatar">
-                    </div>
-                </div>
-            </header>
-
-            <!-- Dashboard Content -->
-            <div class="dashboard-content">
-                <!-- Welcome Section -->
-                <section class="welcome-section">
-                    <div class="card">
-                        <div class="card-body">
-                            <div id="welcome-content">
-                                <h1>Welcome back, <span class="text-primary" id="teacher-name">Loading...</span>!</h1>
-                                <p class="lead" id="welcome-message">Loading your dashboard...</p>
-                                <div id="loading-indicator" class="loading-spinner">
-                                    <div class="spinner-border text-primary" role="status">
-                                        <span class="visually-hidden">Loading...</span>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-                </section>
-
-                <!-- Quick Stats -->
-                <div class="quick-stats">
-                    <div class="stat-card">
-                        <div class="stat-icon">
-                            <i class="fas fa-file-alt"></i>
-                        </div>
-                        <div class="stat-info">
-                            <h3>0</h3>
-                            <p>Total Tests</p>
-                        </div>
-                    </div>
-
-                    <div class="stat-card">
-                        <div class="stat-icon">
-                            <i class="fas fa-users"></i>
-                        </div>
-                        <div class="stat-info">
-                            <h3>0</h3>
-                            <p>Students</p>
-                        </div>
-                    </div>
-
-                    <div class="stat-card">
-                        <div class="stat-icon">
-                            <i class="fas fa-chart-line"></i>
-                        </div>
-                        <div class="stat-info">
-                            <h3>N/A</h3>
-                            <p>Avg. Score</p>
-                        </div>
-                    </div>
-
-                    <div class="stat-card highlight">
-                        <div class="stat-icon">
-                            <i class="fas fa-tasks"></i>
-                        </div>
-                        <div class="stat-info">
-                            <h3>0</h3>
-                            <p>Pending Grading</p>
-                        </div>
-                    </div>
-                </div>
-
+            <!-- Main Content Grid -->
+            <div class="td-grid-2">
+                
                 <!-- Recent Tests -->
-                <div class="card">
-                    <div class="card-header">
+                <div class="td-card card">
+                    <div class="td-card-header card-header">
                         <h3><i class="fas fa-file-alt"></i> Recent Tests</h3>
-                        <a href="#view-all" class="btn btn-link">View All</a>
+                        <a href="my-tests.html" class="td-btn-sm">View All</a>
                     </div>
-                    <div class="card-body">
-                        <div id="recent-tests-container">
-                            <p id="no-tests-message">No recent tests found.</p>
+                    <div class="td-card-body card-body" id="recent-tests-container">
+                        <!-- JS injects .activity-item here, which we style using .td-activity-item via CSS matches -->
+                        <div class="td-empty" id="no-tests-message">
+                            <i class="fas fa-inbox"></i>
+                            <p>No recent tests found.</p>
                         </div>
                     </div>
                 </div>
 
-                <!-- Upcoming Classes -->
-                <div class="classes-grid" id="upcoming-classes-container">
-                    <p id="no-classes-message">No upcoming classes found.</p>
+                <!-- Upcoming Classes (Placeholder to match existing markup) -->
+                <div class="td-card classes-grid" id="upcoming-classes-container">
+                    <div class="td-card-header">
+                        <h3><i class="fas fa-calendar-alt"></i> Upcoming Classes</h3>
+                    </div>
+                    <div class="td-card-body">
+                        <div class="td-empty" id="no-classes-message">
+                            <i class="fas fa-calendar-times"></i>
+                            <p>No upcoming classes found.</p>
+                        </div>
+                    </div>
                 </div>
+
             </div>
+
         </main>
     </div>
+</div>
 
-    <!-- Firebase SDK and Teacher Dashboard Scripts -->
+<style>
+    @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
+    /* Re-map inner dynamic elements to dashboard-clean styles */
+    .activity-item {
+        display: flex; align-items: center; gap: 1rem; padding: 0.85rem 0; border-bottom: 1px solid var(--sd-border);
+    }
+    .activity-item:last-child { border-bottom: none; }
+    .activity-icon {
+        width: 40px; height: 40px; border-radius: 10px; background: var(--sd-primary-lt); color: var(--sd-primary);
+        display: flex; align-items: center; justify-content: center; font-size: 0.9rem; flex-shrink: 0;
+    }
+    .activity-details { flex: 1; min-width: 0; }
+    .activity-details h4 { font-size: 0.88rem; font-weight: 700; color: var(--sd-text); margin: 0 0 0.1rem; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+    .activity-details p, .activity-details small { font-size: 0.75rem; color: var(--sd-text-3); margin: 0; display: block; }
+    .activity-actions { display: flex; gap: 0.5rem; flex-shrink: 0; }
+    .activity-actions .btn {
+        font-size: 0.72rem; font-weight: 700; padding: 0.3rem 0.75rem; border-radius: 50px;
+        border: 1.5px solid var(--sd-border); background: var(--sd-surface); color: var(--sd-text-2);
+        cursor: pointer; transition: var(--sd-transition); text-decoration: none;
+    }
+    .activity-actions .btn:hover { border-color: var(--sd-primary); color: var(--sd-primary); background: var(--sd-primary-lt); }
+</style>
+
+<!-- Firebase SDK and Teacher Dashboard Scripts -->
     <!-- <script type="module" src="./js/teacher-dashboard.js"></script> -->
     <!-- Commenting out potentially redundant script, relying on inline logic -->
 
