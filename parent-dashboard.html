@@ -1,0 +1,162 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Parent Portal - Alpharia</title>
+
+    <!-- Fonts & Icons -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+
+    <!-- Design System CSS -->
+    <link rel="stylesheet" href="css/student-dashboard-clean.css">
+    <link rel="stylesheet" href="css/teacher-dashboard-clean.css">
+
+    <style>
+        .child-card {
+            background: var(--sd-surface);
+            border: 1.5px solid var(--sd-border);
+            border-radius: var(--sd-radius);
+            padding: 1.5rem;
+            display: flex;
+            align-items: center;
+            gap: 1.25rem;
+            transition: var(--sd-transition);
+            margin-bottom: 1rem;
+        }
+        .child-card:hover {
+            box-shadow: var(--sd-shadow-sm);
+            transform: translateY(-2px);
+            border-color: var(--sd-primary);
+        }
+        .child-avatar {
+            width: 64px;
+            height: 64px;
+            border-radius: 16px;
+            background: linear-gradient(135deg, rgba(79,70,229,0.1), rgba(20,184,166,0.1));
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.8rem;
+            color: var(--sd-primary);
+            flex-shrink: 0;
+        }
+        .child-info { flex: 1; }
+        .child-name { font-size: 1.2rem; font-weight: 800; color: var(--sd-text); margin: 0 0 0.25rem; }
+        .child-meta { font-size: 0.85rem; color: var(--sd-text-3); display: flex; gap: 1rem; }
+        .child-meta span { display: flex; align-items: center; gap: 0.25rem; }
+        
+        .empty-children {
+            text-align: center;
+            padding: 3rem 1.5rem;
+            background: var(--sd-surface);
+            border: 2px dashed var(--sd-border);
+            border-radius: var(--sd-radius);
+        }
+        .empty-children i { font-size: 3rem; color: var(--sd-text-3); margin-bottom: 1rem; }
+        .empty-children h3 { font-size: 1.2rem; margin-bottom: 0.5rem; color: var(--sd-text); }
+        .empty-children p { color: var(--sd-text-2); margin-bottom: 1.5rem; }
+    </style>
+</head>
+
+<body class="sd-page">
+
+<div class="sd-shell">
+    <!-- ═══════════ SIDEBAR ═══════════ -->
+    <aside class="sd-sidebar" id="sidebar" aria-label="Main navigation">
+        <div class="sd-sidebar-brand">
+            <div class="sd-brand-icon"><i class="fas fa-home"></i></div>
+            <span class="sd-brand-text">Alpharia Parent</span>
+        </div>
+
+        <nav class="sd-nav" aria-label="Dashboard navigation">
+            <span class="sd-nav-section-label">Home</span>
+            <a href="parent-dashboard.html" class="sd-nav-link active" aria-current="page">
+                <i class="fas fa-tachometer-alt"></i>
+                <span>Dashboard</span>
+            </a>
+            
+            <span class="sd-nav-section-label">Services</span>
+            <a href="assessment-booking.html" class="sd-nav-link">
+                <i class="fas fa-calendar-check"></i>
+                <span>Book Assessment</span>
+            </a>
+            <a href="parent-assessments.html" class="sd-nav-link">
+                <i class="fas fa-calendar-alt"></i>
+                <span>My Bookings</span>
+            </a>
+            <a href="parent-invite.html" class="sd-nav-link">
+                <i class="fas fa-link"></i>
+                <span>Link Child Account</span>
+            </a>
+
+            <span class="sd-nav-section-label">Account</span>
+            <a href="#" class="sd-nav-link">
+                <i class="fas fa-cog"></i>
+                <span>Settings</span>
+            </a>
+        </nav>
+
+        <!-- Sidebar footer -->
+        <div class="sd-sidebar-footer">
+            <div class="sd-sidebar-user" title="Your account">
+                <div class="sd-sidebar-user-info">
+                    <div class="sd-sidebar-user-name" id="parent-name-sidebar">Loading…</div>
+                    <div class="sd-sidebar-user-role">Parent</div>
+                </div>
+                <button class="sd-icon-btn" id="logout-btn" title="Sign Out" style="margin-left:auto; color:var(--sd-text-3);">
+                    <i class="fas fa-sign-out-alt"></i>
+                </button>
+            </div>
+        </div>
+    </aside>
+
+    <div class="sd-sidebar-overlay" id="sidebar-overlay" aria-hidden="true"></div>
+
+    <!-- ═══════════ MAIN ═══════════ -->
+    <div class="sd-main">
+        <header class="sd-topbar" role="banner">
+            <button class="sd-topbar-toggle menu-toggle d-lg-none" id="sidebar-toggle" aria-label="Open navigation">
+                <i class="fas fa-bars"></i>
+            </button>
+        </header>
+
+        <main class="sd-body" id="main-content" style="animation: fadeIn 0.4s ease-out;">
+            <!-- Welcome Hero -->
+            <section class="sd-welcome">
+                <div class="sd-welcome-text">
+                    <h1 class="sd-welcome-h1">
+                        Welcome back, <span id="parent-name" style="color:var(--sd-primary);">Loading...</span>!
+                    </h1>
+                    <p class="sd-welcome-sub">View your children's reading progress and book expert assessments.</p>
+                </div>
+            </section>
+
+            <!-- Main Content Grid -->
+            <div class="td-grid-2">
+                <!-- Linked Children -->
+                <div class="td-card" style="grid-column: 1 / -1;">
+                    <div class="td-card-header">
+                        <h3><i class="fas fa-users"></i> Linked Children</h3>
+                        <a href="parent-invite.html" class="td-btn-sm">+ Link Child</a>
+                    </div>
+                    <div class="td-card-body" id="children-container">
+                        <div class="empty-children">
+                            <i class="fas fa-child"></i>
+                            <h3>No children linked yet</h3>
+                            <p>Link your child's account using the code provided by their teacher.</p>
+                            <a href="parent-invite.html" class="sd-btn sd-btn-primary">Link Account</a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </main>
+    </div>
+</div>
+
+<script type="module" src="js/parent-dashboard.js"></script>
+</body>
+</html>

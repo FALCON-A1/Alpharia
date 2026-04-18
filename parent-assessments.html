@@ -1,0 +1,258 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>My Bookings - Alpharia</title>
+
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    
+    <link rel="stylesheet" href="css/student-dashboard-clean.css">
+    <link rel="stylesheet" href="css/teacher-dashboard-clean.css">
+
+    <style>
+        .assessment-card {
+            background: var(--sd-surface);
+            border: 1.5px solid var(--sd-border);
+            border-radius: var(--sd-radius);
+            padding: 1.5rem;
+            display: flex;
+            align-items: center;
+            gap: 1.5rem;
+            transition: var(--sd-transition);
+            margin-bottom: 1rem;
+        }
+        .assessment-card:hover {
+            box-shadow: var(--sd-shadow-sm);
+            border-color: var(--sd-primary);
+        }
+        .date-box {
+            background: var(--sd-primary-lt);
+            color: var(--sd-primary);
+            border-radius: var(--sd-radius-sm);
+            padding: 1rem;
+            text-align: center;
+            min-width: 90px;
+        }
+        .date-box .month { font-size: 0.8rem; font-weight: 700; text-transform: uppercase; }
+        .date-box .day { font-size: 1.8rem; font-weight: 800; line-height: 1; margin: 0.25rem 0; }
+        .date-box .time { font-size: 0.75rem; font-weight: 600; }
+        
+        .assessment-info { flex: 1; }
+        .assessment-info h3 { font-size: 1.2rem; font-weight: 800; color: var(--sd-text); margin-bottom: 0.25rem; }
+        .assessment-info p { font-size: 0.9rem; color: var(--sd-text-2); margin-bottom: 0; display:flex; gap: 0.5rem; align-items:center; }
+        
+        .status-badge {
+            padding: 0.4rem 0.8rem;
+            font-size: 0.75rem;
+            font-weight: 700;
+            border-radius: 20px;
+            text-transform: uppercase;
+        }
+        .status-upcoming { background: rgba(59, 130, 246, 0.1); color: #3b82f6; }
+        .status-completed { background: rgba(16, 185, 129, 0.1); color: #10b981; }
+    </style>
+</head>
+
+<body class="sd-page">
+
+<div class="sd-shell">
+    <!-- ═══════════ SIDEBAR ═══════════ -->
+    <aside class="sd-sidebar" id="sidebar">
+        <div class="sd-sidebar-brand"><span class="sd-brand-text">Alpharia Parent</span></div>
+        <nav class="sd-nav">
+            <span class="sd-nav-section-label">Home</span>
+            <a href="parent-dashboard.html" class="sd-nav-link"><i class="fas fa-tachometer-alt"></i><span>Dashboard</span></a>
+            
+            <span class="sd-nav-section-label">Services</span>
+            <a href="assessment-booking.html" class="sd-nav-link"><i class="fas fa-calendar-check"></i><span>Book Assessment</span></a>
+            <a href="parent-assessments.html" class="sd-nav-link active"><i class="fas fa-calendar-alt"></i><span>My Bookings</span></a>
+            <a href="parent-invite.html" class="sd-nav-link"><i class="fas fa-link"></i><span>Link Child Account</span></a>
+
+            <span class="sd-nav-section-label">Account</span>
+            <a href="parent-settings.html" class="sd-nav-link"><i class="fas fa-cog"></i><span>Settings</span></a>
+        </nav>
+        <div class="sd-sidebar-footer">
+            <div class="sd-sidebar-user">
+                <div class="sd-sidebar-user-info">
+                    <div class="sd-sidebar-user-name" id="sidebar-parent-name">Loading…</div>
+                    <div class="sd-sidebar-user-role">Parent</div>
+                </div>
+                <button class="sd-icon-btn" id="logout-btn" style="margin-left:auto; color:var(--sd-text-3);"><i class="fas fa-sign-out-alt"></i></button>
+            </div>
+        </div>
+    </aside>
+
+    <div class="sd-sidebar-overlay" id="sidebar-overlay"></div>
+
+    <!-- ═══════════ MAIN ═══════════ -->
+    <div class="sd-main">
+        <header class="sd-topbar">
+            <button class="sd-topbar-toggle menu-toggle d-lg-none" id="sidebar-toggle"><i class="fas fa-bars"></i></button>
+            <div style="font-weight:700; color:var(--sd-text);">My Bookings</div>
+        </header>
+
+        <main class="sd-body" style="animation: fadeIn 0.4s ease-out;">
+            <div class="td-header" style="margin-bottom: 2rem;">
+                <h1 class="td-h1">Assessments Directory</h1>
+                <p class="td-sub">Manage your upcoming and past expert reading assessments.</p>
+            </div>
+
+            <!-- Upcoming Section -->
+            <div class="td-card" style="margin-bottom: 2rem;">
+                <div class="td-card-header">
+                    <h3><i class="fas fa-calendar-day"></i> Upcoming Assessments</h3>
+                    <a href="assessment-booking.html" class="td-btn-sm">+ Book New</a>
+                </div>
+                <div class="td-card-body" id="upcoming-assessments">
+                    <div style="text-align:center; padding: 2rem; color:var(--sd-text-3);">
+                        <i class="fas fa-spinner fa-spin fa-2x"></i>
+                        <p style="margin-top:1rem;">Loading assessments...</p>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Past Section -->
+            <div class="td-card">
+                <div class="td-card-header">
+                    <h3><i class="fas fa-history"></i> Past Assessments</h3>
+                </div>
+                <div class="td-card-body" id="past-assessments">
+                    <p style="text-align:center; color:var(--sd-text-3); padding:1rem;">No past assessments found.</p>
+                </div>
+            </div>
+
+        </main>
+    </div>
+</div>
+
+<script type="module">
+    import { auth, db } from './js/firebase-config.js';
+    import { requireAuth } from './js/auth-check.js';
+    import { doc, getDoc, collection, query, where, getDocs, orderBy } from 'https://www.gstatic.com/firebasejs/12.1.0/firebase-firestore.js';
+    import { signOut } from 'https://www.gstatic.com/firebasejs/12.1.0/firebase-auth.js';
+
+    document.addEventListener('DOMContentLoaded', async () => {
+        const sidebar = document.getElementById('sidebar');
+        const toggle = document.getElementById('sidebar-toggle');
+        if (toggle && sidebar) toggle.addEventListener('click', () => sidebar.classList.toggle('active'));
+
+        try {
+            const { user } = await requireAuth();
+            
+            // Sidebar Parent Name
+            const parentDoc = await getDoc(doc(db, 'users', user.uid));
+            if (parentDoc.exists()) {
+                const name = parentDoc.data().name || parentDoc.data().firstName || 'Parent';
+                document.getElementById('sidebar-parent-name').textContent = name;
+            }
+
+            // Load Assessments
+            await loadAssessments(user.uid);
+
+            document.getElementById('logout-btn').addEventListener('click', () => {
+                signOut(auth).then(() => window.location.href = 'auth/login-fixed.html');
+            });
+        } catch (e) {
+            console.error(e);
+        }
+    });
+
+    async function loadAssessments(parentId) {
+        const upcomingContainer = document.getElementById('upcoming-assessments');
+        const pastContainer = document.getElementById('past-assessments');
+        
+        try {
+            const q = query(
+                collection(db, 'bookings'), 
+                where('parentId', '==', parentId),
+                orderBy('date', 'asc')
+            );
+            
+            const snap = await getDocs(q);
+            
+            if (snap.empty) {
+                upcomingContainer.innerHTML = `
+                    <div style="text-align:center; padding: 2rem; color:var(--sd-text-3);">
+                        <i class="fas fa-calendar-times fa-3x" style="margin-bottom:1rem; opacity:0.3;"></i>
+                        <p>No upcoming assessments booked.</p>
+                        <a href="assessment-booking.html" class="sd-btn sd-btn-primary" style="margin-top:1rem;">Book Your First Session</a>
+                    </div>
+                `;
+                return;
+            }
+
+            let upcomingHtml = '';
+            let pastHtml = '';
+            let upcomingCount = 0;
+            let pastCount = 0;
+
+            const now = new Date();
+
+            snap.forEach(docSnap => {
+                const b = docSnap.data();
+                const bDate = new Date(b.date);
+                
+                // Determine if upcoming or past based on status or date
+                const isPast = b.status === 'completed' || bDate < now;
+                
+                const dateObj = new Date(b.date + ' ' + b.time);
+                const month = dateObj.toLocaleString('en-US', { month: 'short' });
+                const day = dateObj.getDate();
+                const time = b.time;
+
+                const cardHtml = `
+                    <div class="assessment-card" ${isPast ? 'style="opacity:0.7;"' : ''}>
+                        <div class="date-box" ${isPast ? 'style="background:#f1f5f9; color:var(--sd-text-2);"' : ''}>
+                            <div class="month">${month}</div>
+                            <div class="day">${day}</div>
+                            <div class="time">${time}</div>
+                        </div>
+                        <div class="assessment-info">
+                            <h3>Reading Assessment</h3>
+                            <p><i class="fas fa-user-circle"></i> with ${b.teacherName || 'Expert'} &bull; <i class="fas fa-video"></i> ${isPast ? 'Session Ended' : 'Link Pending'}</p>
+                            ${isPast && b.reportUrl ? `<a href="${b.reportUrl}" style="font-size:0.85rem; font-weight:700; color:var(--sd-primary); margin-top:0.5rem; display:inline-block;"><i class="fas fa-file-pdf"></i> View Report</a>` : ''}
+                        </div>
+                        <div>
+                            <span class="status-badge ${isPast ? 'status-completed' : 'status-upcoming'}">${isPast ? 'Completed' : 'Upcoming'}</span>
+                        </div>
+                        ${!isPast ? '<button class="sd-icon-btn" title="Manage"><i class="fas fa-ellipsis-v"></i></button>' : ''}
+                    </div>
+                `;
+
+                if (isPast) {
+                    pastHtml += cardHtml;
+                    pastCount++;
+                } else {
+                    upcomingHtml += cardHtml;
+                    upcomingCount++;
+                }
+            });
+
+            if (upcomingCount > 0) {
+                upcomingContainer.innerHTML = upcomingHtml + `
+                    <div style="text-align:center; padding: 1rem; color:var(--sd-text-3); font-size:0.85rem;">
+                        <i class="fas fa-info-circle"></i> Meeting links will be provided 24h before the start time.
+                    </div>
+                `;
+            } else {
+                upcomingContainer.innerHTML = '<p style="text-align:center; color:var(--sd-text-3); padding:2rem;">No upcoming assessments.</p>';
+            }
+
+            if (pastCount > 0) {
+                pastContainer.innerHTML = pastHtml;
+            } else {
+                pastContainer.innerHTML = '<p style="text-align:center; color:var(--sd-text-3); padding:1rem;">No past assessments.</p>';
+            }
+
+        } catch (e) {
+            console.error("Error loading assessments:", e);
+            upcomingContainer.innerHTML = '<p style="color:red; text-align:center; padding:2rem;">Error loading your bookings.</p>';
+        }
+    }
+</script>
+</body>
+</html>

@@ -540,6 +540,18 @@
                 </select>
               </div>
             </div>
+
+            <div class="sg-section-label" style="margin-top: 2rem;">Parent Connection</div>
+            <div class="sg-form-group">
+              <label class="sg-label" for="inviteCode">Parent Linking Code</label>
+              <div style="display:flex; gap: 0.5rem;">
+                <input type="text" class="sg-input" id="inviteCode" readonly style="font-family:monospace; font-weight:800; letter-spacing:0.2em; color:var(--sd-primary);">
+                <button type="button" class="sd-btn sd-btn-outline" onclick="navigator.clipboard.writeText(document.getElementById('inviteCode').value); alert('Code Copied!');" style="padding: 0.65rem 1rem;">
+                  <i class="fas fa-copy"></i>
+                </button>
+              </div>
+              <span class="sg-hint">Share this code with your parents so they can link to your account.</span>
+            </div>
           </div>
 
           <!-- Account / Password Tab -->
@@ -758,8 +770,16 @@
         userData = {
           ...userData, ...sData,
           gradeLevel:    sData.grade || '',
-          languageLevel: sData.level || ''
+          languageLevel: sData.level || '',
+          parentInviteCode: sData.parentInviteCode || null
         };
+
+        // Auto-generate invite code for existing students if missing
+        if (!userData.parentInviteCode) {
+           const code = Math.random().toString(36).substring(2, 8).toUpperCase();
+           await updateDoc(studentDocRef, { parentInviteCode: code });
+           userData.parentInviteCode = code;
+        }
       }
 
       if (!userData.firstName && user.displayName) {
@@ -788,6 +808,11 @@
 
     if (userData.languageLevel) languageLevelSelect.value  = userData.languageLevel;
     else if (userData.level)    languageLevelSelect.value  = userData.level;
+
+    if (userData.parentInviteCode) {
+        const codeInput = document.getElementById('inviteCode');
+        if (codeInput) codeInput.value = userData.parentInviteCode;
+    }
 
     if (userData.notifications) {
       emailNotifications.checked = userData.notifications.email          !== false;

@@ -524,25 +524,27 @@
                 userData.userType === 'teacher' ||
                 userData.permissions?.role === 'LIMITED_TEACHER');
 
+            const isParent = (userData.role === 'PARENT' ||
+                userData.userType === 'parent' ||
+                userData.role === 'parent');
+
             console.log('getUserRole - Role check results:', {
                 isAdmin,
                 isTeacher,
+                isParent,
                 role: userData.role,
                 userType: userData.userType,
                 permissions: userData.permissions
             });
 
-            return { isAdmin, isTeacher };
+            return { isAdmin, isTeacher, isParent };
         }
 
         // Redirect user based on role
         function redirectUser(userData) {
-            // Show user data in an alert before any redirection
-            alert('User Data:\n' + JSON.stringify(userData, null, 2));
+            const { isAdmin, isTeacher, isParent } = getUserRole(userData);
 
-            const { isAdmin, isTeacher } = getUserRole(userData);
-
-            console.log('User role check:', { isAdmin, isTeacher, userType: userData?.userType });
+            console.log('User role check:', { isAdmin, isTeacher, isParent, userType: userData?.userType });
 
             let redirectPath = '../student-dashboard.html';
             let role = 'Student';
@@ -555,48 +557,14 @@
                 console.log('User is teacher');
                 redirectPath = '../teacher-dashboard.html';
                 role = 'Teacher';
+            } else if (isParent) {
+                console.log('User is parent');
+                redirectPath = '../parent-dashboard.html';
+                role = 'Parent';
             }
 
-            // Show final redirect info
-            alert(`Redirecting to: ${redirectPath}\nRole: ${role}\nUser Type: ${userData?.userType || 'undefined'}`);
-
-            // Show debug info and add manual redirect button
-            const debugInfo = document.createElement('div');
-            debugInfo.style.padding = '20px';
-            debugInfo.style.margin = '20px 0';
-            debugInfo.style.border = '1px solid #ccc';
-            debugInfo.style.borderRadius = '5px';
-            debugInfo.style.backgroundColor = '#f8f9fa';
-
-            debugInfo.innerHTML = `
-                <h3>Debug Information (Will not appear in production)</h3>
-                <p><strong>Detected Role:</strong> ${role}</p>
-                <p><strong>Redirect Path:</strong> ${redirectPath}</p>
-                <p><strong>User Data:</strong></p>
-                <pre style="background: #fff; padding: 10px; border: 1px solid #ddd; border-radius: 4px; overflow: auto;">${JSON.stringify(userData, null, 2)}</pre>
-                <button id="manual-redirect" style="padding: 10px 20px; background: #4f46e5; color: white; border: none; border-radius: 4px; cursor: pointer; margin-top: 10px;">
-                    Continue to ${role} Dashboard
-                </button>
-            `;
-
-            // Clear any existing debug info
-            const existingDebug = document.getElementById('debug-info');
-            if (existingDebug) {
-                existingDebug.remove();
-            }
-
-            debugInfo.id = 'debug-info';
-            document.body.appendChild(debugInfo);
-
-            // Add click handler for manual redirect
-            document.getElementById('manual-redirect').addEventListener('click', () => {
-                window.location.href = redirectPath;
-            });
-
-            // Auto-redirect after 1 minute (for testing purposes)
-            setTimeout(() => {
-                window.location.href = redirectPath;
-            }, 60000);
+            console.log(`Redirecting to: ${redirectPath} | Role: ${role}`);
+            window.location.href = redirectPath;
         }
 
         // Show success message
@@ -766,7 +734,7 @@
                     console.log('Google login - User data:', userData);
 
                     // Use the same redirect logic as in handleSuccessfulAuth
-                    const { isAdmin, isTeacher } = getUserRole(userData);
+                    const { isAdmin, isTeacher, isParent } = getUserRole(userData);
 
                     // Check for redirect URL in query parameters
                     const urlParams = new URLSearchParams(window.location.search);
@@ -782,6 +750,9 @@
                     } else if (isTeacher) {
                         console.log('Google login: Redirecting to teacher dashboard');
                         window.location.href = '../teacher-dashboard.html';
+                    } else if (isParent) {
+                        console.log('Google login: Redirecting to parent dashboard');
+                        window.location.href = '../parent-dashboard.html';
                     } else {
                         console.log('Google login: Redirecting to student dashboard');
                         window.location.href = '../student-dashboard.html';
@@ -811,7 +782,7 @@
                         console.log('Auto-login - User data:', userData);
 
                         // Use the same redirect logic as in handleSuccessfulAuth
-                        const { isAdmin, isTeacher } = getUserRole(userData);
+                        const { isAdmin, isTeacher, isParent } = getUserRole(userData);
 
                         if (isAdmin) {
                             console.log('Auto-login: Redirecting to admin dashboard');
@@ -819,6 +790,9 @@
                         } else if (isTeacher) {
                             console.log('Auto-login: Redirecting to teacher dashboard');
                             window.location.href = '../teacher-dashboard.html';
+                        } else if (isParent) {
+                            console.log('Auto-login: Redirecting to parent dashboard');
+                            window.location.href = '../parent-dashboard.html';
                         } else {
                             console.log('Auto-login: Redirecting to student dashboard');
                             window.location.href = '../student-dashboard.html';

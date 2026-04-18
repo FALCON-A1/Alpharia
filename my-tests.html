@@ -451,34 +451,22 @@
             });
         });
     </script>
-    <!-- Mobile Sidebar Auto-Fix -->
+    <!-- Standard Mobile Sidebar Script -->
     <script>
         document.addEventListener('DOMContentLoaded', () => {
-            const sidebar = document.querySelector('.sidebar');
-            let sidebarOverlay = document.getElementById('sidebar-overlay');
-            const sidebarToggle = document.querySelector('.sidebar-toggle, .menu-toggle, #sidebar-toggle');
-            
-            if (sidebar && !sidebarOverlay) {
-                sidebarOverlay = document.createElement('div');
-                sidebarOverlay.className = 'sidebar-overlay';
-                sidebarOverlay.id = 'sidebar-overlay';
-                sidebar.parentNode.insertBefore(sidebarOverlay, sidebar.nextSibling);
-            }
-            
-            if (sidebarToggle && sidebar && sidebarOverlay) {
-                // Ensure toggle class exists
-                sidebarToggle.classList.add('menu-toggle');
-                sidebarToggle.classList.add('d-lg-none');
-                
+            const sidebar = document.getElementById('sidebar');
+            const sidebarToggle = document.getElementById('sidebar-toggle');
+            const sidebarOverlay = document.getElementById('sidebar-overlay');
+
+            if (sidebarToggle && sidebar) {
                 sidebarToggle.addEventListener('click', (e) => {
-                    if (window.innerWidth <= 1024) {
-                        e.preventDefault();
-                        e.stopPropagation();
-                        sidebar.classList.toggle('active');
-                        sidebarOverlay.classList.toggle('active');
-                    }
+                    e.preventDefault();
+                    sidebar.classList.toggle('active');
+                    if (sidebarOverlay) sidebarOverlay.classList.toggle('active');
                 });
-                
+            }
+
+            if (sidebarOverlay && sidebar) {
                 sidebarOverlay.addEventListener('click', () => {
                     sidebar.classList.remove('active');
                     sidebarOverlay.classList.remove('active');

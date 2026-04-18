@@ -1,0 +1,258 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Parent Settings - Alpharia</title>
+
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    
+    <link rel="stylesheet" href="css/student-dashboard-clean.css">
+    <link rel="stylesheet" href="css/teacher-dashboard-clean.css">
+
+    <style>
+        .td-settings-container {
+            display: grid;
+            grid-template-columns: 300px 1fr;
+            gap: 2rem;
+            align-items: start;
+        }
+        @media (max-width: 900px) {
+            .td-settings-container { grid-template-columns: 1fr; }
+        }
+        
+        .td-settings-nav {
+            display: flex;
+            flex-direction: column;
+            gap: 0.5rem;
+        }
+        .td-settings-nav .nav-link {
+            padding: 1rem;
+            color: var(--sd-text-2);
+            border-radius: var(--sd-radius-sm);
+            font-weight: 600;
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+            text-decoration: none;
+            transition: var(--sd-transition);
+        }
+        .td-settings-nav .nav-link:hover {
+            background: var(--sd-surface-2);
+            color: var(--sd-text);
+        }
+        .td-settings-nav .nav-link.active {
+            background: var(--sd-primary-lt);
+            color: var(--sd-primary);
+        }
+        
+        .tab-content .tab-pane { display: none; animation: fadeIn 0.3s ease-out; }
+        .tab-content .tab-pane.show.active { display: block; }
+        
+        @keyframes fadeIn { from { opacity:0; transform:translateY(5px); } to { opacity:1; transform:translateY(0); } }
+    </style>
+</head>
+
+<body class="sd-page">
+
+<div class="sd-shell">
+    <!-- ═══════════ SIDEBAR ═══════════ -->
+    <aside class="sd-sidebar" id="sidebar">
+        <div class="sd-sidebar-brand"><span class="sd-brand-text">Alpharia Parent</span></div>
+        <nav class="sd-nav">
+            <span class="sd-nav-section-label">Home</span>
+            <a href="parent-dashboard.html" class="sd-nav-link"><i class="fas fa-tachometer-alt"></i><span>Dashboard</span></a>
+            
+            <span class="sd-nav-section-label">Services</span>
+            <a href="assessment-booking.html" class="sd-nav-link"><i class="fas fa-calendar-check"></i><span>Book Assessment</span></a>
+            <a href="parent-assessments.html" class="sd-nav-link"><i class="fas fa-calendar-alt"></i><span>My Bookings</span></a>
+            <a href="parent-invite.html" class="sd-nav-link"><i class="fas fa-link"></i><span>Link Child Account</span></a>
+
+            <span class="sd-nav-section-label">Account</span>
+            <a href="parent-settings.html" class="sd-nav-link active"><i class="fas fa-cog"></i><span>Settings</span></a>
+        </nav>
+        <div class="sd-sidebar-footer">
+            <div class="sd-sidebar-user">
+                <div class="sd-sidebar-user-info">
+                    <div class="sd-sidebar-user-name" id="sidebar-parent-name">Loading…</div>
+                    <div class="sd-sidebar-user-role">Parent</div>
+                </div>
+                <button class="sd-icon-btn" id="logout-btn" style="margin-left:auto; color:var(--sd-text-3);"><i class="fas fa-sign-out-alt"></i></button>
+            </div>
+        </div>
+    </aside>
+
+    <div class="sd-sidebar-overlay" id="sidebar-overlay"></div>
+
+    <!-- ═══════════ MAIN ═══════════ -->
+    <div class="sd-main">
+        <header class="sd-topbar">
+            <button class="sd-topbar-toggle menu-toggle d-lg-none" id="sidebar-toggle"><i class="fas fa-bars"></i></button>
+            <div class="td-topbar-actions">
+                <button class="sd-btn sd-btn-primary" id="saveChangesBtn">Save Changes</button>
+            </div>
+        </header>
+
+        <main class="sd-body" style="animation: fadeIn 0.4s ease-out;">
+            <div class="td-header" style="margin-bottom: 2rem;">
+                <h1 class="td-h1">Account Settings</h1>
+                <p class="td-sub">Manage your parent profile and preferences.</p>
+            </div>
+
+            <div class="td-settings-container">
+                <!-- Left Nav -->
+                <div>
+                    <div class="td-card td-card-body" style="text-align:center; margin-bottom:1rem;">
+                        <img id="profile-pic" src="" alt="Profile" style="width:100px; height:100px; border-radius:50%; margin-bottom:1rem;">
+                        <h3 id="profile-name" style="font-size:1.1rem; font-weight:800; color:var(--sd-text);">Loading...</h3>
+                    </div>
+
+                    <div class="td-card td-card-body">
+                        <div class="td-settings-nav" id="pills-tab">
+                            <a class="nav-link active" data-target="profile"><i class="fas fa-user"></i> Profile</a>
+                            <a class="nav-link" data-target="notifications"><i class="fas fa-bell"></i> Notifications</a>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Right Content -->
+                <div class="td-settings-content">
+                    <div class="td-card td-card-body">
+                        <div class="tab-content" id="pills-tabContent">
+                            
+                            <!-- Profile Tab -->
+                            <div class="tab-pane show active" id="profile">
+                                <h3 style="font-size:1.1rem; font-weight:700; margin-bottom:1.5rem; color:var(--sd-text);">Personal Information</h3>
+                                <div class="td-form-row">
+                                    <div class="td-form-group">
+                                        <label class="td-form-label">Full Name</label>
+                                        <input type="text" class="td-form-input" id="full-name" placeholder="Enter your full name">
+                                    </div>
+                                    <div class="td-form-group">
+                                        <label class="td-form-label">Email Address</label>
+                                        <input type="email" class="td-form-input" id="email-address" disabled>
+                                    </div>
+                                </div>
+                                <div class="td-form-group" style="max-width: 400px;">
+                                    <label class="td-form-label">Phone Number (For Test Reminders)</label>
+                                    <input type="text" class="td-form-input" id="phone-number" placeholder="(123) 456-7890">
+                                </div>
+                            </div>
+
+                            <!-- Notifications Tab -->
+                            <div class="tab-pane" id="notifications">
+                                <h3 style="font-size:1.1rem; font-weight:700; margin-bottom:1.5rem; color:var(--sd-text);">Notification Preferences</h3>
+                                
+                                <div class="td-toggle-row">
+                                    <div class="td-toggle-label">Weekly Progress Reports<br><span style="font-size:0.75rem; color:var(--sd-text-3); font-weight:400;">Receive an email digest of your children's progress.</span></div>
+                                    <label class="td-toggle">
+                                        <input type="checkbox" id="emailNotif" checked>
+                                        <span class="td-toggle-slider"></span>
+                                    </label>
+                                </div>
+                                <div class="td-toggle-row">
+                                    <div class="td-toggle-label">SMS Alerts<br><span style="font-size:0.75rem; color:var(--sd-text-3); font-weight:400;">Get text messages when an assessment is overdue.</span></div>
+                                    <label class="td-toggle">
+                                        <input type="checkbox" id="smsNotif">
+                                        <span class="td-toggle-slider"></span>
+                                    </label>
+                                </div>
+                            </div>
+
+                        </div>
+                    </div>
+                </div>
+
+            </div>
+        </main>
+    </div>
+</div>
+
+<script type="module">
+    import { auth, db } from './js/firebase-config.js';
+    import { requireAuth } from './js/auth-check.js';
+    import { signOut } from 'https://www.gstatic.com/firebasejs/12.1.0/firebase-auth.js';
+    import { doc, getDoc, updateDoc } from 'https://www.gstatic.com/firebasejs/12.1.0/firebase-firestore.js';
+
+    document.addEventListener('DOMContentLoaded', async () => {
+        // Tab switching logic
+        const tabs = document.querySelectorAll('.td-settings-nav .nav-link');
+        const panes = document.querySelectorAll('.tab-content .tab-pane');
+        
+        tabs.forEach(tab => {
+            tab.addEventListener('click', () => {
+                const target = tab.dataset.target;
+                tabs.forEach(t => t.classList.remove('active'));
+                panes.forEach(p => p.classList.remove('show', 'active'));
+                
+                tab.classList.add('active');
+                document.getElementById(target).classList.add('show', 'active');
+            });
+        });
+
+        // Sidebar logic
+        const sidebar = document.getElementById('sidebar');
+        document.getElementById('sidebar-toggle').addEventListener('click', () => sidebar.classList.toggle('active'));
+
+        try {
+            const { user } = await requireAuth();
+            
+            // Reference the generic 'users' collection which parents belong to natively
+            const parentRef = doc(db, 'users', user.uid);
+            const parentDoc = await getDoc(parentRef);
+            
+            if (parentDoc.exists()) {
+                const data = parentDoc.data();
+                const parentName = data.name || user.displayName || 'Parent';
+
+                document.getElementById('full-name').value = parentName;
+                document.getElementById('email-address').value = user.email || '';
+                document.getElementById('phone-number').value = data.phone || '';
+                
+                document.getElementById('emailNotif').checked = data.emailNotif !== false;
+                document.getElementById('smsNotif').checked = data.smsNotif === true;
+
+                document.getElementById('sidebar-parent-name').textContent = parentName;
+                document.getElementById('profile-name').textContent = parentName;
+                
+                const avatar = data.photoURL || user.photoURL || `https://ui-avatars.com/api/?name=${encodeURIComponent(parentName)}&background=4f46e5&color=fff`;
+                document.getElementById('profile-pic').src = avatar;
+            }
+
+            // Save logic
+            document.getElementById('saveChangesBtn').addEventListener('click', async () => {
+                try {
+                    const newName = document.getElementById('full-name').value;
+                    const newPhone = document.getElementById('phone-number').value;
+
+                    await updateDoc(parentRef, {
+                        name: newName,
+                        phone: newPhone,
+                        emailNotif: document.getElementById('emailNotif').checked,
+                        smsNotif: document.getElementById('smsNotif').checked
+                    });
+
+                    alert("Settings saved!");
+                    document.getElementById('sidebar-parent-name').textContent = newName;
+                    document.getElementById('profile-name').textContent = newName;
+                } catch (e) {
+                    console.error(e);
+                    alert("Error saving settings");
+                }
+            });
+
+            // Logout
+            document.getElementById('logout-btn').addEventListener('click', () => {
+                signOut(auth).then(() => window.location.href = 'auth/login-fixed.html');
+            });
+
+        } catch (e) {
+            console.error(e);
+        }
+    });
+</script>
+</body>
+</html>

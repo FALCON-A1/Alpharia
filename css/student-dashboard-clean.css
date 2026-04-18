@@ -1057,12 +1057,14 @@ body.sd-page {
     transform: translateX(-100%);
   }
 
-  .sd-sidebar.open {
+  .sd-sidebar.open,
+  .sd-sidebar.active {
     transform: translateX(0);
     box-shadow: 4px 0 30px rgba(0,0,0,.3);
   }
 
-  .sd-sidebar-overlay.open {
+  .sd-sidebar-overlay.open,
+  .sd-sidebar-overlay.active {
     display: block;
   }
 

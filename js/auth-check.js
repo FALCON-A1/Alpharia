@@ -38,6 +38,7 @@ export function requireAuth(allowedRoles = []) {
                         if (r === 'admin') role = 'admin';
                         else if (r === 'teacher') role = 'teacher';
                         else if (r === 'student') role = 'student';
+                        else if (r === 'parent') role = 'parent';
                     }
 
                     // If still unknown, check 'students' collection (common for pure students)
@@ -52,6 +53,13 @@ export function requireAuth(allowedRoles = []) {
                             const teacherSnap = await getDoc(teacherRef);
                             if (teacherSnap.exists()) {
                                 role = 'teacher';
+                            } else {
+                                // Check 'parents' collection
+                                const parentRef = doc(db, 'parents', user.uid);
+                                const parentSnap = await getDoc(parentRef);
+                                if (parentSnap.exists()) {
+                                    role = 'parent';
+                                }
                             }
                         }
                     }
@@ -61,8 +69,11 @@ export function requireAuth(allowedRoles = []) {
                 if (allowedRoles.length > 0 && !allowedRoles.includes(role)) {
                     console.warn(`User role '${role}' is not in allowed roles: [${allowedRoles.join(', ')}]`);
                     // Optional: Redirect to unauthorized page or dashboard
+                    // Optional: Redirect to unauthorized page or dashboard
                     if (role === 'student') window.location.href = '/student-dashboard.html';
                     else if (role === 'admin') window.location.href = '/admin-dashboard.html';
+                    else if (role === 'teacher') window.location.href = '/teacher-dashboard.html';
+                    else if (role === 'parent') window.location.href = '/parent-dashboard.html';
                     else window.location.href = '/unauthorized.html';
 
                     reject(new Error('Unauthorized'));

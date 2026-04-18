@@ -1,0 +1,339 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>School Admin Portal - Alpharia</title>
+
+    <!-- Fonts & Icons -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+
+    <!-- Design System CSS -->
+    <link rel="stylesheet" href="css/student-dashboard-clean.css">
+    <link rel="stylesheet" href="css/teacher-dashboard-clean.css">
+
+    <style>
+        .admin-hero {
+            background: linear-gradient(135deg, #1e293b 0%, #0f172a 100%);
+            color: white;
+            padding: 3rem 2rem;
+            border-radius: var(--sd-radius);
+            margin-bottom: 2rem;
+            position: relative;
+            overflow: hidden;
+        }
+        .admin-hero::after {
+            content: '';
+            position: absolute;
+            top: -20%;
+            right: -10%;
+            width: 400px;
+            height: 400px;
+            background: rgba(79, 70, 229, 0.1);
+            filter: blur(80px);
+            border-radius: 50%;
+        }
+        .admin-hero-title { font-size: 2rem; font-weight: 800; margin-bottom: 0.5rem; }
+        .admin-hero-sub { opacity: 0.8; font-size: 1rem; }
+
+        .metric-card-group {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+            gap: 1.5rem;
+            margin-bottom: 2rem;
+        }
+
+        .metric-card {
+            background: var(--sd-surface);
+            border: 1.5px solid var(--sd-border);
+            border-radius: var(--sd-radius);
+            padding: 1.5rem;
+            display: flex;
+            align-items: center;
+            gap: 1.25rem;
+            transition: var(--sd-transition);
+        }
+        .metric-card:hover { transform: translateY(-3px); border-color: var(--sd-primary); }
+        .metric-icon {
+            width: 54px;
+            height: 54px;
+            border-radius: 12px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.5rem;
+        }
+        .metric-info h4 { font-size: 1.8rem; font-weight: 800; color: var(--sd-text); margin: 0; }
+        .metric-info p { font-size: 0.85rem; color: var(--sd-text-3); font-weight: 600; text-transform: uppercase; margin: 0; }
+
+        .at-risk-list {
+            display: flex;
+            flex-direction: column;
+            gap: 0.75rem;
+        }
+        .at-risk-item {
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+            padding: 1rem;
+            background: rgba(239, 68, 68, 0.05);
+            border: 1px solid rgba(239, 68, 68, 0.1);
+            border-radius: var(--sd-radius-sm);
+        }
+        .at-risk-status {
+            width: 12px;
+            height: 12px;
+            border-radius: 50%;
+            background: #ef4444;
+            box-shadow: 0 0 10px rgba(239, 68, 68, 0.4);
+        }
+
+        .teacher-table img {
+            width: 32px;
+            height: 32px;
+            border-radius: 50%;
+            margin-right: 10px;
+        }
+    </style>
+</head>
+
+<body class="sd-page">
+
+<div class="sd-shell">
+    <!-- ═══════════ SIDEBAR ═══════════ -->
+    <aside class="sd-sidebar" id="sidebar">
+        <div class="sd-sidebar-brand">
+            <div class="sd-brand-icon" style="background: var(--sd-primary);"><i class="fas fa-university"></i></div>
+            <span class="sd-brand-text">Alpharia Admin</span>
+        </div>
+
+        <nav class="sd-nav">
+            <span class="sd-nav-section-label">Institutional</span>
+            <a href="school-dashboard.html" class="sd-nav-link active"><i class="fas fa-chart-pie"></i><span>Overview</span></a>
+            <a href="#" class="sd-nav-link"><i class="fas fa-chalkboard-teacher"></i><span>Staff Directory</span></a>
+            <a href="#" class="sd-nav-link"><i class="fas fa-users"></i><span>Students</span></a>
+            
+            <span class="sd-nav-section-label">Reports</span>
+            <a href="#" class="sd-nav-link"><i class="fas fa-file-invoice"></i><span>Performance Audits</span></a>
+            <a href="#" class="sd-nav-link"><i class="fas fa-map-marked-alt"></i><span>Regional Benchmarks</span></a>
+
+            <span class="sd-nav-section-label">Account</span>
+            <a href="school-settings.html" class="sd-nav-link"><i class="fas fa-cog"></i><span>School Settings</span></a>
+        </nav>
+
+        <div class="sd-sidebar-footer">
+            <div class="sd-sidebar-user">
+                <div class="sd-sidebar-user-info">
+                    <div class="sd-sidebar-user-name" id="admin-name-sidebar">Loading…</div>
+                    <div class="sd-sidebar-user-role">School Administrator</div>
+                </div>
+                <button class="sd-icon-btn" id="logout-btn" title="Sign Out" style="margin-left:auto; color:var(--sd-text-3);">
+                    <i class="fas fa-sign-out-alt"></i>
+                </button>
+            </div>
+        </div>
+    </aside>
+
+    <div class="sd-sidebar-overlay" id="sidebar-overlay"></div>
+
+    <!-- ═══════════ MAIN ═══════════ -->
+    <div class="sd-main">
+        <header class="sd-topbar">
+            <button class="sd-topbar-toggle menu-toggle d-lg-none" id="sidebar-toggle"><i class="fas fa-bars"></i></button>
+            <div class="sd-search" style="max-width: 400px;">
+                <i class="fas fa-search"></i>
+                <input type="text" placeholder="Search staff or student IDs...">
+            </div>
+            <div class="sd-topbar-actions">
+                <button class="sd-icon-btn"><i class="fas fa-download"></i></button>
+                <div class="sd-avatar-btn"><img id="user-avatar" src="https://ui-avatars.com/api/?name=Admin&background=1e293b&color=fff" width="38" height="38"></div>
+            </div>
+        </header>
+
+        <main class="sd-body" style="animation: fadeIn 0.4s ease-out;">
+            
+            <!-- Hero -->
+            <div class="admin-hero">
+                <div class="admin-hero-title">Greenwood Academy</div>
+                <div class="admin-hero-sub">Academic Year 2025/2026 Dashboard</div>
+            </div>
+
+            <!-- Metrics -->
+            <div class="metric-card-group">
+                <div class="metric-card">
+                    <div class="metric-icon" style="background: rgba(79, 70, 229, 0.1); color: var(--sd-primary);"><i class="fas fa-user-graduate"></i></div>
+                    <div class="metric-info">
+                        <h4 id="stat-students">1,248</h4>
+                        <p>Total Students</p>
+                    </div>
+                </div>
+                <div class="metric-card">
+                    <div class="metric-icon" style="background: rgba(20, 184, 166, 0.1); color: #14b8a6;"><i class="fas fa-check-double"></i></div>
+                    <div class="metric-info">
+                        <h4 id="stat-assessments">8,432</h4>
+                        <p>Assessments Done</p>
+                    </div>
+                </div>
+                <div class="metric-card">
+                    <div class="metric-icon" style="background: rgba(245, 158, 11, 0.1); color: #f59e0b;"><i class="fas fa-tachometer-alt"></i></div>
+                    <div class="metric-info">
+                        <h4 id="stat-levels">Lv. 4.2</h4>
+                        <p>Avg. Reading Level</p>
+                    </div>
+                </div>
+                <div class="metric-card">
+                    <div class="metric-icon" style="background: rgba(139, 92, 246, 0.1); color: #8b5cf6;"><i class="fas fa-bolt"></i></div>
+                    <div class="metric-info">
+                        <h4 id="stat-growth">+12.4%</h4>
+                        <p>MoM Growth</p>
+                    </div>
+                </div>
+            </div>
+
+            <div class="td-grid-2">
+                <!-- Main Chart -->
+                <div class="td-card">
+                    <div class="td-card-header">
+                        <h3><i class="fas fa-chart-line"></i> Institutional Growth</h3>
+                        <div class="td-btn-group">
+                            <button class="td-btn-sm">Month</button>
+                            <button class="td-btn-sm active">Quarter</button>
+                        </div>
+                    </div>
+                    <div class="td-card-body">
+                        <div style="height: 300px; display: flex; align-items: center; justify-content: center; background: #f8fafc; border-radius: 12px; color: var(--sd-text-3);">
+                            [ Chart.js Institutional Performance Visualization ]
+                        </div>
+                    </div>
+                </div>
+
+                <!-- At-Risk Section -->
+                <div class="td-card">
+                    <div class="td-card-header">
+                        <h3><i class="fas fa-exclamation-triangle"></i> At-Risk Intervention Needed</h3>
+                    </div>
+                    <div class="td-card-body">
+                        <div class="at-risk-list">
+                            <div class="at-risk-item">
+                                <div class="at-risk-status"></div>
+                                <div style="flex:1;">
+                                    <div style="font-weight:700; color:var(--sd-text);">Grade 4 - Section B</div>
+                                    <div style="font-size:0.8rem; color:var(--sd-text-3);">Fluency dip across 12 students</div>
+                                </div>
+                                <i class="fas fa-chevron-right" style="color:var(--sd-text-3);"></i>
+                            </div>
+                            <div class="at-risk-item">
+                                <div class="at-risk-status"></div>
+                                <div style="flex:1;">
+                                    <div style="font-weight:700; color:var(--sd-text);">Grade 2 - Section A</div>
+                                    <div style="font-size:0.8rem; color:var(--sd-text-3);">Average accuracy below 85%</div>
+                                </div>
+                                <i class="fas fa-chevron-right" style="color:var(--sd-text-3);"></i>
+                            </div>
+                        </div>
+                        <button class="sd-btn sd-btn-outline" style="width:100%; margin-top:1.5rem;">View Full Alert Log</button>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Teacher Engagement -->
+            <div class="td-card" style="margin-top: 2rem;">
+                <div class="td-card-header">
+                    <h3><i class="fas fa-chalkboard-teacher"></i> Teacher & Class Engagement</h3>
+                </div>
+                <div class="td-card-body" style="padding: 0;">
+                    <div class="td-table-wrapper" style="margin:0; border:none; border-radius:0;">
+                        <table class="td-table teacher-table">
+                            <thead>
+                                <tr>
+                                    <th>Teacher Name</th>
+                                    <th>Total Students</th>
+                                    <th>Assessments (Month)</th>
+                                    <th>Avg. Class Growth</th>
+                                    <th>Activity Status</th>
+                                </tr>
+                            </thead>
+                            <tbody id="teacher-stats-list">
+                                <!-- Mocked Data -->
+                                <tr>
+                                    <td>
+                                        <div style="display:flex; align-items:center;">
+                                            <img src="https://ui-avatars.com/api/?name=Sarah+Smith" alt="">
+                                            <strong>Sarah Smith (G4)</strong>
+                                        </div>
+                                    </td>
+                                    <td>28</td>
+                                    <td>142</td>
+                                    <td><span style="color:#10b981; font-weight:700;">+14.2%</span></td>
+                                    <td><span class="sd-status-label status-complete">Very Active</span></td>
+                                </tr>
+                                <tr>
+                                    <td>
+                                        <div style="display:flex; align-items:center;">
+                                            <img src="https://ui-avatars.com/api/?name=James+Wilson" alt="">
+                                            <strong>James Wilson (G2)</strong>
+                                        </div>
+                                    </td>
+                                    <td>25</td>
+                                    <td>98</td>
+                                    <td><span style="color:#10b981; font-weight:700;">+8.5%</span></td>
+                                    <td><span class="sd-status-label status-complete">Active</span></td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+
+        </main>
+    </div>
+</div>
+
+<script type="module">
+    import { auth, db } from './js/firebase-config.js';
+    import { requireAuth } from './js/auth-check.js';
+    import { doc, getDoc } from 'https://www.gstatic.com/firebasejs/12.1.0/firebase-firestore.js';
+    import { signOut } from 'https://www.gstatic.com/firebasejs/12.1.0/firebase-auth.js';
+
+    document.addEventListener('DOMContentLoaded', async () => {
+        const sidebar = document.getElementById('sidebar');
+        const toggle = document.getElementById('sidebar-toggle');
+        const overlay = document.getElementById('sidebar-overlay');
+        
+        if (toggle && sidebar) toggle.addEventListener('click', () => {
+            sidebar.classList.toggle('active');
+            overlay?.classList.toggle('active');
+        });
+        
+        if (overlay) overlay.addEventListener('click', () => {
+            sidebar.classList.remove('active');
+            overlay.classList.remove('active');
+        });
+
+        try {
+            const { user } = await requireAuth(['school_admin', 'admin']);
+            
+            // Sidebar Admin Name
+            const adminDoc = await getDoc(doc(db, 'users', user.uid));
+            if (adminDoc.exists()) {
+                const name = adminDoc.data().name || adminDoc.data().firstName || 'Admin';
+                document.getElementById('admin-name-sidebar').textContent = name;
+                document.getElementById('user-avatar').src = adminDoc.data().photoURL || `https://ui-avatars.com/api/?name=${encodeURIComponent(name)}&background=1e293b&color=fff`;
+            }
+
+            document.getElementById('logout-btn').addEventListener('click', () => {
+                signOut(auth).then(() => window.location.href = 'auth/login-fixed.html');
+            });
+            
+            // In a real app, you'd fetch from /api/school/stats here
+            
+        } catch (e) {
+            console.error(e);
+        }
+    });
+</script>
+</body>
+</html>

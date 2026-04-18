@@ -56,6 +56,11 @@
                 <span>Progress</span>
             </a>
 
+            <a href="teacher-reports.html" class="sd-nav-link">
+                <i class="fas fa-file-pdf"></i>
+                <span>Reports</span>
+            </a>
+
             <a href="resources.html" class="sd-nav-link">
                 <i class="fas fa-book"></i>
                 <span>Resources</span>
@@ -207,15 +212,35 @@
                     </div>
                 </div>
 
-                <!-- Upcoming Classes (Placeholder to match existing markup) -->
-                <div class="td-card classes-grid" id="upcoming-classes-container">
+                <!-- Quick Insights — Replaces static Upcoming Classes -->
+                <div class="td-card" id="quick-insights-card">
                     <div class="td-card-header">
-                        <h3><i class="fas fa-calendar-alt"></i> Upcoming Classes</h3>
+                        <h3><i class="fas fa-exclamation-triangle"></i> Quick Insights</h3>
+                        <a href="teacher-progress.html" class="td-btn-sm">View All</a>
                     </div>
-                    <div class="td-card-body">
-                        <div class="td-empty" id="no-classes-message">
-                            <i class="fas fa-calendar-times"></i>
-                            <p>No upcoming classes found.</p>
+                    <div class="td-card-body" id="quickInsightsBody">
+                        <div style="display:flex; flex-direction:column; gap:0.75rem;">
+                            <div class="qi-row" id="qiNeedHelp">
+                                <div class="qi-icon" style="background:rgba(239,68,68,0.1); color:#ef4444;"><i class="fas fa-exclamation-circle"></i></div>
+                                <div class="qi-info">
+                                    <h4>Students Need Help</h4>
+                                    <p id="qiNeedHelpText">Analyzing…</p>
+                                </div>
+                            </div>
+                            <div class="qi-row" id="qiFluency">
+                                <div class="qi-icon" style="background:rgba(20,184,166,0.1); color:#14b8a6;"><i class="fas fa-tachometer-alt"></i></div>
+                                <div class="qi-info">
+                                    <h4>Fluency Overview</h4>
+                                    <p id="qiFluencyText">Loading…</p>
+                                </div>
+                            </div>
+                            <div class="qi-row" id="qiLevel">
+                                <div class="qi-icon" style="background:rgba(79,70,229,0.1); color:#4f46e5;"><i class="fas fa-layer-group"></i></div>
+                                <div class="qi-info">
+                                    <h4>Reading Levels</h4>
+                                    <p id="qiLevelText">Loading…</p>
+                                </div>
+                            </div>
                         </div>
                     </div>
                 </div>
@@ -247,6 +272,13 @@
         cursor: pointer; transition: var(--sd-transition); text-decoration: none;
     }
     .activity-actions .btn:hover { border-color: var(--sd-primary); color: var(--sd-primary); background: var(--sd-primary-lt); }
+    /* Quick Insights rows */
+    .qi-row { display: flex; align-items: center; gap: 0.85rem; padding: 0.65rem 0; border-bottom: 1px solid var(--sd-border); }
+    .qi-row:last-child { border-bottom: none; }
+    .qi-icon { width: 38px; height: 38px; border-radius: 10px; display: flex; align-items: center; justify-content: center; font-size: 0.9rem; flex-shrink: 0; }
+    .qi-info { flex: 1; }
+    .qi-info h4 { font-size: 0.82rem; font-weight: 700; color: var(--sd-text); margin: 0 0 0.1rem; }
+    .qi-info p { font-size: 0.75rem; color: var(--sd-text-3); margin: 0; }
 </style>
 
 <!-- Firebase SDK and Teacher Dashboard Scripts -->
@@ -399,15 +431,14 @@
                     else if (el) el.src = `https://ui-avatars.com/api/?name=${encodeURIComponent(teacherName)}&background=4a6cf7&color=fff`;
                 });
 
+                // Data fetched successfully
                 const loadingInd = document.getElementById('loading-indicator');
                 if (loadingInd) loadingInd.style.display = 'none';
 
                 // Fetch data
                 await fetchAndDisplayRecentTests(user.uid);
                 fetchTeacherTests(user.uid);
-
-                // Initialize sidebar
-                initSidebar();
+                loadQuickInsights(user.uid);
 
                 // Logout setup
                 const logoutBtn = document.getElementById('logout-btn');
@@ -425,8 +456,6 @@
                 console.error("Dashboard init failed", error);
             }
         }
-
-        window.addEventListener('DOMContentLoaded', initDashboard);
 
         // Function to fetch and display teacher's tests
         async function fetchTeacherTests(teacherId) {
@@ -560,8 +589,9 @@
         // Initialize the dashboard when the page loads
         document.addEventListener('DOMContentLoaded', () => {
             console.log('DOM fully loaded');
+            initSidebar(); // Initialize sidebar toggle (independent of other logic)
+            initDashboard();
             setupTestEventListeners(); // Add event listeners
-            // Any initialization code that needs to run after DOM is loaded
         });
 
         // Clean up the auth state listener when the page unloads
@@ -571,6 +601,81 @@
                 unsubscribe();
             }
         });
+        // ═══ QUICK INSIGHTS — Surfaces results-collection data ═══
+        async function loadQuickInsights(teacherId) {
+            try {
+                const studentsSnap = await getDocs(query(collection(db, 'students'), where('teacherId', '==', teacherId)));
+                if (studentsSnap.empty) {
+                    document.getElementById('qiNeedHelpText').textContent = 'No students assigned yet';
+                    document.getElementById('qiFluencyText').textContent = '—';
+                    document.getElementById('qiLevelText').textContent = '—';
+                    return;
+                }
+
+                let highRisk = 0, medRisk = 0;
+                let fluent = 0, developing = 0, disfluent = 0, unknown = 0;
+                const levelCounts = {};
+
+                for (const sDoc of studentsSnap.docs) {
+                    try {
+                        const resultsSnap = await getDocs(query(collection(db, 'results'), where('userId', '==', sDoc.id)));
+                        const results = resultsSnap.docs.map(d => d.data());
+                        results.sort((a, b) => {
+                            const ta = a.timestamp?.toDate?.() || new Date(0);
+                            const tb = b.timestamp?.toDate?.() || new Date(0);
+                            return tb - ta;
+                        });
+
+                        if (results.length > 0) {
+                            const latest = results[0];
+                            const fc = (latest.fluency?.classification || '').toLowerCase();
+                            if (fc === 'fluent') fluent++;
+                            else if (fc === 'developing') developing++;
+                            else if (fc === 'disfluent') { disfluent++; highRisk++; }
+                            else unknown++;
+
+                            const level = latest.placedLevel;
+                            if (level) {
+                                const lbl = {
+                                    'pre_primer':'Pre-Primer','primer':'Primer',
+                                    'level_1':'L1','level_2':'L2','level_3':'L3',
+                                    'level_4':'L4','level_5':'L5','level_6':'L6'
+                                }[level] || level;
+                                levelCounts[lbl] = (levelCounts[lbl] || 0) + 1;
+                            }
+
+                            // Simple risk check
+                            const wpm = latest.fluency?.wordsPerMinute || 0;
+                            const acc = latest.fluency?.accuracyRate || 0;
+                            if (wpm < 30 || acc < 60) highRisk++;
+                            else if (wpm < 50 || acc < 75) medRisk++;
+                        } else {
+                            unknown++;
+                            medRisk++;
+                        }
+                    } catch (e) { unknown++; }
+                }
+
+                const needHelp = highRisk + medRisk;
+                document.getElementById('qiNeedHelpText').textContent = needHelp > 0
+                    ? `${highRisk} high risk, ${medRisk} medium risk out of ${studentsSnap.size} students`
+                    : `All ${studentsSnap.size} students are on track! 🎉`;
+
+                document.getElementById('qiFluencyText').textContent = 
+                    `${fluent} fluent · ${developing} developing · ${disfluent} disfluent · ${unknown} untested`;
+                
+                const levelStr = Object.entries(levelCounts).map(([k, v]) => `${k}: ${v}`).join(' · ');
+                document.getElementById('qiLevelText').textContent = levelStr || 'No reading level data yet';
+
+                // Update Students stat card
+                const studentsStatEl = document.querySelector('.quick-stats .stat-card:nth-child(2) h3');
+                if (studentsStatEl) studentsStatEl.textContent = studentsSnap.size;
+
+            } catch (e) {
+                console.error('Quick Insights error:', e);
+                document.getElementById('qiNeedHelpText').textContent = 'Could not load data';
+            }
+        }
     </script>
 
 </body>

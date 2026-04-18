@@ -374,6 +374,12 @@
                             <p>I want to create and manage tests</p>
                             <input type="radio" name="user-type" value="teacher" hidden>
                         </div>
+                        <div class="user-type-card" id="parent-card">
+                            <i class="fas fa-users"></i>
+                            <h3>Parent</h3>
+                            <p>I want to track reading progress</p>
+                            <input type="radio" name="user-type" value="parent" hidden>
+                        </div>
                     </div>
                 </div>
 
@@ -566,23 +572,17 @@
             }
         }
 
-        // Toggle student fields based on user type and update card styles
+        // Toggle student fields based on user type
         function toggleStudentFields() {
             const userType = document.querySelector('input[name="user-type"]:checked').value;
-            const studentCard = document.getElementById('student-card');
-            const teacherCard = document.getElementById('teacher-card');
 
             if (userType === 'student') {
-                studentCard.classList.add('selected');
-                teacherCard.classList.remove('selected');
                 studentFields.style.display = 'block';
                 // Trigger animation
                 studentFields.style.animation = 'none';
                 studentFields.offsetHeight; // Trigger reflow
                 studentFields.style.animation = 'fadeIn 0.3s ease';
             } else {
-                teacherCard.classList.add('selected');
-                studentCard.classList.remove('selected');
                 studentFields.style.display = 'none';
             }
         }
@@ -591,18 +591,23 @@
         function setupUserTypeCards() {
             const studentCard = document.getElementById('student-card');
             const teacherCard = document.getElementById('teacher-card');
+            const parentCard = document.getElementById('parent-card');
             const studentRadio = document.querySelector('input[value="student"]');
             const teacherRadio = document.querySelector('input[value="teacher"]');
+            const parentRadio = document.querySelector('input[value="parent"]');
 
-            studentCard.addEventListener('click', () => {
-                studentRadio.checked = true;
-                toggleStudentFields();
-            });
+            const allCards = [studentCard, teacherCard, parentCard];
 
-            teacherCard.addEventListener('click', () => {
-                teacherRadio.checked = true;
+            function selectCard(cardToSelect, radioToCheck) {
+                allCards.forEach(c => c.classList.remove('selected'));
+                cardToSelect.classList.add('selected');
+                radioToCheck.checked = true;
                 toggleStudentFields();
-            });
+            }
+
+            studentCard.addEventListener('click', () => selectCard(studentCard, studentRadio));
+            teacherCard.addEventListener('click', () => selectCard(teacherCard, teacherRadio));
+            parentCard.addEventListener('click', () => selectCard(parentCard, parentRadio));
         }
 
         // Initialize the page
@@ -741,9 +746,13 @@
 
                 // Redirect to appropriate dashboard after a short delay
                 setTimeout(() => {
-                    window.location.href = userType === 'student' ?
-                        '../student-dashboard.html' :
-                        '../teacher-dashboard.html';
+                    if (userType === 'student') {
+                        window.location.href = '../student-dashboard.html';
+                    } else if (userType === 'teacher') {
+                        window.location.href = '../teacher-dashboard.html';
+                    } else {
+                        window.location.href = '../parent-dashboard.html';
+                    }
                 }, 2000);
 
             } catch (error) {

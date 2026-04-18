@@ -1,0 +1,222 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Student Portfolio - Alpharia Teacher</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link rel="stylesheet" href="css/student-dashboard-clean.css">
+    <link rel="stylesheet" href="css/teacher-dashboard-clean.css">
+</head>
+<body class="sd-page">
+<div class="sd-shell">
+
+    <!-- SIDEBAR -->
+    <aside class="sd-sidebar" id="sidebar">
+        <a href="teacher-dashboard.html" class="sd-sidebar-brand">
+            <div class="sd-brand-icon"><i class="fas fa-book-open"></i></div>
+            <span class="sd-brand-text">Alpharia</span>
+        </a>
+        <nav class="sd-nav">
+            <span class="sd-nav-section-label">Main Menu</span>
+            <a href="teacher-dashboard.html" class="sd-nav-link"><i class="fas fa-tachometer-alt"></i><span>Dashboard</span></a>
+            <a href="create-test.html" class="sd-nav-link"><i class="fas fa-plus-circle"></i><span>Create Test</span></a>
+            <a href="my-tests.html" class="sd-nav-link"><i class="fas fa-clipboard-list"></i><span>My Tests</span></a>
+            <span class="sd-nav-section-label">Analytics</span>
+            <a href="teacher-progress.html" class="sd-nav-link"><i class="fas fa-chart-line"></i><span>Progress</span></a>
+            <a href="teacher-reports.html" class="sd-nav-link"><i class="fas fa-file-pdf"></i><span>Reports</span></a>
+            <a href="resources.html" class="sd-nav-link"><i class="fas fa-book"></i><span>Resources</span></a>
+            <span class="sd-nav-section-label">Account</span>
+            <a href="teacher-settings.html" class="sd-nav-link"><i class="fas fa-cog"></i><span>Settings</span></a>
+            <a href="help.html" class="sd-nav-link"><i class="fas fa-question-circle"></i><span>Help & Support</span></a>
+        </nav>
+        <div class="sd-sidebar-footer">
+            <div class="sd-sidebar-user">
+                <img src="" alt="User" class="sd-sidebar-avatar" id="user-avatar-sidebar">
+                <div class="sd-sidebar-user-info">
+                    <div class="sd-sidebar-user-name" id="sidebar-teacher-name">Loading…</div>
+                    <div class="sd-sidebar-user-role">Teacher</div>
+                </div>
+                <button class="sd-icon-btn" id="logout-btn" title="Sign Out" style="margin-left:auto; color:var(--sd-text-3);">
+                    <i class="fas fa-sign-out-alt"></i>
+                </button>
+            </div>
+        </div>
+    </aside>
+    <div class="sd-sidebar-overlay" id="sidebar-overlay"></div>
+
+    <!-- MAIN -->
+    <div class="sd-main">
+        <header class="sd-topbar">
+            <button class="sd-topbar-toggle" id="sidebar-toggle"><i class="fas fa-bars"></i></button>
+            <div style="flex:1;"></div>
+            <a href="teacher-progress.html" class="sd-btn" style="font-size:0.8rem; padding:0.4rem 0.8rem; text-decoration:none; background:var(--sd-surface-2); border:1.5px solid var(--sd-border);">
+                <i class="fas fa-arrow-left"></i> Back to Progress
+            </a>
+        </header>
+
+        <main class="sd-body" style="animation: fadeIn 0.4s ease-out;">
+
+            <!-- Student Header -->
+            <div class="pf-header" id="portfolioHeader">
+                <div class="pf-avatar" id="pfAvatar">
+                    <i class="fas fa-user-graduate"></i>
+                </div>
+                <div class="pf-info">
+                    <h1 class="pf-name" id="pfName">Loading…</h1>
+                    <div class="pf-badges">
+                        <span class="pf-level-badge" id="pfLevelBadge">—</span>
+                        <span class="pf-fluency-badge" id="pfFluencyBadge">—</span>
+                        <span class="pf-risk-badge" id="pfRiskBadge">—</span>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Stat Cards -->
+            <div class="pf-stats-grid" id="pfStatsGrid">
+                <div class="pf-stat"><div class="pf-stat-value" id="pfWpm">—</div><div class="pf-stat-label">WPM</div></div>
+                <div class="pf-stat"><div class="pf-stat-value" id="pfAccuracy">—</div><div class="pf-stat-label">Accuracy</div></div>
+                <div class="pf-stat"><div class="pf-stat-value" id="pfComp">—</div><div class="pf-stat-label">Comprehension</div></div>
+                <div class="pf-stat"><div class="pf-stat-value" id="pfTests">0</div><div class="pf-stat-label">Assessments</div></div>
+                <div class="pf-stat"><div class="pf-stat-value" id="pfPoints">0</div><div class="pf-stat-label">Points</div></div>
+                <div class="pf-stat"><div class="pf-stat-value" id="pfBadgeCount">0</div><div class="pf-stat-label">Badges</div></div>
+            </div>
+
+            <!-- Two-Col Grid -->
+            <div class="td-grid-2 mb-4">
+                <!-- Growth Chart -->
+                <div class="td-card">
+                    <div class="td-card-header"><h3><i class="fas fa-chart-line"></i> Reading Growth</h3></div>
+                    <div class="td-card-body"><canvas id="growthChart" height="280"></canvas></div>
+                </div>
+
+                <!-- Badges Earned -->
+                <div class="td-card">
+                    <div class="td-card-header"><h3><i class="fas fa-trophy"></i> Badges Earned</h3></div>
+                    <div class="td-card-body" id="pfBadgesContainer">
+                        <p style="color:var(--sd-text-3); text-align:center;">Loading badges…</p>
+                    </div>
+                </div>
+            </div>
+
+            <!-- AI Recommendations -->
+            <div class="td-card mb-4">
+                <div class="td-card-header"><h3><i class="fas fa-lightbulb"></i> AI Recommendations</h3></div>
+                <div class="td-card-body" id="pfRecommendations">
+                    <p style="color:var(--sd-text-3); text-align:center;">Loading…</p>
+                </div>
+            </div>
+
+            <!-- Error Analysis -->
+            <div class="td-card mb-4">
+                <div class="td-card-header"><h3><i class="fas fa-exclamation-triangle"></i> Error Analysis</h3></div>
+                <div class="td-card-body" id="pfErrors">
+                    <p style="color:var(--sd-text-3); text-align:center;">Loading…</p>
+                </div>
+            </div>
+
+            <!-- Assessment History -->
+            <div class="td-card">
+                <div class="td-card-header"><h3><i class="fas fa-history"></i> Assessment History</h3></div>
+                <div class="td-card-body" id="pfHistory">
+                    <p style="color:var(--sd-text-3); text-align:center;">Loading…</p>
+                </div>
+            </div>
+
+        </main>
+    </div>
+</div>
+
+<style>
+    @keyframes fadeIn { from { opacity:0; transform:translateY(10px);} to { opacity:1; transform:translateY(0);} }
+    .mb-4 { margin-bottom: 1.5rem; }
+
+    .pf-header {
+        display: flex; align-items: center; gap: 1.25rem;
+        padding: 1.5rem; background: var(--sd-surface); border: 1.5px solid var(--sd-border);
+        border-radius: var(--sd-radius); margin-bottom: 1.5rem;
+    }
+    .pf-avatar {
+        width: 64px; height: 64px; border-radius: 16px;
+        background: linear-gradient(135deg, rgba(79,70,229,0.12), rgba(20,184,166,0.12));
+        display: flex; align-items: center; justify-content: center;
+        font-size: 1.6rem; color: var(--sd-primary); flex-shrink: 0;
+    }
+    .pf-name { font-size: 1.4rem; font-weight: 800; color: var(--sd-text); margin: 0 0 0.4rem; }
+    .pf-badges { display: flex; gap: 0.5rem; flex-wrap: wrap; }
+    .pf-level-badge, .pf-fluency-badge, .pf-risk-badge {
+        display: inline-block; padding: 0.2rem 0.65rem; border-radius: 50px;
+        font-size: 0.72rem; font-weight: 700;
+    }
+    .pf-level-badge { background: var(--sd-primary-lt); color: var(--sd-primary); }
+    .pf-fluency-badge { background: rgba(20,184,166,0.1); color: #14b8a6; }
+    .pf-risk-badge { background: rgba(156,163,175,0.1); color: #6b7280; }
+    .pf-risk-high { background: rgba(239,68,68,0.1) !important; color: #ef4444 !important; }
+    .pf-risk-medium { background: rgba(245,158,11,0.1) !important; color: #f59e0b !important; }
+    .pf-risk-low { background: rgba(16,185,129,0.1) !important; color: #10b981 !important; }
+
+    .pf-stats-grid { display: grid; grid-template-columns: repeat(6, 1fr); gap: 1rem; margin-bottom: 1.5rem; }
+    @media (max-width: 900px) { .pf-stats-grid { grid-template-columns: repeat(3, 1fr); } }
+    @media (max-width: 500px) { .pf-stats-grid { grid-template-columns: repeat(2, 1fr); } }
+    .pf-stat {
+        background: var(--sd-surface); border: 1.5px solid var(--sd-border);
+        border-radius: var(--sd-radius-sm); padding: 1rem; text-align: center;
+        transition: var(--sd-transition);
+    }
+    .pf-stat:hover { box-shadow: var(--sd-shadow-md); transform: translateY(-2px); }
+    .pf-stat-value { font-size: 1.5rem; font-weight: 800; color: var(--sd-text); }
+    .pf-stat-label { font-size: 0.7rem; font-weight: 700; color: var(--sd-text-3); text-transform: uppercase; letter-spacing: 0.05em; }
+
+    /* Badge grid in portfolio */
+    .pf-badge-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(120px, 1fr)); gap: 0.75rem; }
+    .pf-badge-item {
+        background: var(--sd-surface-2); border-radius: 12px; padding: 1rem 0.75rem;
+        text-align: center; border: 1.5px solid var(--sd-border); transition: var(--sd-transition);
+    }
+    .pf-badge-item:hover { transform: translateY(-2px); box-shadow: var(--sd-shadow-md); }
+    .pf-badge-emoji { font-size: 1.8rem; display: block; margin-bottom: 0.3rem; }
+    .pf-badge-name { font-size: 0.75rem; font-weight: 700; color: var(--sd-text); }
+    .pf-badge-date { font-size: 0.65rem; color: var(--sd-text-3); margin-top: 0.2rem; }
+
+    /* Recommendation cards */
+    .pf-rec {
+        background: var(--sd-surface-2); border-radius: var(--sd-radius-sm);
+        padding: 1rem 1.25rem; margin-bottom: 0.5rem; border-left: 3px solid var(--sd-primary);
+    }
+    .pf-rec-title { font-size: 0.85rem; font-weight: 700; color: var(--sd-text); }
+    .pf-rec-detail { font-size: 0.78rem; color: var(--sd-text-2); margin-top: 0.2rem; line-height: 1.5; }
+    .pf-rec-area {
+        display: inline-block; margin-top: 0.3rem; font-size: 0.65rem; font-weight: 700;
+        padding: 0.15rem 0.5rem; border-radius: 50px; text-transform: uppercase;
+        background: var(--sd-primary-lt); color: var(--sd-primary);
+    }
+
+    /* Error list */
+    .pf-error-row {
+        display: flex; align-items: center; gap: 1rem;
+        padding: 0.6rem 0; border-bottom: 1px solid var(--sd-border);
+    }
+    .pf-error-row:last-child { border-bottom: none; }
+    .pf-error-icon {
+        width: 36px; height: 36px; border-radius: 8px;
+        display: flex; align-items: center; justify-content: center;
+        font-size: 0.8rem; flex-shrink: 0;
+    }
+    .pf-error-label { flex: 1; font-size: 0.82rem; font-weight: 700; color: var(--sd-text); }
+    .pf-error-count { font-size: 1.1rem; font-weight: 800; color: var(--sd-text); }
+
+    /* History table */
+    .pf-hist-table { width: 100%; border-collapse: collapse; }
+    .pf-hist-table th, .pf-hist-table td { padding: 0.65rem 0.75rem; text-align: left; font-size: 0.82rem; }
+    .pf-hist-table th { font-weight: 700; color: var(--sd-text-2); border-bottom: 2px solid var(--sd-border); font-size: 0.75rem; text-transform: uppercase; }
+    .pf-hist-table td { border-bottom: 1px solid var(--sd-border); color: var(--sd-text); }
+    .pf-hist-table tr:last-child td { border-bottom: none; }
+</style>
+
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<script type="module" src="js/student-portfolio.js"></script>
+</body>
+</html>

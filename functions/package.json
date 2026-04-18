@@ -1,0 +1,24 @@
+{
+  "name": "alpharia-backend",
+  "description": "Cloud Functions for Alpharia Enterprise features",
+  "scripts": {
+    "serve": "firebase serve --only functions",
+    "shell": "firebase functions:shell",
+    "start": "npm run shell",
+    "deploy": "firebase deploy --only functions",
+    "logs": "firebase functions:log"
+  },
+  "engines": {
+    "node": "18"
+  },
+  "main": "index.js",
+  "dependencies": {
+    "cors": "^2.8.5",
+    "express": "^4.18.2",
+    "firebase-admin": "^12.0.0",
+    "firebase-functions": "^4.5.0",
+    "stripe": "^14.10.0",
+    "twilio": "^4.20.0"
+  },
+  "private": true
+}

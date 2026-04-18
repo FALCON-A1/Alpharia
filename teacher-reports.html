@@ -1,0 +1,174 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Reading Reports - Alpharia Teacher</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link rel="stylesheet" href="css/student-dashboard-clean.css">
+    <link rel="stylesheet" href="css/teacher-dashboard-clean.css">
+</head>
+<body class="sd-page">
+<div class="sd-shell">
+
+    <!-- SIDEBAR -->
+    <aside class="sd-sidebar" id="sidebar" aria-label="Main navigation">
+        <a href="teacher-dashboard.html" class="sd-sidebar-brand">
+            <div class="sd-brand-icon"><i class="fas fa-book-open"></i></div>
+            <span class="sd-brand-text">Alpharia</span>
+        </a>
+        <nav class="sd-nav">
+            <span class="sd-nav-section-label">Main Menu</span>
+            <a href="teacher-dashboard.html" class="sd-nav-link"><i class="fas fa-tachometer-alt"></i><span>Dashboard</span></a>
+            <a href="create-test.html" class="sd-nav-link"><i class="fas fa-plus-circle"></i><span>Create Test</span></a>
+            <a href="my-tests.html" class="sd-nav-link"><i class="fas fa-clipboard-list"></i><span>My Tests</span></a>
+            <span class="sd-nav-section-label">Analytics</span>
+            <a href="teacher-progress.html" class="sd-nav-link"><i class="fas fa-chart-line"></i><span>Progress</span></a>
+            <a href="teacher-reports.html" class="sd-nav-link active" aria-current="page"><i class="fas fa-file-pdf"></i><span>Reports</span></a>
+            <a href="resources.html" class="sd-nav-link"><i class="fas fa-book"></i><span>Resources</span></a>
+            <span class="sd-nav-section-label">Account</span>
+            <a href="teacher-settings.html" class="sd-nav-link"><i class="fas fa-cog"></i><span>Settings</span></a>
+            <a href="help.html" class="sd-nav-link"><i class="fas fa-question-circle"></i><span>Help & Support</span></a>
+        </nav>
+        <div class="sd-sidebar-footer">
+            <div class="sd-sidebar-user">
+                <img src="" alt="User" class="sd-sidebar-avatar" id="user-avatar-sidebar">
+                <div class="sd-sidebar-user-info">
+                    <div class="sd-sidebar-user-name" id="sidebar-teacher-name">Loading…</div>
+                    <div class="sd-sidebar-user-role">Teacher</div>
+                </div>
+                <button class="sd-icon-btn" id="logout-btn" title="Sign Out" style="margin-left:auto; color:var(--sd-text-3);">
+                    <i class="fas fa-sign-out-alt"></i>
+                </button>
+            </div>
+        </div>
+    </aside>
+    <div class="sd-sidebar-overlay" id="sidebar-overlay"></div>
+
+    <!-- MAIN -->
+    <div class="sd-main">
+        <header class="sd-topbar">
+            <button class="sd-topbar-toggle" id="sidebar-toggle"><i class="fas fa-bars"></i></button>
+            <div class="sd-search"><i class="fas fa-search"></i><input type="text" placeholder="Search…"></div>
+            <div class="sd-topbar-actions">
+                <button class="sd-icon-btn"><i class="fas fa-bell"></i></button>
+                <div class="sd-avatar-btn"><img src="" alt="User" id="user-avatar" width="38" height="38"></div>
+            </div>
+        </header>
+
+        <main class="sd-body" style="animation: fadeIn 0.4s ease-out;">
+
+            <div class="td-page-header">
+                <div>
+                    <h1 class="td-page-title">Reading Reports</h1>
+                    <p style="color:var(--sd-text-3); font-size:0.85rem;">Generate professional reading assessment reports for parents & schools</p>
+                </div>
+            </div>
+
+            <!-- Report Type Selection -->
+            <div class="rp-type-grid mb-4">
+                <div class="rp-type-card active" data-type="individual">
+                    <div class="rp-type-icon"><i class="fas fa-user"></i></div>
+                    <h4>Individual Report</h4>
+                    <p>Detailed report for a single student</p>
+                </div>
+                <div class="rp-type-card" data-type="class">
+                    <div class="rp-type-icon"><i class="fas fa-users"></i></div>
+                    <h4>Class Summary</h4>
+                    <p>Overview of all students in your class</p>
+                </div>
+                <div class="rp-type-card" data-type="progress">
+                    <div class="rp-type-icon"><i class="fas fa-chart-line"></i></div>
+                    <h4>Progress Report</h4>
+                    <p>Reading growth over time</p>
+                </div>
+            </div>
+
+            <!-- Student Selector (for individual reports) -->
+            <div class="td-card mb-4" id="studentSelectorCard">
+                <div class="td-card-header">
+                    <h3><i class="fas fa-user-graduate"></i> Select Student</h3>
+                </div>
+                <div class="td-card-body">
+                    <select id="studentSelect" class="rp-student-select">
+                        <option value="">— Choose a student —</option>
+                    </select>
+                </div>
+            </div>
+
+            <!-- Generated Report Preview -->
+            <div class="td-card" id="reportPreviewCard" style="display:none;">
+                <div class="td-card-header" style="justify-content:space-between;">
+                    <h3><i class="fas fa-file-alt"></i> Report Preview</h3>
+                    <button class="sd-btn sd-btn-primary" id="printReportBtn">
+                        <i class="fas fa-print"></i> Print / Save PDF
+                    </button>
+                </div>
+                <div class="td-card-body" id="reportContent">
+                    <!-- Report HTML is injected here -->
+                </div>
+            </div>
+
+        </main>
+    </div>
+</div>
+
+<style>
+    @keyframes fadeIn { from { opacity:0; transform:translateY(10px); } to { opacity:1; transform:translateY(0); } }
+
+    .rp-type-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 1rem; }
+    @media (max-width: 768px) { .rp-type-grid { grid-template-columns: 1fr; } }
+    
+    .rp-type-card {
+        background: var(--sd-surface); border: 1.5px solid var(--sd-border);
+        border-radius: var(--sd-radius); padding: 1.5rem; cursor: pointer;
+        transition: var(--sd-transition); text-align: center;
+    }
+    .rp-type-card:hover { transform: translateY(-3px); box-shadow: var(--sd-shadow-md); }
+    .rp-type-card.active { border-color: var(--sd-primary); background: var(--sd-primary-lt); }
+    .rp-type-icon { font-size: 1.8rem; color: var(--sd-primary); margin-bottom: 0.75rem; }
+    .rp-type-card h4 { font-size: 0.95rem; font-weight: 700; color: var(--sd-text); margin: 0 0 0.3rem; }
+    .rp-type-card p { font-size: 0.78rem; color: var(--sd-text-3); margin: 0; }
+
+    .rp-student-select {
+        width: 100%; padding: 0.7rem 1rem; border: 1.5px solid var(--sd-border);
+        border-radius: var(--sd-radius-sm); font-family: var(--sd-font); font-size: 0.88rem;
+        outline: none; transition: var(--sd-transition);
+    }
+    .rp-student-select:focus { border-color: var(--sd-primary); box-shadow: 0 0 0 3px rgba(79,70,229,0.1); }
+
+    /* Print-ready report styles */
+    .report-container { font-family: 'Inter', sans-serif; color: #1e293b; }
+    .report-header { text-align: center; padding: 1.5rem 0; border-bottom: 2px solid #4f46e5; margin-bottom: 1.5rem; }
+    .report-header h1 { font-size: 1.4rem; font-weight: 800; color: #4f46e5; margin: 0 0 0.3rem; }
+    .report-header p { font-size: 0.85rem; color: #64748b; margin: 0; }
+    .report-section { margin-bottom: 1.5rem; }
+    .report-section h3 { font-size: 1rem; font-weight: 700; color: #1e293b; border-bottom: 1px solid #e2e8f0; padding-bottom: 0.5rem; margin-bottom: 0.75rem; }
+    .report-stats { display: grid; grid-template-columns: repeat(4, 1fr); gap: 1rem; margin-bottom: 1.5rem; }
+    .report-stat { background: #f8fafc; border: 1px solid #e2e8f0; border-radius: 12px; padding: 1rem; text-align: center; }
+    .report-stat-value { font-size: 1.5rem; font-weight: 800; color: #4f46e5; }
+    .report-stat-label { font-size: 0.72rem; font-weight: 700; color: #64748b; text-transform: uppercase; }
+    .report-rec { padding: 0.75rem 1rem; background: #f0fdf4; border-left: 3px solid #22c55e; border-radius: 6px; margin-bottom: 0.5rem; }
+    .report-rec-title { font-weight: 700; font-size: 0.85rem; color: #1e293b; }
+    .report-rec-detail { font-size: 0.78rem; color: #475569; margin-top: 0.2rem; }
+    .report-footer { text-align: center; padding: 1rem 0; border-top: 1px solid #e2e8f0; margin-top: 2rem; font-size: 0.72rem; color: #94a3b8; }
+    .report-risk-high { color: #ef4444; font-weight: 700; }
+    .report-risk-medium { color: #f59e0b; font-weight: 700; }
+    .report-risk-low { color: #22c55e; font-weight: 700; }
+
+    @media print {
+        .sd-sidebar, .sd-topbar, .td-page-header, .rp-type-grid, #studentSelectorCard, .td-card-header, .sd-sidebar-overlay { display: none !important; }
+        .sd-main { margin-left: 0 !important; }
+        .sd-body { padding: 0 !important; }
+        .td-card { border: none !important; box-shadow: none !important; }
+        .report-stats { page-break-inside: avoid; }
+    }
+</style>
+
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<script type="module" src="js/teacher-reports.js"></script>
+</body>
+</html>

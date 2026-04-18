@@ -55,6 +55,11 @@
                 <span>Progress</span>
             </a>
 
+            <a href="teacher-reports.html" class="sd-nav-link">
+                <i class="fas fa-file-pdf"></i>
+                <span>Reports</span>
+            </a>
+
             <a href="resources.html" class="sd-nav-link">
                 <i class="fas fa-book"></i>
                 <span>Resources</span>
@@ -153,7 +158,11 @@
                                 <i class="fas fa-shield-alt"></i> Account
                             </a>
                             <a class="nav-link" id="v-pills-notifications-tab" data-bs-toggle="pill" data-bs-target="#notifications" type="button" role="tab" aria-controls="notifications" aria-selected="false" style="cursor:pointer;">
+                            <a class="nav-link" id="v-pills-notifications-tab" data-bs-toggle="pill" data-bs-target="#notifications" type="button" role="tab" aria-controls="notifications" aria-selected="false" style="cursor:pointer;">
                                 <i class="fas fa-bell"></i> Notifications
+                            </a>
+                            <a class="nav-link" id="v-pills-booking-tab" data-bs-toggle="pill" data-bs-target="#booking" type="button" role="tab" aria-controls="booking" aria-selected="false" style="cursor:pointer;">
+                                <i class="fas fa-hand-holding-usd"></i> Professional Services
                             </a>
                         </div>
                     </div>
@@ -187,6 +196,11 @@
                                             <label class="td-form-label">Location</label>
                                             <input type="text" class="td-form-input" id="location" placeholder="e.g. San Francisco, CA">
                                         </div>
+                                    </div>
+                                    <div class="td-form-group" style="max-width: 400px;">
+                                        <label class="td-form-label">School ID (District / Institution)</label>
+                                        <input type="text" class="td-form-input" id="schoolId" placeholder="e.g. SCH-9982">
+                                        <span style="font-size:0.75rem; color:var(--sd-text-3);">Used to link your data to your school administrator's dashboard.</span>
                                     </div>
                                     <div class="td-form-group">
                                         <label class="td-form-label">Bio</label>
@@ -243,6 +257,55 @@
                                 </div>
                             </div>
 
+                            <!-- Booking Services Tab -->
+                            <div class="tab-pane fade" id="booking" role="tabpanel" aria-labelledby="v-pills-booking-tab">
+                                <h3 style="font-size:1.1rem; font-weight:700; margin-bottom:1.5rem; color:var(--sd-text);">1-on-1 Assessment Services</h3>
+                                
+                                <div class="td-toggle-row" style="margin-bottom: 2rem;">
+                                    <div class="td-toggle-label">Enable Public Profile<br><span style="font-size:0.75rem; color:var(--sd-text-3); font-weight:400;">Allow parents to discover you and book assessments.</span></div>
+                                    <label class="td-toggle">
+                                        <input type="checkbox" id="bookingEnabled">
+                                        <span class="td-toggle-slider"></span>
+                                    </label>
+                                </div>
+
+                                <div class="td-form-row">
+                                    <div class="td-form-group">
+                                        <label class="td-form-label">Price per Session (USD)</label>
+                                        <div style="position:relative;">
+                                            <span style="position:absolute; left:1rem; top:50%; transform:translateY(-50%); color:var(--sd-text-3); font-weight:600;">$</span>
+                                            <input type="number" class="td-form-input" id="bookingPrice" placeholder="49" min="0" style="padding-left:2.5rem;">
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <div class="td-form-group">
+                                    <label class="td-form-label">Available Days for Assessments</label>
+                                    <div style="display:flex; flex-wrap:wrap; gap:0.5rem; margin-top:0.5rem;">
+                                        <label class="td-toggle" style="background:#f1f5f9; padding:0.5rem 1rem; border-radius:8px; border:1px solid #e2e8f0; display:flex; gap:0.5rem; align-items:center;">
+                                            <input type="checkbox" name="bookingDays" value="1"> Mon
+                                        </label>
+                                        <label class="td-toggle" style="background:#f1f5f9; padding:0.5rem 1rem; border-radius:8px; border:1px solid #e2e8f0; display:flex; gap:0.5rem; align-items:center;">
+                                            <input type="checkbox" name="bookingDays" value="2"> Tue
+                                        </label>
+                                        <label class="td-toggle" style="background:#f1f5f9; padding:0.5rem 1rem; border-radius:8px; border:1px solid #e2e8f0; display:flex; gap:0.5rem; align-items:center;">
+                                            <input type="checkbox" name="bookingDays" value="3"> Wed
+                                        </label>
+                                        <label class="td-toggle" style="background:#f1f5f9; padding:0.5rem 1rem; border-radius:8px; border:1px solid #e2e8f0; display:flex; gap:0.5rem; align-items:center;">
+                                            <input type="checkbox" name="bookingDays" value="4"> Thu
+                                        </label>
+                                        <label class="td-toggle" style="background:#f1f5f9; padding:0.5rem 1rem; border-radius:8px; border:1px solid #e2e8f0; display:flex; gap:0.5rem; align-items:center;">
+                                            <input type="checkbox" name="bookingDays" value="5"> Fri
+                                        </label>
+                                        <label class="td-toggle" style="background:#f1f5f9; padding:0.5rem 1rem; border-radius:8px; border:1px solid #e2e8f0; display:flex; gap:0.5rem; align-items:center;">
+                                            <input type="checkbox" name="bookingDays" value="6"> Sat
+                                        </label>
+                                        <label class="td-toggle" style="background:#f1f5f9; padding:0.5rem 1rem; border-radius:8px; border:1px solid #e2e8f0; display:flex; gap:0.5rem; align-items:center;">
+                                            <input type="checkbox" name="bookingDays" value="0"> Sun
+                                        </label>
+                                    </div>
+                                </div>
+                            </div>
                         </div>
                     </div>
                 </div>
@@ -282,6 +345,16 @@
                     document.getElementById('phone-number').value = teacherData.phone || '';
                     document.getElementById('location').value = teacherData.location || '';
                     document.getElementById('bio').value = teacherData.bio || '';
+                    document.getElementById('schoolId').value = teacherData.schoolId || '';
+                    
+                    // Booking settings
+                    document.getElementById('bookingEnabled').checked = teacherData.bookingEnabled || false;
+                    document.getElementById('bookingPrice').value = teacherData.bookingPrice || '';
+                    if (teacherData.bookingDays && Array.isArray(teacherData.bookingDays)) {
+                        document.querySelectorAll('input[name="bookingDays"]').forEach(cb => {
+                            if (teacherData.bookingDays.includes(parseInt(cb.value))) { cb.checked = true; }
+                        });
+                    }
 
                     const avatarURL = teacherData.photoURL || user.photoURL || `https://ui-avatars.com/api/?name=${encodeURIComponent(teacherName)}&background=4a6cf7&color=fff`;
                     const avatarEls = [document.getElementById('user-avatar'), document.getElementById('user-avatar-sidebar'), document.getElementById('profile-pic')];
@@ -292,11 +365,17 @@
                 const saveBtn = document.getElementById('saveChangesBtn');
                 if (saveBtn) {
                     saveBtn.addEventListener('click', async () => {
+                        const selectedDays = Array.from(document.querySelectorAll('input[name="bookingDays"]:checked')).map(cb => parseInt(cb.value));
+                        
                         const updatedData = {
                             name: document.getElementById('full-name').value,
                             phone: document.getElementById('phone-number').value,
                             location: document.getElementById('location').value,
-                            bio: document.getElementById('bio').value
+                            bio: document.getElementById('bio').value,
+                            schoolId: document.getElementById('schoolId').value,
+                            bookingEnabled: document.getElementById('bookingEnabled').checked,
+                            bookingPrice: parseInt(document.getElementById('bookingPrice').value) || 0,
+                            bookingDays: selectedDays
                         };
                         try {
                             await updateDoc(teacherDocRef, updatedData);
@@ -324,34 +403,22 @@
 
         window.addEventListener('DOMContentLoaded', initSettings);
     </script>
-    <!-- Mobile Sidebar Auto-Fix -->
+    <!-- Standard Mobile Sidebar Script -->
     <script>
         document.addEventListener('DOMContentLoaded', () => {
-            const sidebar = document.querySelector('.sidebar');
-            let sidebarOverlay = document.getElementById('sidebar-overlay');
-            const sidebarToggle = document.querySelector('.sidebar-toggle, .menu-toggle, #sidebar-toggle');
-            
-            if (sidebar && !sidebarOverlay) {
-                sidebarOverlay = document.createElement('div');
-                sidebarOverlay.className = 'sidebar-overlay';
-                sidebarOverlay.id = 'sidebar-overlay';
-                sidebar.parentNode.insertBefore(sidebarOverlay, sidebar.nextSibling);
-            }
-            
-            if (sidebarToggle && sidebar && sidebarOverlay) {
-                // Ensure toggle class exists
-                sidebarToggle.classList.add('menu-toggle');
-                sidebarToggle.classList.add('d-lg-none');
-                
+            const sidebar = document.getElementById('sidebar');
+            const sidebarToggle = document.getElementById('sidebar-toggle');
+            const sidebarOverlay = document.getElementById('sidebar-overlay');
+
+            if (sidebarToggle && sidebar) {
                 sidebarToggle.addEventListener('click', (e) => {
-                    if (window.innerWidth <= 1024) {
-                        e.preventDefault();
-                        e.stopPropagation();
-                        sidebar.classList.toggle('active');
-                        sidebarOverlay.classList.toggle('active');
-                    }
+                    e.preventDefault();
+                    sidebar.classList.toggle('active');
+                    if (sidebarOverlay) sidebarOverlay.classList.toggle('active');
                 });
-                
+            }
+
+            if (sidebarOverlay && sidebar) {
                 sidebarOverlay.addEventListener('click', () => {
                     sidebar.classList.remove('active');
                     sidebarOverlay.classList.remove('active');

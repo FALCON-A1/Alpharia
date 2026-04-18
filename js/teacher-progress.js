@@ -1,38 +1,634 @@
 import { app, auth, db } from './firebase-config.js';
 import { requireAuth } from './auth-check.js';
 import {
-    collection, query, where, getDocs, doc, getDoc, writeBatch, serverTimestamp
+    collection, query, where, getDocs, doc, getDoc, writeBatch, serverTimestamp, orderBy, limit
 } from 'https://www.gstatic.com/firebasejs/12.1.0/firebase-firestore.js';
 import { onAuthStateChanged } from 'https://www.gstatic.com/firebasejs/12.1.0/firebase-auth.js';
+import { analyzeStudentRisk, summarizeClassRisk, levelLabel, LEVEL_ORDER } from './early-warning.js';
+
+// ═══════════════════════════════════════════════════════════
+//  TEACHER PROGRESS — ENHANCED WITH FULL ASSESSMENT DATA
+// ═══════════════════════════════════════════════════════════
 
 // DOM Elements
 const teacherNameElement = document.getElementById('sidebar-teacher-name');
-const userNameElement = document.querySelector('.username');
 const totalStudentsElement = document.getElementById('total-students');
-const averageScoreElement = document.getElementById('average-score');
-const assignmentsGradedElement = document.getElementById('assignments-graded');
-const classAverageElement = document.getElementById('class-average');
+const avgWpmElement = document.getElementById('avg-wpm');
+const avgAccuracyElement = document.getElementById('avg-accuracy');
+const needsHelpElement = document.getElementById('needs-help-count');
+const avgReadingLevelElement = document.getElementById('avg-reading-level');
 
-// Initialize the page when the DOM is fully loaded
+// State
+let allStudentsData = []; // Full enriched student array
+let studentDataTable = null;
+let readingLevelChart = null;
+let studentGrowthChart = null;
+
+// ═══ INIT ═══
 document.addEventListener('DOMContentLoaded', () => {
+    initSidebar(); // Initialize sidebar toggle first
     initAuthState();
     initEventListeners();
 });
 
-// Initialize authentication state
 async function initAuthState() {
     try {
         const { user } = await requireAuth(['teacher', 'admin']);
         await loadTeacherData(user.uid);
-        await loadClassData(user.uid);
+        await loadEnrichedClassData(user.uid);
     } catch (e) {
         console.error("Auth init failed", e);
     }
 }
 
-// Initialize event listeners
+// ═══ TEACHER PROFILE ═══
+async function loadTeacherData(uid) {
+    try {
+        const teacherDoc = await getDoc(doc(db, 'teachers', uid));
+        let displayName = 'Teacher';
+        
+        if (teacherDoc.exists()) {
+            const data = teacherDoc.data();
+            displayName = data.name || data.firstName || data.displayName || 'Teacher';
+        } else {
+            const userDoc = await getDoc(doc(db, 'users', uid));
+            if (userDoc.exists()) {
+                const data = userDoc.data();
+                displayName = data.firstName 
+                    ? `${data.firstName} ${data.lastName || ''}`.trim()
+                    : (data.name || data.displayName || 'Teacher');
+            }
+        }
+        
+        if (teacherNameElement) teacherNameElement.textContent = displayName;
+    } catch (error) {
+        console.error('Error loading teacher data:', error);
+    }
+}
+
+// ═══════════════════════════════════════════════════════════
+//  CORE: Load enriched class data (results + students)
+// ═══════════════════════════════════════════════════════════
+async function loadEnrichedClassData(teacherId) {
+    try {
+        // 1. Get all students assigned to this teacher
+        const studentsSnap = await getDocs(
+            query(collection(db, 'students'), where('teacherId', '==', teacherId))
+        );
+
+        if (studentsSnap.empty) {
+            console.log('No students found');
+            updateStats([], []);
+            updateStudentTable([]);
+            return;
+        }
+
+        const students = [];
+        const studentsWithRisk = [];
+
+        // 2. For each student, fetch their RESULTS (rich assessment data)
+        for (const sDoc of studentsSnap.docs) {
+            const student = sDoc.data();
+            const studentId = sDoc.id;
+
+            // Query the 'results' collection (where take-reading-test.js saves)
+            let results = [];
+            try {
+                const resultsSnap = await getDocs(
+                    query(
+                        collection(db, 'results'),
+                        where('userId', '==', studentId),
+                        orderBy('timestamp', 'desc'),
+                        limit(20) // Last 20 assessments
+                    )
+                );
+                results = resultsSnap.docs.map(d => ({ id: d.id, ...d.data() }));
+            } catch (e) {
+                // If index doesn't exist yet, try without orderBy
+                try {
+                    const fallbackSnap = await getDocs(
+                        query(collection(db, 'results'), where('userId', '==', studentId))
+                    );
+                    results = fallbackSnap.docs.map(d => ({ id: d.id, ...d.data() }));
+                    // Sort manually
+                    results.sort((a, b) => {
+                        const ta = a.timestamp?.toDate?.() || new Date(0);
+                        const tb = b.timestamp?.toDate?.() || new Date(0);
+                        return tb - ta;
+                    });
+                } catch (e2) {
+                    console.warn(`Could not load results for ${studentId}:`, e2);
+                }
+            }
+
+            // Also try 'testResults' collection as fallback
+            let testResults = [];
+            try {
+                const trSnap = await getDocs(
+                    query(collection(db, 'testResults'), where('studentId', '==', studentId))
+                );
+                testResults = trSnap.docs.map(d => ({ id: d.id, ...d.data() }));
+            } catch (e) {
+                // Silent fallback
+            }
+
+            // Run early warning analysis
+            const risk = analyzeStudentRisk(results);
+
+            // Build enriched student object
+            const latest = results[0] || null;
+            const enriched = {
+                id: studentId,
+                name: student.displayName || student.name || 'Student',
+                email: student.email || '',
+                className: student.className || student.class || '',
+                
+                // From latest result
+                readingLevel: latest?.placedLevel || null,
+                readingLevelLabel: latest ? levelLabel(latest.placedLevel) : 'Not Tested',
+                wpm: latest?.fluency?.wordsPerMinute || 0,
+                accuracy: latest?.fluency?.accuracyRate || 0,
+                fluencyClass: latest?.fluency?.classification || 'N/A',
+                compPercent: latest?.comprehensionPercent || 0,
+                oralErrors: latest?.oralErrors || {},
+                recommendations: latest?.recommendations || [],
+                
+                // Aggregates
+                totalResults: results.length,
+                totalTestResults: testResults.length,
+                allResults: results,
+                allTestResults: testResults,
+                
+                // Risk
+                risk: risk,
+                
+                // Last test date
+                lastTestDate: null
+            };
+
+            // Calculate last test date
+            if (latest?.timestamp) {
+                try {
+                    enriched.lastTestDate = latest.timestamp.toDate 
+                        ? latest.timestamp.toDate() 
+                        : new Date(latest.timestamp);
+                } catch (e) {
+                    enriched.lastTestDate = null;
+                }
+            }
+
+            students.push(enriched);
+            studentsWithRisk.push({ student: enriched, risk });
+        }
+
+        allStudentsData = students;
+        
+        // 3. Update all UI
+        const classSummary = summarizeClassRisk(studentsWithRisk);
+        updateStats(students, classSummary);
+        updateStudentTable(students);
+        updateEarlyWarnings(classSummary);
+        updateFluencyBars(classSummary);
+        updateReadingLevelChart(classSummary);
+
+        console.log(`Loaded ${students.length} students with enriched data`);
+
+    } catch (error) {
+        console.error('Error loading enriched class data:', error);
+    }
+}
+
+// ═══════════════════════════════════════════════════════════
+//  STATS
+// ═══════════════════════════════════════════════════════════
+function updateStats(students, classSummary) {
+    if (totalStudentsElement) totalStudentsElement.textContent = students.length;
+
+    // Average WPM (only students with data)
+    const withWpm = students.filter(s => s.wpm > 0);
+    if (avgWpmElement) {
+        avgWpmElement.textContent = withWpm.length > 0
+            ? Math.round(withWpm.reduce((s, st) => s + st.wpm, 0) / withWpm.length)
+            : '—';
+    }
+
+    // Average accuracy
+    const withAcc = students.filter(s => s.accuracy > 0);
+    if (avgAccuracyElement) {
+        avgAccuracyElement.textContent = withAcc.length > 0
+            ? Math.round(withAcc.reduce((s, st) => s + st.accuracy, 0) / withAcc.length) + '%'
+            : '—';
+    }
+
+    // Needs help
+    if (needsHelpElement && classSummary?.summary) {
+        needsHelpElement.textContent = classSummary.summary.needsIntervention;
+    }
+
+    // Average reading level
+    const withLevel = students.filter(s => s.readingLevel);
+    if (avgReadingLevelElement) {
+        if (withLevel.length > 0) {
+            const avgIdx = Math.round(
+                withLevel.reduce((s, st) => s + LEVEL_ORDER.indexOf(st.readingLevel), 0) / withLevel.length
+            );
+            avgReadingLevelElement.textContent = levelLabel(LEVEL_ORDER[avgIdx] || 'unknown');
+        } else {
+            avgReadingLevelElement.textContent = '—';
+        }
+    }
+}
+
+// ═══════════════════════════════════════════════════════════
+//  EARLY WARNING PANEL
+// ═══════════════════════════════════════════════════════════
+function updateEarlyWarnings(classSummary) {
+    const card = document.getElementById('earlyWarningCard');
+    const summaryText = document.getElementById('ewSummaryText');
+    const list = document.getElementById('ewStudentsList');
+    if (!card) return;
+
+    const atRisk = [...classSummary.highRisk, ...classSummary.mediumRisk];
+    if (atRisk.length === 0) {
+        card.style.display = 'none';
+        return;
+    }
+
+    card.style.display = 'block';
+    summaryText.textContent = `${classSummary.highRisk.length} high risk, ${classSummary.mediumRisk.length} medium risk students detected.`;
+
+    list.innerHTML = atRisk.map(s => `
+        <div class="ew-student-chip" data-student-id="${s.student.id}" title="${s.risk.flags.join(' • ')}">
+            <span class="ew-dot ew-dot-${s.risk.level}"></span>
+            ${s.student.name}
+        </div>
+    `).join('');
+
+    // Click handlers
+    list.querySelectorAll('.ew-student-chip').forEach(chip => {
+        chip.addEventListener('click', () => openStudentDetail(chip.dataset.studentId));
+    });
+}
+
+// ═══════════════════════════════════════════════════════════
+//  FLUENCY BARS
+// ═══════════════════════════════════════════════════════════
+function updateFluencyBars(classSummary) {
+    const dist = classSummary.summary?.fluencyDist || {};
+    const total = classSummary.summary?.total || 1;
+
+    const set = (id, countId, val) => {
+        const bar = document.getElementById(id);
+        const count = document.getElementById(countId);
+        if (bar) bar.style.width = Math.round((val / total) * 100) + '%';
+        if (count) count.textContent = val;
+    };
+
+    set('fbFluent', 'fbFluentCount', dist.fluent || 0);
+    set('fbDeveloping', 'fbDevelopingCount', dist.developing || 0);
+    set('fbDisfluent', 'fbDisfluentCount', dist.disfluent || 0);
+    set('fbUnknown', 'fbUnknownCount', dist.unknown || 0);
+}
+
+// ═══════════════════════════════════════════════════════════
+//  READING LEVEL CHART
+// ═══════════════════════════════════════════════════════════
+function updateReadingLevelChart(classSummary) {
+    const canvas = document.getElementById('readingLevelChart');
+    if (!canvas) return;
+
+    const dist = classSummary.summary?.levelDist || {};
+    const labels = Object.keys(dist);
+    const data = Object.values(dist);
+    const colors = ['#8b5cf6', '#6366f1', '#4f46e5', '#4338ca', '#3730a3', '#312e81', '#1e1b4b', '#0f0a2e'];
+
+    if (readingLevelChart) readingLevelChart.destroy();
+
+    readingLevelChart = new Chart(canvas, {
+        type: 'doughnut',
+        data: {
+            labels,
+            datasets: [{
+                data,
+                backgroundColor: colors.slice(0, labels.length),
+                borderWidth: 2,
+                borderColor: '#fff'
+            }]
+        },
+        options: {
+            responsive: true,
+            maintainAspectRatio: false,
+            plugins: {
+                legend: { position: 'bottom', labels: { padding: 12, font: { size: 11, weight: 600 } } }
+            }
+        }
+    });
+}
+
+// ═══════════════════════════════════════════════════════════
+//  STUDENT TABLE — ENHANCED
+// ═══════════════════════════════════════════════════════════
+function updateStudentTable(students) {
+    const table = document.querySelector('#student-progress-table');
+    if (!table) return;
+
+    // Destroy existing DataTable
+    if ($.fn.DataTable.isDataTable('#student-progress-table')) {
+        $('#student-progress-table').DataTable().destroy();
+    }
+
+    const tbody = table.querySelector('tbody');
+    if (!tbody) return;
+    tbody.innerHTML = '';
+
+    if (!students || students.length === 0) {
+        tbody.innerHTML = `<tr><td colspan="8" class="text-center py-4" style="color:var(--sd-text-3);">
+            <i class="fas fa-users-slash" style="font-size:1.5rem; margin-bottom:0.5rem; display:block;"></i>
+            No students found. Click "Add Student" to get started.
+        </td></tr>`;
+        return;
+    }
+
+    students.forEach(s => {
+        const row = document.createElement('tr');
+        row.dataset.risk = s.risk.level;
+
+        const riskDot = `<span class="risk-dot risk-${s.risk.level}" title="${s.risk.flags.join(' • ') || 'On Track'}"></span>`;
+
+        const fluencyBadge = s.fluencyClass && s.fluencyClass !== 'N/A'
+            ? `<span class="fluency-badge fluency-${s.fluencyClass.toLowerCase()}">${s.fluencyClass}</span>`
+            : `<span class="fluency-badge fluency-na">—</span>`;
+
+        const levelPill = s.readingLevel
+            ? `<span class="level-pill">${s.readingLevelLabel}</span>`
+            : `<span style="color:var(--sd-text-3); font-size:0.78rem;">Not tested</span>`;
+
+        const lastDate = s.lastTestDate
+            ? s.lastTestDate.toLocaleDateString('en-US', { month: 'short', day: 'numeric' })
+            : '';
+
+        row.innerHTML = `
+            <td style="text-align:center;">${riskDot}</td>
+            <td>
+                <div style="font-weight:700; color:var(--sd-text); font-size:0.85rem;">${s.name}</div>
+                ${lastDate ? `<div style="font-size:0.7rem; color:var(--sd-text-3);">Last: ${lastDate}</div>` : ''}
+            </td>
+            <td>${levelPill}</td>
+            <td style="font-weight:700; color:var(--sd-text);">${s.wpm > 0 ? s.wpm : '—'}</td>
+            <td style="font-weight:700; color:var(--sd-text);">${s.accuracy > 0 ? s.accuracy + '%' : '—'}</td>
+            <td>${fluencyBadge}</td>
+            <td style="font-weight:600; color:var(--sd-text-2);">${s.totalResults || 0}</td>
+            <td>
+                <button class="sd-icon-btn view-student-btn" data-student-id="${s.id}" title="View Details">
+                    <i class="fas fa-eye"></i>
+                </button>
+            </td>
+        `;
+        tbody.appendChild(row);
+    });
+
+    // Attach view handlers
+    tbody.querySelectorAll('.view-student-btn').forEach(btn => {
+        btn.addEventListener('click', () => openStudentDetail(btn.dataset.studentId));
+    });
+
+    // Initialize DataTable
+    try {
+        studentDataTable = $('#student-progress-table').DataTable({
+            pageLength: 10,
+            order: [[0, 'asc']], // Sort by risk
+            responsive: true,
+            language: {
+                search: "_INPUT_",
+                searchPlaceholder: "Search students...",
+                emptyTable: "No student data available"
+            },
+            dom: '<"d-flex justify-content-between align-items-center mb-3"f<"ms-3"l>>rtip',
+            initComplete: function () {
+                $('.dataTables_filter input').addClass('td-form-input');
+            },
+            columnDefs: [
+                { orderable: false, targets: [7] },
+                { responsivePriority: 1, targets: 1 },
+                { responsivePriority: 2, targets: 2 },
+                { responsivePriority: 3, targets: 3 }
+            ]
+        });
+    } catch (e) {
+        console.error('DataTable init error:', e);
+    }
+
+    // Risk filter
+    const riskFilter = document.getElementById('riskFilter');
+    if (riskFilter) {
+        riskFilter.addEventListener('change', () => {
+            const val = riskFilter.value;
+            const rows = tbody.querySelectorAll('tr');
+            rows.forEach(row => {
+                if (val === 'all' || row.dataset.risk === val) {
+                    row.style.display = '';
+                } else {
+                    row.style.display = 'none';
+                }
+            });
+        });
+    }
+}
+
+// ═══════════════════════════════════════════════════════════
+//  STUDENT DETAIL MODAL
+// ═══════════════════════════════════════════════════════════
+function openStudentDetail(studentId) {
+    const student = allStudentsData.find(s => s.id === studentId);
+    if (!student) return;
+
+    const modal = document.getElementById('studentDetailModal');
+    if (!modal) return;
+
+    // Set name
+    document.getElementById('detailStudentName').textContent = student.name;
+    document.getElementById('viewFullPortfolio').href = `student-portfolio.html?id=${studentId}`;
+
+    // Overview tab — stats
+    const statsGrid = document.getElementById('detailStatsGrid');
+    statsGrid.innerHTML = `
+        <div class="detail-stat">
+            <div class="detail-stat-value">${student.readingLevelLabel}</div>
+            <div class="detail-stat-label">Reading Level</div>
+        </div>
+        <div class="detail-stat">
+            <div class="detail-stat-value">${student.wpm > 0 ? student.wpm : '—'}</div>
+            <div class="detail-stat-label">WPM</div>
+        </div>
+        <div class="detail-stat">
+            <div class="detail-stat-value">${student.accuracy > 0 ? student.accuracy + '%' : '—'}</div>
+            <div class="detail-stat-label">Accuracy</div>
+        </div>
+        <div class="detail-stat">
+            <div class="detail-stat-value">${student.compPercent > 0 ? student.compPercent + '%' : '—'}</div>
+            <div class="detail-stat-label">Comprehension</div>
+        </div>
+    `;
+
+    // Recent results
+    const recentDiv = document.getElementById('detailRecentResults');
+    if (student.allResults.length > 0) {
+        recentDiv.innerHTML = `
+            <div class="detail-section-title"><i class="fas fa-history"></i> Recent Assessments</div>
+            ${student.allResults.slice(0, 5).map(r => {
+                const date = r.timestamp?.toDate ? r.timestamp.toDate().toLocaleDateString() : 'Unknown';
+                return `
+                    <div class="error-item">
+                        <div class="error-icon" style="background:var(--sd-primary-lt); color:var(--sd-primary);">
+                            <i class="fas fa-book-open"></i>
+                        </div>
+                        <div class="error-details">
+                            <h5>${levelLabel(r.placedLevel)} — ${r.fluency?.classification || 'N/A'}</h5>
+                            <p>${r.fluency?.wordsPerMinute || 0} WPM · ${r.fluency?.accuracyRate || 0}% accuracy · ${date}</p>
+                        </div>
+                    </div>
+                `;
+            }).join('')}
+        `;
+    } else {
+        recentDiv.innerHTML = `<p style="color:var(--sd-text-3); text-align:center; padding:1rem;">No assessments yet</p>`;
+    }
+
+    // Error Analysis tab
+    const errorDiv = document.getElementById('detailErrorAnalysis');
+    const oe = student.oralErrors;
+    if (oe && (oe.mispronounced || oe.substitutions || oe.omissions || oe.additions)) {
+        errorDiv.innerHTML = `
+            <div class="detail-section-title"><i class="fas fa-exclamation-triangle"></i> Word Error Breakdown</div>
+            ${oe.mispronounced ? `<div class="error-item">
+                <div class="error-icon danger"><i class="fas fa-times-circle"></i></div>
+                <div class="error-details"><h5>Mispronounced</h5><p>Words read incorrectly</p></div>
+                <div class="error-count">${oe.mispronounced}</div>
+            </div>` : ''}
+            ${oe.substitutions ? `<div class="error-item">
+                <div class="error-icon warn"><i class="fas fa-exchange-alt"></i></div>
+                <div class="error-details"><h5>Substitutions</h5><p>Wrong words used</p></div>
+                <div class="error-count">${oe.substitutions}</div>
+            </div>` : ''}
+            ${oe.omissions ? `<div class="error-item">
+                <div class="error-icon warn"><i class="fas fa-minus-circle"></i></div>
+                <div class="error-details"><h5>Omissions</h5><p>Words skipped</p></div>
+                <div class="error-count">${oe.omissions}</div>
+            </div>` : ''}
+            ${oe.additions ? `<div class="error-item">
+                <div class="error-icon warn"><i class="fas fa-plus-circle"></i></div>
+                <div class="error-details"><h5>Additions</h5><p>Extra words inserted</p></div>
+                <div class="error-count">${oe.additions}</div>
+            </div>` : ''}
+        `;
+    } else {
+        errorDiv.innerHTML = `<p style="color:var(--sd-text-3); text-align:center; padding:2rem;">No error data available for this student</p>`;
+    }
+
+    // Recommendations tab
+    const recDiv = document.getElementById('detailRecommendations');
+    if (student.recommendations.length > 0) {
+        recDiv.innerHTML = `
+            <div class="detail-section-title"><i class="fas fa-lightbulb"></i> AI-Generated Recommendations</div>
+            ${student.recommendations.map(r => `
+                <div class="rec-card">
+                    <div class="rec-card-title">${r.title || 'Recommendation'}</div>
+                    <div class="rec-card-detail">${r.detail || ''}</div>
+                    ${r.area ? `<span class="rec-card-area rec-area-${r.area}">${r.area}</span>` : ''}
+                </div>
+            `).join('')}
+        `;
+    } else {
+        recDiv.innerHTML = `<p style="color:var(--sd-text-3); text-align:center; padding:2rem;">No AI recommendations yet. Student needs to complete an assessment.</p>`;
+    }
+
+    // Growth Chart tab
+    buildGrowthChart(student);
+
+    // Show modal
+    modal.classList.add('show');
+}
+
+function buildGrowthChart(student) {
+    const canvas = document.getElementById('studentGrowthChart');
+    if (!canvas) return;
+
+    if (studentGrowthChart) studentGrowthChart.destroy();
+
+    const results = [...(student.allResults || [])].reverse(); // Chronological
+    if (results.length < 1) {
+        canvas.parentElement.innerHTML = `<p style="color:var(--sd-text-3); text-align:center; padding:2rem;">Not enough assessment data to show a growth chart.</p>`;
+        return;
+    }
+
+    const labels = results.map((r, i) => {
+        if (r.timestamp?.toDate) {
+            return r.timestamp.toDate().toLocaleDateString('en-US', { month: 'short', day: 'numeric' });
+        }
+        return `Test ${i + 1}`;
+    });
+
+    const levelData = results.map(r => LEVEL_ORDER.indexOf(r.placedLevel) + 1 || 0);
+    const wpmData = results.map(r => r.fluency?.wordsPerMinute || 0);
+
+    studentGrowthChart = new Chart(canvas, {
+        type: 'line',
+        data: {
+            labels,
+            datasets: [
+                {
+                    label: 'Reading Level',
+                    data: levelData,
+                    borderColor: '#4f46e5',
+                    backgroundColor: 'rgba(79,70,229,0.1)',
+                    fill: true,
+                    tension: 0.4,
+                    yAxisID: 'y'
+                },
+                {
+                    label: 'WPM',
+                    data: wpmData,
+                    borderColor: '#14b8a6',
+                    borderDash: [5, 5],
+                    tension: 0.4,
+                    yAxisID: 'y1'
+                }
+            ]
+        },
+        options: {
+            responsive: true,
+            interaction: { mode: 'index', intersect: false },
+            scales: {
+                y: {
+                    position: 'left',
+                    title: { display: true, text: 'Reading Level' },
+                    ticks: {
+                        callback: v => {
+                            const labels = ['', 'Pre-Primer', 'Primer', 'L1', 'L2', 'L3', 'L4', 'L5', 'L6'];
+                            return labels[v] || v;
+                        },
+                        stepSize: 1
+                    },
+                    min: 0, max: 8
+                },
+                y1: {
+                    position: 'right',
+                    title: { display: true, text: 'WPM' },
+                    grid: { drawOnChartArea: false }
+                }
+            },
+            plugins: {
+                legend: { labels: { font: { size: 11, weight: 600 } } }
+            }
+        }
+    });
+}
+
+// ═══════════════════════════════════════════════════════════
+//  EVENT LISTENERS
+// ═══════════════════════════════════════════════════════════
 function initEventListeners() {
-    // Logout button
+    // Logout
     document.getElementById('logout-btn')?.addEventListener('click', () => {
         auth.signOut().then(() => {
             window.location.href = '/auth/login-fixed.html';
@@ -40,902 +636,151 @@ function initEventListeners() {
     });
 
     // Add Student button
-    const addStudentBtn = document.getElementById('addStudentBtn');
-    if (addStudentBtn) {
-        addStudentBtn.addEventListener('click', showAddStudentModal);
-    }
-    
-    // Close modal buttons
+    document.getElementById('addStudentBtn')?.addEventListener('click', showAddStudentModal);
+
+    // Close add-student modal
     document.querySelectorAll('.close-modal-btn').forEach(btn => {
         btn.addEventListener('click', () => {
-            const modalEl = document.getElementById('addStudentModal');
-            if(modalEl) modalEl.classList.remove('show');
+            document.getElementById('addStudentModal')?.classList.remove('show');
         });
     });
 
-    // Confirm Add Students button
-    const confirmAddBtn = document.getElementById('confirmAddStudents');
-    if (confirmAddBtn) {
-        confirmAddBtn.addEventListener('click', addSelectedStudents);
-    }
-
-    // Student search functionality
-    const studentSearch = document.getElementById('studentSearch');
-    if (studentSearch) {
-        studentSearch.addEventListener('input', (e) => {
-            const searchTerm = e.target.value.toLowerCase();
-            const rows = document.querySelectorAll('#availableStudentsList tr');
-
-            rows.forEach(row => {
-                if (row.dataset.studentId) { // Skip the loading row
-                    const name = row.querySelector('td:nth-child(2)').textContent.toLowerCase();
-                    const email = row.querySelector('td:nth-child(3)').textContent.toLowerCase();
-                    const grade = row.querySelector('td:nth-child(4)').textContent.toLowerCase();
-
-                    if (name.includes(searchTerm) || email.includes(searchTerm) || grade.includes(searchTerm)) {
-                        row.style.display = '';
-                    } else {
-                        row.style.display = 'none';
-                    }
-                }
-            });
+    // Close detail modal
+    document.querySelectorAll('.close-detail-modal').forEach(btn => {
+        btn.addEventListener('click', () => {
+            document.getElementById('studentDetailModal')?.classList.remove('show');
         });
-    }
+    });
+
+    // Confirm Add Students
+    document.getElementById('confirmAddStudents')?.addEventListener('click', addSelectedStudents);
+
+    // Student search in modal
+    document.getElementById('studentSearch')?.addEventListener('input', (e) => {
+        const term = e.target.value.toLowerCase();
+        document.querySelectorAll('#availableStudentsList tr').forEach(row => {
+            if (row.dataset.studentId) {
+                const text = row.textContent.toLowerCase();
+                row.style.display = text.includes(term) ? '' : 'none';
+            }
+        });
+    });
+
+    // Detail modal tabs
+    document.querySelectorAll('.detail-tab').forEach(tab => {
+        tab.addEventListener('click', () => {
+            document.querySelectorAll('.detail-tab').forEach(t => t.classList.remove('active'));
+            document.querySelectorAll('.detail-tab-content').forEach(c => c.classList.remove('active'));
+            tab.classList.add('active');
+            document.getElementById(`tab-${tab.dataset.tab}`)?.classList.add('active');
+        });
+    });
 }
 
-// Show the Add Student modal and load available students
+// ═══════════════════════════════════════════════════════════
+//  ADD STUDENT MODAL (preserved from previous version)
+// ═══════════════════════════════════════════════════════════
 async function showAddStudentModal() {
     const modalEl = document.getElementById('addStudentModal');
-
-    // Clear previous selections
-    const checkboxes = modalEl.querySelectorAll('input[type="checkbox"]');
-    checkboxes.forEach(checkbox => checkbox.checked = false);
-
-    // Show loading state
     const tbody = document.getElementById('availableStudentsList');
-    tbody.innerHTML = `
-        <tr>
-            <td colspan="5" class="text-center py-4">
-                <div class="spinner-border text-primary" role="status">
-                    <span class="visually-hidden">Loading...</span>
-                </div>
-                <p class="mt-2 mb-0">Loading available students...</p>
-            </td>
-        </tr>`;
+    if (!tbody) return;
+
+    tbody.innerHTML = `<tr><td colspan="5" class="text-center py-4" style="color:var(--sd-text-3);">
+        <i class="fas fa-circle-notch fa-spin me-2"></i> Loading...
+    </td></tr>`;
 
     try {
-        // Get current user (teacher)
-        const user = auth.currentUser;
-        if (!user) {
-            throw new Error('User not authenticated');
-        }
-
-        // Get all students
-        const studentsQuery = query(collection(db, 'students'));
-        const studentsSnapshot = await getDocs(studentsQuery);
-
-        if (studentsSnapshot.empty) {
-            tbody.innerHTML = `
-                <tr>
-                    <td colspan="5" class="text-center py-4">
-                        <i class="fas fa-user-slash fa-2x text-muted mb-3"></i>
-                        <p class="mb-0">No students found in the system.</p>
-                    </td>
-                </tr>`;
-            return;
-        }
-
-        // Get the list of student IDs already assigned to this teacher
-        const assignedStudentsQuery = query(
-            collection(db, 'students'),
-            where('teacherId', '==', user.uid)
+        const { user } = await requireAuth(['teacher', 'admin']);
+        
+        // Get students NOT assigned to this teacher
+        const allStudentsSnap = await getDocs(collection(db, 'students'));
+        const assignedSnap = await getDocs(
+            query(collection(db, 'students'), where('teacherId', '==', user.uid))
         );
-        const assignedStudentsSnapshot = await getDocs(assignedStudentsQuery);
-        const assignedStudentIds = assignedStudentsSnapshot.docs.map(doc => doc.id);
+        const assignedIds = new Set(assignedSnap.docs.map(d => d.id));
 
-        // Populate the table with available students
-        tbody.innerHTML = '';
-        let hasAvailableStudents = false;
+        const available = allStudentsSnap.docs.filter(d => !assignedIds.has(d.id));
 
-        studentsSnapshot.docs.forEach(doc => {
-            const student = doc.data();
-            const isAssigned = assignedStudentIds.includes(doc.id);
-
-            // Skip if already assigned to this teacher
-            if (isAssigned) return;
-
-            hasAvailableStudents = true;
-
-            const row = document.createElement('tr');
-            row.dataset.studentId = doc.id;
-            row.innerHTML = `
-                <td class="text-center">
-                    <input type="checkbox" class="form-check-input student-checkbox" data-student-id="${doc.id}">
-                </td>
-                <td>${student.displayName || student.name || 'Unnamed Student'}</td>
-                <td>${student.email || 'No email'}</td>
-                <td>${student.grade || 'N/A'}</td>
-                <td><span class="badge bg-secondary">Available</span></td>
-            `;
-
-            tbody.appendChild(row);
-        });
-
-        if (!hasAvailableStudents) {
-            tbody.innerHTML = `
-                <tr>
-                    <td colspan="5" class="text-center py-4">
-                        <i class="fas fa-check-circle fa-2x text-success mb-3"></i>
-                        <p class="mb-0">All students are already assigned to your class.</p>
-                    </td>
-                </tr>`;
+        if (available.length === 0) {
+            tbody.innerHTML = `<tr><td colspan="5" class="text-center py-4" style="color:var(--sd-text-3);">
+                No available students found
+            </td></tr>`;
+        } else {
+            tbody.innerHTML = '';
+            available.forEach(sDoc => {
+                const s = sDoc.data();
+                const row = document.createElement('tr');
+                row.dataset.studentId = sDoc.id;
+                row.innerHTML = `
+                    <td><input type="checkbox" class="student-checkbox" value="${sDoc.id}" style="width:16px;height:16px;cursor:pointer;"></td>
+                    <td>${s.displayName || s.name || s.firstName || 'Student'}</td>
+                    <td>${s.email || '—'}</td>
+                    <td>${s.grade || s.className || '—'}</td>
+                    <td><span class="td-badge td-badge-green">Available</span></td>
+                `;
+                tbody.appendChild(row);
+            });
         }
-
-    } catch (error) {
-        console.error('Error loading students:', error);
-        tbody.innerHTML = `
-            <tr>
-                <td colspan="5" class="text-center py-4 text-danger">
-                    <i class="fas fa-exclamation-circle fa-2x mb-3"></i>
-                    <p class="mb-0">Error loading students. Please try again later.</p>
-                    <small class="text-muted">${error.message}</small>
-                </td>
-            </tr>`;
+    } catch (e) {
+        console.error('Error loading students:', e);
+        tbody.innerHTML = `<tr><td colspan="5" class="text-center py-4 text-danger">Error loading students</td></tr>`;
     } finally {
-        // Show the modal
-        modalEl.classList.add('show');
+        modalEl?.classList.add('show');
     }
 }
 
-// Add selected students to the teacher's class
 async function addSelectedStudents() {
     const checkboxes = document.querySelectorAll('.student-checkbox:checked');
-    if (checkboxes.length === 0) {
-        alert('Please select at least one student to add.');
+    const studentIds = Array.from(checkboxes).map(cb => cb.value);
+
+    if (studentIds.length === 0) {
+        alert('Please select at least one student.');
         return;
     }
 
-    const confirmBtn = document.getElementById('confirmAddStudents');
-    const originalBtnText = confirmBtn.innerHTML;
-    confirmBtn.disabled = true;
-    confirmBtn.innerHTML = `
-        <span class="spinner-border spinner-border-sm me-1" role="status" aria-hidden="true"></span>
-        Adding Students...`;
-
     try {
-        const user = auth.currentUser;
-        if (!user) {
-            throw new Error('User not authenticated');
-        }
-
+        const { user } = await requireAuth(['teacher', 'admin']);
         const batch = writeBatch(db);
-        const studentIds = Array.from(checkboxes).map(checkbox => checkbox.dataset.studentId);
 
-        // Update each student's document
-        for (const studentId of studentIds) {
-            const studentRef = doc(db, 'students', studentId);
-            batch.update(studentRef, {
+        studentIds.forEach(id => {
+            const ref = doc(db, 'students', id);
+            batch.update(ref, {
                 teacherId: user.uid,
-                updatedAt: serverTimestamp()
+                assignedAt: serverTimestamp()
             });
-        }
+        });
 
         await batch.commit();
+        alert(`Successfully added ${studentIds.length} student(s).`);
 
-        // Show success message
-        alert(`Successfully added ${studentIds.length} student(s) to your class.`);
-
-        // Close the modal and refresh the student list
-        const modalEl = document.getElementById('addStudentModal');
-        if(modalEl) modalEl.classList.remove('show');
-
-        // Reload the student data
-        if (user.uid) {
-            await loadClassData(user.uid);
-        }
-
-    } catch (error) {
-        console.error('Error adding students:', error);
-        alert(`Error adding students: ${error.message}`);
-    } finally {
-        confirmBtn.disabled = false;
-        confirmBtn.innerHTML = originalBtnText;
+        document.getElementById('addStudentModal')?.classList.remove('show');
+        await loadEnrichedClassData(user.uid);
+    } catch (e) {
+        console.error('Error adding students:', e);
+        alert('Error adding students. Please try again.');
     }
 }
 
-// Load teacher data
-async function loadTeacherData(teacherId) {
-    try {
-        const teacherDoc = await getDoc(doc(db, 'teachers', teacherId));
-        if (teacherDoc.exists()) {
-            const teacherData = teacherDoc.data();
-            // Update UI with teacher data
-            const displayName = teacherData.name || teacherData.firstName || teacherData.displayName || 'Teacher';
-            if (teacherNameElement) teacherNameElement.textContent = displayName;
-            if (userNameElement) userNameElement.textContent = displayName;
-        }
-    } catch (error) {
-        console.error('Error loading teacher data:', error);
+// ═══════════════════════════════════════════════════════════
+//  SIDEBAR
+// ═══════════════════════════════════════════════════════════
+function initSidebar() {
+    const sidebar = document.getElementById('sidebar');
+    const toggle = document.getElementById('sidebar-toggle');
+    const overlay = document.getElementById('sidebar-overlay');
+
+    if (toggle && sidebar) {
+        toggle.addEventListener('click', (e) => {
+            e.preventDefault();
+            sidebar.classList.toggle('active');
+            if (overlay) overlay.classList.toggle('active');
+        });
+    }
+
+    if (overlay && sidebar) {
+        overlay.addEventListener('click', () => {
+            sidebar.classList.remove('active');
+            overlay.classList.remove('active');
+        });
     }
 }
-
-// Load class data and student progress
-async function loadClassData(teacherId) {
-    try {
-        // First, get all students assigned to this teacher
-        const studentsQuery = query(
-            collection(db, 'students'),
-            where('teacherId', '==', teacherId)
-        );
-
-        const studentsSnapshot = await getDocs(studentsQuery);
-
-        if (studentsSnapshot.empty) {
-            console.log('No students found for this teacher');
-            updateDashboardStats(0, 0, 0, 0);
-            updateStudentTable([]);
-            // Initialize empty charts if no students found
-            initCharts();
-            return;
-        }
-
-        let totalStudents = studentsSnapshot.size;
-        let totalScore = 0;
-        let totalAssignments = 0;
-        let studentData = [];
-        let processedStudents = 0;
-
-        // Process each student
-        for (const studentDoc of studentsSnapshot.docs) {
-            const student = studentDoc.data();
-
-            // Get student's test results
-            const resultsQuery = query(
-                collection(db, 'testResults'),
-                where('studentId', '==', studentDoc.id)
-            );
-
-            const resultsSnapshot = await getDocs(resultsQuery);
-            let studentScore = 0;
-            let studentTests = resultsSnapshot.size;
-            let recentTests = [];
-
-            // Process test results
-            resultsSnapshot.forEach(doc => {
-                const result = doc.data();
-                if (result.score !== undefined && result.score !== null) {
-                    studentScore += parseFloat(result.score) || 0;
-
-                    // Keep track of recent tests for the chart
-                    if (result.submittedAt) {
-                        try {
-                            const testDate = result.submittedAt.toDate ? result.submittedAt.toDate() : new Date(result.submittedAt);
-                            recentTests.push({
-                                date: testDate,
-                                score: parseFloat(result.score) || 0
-                            });
-                        } catch (e) {
-                            console.warn('Error processing test date:', e);
-                        }
-                    }
-                }
-            });
-
-            // Calculate average score for this student
-            const avgScore = studentTests > 0 ? parseFloat((studentScore / studentTests).toFixed(2)) : 0;
-            totalScore += avgScore;
-            totalAssignments += studentTests;
-
-            // Get the most recent test date
-            let lastTestDate = null;
-            if (recentTests.length > 0) {
-                recentTests.sort((a, b) => b.date - a.date); // Sort by date descending
-                lastTestDate = recentTests[0].date;
-            }
-
-            // Add student data for the table
-            studentData.push({
-                id: studentDoc.id,
-                name: student.displayName || student.name || 'Student',
-                email: student.email || '',
-                class: student.className || student.class || 'Not Assigned',
-                testsCompleted: studentTests,
-                averageScore: avgScore,
-                lastTest: lastTestDate,
-                recentTests: recentTests
-            });
-
-            processedStudents++;
-
-            // Update dashboard stats periodically during loading
-            if (processedStudents % 5 === 0 || processedStudents === totalStudents) {
-                updateDashboardStats(totalStudents, totalScore, processedStudents, totalAssignments);
-            }
-        }
-
-        // Final UI update with all data
-        updateDashboardStats(totalStudents, totalScore, studentData.length, totalAssignments);
-
-        // Only update the table once with the complete data
-        if (studentData.length > 0) {
-            updateStudentTable(studentData);
-            updateCharts(studentData);
-        }
-
-    } catch (error) {
-        console.error('Error loading class data:', error);
-    }
-}
-
-// Update the dashboard statistics
-function updateDashboardStats(totalStudents, totalScore, numStudents, totalAssignments) {
-    if (totalStudentsElement) {
-        totalStudentsElement.textContent = totalStudents;
-    }
-
-    if (averageScoreElement && numStudents > 0) {
-        const avgScore = Math.round((totalScore / numStudents) * 10) / 10;
-        averageScoreElement.textContent = `${avgScore}%`;
-
-        // Update the trend indicator
-        const trendElement = document.getElementById('average-score-trend');
-        if (trendElement) {
-            // This is a simplified example - you would compare with previous data in a real app
-            const trend = Math.random() > 0.5 ? 'up' : 'down';
-            const change = Math.floor(Math.random() * 5) + 1;
-            trendElement.innerHTML = `<i class="fas fa-arrow-${trend} text-${trend === 'up' ? 'success' : 'danger'}"></i> ${change}% from last month`;
-        }
-    }
-
-    if (assignmentsGradedElement) {
-        assignmentsGradedElement.textContent = totalAssignments;
-    }
-
-    if (classAverageElement && numStudents > 0) {
-        const avgScore = Math.round((totalScore / numStudents) * 10) / 10;
-        let grade = '';
-
-        if (avgScore >= 90) grade = 'A';
-        else if (avgScore >= 80) grade = 'B';
-        else if (avgScore >= 70) grade = 'C';
-        else if (avgScore >= 60) grade = 'D';
-        else grade = 'F';
-
-        classAverageElement.textContent = `${avgScore}% (${grade})`;
-    }
-}
-
-// Track the DataTable instance
-let studentDataTable = null;
-
-// Update the student progress table
-function updateStudentTable(students) {
-    // Only proceed if we're on the teacher progress page
-    const isProgressPage = document.querySelector('body.teacher-progress-page') ||
-        window.location.pathname.includes('teacher-progress');
-
-    if (!isProgressPage) {
-        console.log('Not on teacher progress page, skipping table update');
-        return;
-    }
-
-    const table = document.querySelector('#student-progress-table');
-    if (!table) {
-        console.error('Student progress table not found in DOM');
-        return;
-    }
-
-    console.log('Updating student table with data for', students.length, 'students');
-
-    // Destroy any existing instance first
-    if ($.fn.DataTable.isDataTable('#student-progress-table')) {
-        $('#student-progress-table').DataTable().destroy();
-    }
-
-    // Get the table body
-    const tbody = table.querySelector('tbody');
-    if (!tbody) {
-        console.error('Table body not found in student progress table');
-        return;
-    }
-
-    // Clear any existing rows
-    tbody.innerHTML = '';
-
-    // If no students, show a message
-    if (!students || students.length === 0) {
-        const row = document.createElement('tr');
-        row.innerHTML = `
-            <td colspan="7" class="text-center py-4">
-                <div class="d-flex flex-column align-items-center">
-                    <i class="fas fa-users-slash fa-2x text-muted mb-2"></i>
-                    <p class="mb-0">No students found in your class</p>
-                </div>
-            </td>
-        `;
-        tbody.appendChild(row);
-        return;
-    }
-
-    // Sort students by average score (descending)
-    const sortedStudents = [...students].sort((a, b) => (b.averageScore || 0) - (a.averageScore || 0));
-
-    // Add student rows
-    sortedStudents.forEach((student, index) => {
-        console.log(`Processing student ${index + 1}/${sortedStudents.length}:`, student);
-
-        const row = document.createElement('tr');
-
-        // Format the last test date
-        let lastTestText = 'N/A';
-        if (student.lastTest) {
-            try {
-                const date = student.lastTest.toDate ? student.lastTest.toDate() : new Date(student.lastTest);
-                lastTestText = date.toLocaleDateString();
-            } catch (e) {
-                console.warn('Error formatting date:', e);
-            }
-        }
-
-        // Calculate progress percentage
-        const progress = student.averageScore || 0;
-        const status = progress >= 70 ? 'Active' : 'Needs Help';
-        const statusClass = status === 'Active' ? 'success' : 'warning';
-
-        row.innerHTML = `
-            <td>${student.name || 'N/A'}</td>
-            <td>${lastTestText}</td>
-            <td>${student.averageScore || 0}%</td>
-            <td>${student.testsCompleted || 0}</td>
-            <td>
-                <div class="td-progress">
-                    <div class="td-progress-fill" style="width: ${progress}%"></div>
-                </div>
-                <small class="text-muted" style="margin-top:0.25rem; display:block;">${progress}%</small>
-            </td>
-            <td><span class="td-badge td-badge-green" style="${status === 'Active' ? '' : 'background:rgba(245,158,11,.1); color:#f59e0b;'}">${status}</span></td>
-            <td>
-                <div class="td-activity-actions">
-                    <button class="sd-icon-btn view-student" data-id="${student.id}" title="View Details">
-                        <i class="fas fa-eye"></i>
-                    </button>
-                    <button class="sd-icon-btn" title="More Options" style="pointer-events:none; opacity:0.5;">
-                        <i class="fas fa-ellipsis-v"></i>
-                    </button>
-                </div>
-            </td>
-        `;
-
-        tbody.appendChild(row);
-    });
-
-    // Initialize DataTables if available
-    if (typeof $.fn.DataTable === 'function') {
-        try {
-            console.log('Initializing DataTable with', students.length, 'students');
-
-            // Initialize DataTable with proper configuration
-            studentDataTable = $('#student-progress-table').DataTable({
-                pageLength: 10,
-                order: [[2, 'desc']], // Sort by average score by default
-                responsive: true,
-                language: {
-                    search: "_INPUT_",
-                    searchPlaceholder: "Search students...",
-                    emptyTable: "No student data available"
-                },
-                dom: '<"d-flex justify-content-between align-items-center mb-3"f<"ms-3"l>>rtip',
-                initComplete: function () {
-                    $('.dataTables_filter input').addClass('td-form-input');
-                    console.log('DataTable initialization complete');
-                },
-                columnDefs: [
-                    { orderable: false, targets: [5, 6] }, // Make action buttons not sortable
-                    { responsivePriority: 1, targets: 0 }, // Student name
-                    { responsivePriority: 2, targets: 2 }, // Average score
-                    { responsivePriority: 3, targets: 3 }, // Completed tests
-                    { responsivePriority: 4, targets: 4 }, // Progress
-                    { responsivePriority: 5, targets: 1 }, // Last active
-                    { responsivePriority: 6, targets: 5 }, // Status
-                    { responsivePriority: 7, targets: 6 }  // Actions
-                ]
-            });
-
-            console.log('DataTable initialized successfully');
-
-        } catch (error) {
-            console.error('Error initializing DataTable:', error);
-            // Clean up if initialization fails
-            if ($.fn.DataTable.isDataTable('#student-progress-table')) {
-                $('#student-progress-table').DataTable().destroy(true);
-                console.error('Error updating DataTable, will reinitialize:', error);
-                if (studentDataTable) {
-                    studentDataTable.destroy(true);
-                    studentDataTable = null;
-                }
-        }
-    }
-}
-}
-
-    // Global chart state and instances
-    const chartsState = {
-        initialized: {
-            performance: false,
-            distribution: false
-        },
-        instances: {
-            performance: null,
-            distribution: null
-        }
-    };
-
-    // Initialize everything after the DOM is fully loaded
-    document.addEventListener('DOMContentLoaded', () => {
-        console.log('DOM fully loaded, initializing app...');
-
-        // Initialize auth state first
-        initAuthState();
-
-        // Initialize event listeners
-        initEventListeners();
-
-        // Initialize charts with empty data
-        initializeCharts();
-    });
-
-    // Function to initialize all charts
-    function initializeCharts() {
-        console.log('Initializing charts...');
-
-        // Reset initialization state
-        chartsState.initialized.performance = false;
-        chartsState.initialized.distribution = false;
-
-        // Initialize performance chart
-        const perfChart = getOrCreatePerformanceChart();
-        if (perfChart) {
-            console.log('Performance chart initialized successfully');
-            chartsState.initialized.performance = true;
-            chartsState.instances.performance = perfChart;
-        } else {
-            console.error('Failed to initialize performance chart');
-        }
-
-        // Initialize distribution chart
-        const distChart = getOrCreateDistributionChart();
-        if (distChart) {
-            console.log('Distribution chart initialized successfully');
-            chartsState.initialized.distribution = true;
-            chartsState.instances.distribution = distChart;
-        } else {
-            console.error('Failed to initialize distribution chart');
-        }
-
-        console.log('Charts initialization state:', chartsState.initialized);
-
-        // Process any pending updates now that both charts are initialized
-        if (chartsState.initialized.performance && chartsState.initialized.distribution) {
-            console.log('Both charts ready, checking for pending updates');
-            processPendingUpdates();
-        }
-    }
-
-    // Update the charts with student data
-    function updateCharts(students) {
-        try {
-            console.log('Updating charts with student data...');
-
-            // Get chart instances from our state
-            const perfChart = chartsState.instances.performance;
-            const distChart = chartsState.instances.distribution;
-
-            // Check if both charts are ready
-            if (!chartsState.initialized.performance || !chartsState.initialized.distribution) {
-                console.log('Charts not fully initialized yet, skipping update');
-                // Store the student data to update charts once they're ready
-                window.pendingChartUpdate = students;
-                return;
-            }
-
-            // If no students, update charts with empty data and return
-            if (!students || students.length === 0) {
-                console.log('No student data available, resetting charts');
-                if (perfChart && perfChart.data && perfChart.data.datasets) {
-                    perfChart.data.datasets[0].data = new Array(6).fill(0);
-                    perfChart.update();
-                }
-                if (distChart && distChart.data && distChart.data.datasets) {
-                    distChart.data.datasets[0].data = [0, 0, 0, 0, 0];
-                    distChart.update();
-                }
-                return;
-            }
-
-            // Update charts with student data
-            updateClassPerformanceChart(students);
-            updateScoreDistributionChart(students);
-        } catch (error) {
-            console.error('Error in updateCharts:', error);
-        }
-    }
-
-    // Initialize charts with empty data (kept for backward compatibility)
-    function initCharts() {
-        // This function is kept for backward compatibility but is no longer needed
-        // as chart initialization is now handled by getOrCreate* functions
-        console.log('initCharts() is deprecated. Charts are now initialized on demand.');
-    }
-
-    // Safely initialize or get performance chart instance
-    function getOrCreatePerformanceChart() {
-        try {
-            // If we already have a chart instance, return it
-            if (chartsState.instances.performance) {
-                return chartsState.instances.performance;
-            }
-
-            const canvas = document.getElementById('classPerformanceChart');
-            if (!canvas) {
-                console.warn('Performance chart canvas not found');
-                return null;
-            }
-
-            const ctx = canvas.getContext('2d');
-            if (!ctx) {
-                console.warn('Could not get 2D context for performance chart');
-                return null;
-            }
-
-            // Generate labels for the last 6 months
-            const months = [];
-            const now = new Date();
-            for (let i = 5; i >= 0; i--) {
-                const date = new Date(now);
-                date.setMonth(now.getMonth() - i);
-                months.push(date.toLocaleString('default', { month: 'short' }));
-            }
-
-            // Create the chart instance
-            const chart = new Chart(ctx, {
-                type: 'line',
-                data: {
-                    labels: months,
-                    datasets: [{
-                        label: 'Class Average',
-                        data: new Array(6).fill(0),
-                        borderColor: '#4e73df',
-                        backgroundColor: 'rgba(78, 115, 223, 0.05)',
-                        tension: 0.3,
-                        fill: true
-                    }]
-                },
-                options: {
-                    responsive: true,
-                    maintainAspectRatio: false,
-                    plugins: {
-                        legend: {
-                            display: false
-                        }
-                    },
-                    scales: {
-                        y: {
-                            beginAtZero: true,
-                            max: 100,
-                            ticks: {
-                                callback: function (value) {
-                                    return value + '%';
-                                }
-                            }
-                        }
-                    }
-                }
-            });
-
-            // Store the chart instance and update state
-            chartsState.instances.performance = chart;
-            chartsState.initialized.performance = true;
-            console.log('Performance chart created successfully');
-
-            return chart;
-
-        } catch (error) {
-            console.error('Error creating performance chart:', error);
-            return null;
-        }
-    }
-
-    // Update the class performance line chart
-    function updateClassPerformanceChart(students) {
-        try {
-            // Get the chart instance
-            const chart = chartsState.instances.performance;
-            if (!chart || !chart.data || !chart.data.datasets || !chart.data.datasets[0]) {
-                console.warn('Performance chart not properly initialized, skipping update');
-                console.log('Current chart instance:', chart);
-                return;
-            }
-
-            // Generate last 6 months labels
-            const months = [];
-            const now = new Date();
-            for (let i = 5; i >= 0; i--) {
-                const date = new Date(now);
-                date.setMonth(now.getMonth() - i);
-                months.push(date.toLocaleString('default', { month: 'short' }));
-            }
-
-            // Initialize monthly averages
-            const monthlyAverages = new Array(6).fill(0);
-            const monthCounts = new Array(6).fill(0);
-            let hasData = false;
-
-            // Calculate monthly averages if we have students with test results
-            if (students && students.length > 0) {
-                students.forEach(student => {
-                    if (!student.testResults) return;
-
-                    Object.values(student.testResults).forEach(test => {
-                        if (test.completedAt) {
-                            const testDate = test.completedAt.toDate();
-                            const monthDiff = (now.getFullYear() - testDate.getFullYear()) * 12 +
-                                now.getMonth() - testDate.getMonth();
-
-                            if (monthDiff >= 0 && monthDiff < 6) {
-                                const index = 5 - monthDiff;
-                                monthlyAverages[index] += test.score || 0;
-                                monthCounts[index]++;
-                                hasData = true;
-                            }
-                        }
-                    });
-                });
-            }
-
-            try {
-                // Calculate final averages
-                const averageScores = monthlyAverages.map((sum, i) =>
-                    monthCounts[i] > 0 ? Math.round((sum / monthCounts[i]) * 10) / 10 : 0
-                );
-
-                // Safely update the chart data and labels
-                if (chart.data) {
-                    chart.data.labels = months;
-                    if (chart.data.datasets && chart.data.datasets[0]) {
-                        chart.data.datasets[0].data = hasData ? averageScores : new Array(6).fill(0);
-                    }
-                    chart.update();
-                }
-            } catch (updateError) {
-                console.error('Error updating chart data:', updateError);
-            }
-        } catch (error) {
-            console.error('Error in updateClassPerformanceChart:', error);
-        }
-    }
-
-    // Safely initialize or get distribution chart instance
-    function getOrCreateDistributionChart() {
-        try {
-            // If we already have a chart instance, return it
-            if (chartsState.instances.distribution) {
-                return chartsState.instances.distribution;
-            }
-
-            const canvas = document.getElementById('scoreDistributionChart');
-            if (!canvas) {
-                console.warn('Distribution chart canvas not found');
-                return null;
-            }
-
-            const ctx = canvas.getContext('2d');
-            if (!ctx) {
-                console.warn('Could not get 2D context for distribution chart');
-                return null;
-            }
-
-            // Create the chart instance
-            const chart = new Chart(ctx, {
-                type: 'doughnut',
-                data: {
-                    labels: ['90-100%', '80-89%', '70-79%', '60-69%', 'Below 60%'],
-                    datasets: [{
-                        data: [0, 0, 0, 0, 0],
-                        backgroundColor: ['#1cc88a', '#36b9cc', '#f6c23e', '#e74a3b', '#858796'],
-                        hoverBackgroundColor: ['#17a673', '#2c9faf', '#dda20a', '#be2617', '#6c757d'],
-                        hoverBorderColor: 'rgba(234, 236, 244, 1)',
-                    }]
-                },
-                options: {
-                    maintainAspectRatio: false,
-                    plugins: {
-                        legend: {
-                            position: 'bottom',
-                            labels: {
-                                padding: 20,
-                                usePointStyle: true,
-                                pointStyle: 'circle'
-                            }
-                        }
-                    },
-                    cutout: '70%',
-                    animation: {
-                        animateScale: true,
-                        animateRotate: true
-                    }
-                }
-            });
-
-            // Store the chart instance and update state
-            chartsState.instances.distribution = chart;
-            chartsState.initialized.distribution = true;
-            console.log('Distribution chart created successfully');
-
-            return chart;
-
-        } catch (error) {
-            console.error('Error creating distribution chart:', error);
-            return null;
-        }
-    }
-
-    // Update the score distribution chart
-    function updateScoreDistributionChart(students) {
-        try {
-            // Get the chart instance
-            const chart = chartsState.instances.distribution;
-            if (!chart || !chart.data || !chart.data.datasets || !chart.data.datasets[0]) {
-                console.warn('Distribution chart not properly initialized, skipping update');
-                console.log('Current chart instance:', chart);
-                return;
-            }
-
-            // Initialize score ranges
-            const scoreRanges = [0, 0, 0, 0, 0]; // 90-100, 80-89, 70-79, 60-69, <60
-
-            // Calculate score distribution if we have students
-            if (students && students.length > 0) {
-                students.forEach(student => {
-                    if (student.averageScore === undefined) return;
-
-                    if (student.averageScore >= 90) scoreRanges[0]++;
-                    else if (student.averageScore >= 80) scoreRanges[1]++;
-                    else if (student.averageScore >= 70) scoreRanges[2]++;
-                    else if (student.averageScore >= 60) scoreRanges[3]++;
-                    else scoreRanges[4]++;
-                });
-            }
-
-            // Safely update the chart data
-            try {
-                if (chart.data && chart.data.datasets && chart.data.datasets[0]) {
-                    chart.data.datasets[0].data = scoreRanges;
-                    chart.update();
-                }
-            } catch (updateError) {
-                console.error('Error updating distribution chart data:', updateError);
-            }
-        } catch (error) {
-            console.error('Error in updateScoreDistributionChart:', error);
-        }
-    }
-
-    // Process any pending chart updates when both charts are ready
-    function processPendingUpdates() {
-        if (chartsState.initialized.performance && chartsState.initialized.distribution && window.pendingChartUpdate) {
-            console.log('All charts ready, processing pending update', window.pendingChartUpdate);
-            const studentsToUpdate = window.pendingChartUpdate;
-            window.pendingChartUpdate = null;
-            updateCharts(studentsToUpdate);
-        } else {
-            console.log('Not all charts ready or no pending updates', {
-                chartsState,
-                hasPendingUpdate: !!window.pendingChartUpdate
-            });
-        }
-    }
-
-    // Make functions available globally for debugging
-    window.updateCharts = updateCharts;
-    window.updateStudentTable = updateStudentTable;
-    window.chartsState = chartsState;
