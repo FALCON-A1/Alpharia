@@ -25,7 +25,7 @@
             align-items: center;
             gap: 1.25rem;
             transition: var(--sd-transition);
-            margin-bottom: 1rem;
+            margin-bottom: 0;
         }
         .child-card:hover {
             box-shadow: var(--sd-shadow-sm);
@@ -59,6 +59,133 @@
         .empty-children i { font-size: 3rem; color: var(--sd-text-3); margin-bottom: 1rem; }
         .empty-children h3 { font-size: 1.2rem; margin-bottom: 0.5rem; color: var(--sd-text); }
         .empty-children p { color: var(--sd-text-2); margin-bottom: 1.5rem; }
+
+        /* ── Child Wrapper with expandable detail ── */
+        .child-wrapper {
+            background: var(--sd-surface);
+            border: 1.5px solid var(--sd-border);
+            border-radius: var(--sd-radius);
+            margin-bottom: 1.25rem;
+            overflow: hidden;
+            transition: var(--sd-transition);
+        }
+        .child-wrapper:hover {
+            box-shadow: var(--sd-shadow-sm);
+            border-color: var(--sd-primary);
+        }
+        .child-wrapper .child-card {
+            border: none;
+            border-radius: 0;
+            margin-bottom: 0;
+        }
+        .child-wrapper .child-card:hover {
+            box-shadow: none;
+            transform: none;
+        }
+
+        /* Expandable detail panel */
+        .child-detail {
+            border-top: 1px solid var(--sd-border);
+            padding: 1.25rem 1.5rem;
+            background: var(--sd-surface-2);
+        }
+        .child-detail-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 1rem;
+        }
+        @media (max-width: 700px) {
+            .child-detail-grid { grid-template-columns: 1fr; }
+        }
+
+        /* AI Recommendation card */
+        .parent-rec {
+            background: var(--sd-surface);
+            border-radius: var(--sd-radius-sm);
+            padding: 0.85rem 1rem;
+            margin-bottom: 0.5rem;
+            border-left: 3px solid var(--sd-primary);
+        }
+        .parent-rec:last-child { margin-bottom: 0; }
+        .parent-rec-title { font-size: 0.82rem; font-weight: 700; color: var(--sd-text); }
+        .parent-rec-desc { font-size: 0.75rem; color: var(--sd-text-2); margin-top: 0.15rem; line-height: 1.5; }
+        .parent-rec-tag {
+            display: inline-block;
+            margin-top: 0.3rem;
+            font-size: 0.62rem;
+            font-weight: 700;
+            padding: 0.12rem 0.5rem;
+            border-radius: 50px;
+            text-transform: uppercase;
+            background: var(--sd-primary-lt);
+            color: var(--sd-primary);
+        }
+
+        /* Mini stats inside detail panel */
+        .parent-mini-stats {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 0.6rem;
+            margin-bottom: 1rem;
+        }
+        .parent-mini-stat {
+            text-align: center;
+            padding: 0.75rem 0.5rem;
+            background: var(--sd-surface);
+            border-radius: var(--sd-radius-sm);
+            border: 1px solid var(--sd-border);
+        }
+        .parent-mini-stat-value {
+            font-size: 1.2rem;
+            font-weight: 800;
+            color: var(--sd-text);
+        }
+        .parent-mini-stat-label {
+            font-size: 0.65rem;
+            font-weight: 700;
+            color: var(--sd-text-3);
+            text-transform: uppercase;
+            letter-spacing: 0.04em;
+            margin-top: 0.15rem;
+        }
+
+        /* Section titles inside detail */
+        .parent-section-title {
+            font-size: 0.78rem;
+            font-weight: 700;
+            color: var(--sd-text);
+            margin-bottom: 0.6rem;
+            display: flex;
+            align-items: center;
+            gap: 0.4rem;
+        }
+        .parent-section-title i { color: var(--sd-primary); font-size: 0.75rem; }
+
+        /* Practice tips */
+        .parent-tip {
+            display: flex;
+            align-items: flex-start;
+            gap: 0.6rem;
+            padding: 0.6rem 0;
+        }
+        .parent-tip:last-child { padding-bottom: 0; }
+        .parent-tip-icon {
+            width: 28px;
+            height: 28px;
+            border-radius: 8px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 0.7rem;
+            flex-shrink: 0;
+            background: rgba(20,184,166,0.1);
+            color: #14b8a6;
+        }
+        .parent-tip-text {
+            font-size: 0.78rem;
+            color: var(--sd-text-2);
+            line-height: 1.5;
+        }
     </style>
 </head>
 
@@ -94,7 +221,7 @@
             </a>
 
             <span class="sd-nav-section-label">Account</span>
-            <a href="#" class="sd-nav-link">
+            <a href="parent-settings.html" class="sd-nav-link">
                 <i class="fas fa-cog"></i>
                 <span>Settings</span>
             </a>

@@ -1,0 +1,269 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>School Reports — Alpharia</title>
+    <meta name="description" content="Generate institutional-level reading performance reports.">
+
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link rel="stylesheet" href="css/student-dashboard-clean.css">
+    <link rel="stylesheet" href="css/teacher-dashboard-clean.css">
+
+    <style>
+        @keyframes fadeIn { from{opacity:0;transform:translateY(10px)}to{opacity:1;transform:translateY(0)} }
+
+        .rpt-stat-grid { display:grid; grid-template-columns:repeat(auto-fit, minmax(180px, 1fr)); gap:1rem; margin-bottom:2rem; }
+        .rpt-stat {
+            background:var(--sd-surface); border:1.5px solid var(--sd-border); border-radius:var(--sd-radius);
+            padding:1.25rem; text-align:center; transition:0.2s;
+        }
+        .rpt-stat:hover { transform:translateY(-2px); box-shadow:var(--sd-shadow-sm); }
+        .rpt-stat-icon { font-size:1.5rem; margin-bottom:0.5rem; }
+        .rpt-stat-val { font-size:1.8rem; font-weight:800; color:var(--sd-text); }
+        .rpt-stat-label { font-size:0.68rem; font-weight:700; color:var(--sd-text-3); text-transform:uppercase; letter-spacing:0.05em; }
+
+        .rpt-table-wrap { overflow-x:auto; }
+        .rpt-table { width:100%; border-collapse:collapse; font-size:0.82rem; }
+        .rpt-table th { background:var(--sd-surface-2); padding:0.7rem 1rem; text-align:left; font-weight:700; color:var(--sd-text); border-bottom:2px solid var(--sd-border); font-size:0.72rem; text-transform:uppercase; letter-spacing:0.05em; }
+        .rpt-table td { padding:0.65rem 1rem; border-bottom:1px solid var(--sd-border); color:var(--sd-text-2); }
+        .rpt-table tr:hover td { background:var(--sd-surface-2); }
+
+        .rpt-level-badge { display:inline-block; padding:0.15rem 0.55rem; border-radius:50px; font-size:0.68rem; font-weight:700; background:var(--sd-primary-lt); color:var(--sd-primary); }
+        .rpt-risk-high { background:rgba(239,68,68,0.1); color:#ef4444; }
+        .rpt-risk-medium { background:rgba(245,158,11,0.1); color:#f59e0b; }
+        .rpt-risk-low { background:rgba(16,185,129,0.1); color:#10b981; }
+
+        .rpt-export-bar { display:flex; gap:0.75rem; margin-bottom:1.5rem; flex-wrap:wrap; align-items:center; }
+        .rpt-btn {
+            display:inline-flex; align-items:center; gap:0.4rem;
+            padding:0.55rem 1rem; border-radius:var(--sd-radius-sm);
+            font-size:0.8rem; font-weight:700; font-family:inherit; cursor:pointer;
+            border:1.5px solid var(--sd-border); background:var(--sd-surface); color:var(--sd-text-2); transition:0.2s;
+        }
+        .rpt-btn:hover { border-color:var(--sd-primary); color:var(--sd-primary); }
+        .rpt-btn-primary { background:var(--sd-primary); color:white; border-color:var(--sd-primary); }
+    </style>
+</head>
+
+<body class="sd-page">
+<div class="sd-shell">
+    <aside class="sd-sidebar" id="sidebar">
+        <div class="sd-sidebar-brand">
+            <div class="sd-brand-icon" style="background:var(--sd-primary);"><i class="fas fa-university"></i></div>
+            <span class="sd-brand-text">Alpharia Admin</span>
+        </div>
+        <nav class="sd-nav">
+            <span class="sd-nav-section-label">Institutional</span>
+            <a href="school-dashboard.html" class="sd-nav-link"><i class="fas fa-chart-pie"></i><span>Overview</span></a>
+            <a href="manage-users.html" class="sd-nav-link"><i class="fas fa-user-plus"></i><span>Manage Users</span></a>
+            <span class="sd-nav-section-label">Reports</span>
+            <a href="school-reports.html" class="sd-nav-link active"><i class="fas fa-file-invoice"></i><span>Reports</span></a>
+            <span class="sd-nav-section-label">Account</span>
+            <a href="school-settings.html" class="sd-nav-link"><i class="fas fa-cog"></i><span>School Settings</span></a>
+        </nav>
+        <div class="sd-sidebar-footer">
+            <div class="sd-sidebar-user">
+                <div class="sd-sidebar-user-info">
+                    <div class="sd-sidebar-user-name" id="admin-name-sidebar">Loading…</div>
+                    <div class="sd-sidebar-user-role">School Administrator</div>
+                </div>
+                <button class="sd-icon-btn" id="logout-btn" title="Sign Out" style="margin-left:auto;color:var(--sd-text-3);"><i class="fas fa-sign-out-alt"></i></button>
+            </div>
+        </div>
+    </aside>
+    <div class="sd-sidebar-overlay" id="sidebar-overlay"></div>
+
+    <div class="sd-main">
+        <header class="sd-topbar">
+            <button class="sd-topbar-toggle menu-toggle d-lg-none" id="sidebar-toggle"><i class="fas fa-bars"></i></button>
+            <div style="font-weight:700; color:var(--sd-text);">School Reports</div>
+            <div class="sd-topbar-actions"></div>
+        </header>
+
+        <main class="sd-body" style="animation:fadeIn 0.4s ease-out;">
+
+            <!-- Export bar -->
+            <div class="rpt-export-bar">
+                <button class="rpt-btn rpt-btn-primary" id="btn-export-csv"><i class="fas fa-download"></i> Export CSV</button>
+                <button class="rpt-btn" id="btn-print"><i class="fas fa-print"></i> Print Report</button>
+                <div style="flex:1;"></div>
+                <span style="font-size:0.78rem; color:var(--sd-text-3); font-weight:600;" id="report-date"></span>
+            </div>
+
+            <!-- Summary stats -->
+            <div class="rpt-stat-grid" id="summary-stats">
+                <div class="rpt-stat"><div class="rpt-stat-icon">👩‍🎓</div><div class="rpt-stat-val" id="rpt-students">—</div><div class="rpt-stat-label">Students</div></div>
+                <div class="rpt-stat"><div class="rpt-stat-icon">👩‍🏫</div><div class="rpt-stat-val" id="rpt-teachers">—</div><div class="rpt-stat-label">Teachers</div></div>
+                <div class="rpt-stat"><div class="rpt-stat-icon">📝</div><div class="rpt-stat-val" id="rpt-assessments">—</div><div class="rpt-stat-label">Assessments</div></div>
+                <div class="rpt-stat"><div class="rpt-stat-icon">📊</div><div class="rpt-stat-val" id="rpt-avg-wpm">—</div><div class="rpt-stat-label">Avg WPM</div></div>
+                <div class="rpt-stat"><div class="rpt-stat-icon">🎯</div><div class="rpt-stat-val" id="rpt-avg-acc">—</div><div class="rpt-stat-label">Avg Accuracy</div></div>
+            </div>
+
+            <!-- Level distribution -->
+            <div class="td-card" style="margin-bottom:1.5rem;">
+                <div class="td-card-header"><h3><i class="fas fa-layer-group"></i> Reading Level Distribution</h3></div>
+                <div class="td-card-body">
+                    <div id="level-dist" style="display:flex; flex-wrap:wrap; gap:0.75rem;"></div>
+                </div>
+            </div>
+
+            <!-- Student detail table -->
+            <div class="td-card">
+                <div class="td-card-header"><h3><i class="fas fa-table"></i> Student Performance Detail</h3></div>
+                <div class="td-card-body" style="padding:0;">
+                    <div class="rpt-table-wrap">
+                        <table class="rpt-table">
+                            <thead><tr>
+                                <th>Student</th><th>Grade</th><th>Level</th><th>WPM</th><th>Accuracy</th><th>Tests</th><th>Risk</th>
+                            </tr></thead>
+                            <tbody id="student-detail-body">
+                                <tr><td colspan="7" style="text-align:center; padding:2rem; color:var(--sd-text-3);">Loading…</td></tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+
+        </main>
+    </div>
+</div>
+
+<script type="module">
+    import { auth, db } from './js/firebase-config.js';
+    import { requireAuth } from './js/auth-check.js';
+    import { doc, getDoc, collection, getDocs, query, where } from 'https://www.gstatic.com/firebasejs/12.1.0/firebase-firestore.js';
+    import { signOut } from 'https://www.gstatic.com/firebasejs/12.1.0/firebase-auth.js';
+
+    let schoolId = null;
+    let reportData = [];
+
+    function initSidebar() {
+        const sidebar = document.getElementById('sidebar');
+        const toggle = document.getElementById('sidebar-toggle');
+        const overlay = document.getElementById('sidebar-overlay');
+        if (toggle && sidebar) toggle.addEventListener('click', () => {
+            sidebar.classList.toggle('active'); sidebar.classList.toggle('open');
+            overlay?.classList.toggle('active'); overlay?.classList.toggle('open');
+        });
+        if (overlay) overlay.addEventListener('click', () => {
+            sidebar.classList.remove('active','open'); overlay.classList.remove('active','open');
+        });
+    }
+
+    document.addEventListener('DOMContentLoaded', async () => {
+        initSidebar();
+        document.getElementById('report-date').textContent = `Generated: ${new Date().toLocaleDateString('en-US', { year:'numeric', month:'long', day:'numeric' })}`;
+
+        try {
+            const { user } = await requireAuth(['school_admin', 'admin']);
+            const adminDoc = await getDoc(doc(db, 'users', user.uid));
+            if (adminDoc.exists()) {
+                schoolId = adminDoc.data().schoolId || null;
+                document.getElementById('admin-name-sidebar').textContent = adminDoc.data().name || 'Admin';
+            }
+            document.getElementById('logout-btn').addEventListener('click', () => signOut(auth).then(() => window.location.href = 'auth/login-fixed.html'));
+            await generateReport();
+        } catch (e) { console.error(e); }
+
+        document.getElementById('btn-export-csv').addEventListener('click', exportCSV);
+        document.getElementById('btn-print').addEventListener('click', () => window.print());
+    });
+
+    async function generateReport() {
+        const [studentsSnap, teachersSnap, resultsSnap] = await Promise.all([
+            getDocs(collection(db, 'students')),
+            getDocs(collection(db, 'teachers')),
+            getDocs(collection(db, 'results'))
+        ]);
+
+        const students = {};
+        studentsSnap.forEach(d => {
+            const data = d.data();
+            students[d.id] = { id: d.id, name: data.name || data.displayName || 'Student', grade: data.grade || '—', results: [] };
+        });
+
+        const results = [];
+        resultsSnap.forEach(d => {
+            const data = d.data();
+            results.push(data);
+            const uid = data.userId || data.studentId;
+            if (uid && students[uid]) students[uid].results.push(data);
+        });
+
+        // Summary
+        document.getElementById('rpt-students').textContent = studentsSnap.size;
+        document.getElementById('rpt-teachers').textContent = teachersSnap.size;
+        document.getElementById('rpt-assessments').textContent = resultsSnap.size;
+
+        const allWpm = results.filter(r => r.wpm != null).map(r => r.wpm);
+        const allAcc = results.filter(r => r.accuracy != null).map(r => r.accuracy);
+        document.getElementById('rpt-avg-wpm').textContent = allWpm.length > 0 ? Math.round(allWpm.reduce((a,b)=>a+b,0)/allWpm.length) : '—';
+        document.getElementById('rpt-avg-acc').textContent = allAcc.length > 0 ? Math.round(allAcc.reduce((a,b)=>a+b,0)/allAcc.length) + '%' : '—';
+
+        // Level distribution
+        const levelCounts = {};
+        Object.values(students).forEach(s => {
+            if (s.results.length > 0) {
+                s.results.sort((a,b) => (b.timestamp?.seconds||0) - (a.timestamp?.seconds||0));
+                const lvl = s.results[0].placedLevel || s.results[0].readingLevel || 'unknown';
+                const label = String(lvl).replace(/_/g,' ').replace(/\b\w/g,c=>c.toUpperCase());
+                levelCounts[label] = (levelCounts[label]||0) + 1;
+            }
+        });
+        const distEl = document.getElementById('level-dist');
+        distEl.innerHTML = Object.entries(levelCounts).map(([lvl, count]) => {
+            return `<div style="flex:1; min-width:100px; text-align:center; padding:0.75rem; background:var(--sd-surface-2); border-radius:var(--sd-radius-sm);">
+                <div style="font-size:1.3rem; font-weight:800; color:var(--sd-primary);">${count}</div>
+                <div style="font-size:0.68rem; font-weight:700; color:var(--sd-text-3); text-transform:uppercase;">${lvl}</div>
+            </div>`;
+        }).join('') || '<p style="color:var(--sd-text-3); padding:1rem;">No level data available.</p>';
+
+        // Student detail
+        reportData = Object.values(students).map(s => {
+            const latest = s.results[0] || {};
+            const wpm = latest.wpm || latest.fluency?.wordsPerMinute || null;
+            const acc = latest.accuracy || latest.fluency?.accuracyRate || null;
+            const level = latest.placedLevel || latest.readingLevel || '—';
+            const risk = (acc != null && acc < 80) || (wpm != null && wpm < 30) ? 'high' : (acc != null && acc < 90) || (wpm != null && wpm < 60) ? 'medium' : 'low';
+            return { name: s.name, grade: s.grade, level, wpm, acc, tests: s.results.length, risk };
+        });
+
+        reportData.sort((a,b) => a.name.localeCompare(b.name));
+        const tbody = document.getElementById('student-detail-body');
+        if (reportData.length === 0) {
+            tbody.innerHTML = '<tr><td colspan="7" style="text-align:center; padding:2rem; color:var(--sd-text-3);">No student data available.</td></tr>';
+        } else {
+            tbody.innerHTML = reportData.map(r => {
+                const lvlLabel = String(r.level).replace(/_/g,' ').replace(/\b\w/g,c=>c.toUpperCase());
+                return `<tr>
+                    <td style="font-weight:700; color:var(--sd-text);">${r.name}</td>
+                    <td>${r.grade}</td>
+                    <td><span class="rpt-level-badge">${lvlLabel}</span></td>
+                    <td style="font-weight:700;">${r.wpm != null ? Math.round(r.wpm) : '—'}</td>
+                    <td>${r.acc != null ? Math.round(r.acc) + '%' : '—'}</td>
+                    <td>${r.tests}</td>
+                    <td><span class="rpt-level-badge rpt-risk-${r.risk}">${r.risk.toUpperCase()}</span></td>
+                </tr>`;
+            }).join('');
+        }
+    }
+
+    function exportCSV() {
+        if (reportData.length === 0) return;
+        let csv = 'Student,Grade,Reading Level,WPM,Accuracy,Tests,Risk\n';
+        reportData.forEach(r => {
+            csv += `"${r.name}","${r.grade}","${r.level}",${r.wpm||''},${r.acc||''},${r.tests},${r.risk}\n`;
+        });
+        const blob = new Blob([csv], { type: 'text/csv' });
+        const url = URL.createObjectURL(blob);
+        const a = document.createElement('a');
+        a.href = url; a.download = `alpharia-school-report-${new Date().toISOString().slice(0,10)}.csv`; a.click();
+        URL.revokeObjectURL(url);
+    }
+</script>
+</body>
+</html>

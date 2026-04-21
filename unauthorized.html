@@ -1,0 +1,47 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Unauthorized — Alpharia</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;800&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        * { margin:0; padding:0; box-sizing:border-box; }
+        body {
+            font-family: 'Inter', sans-serif;
+            background: linear-gradient(135deg, #0f172a 0%, #1e293b 50%, #0f172a 100%);
+            min-height: 100vh; display: flex; align-items: center; justify-content: center;
+            color: white;
+        }
+        .unauth {
+            text-align: center; padding: 3rem 2rem; max-width: 480px;
+        }
+        .unauth-icon {
+            width: 80px; height: 80px; border-radius: 20px;
+            background: rgba(239,68,68,0.15); color: #ef4444;
+            display: inline-flex; align-items: center; justify-content: center;
+            font-size: 2rem; margin-bottom: 1.5rem;
+        }
+        .unauth h1 { font-size: 1.6rem; font-weight: 800; margin-bottom: 0.5rem; }
+        .unauth p { color: rgba(255,255,255,0.6); margin-bottom: 2rem; line-height: 1.6; }
+        .unauth a {
+            display: inline-flex; align-items: center; gap: 0.5rem;
+            padding: 0.75rem 1.5rem; border-radius: 10px;
+            background: #4f46e5; color: white; text-decoration: none;
+            font-weight: 700; font-size: 0.9rem; transition: 0.2s;
+        }
+        .unauth a:hover { opacity: 0.9; }
+    </style>
+</head>
+<body>
+    <div class="unauth">
+        <div class="unauth-icon"><i class="fas fa-shield-alt"></i></div>
+        <h1>Access Denied</h1>
+        <p>You don't have permission to view this page. Please log in with the correct account or contact your school administrator.</p>
+        <a href="auth/login-fixed.html"><i class="fas fa-sign-in-alt"></i> Go to Login</a>
+    </div>
+</body>
+</html>

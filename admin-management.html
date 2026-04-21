@@ -3,432 +3,366 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>User Management - Alpharia Admin</title>
-    
-    <!-- Google Fonts -->
-    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
-    
-    <!-- Font Awesome Icons -->
+    <title>Users & Schools — Admin — Alpharia</title>
+    <meta name="description" content="Manage all users, students, teachers, and schools on the platform.">
+
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-    
-    <!-- Bootstrap CSS -->
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/css/bootstrap.min.css" rel="stylesheet">
-    
-    <!-- Custom CSS -->
-    <link rel="stylesheet" href="css/teacher-dashboard.css">
+    <link rel="stylesheet" href="css/student-dashboard-clean.css">
+    <link rel="stylesheet" href="css/teacher-dashboard-clean.css">
+
     <style>
-        .user-card {
-            transition: all 0.3s ease;
-            margin-bottom: 1rem;
+        @keyframes fadeIn { from{opacity:0;transform:translateY(10px)}to{opacity:1;transform:translateY(0)} }
+        @keyframes slideIn { from{opacity:0;transform:translateX(10px)}to{opacity:1;transform:translateX(0)} }
+
+        /* Tabs */
+        .am-tabs { display:flex; gap:0; margin-bottom:1.5rem; border-bottom:2px solid var(--sd-border); overflow-x:auto; }
+        .am-tab {
+            padding:0.75rem 1.5rem; font-size:0.82rem; font-weight:700; color:var(--sd-text-3);
+            cursor:pointer; border-bottom:2.5px solid transparent; margin-bottom:-2px; transition:0.2s;
+            background:none; border-left:none; border-top:none; border-right:none; font-family:inherit;
+            white-space:nowrap; display:flex; align-items:center; gap:0.4rem;
         }
-        .user-card:hover {
-            box-shadow: 0 0.5rem 1rem rgba(0, 0, 0, 0.15);
-            transform: translateY(-2px);
+        .am-tab:hover { color:var(--sd-text); }
+        .am-tab.active { color:var(--sd-primary); border-bottom-color:var(--sd-primary); }
+        .am-tab-count {
+            background:var(--sd-surface-2); color:var(--sd-text-3); font-size:0.65rem;
+            padding:0.1rem 0.45rem; border-radius:50px; font-weight:800;
         }
-        .user-avatar {
-            width: 50px;
-            height: 50px;
-            border-radius: 50%;
-            object-fit: cover;
+        .am-tab.active .am-tab-count { background:var(--sd-primary-lt); color:var(--sd-primary); }
+
+        /* Search bar */
+        .am-search {
+            display:flex; gap:0.75rem; margin-bottom:1.5rem; flex-wrap:wrap; align-items:center;
         }
-        .permission-toggle {
-            cursor: pointer;
+        .am-search-input {
+            flex:1; min-width:200px; padding:0.6rem 1rem 0.6rem 2.5rem;
+            border:1.5px solid var(--sd-border); border-radius:var(--sd-radius-sm);
+            font-family:inherit; font-size:0.85rem; background:var(--sd-surface); color:var(--sd-text);
         }
-        .permission-toggle .fa-toggle-off {
-            color: #6c757d;
+        .am-search-input:focus { outline:none; border-color:var(--sd-primary); }
+        .am-search-wrap { position:relative; flex:1; min-width:200px; }
+        .am-search-wrap i { position:absolute; left:0.85rem; top:50%; transform:translateY(-50%); color:var(--sd-text-3); font-size:0.85rem; }
+
+        /* Table */
+        .am-table-wrap { overflow-x:auto; }
+        .am-table { width:100%; border-collapse:collapse; font-size:0.82rem; }
+        .am-table th {
+            background:var(--sd-surface-2); padding:0.7rem 1rem; text-align:left;
+            font-weight:700; color:var(--sd-text); border-bottom:2px solid var(--sd-border);
+            font-size:0.7rem; text-transform:uppercase; letter-spacing:0.05em;
         }
-        .permission-toggle.active .fa-toggle-on {
-            color: #28a745;
+        .am-table td { padding:0.65rem 1rem; border-bottom:1px solid var(--sd-border); color:var(--sd-text-2); }
+        .am-table tr:hover td { background:var(--sd-surface-2); }
+        .am-table tr { animation:slideIn 0.3s ease-out; }
+
+        .am-user-cell { display:flex; align-items:center; gap:0.75rem; }
+        .am-avatar {
+            width:36px; height:36px; border-radius:10px; display:flex; align-items:center; justify-content:center;
+            font-size:0.85rem; flex-shrink:0;
         }
-        /* Tab styles */
-        .nav-pills .nav-link {
-            color: #495057;
-            background-color: #f8f9fa;
-            border: 1px solid #dee2e6;
-            margin-right: 5px;
+        .am-user-name { font-weight:700; color:var(--sd-text); font-size:0.82rem; }
+        .am-user-email { font-size:0.7rem; color:var(--sd-text-3); }
+
+        .am-badge {
+            display:inline-flex; align-items:center; gap:0.2rem; padding:0.15rem 0.55rem;
+            border-radius:50px; font-size:0.65rem; font-weight:700; text-transform:uppercase;
         }
-        .nav-pills .nav-link.active {
-            background-color: #4a6cf7;
-            color: white !important;
+        .am-badge-student { background:rgba(59,130,246,0.1); color:#3b82f6; }
+        .am-badge-teacher { background:rgba(139,92,246,0.1); color:#8b5cf6; }
+        .am-badge-parent { background:rgba(245,158,11,0.1); color:#f59e0b; }
+        .am-badge-admin { background:rgba(239,68,68,0.1); color:#ef4444; }
+        .am-badge-school_admin { background:rgba(20,184,166,0.1); color:#14b8a6; }
+
+        .am-school-card {
+            background:var(--sd-surface); border:1.5px solid var(--sd-border); border-radius:var(--sd-radius);
+            padding:1.25rem; margin-bottom:1rem; display:flex; align-items:center; gap:1rem;
+            transition:0.2s; animation:slideIn 0.3s ease-out;
         }
-        .nav-pills .nav-link:not(.active):hover {
-            color: #4a6cf7;
-            background-color: #f1f3ff;
+        .am-school-card:hover { border-color:var(--sd-primary); transform:translateY(-2px); }
+        .am-school-icon {
+            width:48px; height:48px; border-radius:12px; display:flex; align-items:center; justify-content:center;
+            font-size:1.2rem; flex-shrink:0; background:rgba(20,184,166,0.1); color:#14b8a6;
         }
-        .tab-content {
-            padding: 1.5rem 0;
+        .am-school-name { font-weight:700; color:var(--sd-text); font-size:0.88rem; }
+        .am-school-detail { font-size:0.72rem; color:var(--sd-text-3); }
+        .am-school-stats { margin-left:auto; display:flex; gap:1.5rem; flex-shrink:0; text-align:center; }
+        .am-school-stat-val { font-size:1.1rem; font-weight:800; color:var(--sd-text); }
+        .am-school-stat-label { font-size:0.6rem; font-weight:700; color:var(--sd-text-3); text-transform:uppercase; }
+
+        .am-empty { text-align:center; padding:2.5rem; color:var(--sd-text-3); }
+        .am-empty i { font-size:2rem; margin-bottom:0.75rem; display:block; }
+
+        @media(max-width:700px) {
+            .am-school-stats { display:none; }
+            .am-table th:nth-child(n+4), .am-table td:nth-child(n+4) { display:none; }
         }
     </style>
 </head>
-<body class="teacher-dashboard">
-    <div class="dashboard-container">
-        <!-- Sidebar -->
-        <aside class="sidebar" id="sidebar">
-            <div class="logo">
-                <div class="logo-icon">
-                    <i class="fas fa-shield-alt"></i>
+
+<body class="sd-page">
+<div class="sd-shell">
+    <!-- SIDEBAR -->
+    <aside class="sd-sidebar" id="sidebar">
+        <div class="sd-sidebar-brand">
+            <div class="sd-brand-icon" style="background:linear-gradient(135deg,#4f46e5,#7c3aed);"><i class="fas fa-shield-alt"></i></div>
+            <span class="sd-brand-text">Alpharia <span style="font-size:0.55rem;background:rgba(245,158,11,0.2);color:#f59e0b;padding:0.1rem 0.4rem;border-radius:4px;margin-left:0.3rem;font-weight:800;">ADMIN</span></span>
+        </div>
+        <nav class="sd-nav">
+            <span class="sd-nav-section-label">Platform</span>
+            <a href="admin-dashboard.html" class="sd-nav-link"><i class="fas fa-chart-pie"></i><span>Dashboard</span></a>
+            <a href="admin-management.html" class="sd-nav-link active"><i class="fas fa-users-cog"></i><span>Users & Schools</span></a>
+            <a href="admin-tests.html" class="sd-nav-link"><i class="fas fa-clipboard-list"></i><span>All Tests</span></a>
+            <a href="admin-create-test.html" class="sd-nav-link"><i class="fas fa-plus-circle"></i><span>Create Test</span></a>
+            <span class="sd-nav-section-label">Analytics</span>
+            <a href="admin-reports.html" class="sd-nav-link"><i class="fas fa-chart-bar"></i><span>Reports</span></a>
+            <span class="sd-nav-section-label">Account</span>
+            <a href="admin-settings.html" class="sd-nav-link"><i class="fas fa-cog"></i><span>Settings</span></a>
+        </nav>
+        <div class="sd-sidebar-footer">
+            <div class="sd-sidebar-user">
+                <div class="sd-sidebar-user-info">
+                    <div class="sd-sidebar-user-name" id="sidebar-admin-name">Loading…</div>
+                    <div class="sd-sidebar-user-role">Platform Owner</div>
                 </div>
-                <h2>Alpharia <span class="admin-badge">Admin</span></h2>
+                <button class="sd-icon-btn" id="logout-btn" title="Sign Out" style="margin-left:auto;color:var(--sd-text-3);"><i class="fas fa-sign-out-alt"></i></button>
             </div>
-            
-            <nav class="nav-menu">
-                <div class="menu-title">Main Menu</div>
-                
-                <div class="nav-item">
-                    <a href="admin-dashboard.html" class="nav-link">
-                        <i class="fas fa-tachometer-alt"></i>
-                        <span>Dashboard</span>
-                    </a>
-                </div>
-                
-                <div class="nav-item">
-                    <a href="admin-management.html" class="nav-link active">
-                        <i class="fas fa-users-cog"></i>
-                        <span>Management</span>
-                    </a>
-                </div>
-                
-                <div class="nav-item">
-                    <a href="admin-create-test.html" class="nav-link">
-                        <i class="fas fa-plus-circle"></i>
-                        <span>Create Test</span>
-                    </a>
-                </div>
-                
-                <div class="nav-item">
-                    <a href="admin-tests.html" class="nav-link">
-                        <i class="fas fa-clipboard-list"></i>
-                        <span>All Tests</span>
-                    </a>
-                </div>
-                
-                <div class="menu-title mt-4">Analytics</div>
-                
-                <div class="nav-item">
-                    <a href="admin-reports.html" class="nav-link">
-                        <i class="fas fa-chart-bar"></i>
-                        <span>Reports</span>
-                    </a>
-                </div>
-                
-                <div class="menu-title mt-4">Account</div>
-                
-                <div class="nav-item">
-                    <a href="admin-settings.html" class="nav-link">
-                        <i class="fas fa-cog"></i>
-                        <span>Settings</span>
-                    </a>
-                </div>
-                
-                <div class="nav-item">
-                    <a href="help.html" class="nav-link">
-                        <i class="fas fa-question-circle"></i>
-                        <span>Help & Support</span>
-                    </a>
-                </div>
-            </nav>
-            
-            <div class="sidebar-footer">
-                <div class="user-profile">
-                    <img src="https://ui-avatars.com/api/?name=Admin&background=4a6cf7&color=fff" alt="User" class="user-avatar" id="user-avatar-sidebar">
-                    <div class="user-info">
-                        <h4 class="user-name" id="sidebar-admin-name">Loading...</h4>
-                        <span class="user-role">Administrator</span>
-                    </div>
-                    <button class="sign-out" id="logout-btn" title="Sign Out">
-                        <i class="fas fa-sign-out-alt"></i>
-                    </button>
+        </div>
+    </aside>
+    <div class="sd-sidebar-overlay" id="sidebar-overlay"></div>
+
+    <!-- MAIN -->
+    <div class="sd-main">
+        <header class="sd-topbar">
+            <button class="sd-topbar-toggle menu-toggle d-lg-none" id="sidebar-toggle"><i class="fas fa-bars"></i></button>
+            <div style="font-weight:700; color:var(--sd-text);">Users & Schools</div>
+            <div class="sd-topbar-actions"></div>
+        </header>
+
+        <main class="sd-body" style="animation:fadeIn 0.4s ease-out;">
+            <!-- Tabs -->
+            <div class="am-tabs">
+                <button class="am-tab active" data-tab="all"><i class="fas fa-globe"></i> All Users <span class="am-tab-count" id="count-all">0</span></button>
+                <button class="am-tab" data-tab="students"><i class="fas fa-user-graduate"></i> Students <span class="am-tab-count" id="count-students">0</span></button>
+                <button class="am-tab" data-tab="teachers"><i class="fas fa-chalkboard-teacher"></i> Teachers <span class="am-tab-count" id="count-teachers">0</span></button>
+                <button class="am-tab" data-tab="parents"><i class="fas fa-user-friends"></i> Parents <span class="am-tab-count" id="count-parents">0</span></button>
+                <button class="am-tab" data-tab="schools"><i class="fas fa-university"></i> Schools <span class="am-tab-count" id="count-schools">0</span></button>
+            </div>
+
+            <!-- Search -->
+            <div class="am-search">
+                <div class="am-search-wrap">
+                    <i class="fas fa-search"></i>
+                    <input type="text" class="am-search-input" id="search-input" placeholder="Search by name or email…">
                 </div>
             </div>
-        </aside>
 
-        <main class="main-content">
-            <!-- Top Bar -->
-            <header class="top-bar">
-                <div class="top-bar-left">
-                    <button class="sidebar-toggle" id="sidebar-toggle">
-                        <i class="fas fa-bars"></i>
-                    </button>
-                    <h2>User Management</h2>
-                </div>
-                <div class="top-bar-right">
-                    <div class="user-menu">
-                        <div class="user-info">
-                            <span class="user-name" id="admin-name">Admin</span>
-                            <span class="user-role">Administrator</span>
-                        </div>
-                        <div class="user-avatar">
-                            <i class="fas fa-user-circle"></i>
-                        </div>
-                        <div class="dropdown-menu">
-                            <a href="#" class="dropdown-item">
-                                <i class="fas fa-user"></i> Profile
-                            </a>
-                            <a href="#" class="dropdown-item" id="logout-btn">
-                                <i class="fas fa-sign-out-alt"></i> Logout
-                            </a>
-                        </div>
-                    </div>
-                </div>
-            </header>
-
-            <!-- Main Content -->
-            <div class="container-fluid py-4">
-                <div class="card">
-                    <div class="card-body">
-                        <ul class="nav nav-pills mb-4" id="userTabs" role="tablist">
-                            <li class="nav-item" role="presentation">
-                                <button class="nav-link active" id="teachers-tab" data-bs-toggle="pill" data-bs-target="#teachers" type="button" role="tab">
-                                    <i class="fas fa-chalkboard-teacher me-2"></i>Teachers
-                                </button>
-                            </li>
-                            <li class="nav-item" role="presentation">
-                                <button class="nav-link" id="students-tab" data-bs-toggle="pill" data-bs-target="#students" type="button" role="tab">
-                                    <i class="fas fa-user-graduate me-2"></i>Students
-                                </button>
-                            </li>
-                        </ul>
-
-                        <div class="tab-content" id="userTabsContent">
-                            <!-- Teachers Tab -->
-                            <div class="tab-pane fade show active" id="teachers" role="tabpanel">
-                                <div class="d-flex justify-content-between align-items-center mb-4">
-                                    <h4>Manage Teachers</h4>
-                                    <button class="btn btn-primary" id="add-teacher-btn">
-                                        <i class="fas fa-plus me-2"></i>Add Teacher
-                                    </button>
-                                </div>
-                                
-                                <div class="table-responsive">
-                                    <table class="table table-hover" id="teachers-table">
-                                        <thead>
-                                            <tr>
-                                                <th>Name</th>
-                                                <th>Email</th>
-                                                <th>Status</th>
-                                                <th>Can Create Tests</th>
-                                                <th>Last Active</th>
-                                                <th>Actions</th>
-                                            </tr>
-                                        </thead>
-                                        <tbody id="teachers-list">
-                                            <tr>
-                                                <td colspan="6" class="text-center">
-                                                    <div class="spinner-border text-primary" role="status">
-                                                        <span class="visually-hidden">Loading...</span>
-                                                    </div>
-                                                </td>
-                                            </tr>
-                                        </tbody>
-                                    </table>
-                                </div>
-                            </div>
-
-                            <!-- Students Tab -->
-                            <div class="tab-pane fade" id="students" role="tabpanel">
-                                <div class="d-flex justify-content-between align-items-center mb-4">
-                                    <h4>Manage Students</h4>
-                                    <button class="btn btn-primary" id="add-student-btn">
-                                        <i class="fas fa-plus me-2"></i>Add Student
-                                    </button>
-                                </div>
-                                
-                                <div class="table-responsive">
-                                    <table class="table table-hover" id="students-table">
-                                        <thead>
-                                            <tr>
-                                                <th>Name</th>
-                                                <th>Email</th>
-                                                <th>Grade</th>
-                                                <th>Status</th>
-                                                <th>Assigned Teacher</th>
-                                                <th>Actions</th>
-                                            </tr>
-                                        </thead>
-                                        <tbody id="students-list">
-                                            <tr>
-                                                <td colspan="6" class="text-center">
-                                                    <div class="spinner-border text-primary" role="status">
-                                                        <span class="visually-hidden">Loading...</span>
-                                                    </div>
-                                                </td>
-                                            </tr>
-                                        </tbody>
-                                    </table>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
+            <!-- Panels -->
+            <div id="panel-all" class="am-panel">
+                <div class="td-card"><div class="td-card-body" style="padding:0;" id="table-all">
+                    <div class="am-empty"><i class="fas fa-spinner fa-spin"></i> Loading users…</div>
+                </div></div>
+            </div>
+            <div id="panel-students" class="am-panel" style="display:none;">
+                <div class="td-card"><div class="td-card-body" style="padding:0;" id="table-students">
+                    <div class="am-empty"><i class="fas fa-spinner fa-spin"></i> Loading…</div>
+                </div></div>
+            </div>
+            <div id="panel-teachers" class="am-panel" style="display:none;">
+                <div class="td-card"><div class="td-card-body" style="padding:0;" id="table-teachers">
+                    <div class="am-empty"><i class="fas fa-spinner fa-spin"></i> Loading…</div>
+                </div></div>
+            </div>
+            <div id="panel-parents" class="am-panel" style="display:none;">
+                <div class="td-card"><div class="td-card-body" style="padding:0;" id="table-parents">
+                    <div class="am-empty"><i class="fas fa-spinner fa-spin"></i> Loading…</div>
+                </div></div>
+            </div>
+            <div id="panel-schools" class="am-panel" style="display:none;">
+                <div id="schools-list">
+                    <div class="am-empty"><i class="fas fa-spinner fa-spin"></i> Loading…</div>
                 </div>
             </div>
         </main>
     </div>
+</div>
 
-    <!-- View Student Details Modal -->
-    <div class="modal fade" id="viewStudentModal" tabindex="-1" aria-hidden="true">
-        <div class="modal-dialog modal-lg">
-            <div class="modal-content">
-                <div class="modal-header">
-                    <h5 class="modal-title">Student Details</h5>
-                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-                </div>
-                <div class="modal-body" id="studentDetailsContent">
-                    <!-- Student details will be populated here by JavaScript -->
-                    <div class="text-center">
-                        <div class="spinner-border text-primary" role="status">
-                            <span class="visually-hidden">Loading...</span>
-                        </div>
-                    </div>
-                </div>
-                <div class="modal-footer">
-                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
-                </div>
-            </div>
-        </div>
-    </div>
+<script type="module">
+    import { auth, db } from './js/firebase-config.js';
+    import { requireAuth } from './js/auth-check.js';
+    import { doc, getDoc, collection, getDocs } from 'https://www.gstatic.com/firebasejs/12.1.0/firebase-firestore.js';
+    import { signOut } from 'https://www.gstatic.com/firebasejs/12.1.0/firebase-auth.js';
 
-    <!-- Add Teacher Modal -->
-    <div class="modal fade" id="addTeacherModal" tabindex="-1" aria-hidden="true">
-        <div class="modal-dialog">
-            <div class="modal-content">
-                <div class="modal-header">
-                    <h5 class="modal-title">Add New Teacher</h5>
-                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-                </div>
-                <div class="modal-body">
-                    <form id="add-teacher-form">
-                        <div class="mb-3">
-                            <label for="teacher-name" class="form-label">Full Name</label>
-                            <input type="text" class="form-control" id="teacher-name" required>
-                        </div>
-                        <div class="mb-3">
-                            <label for="teacher-email" class="form-label">Email</label>
-                            <input type="email" class="form-control" id="teacher-email" required>
-                        </div>
-                        <div class="mb-3">
-                            <label class="form-label">Permissions</label>
-                            <div class="form-check">
-                                <input class="form-check-input" type="checkbox" id="can-create-tests" checked>
-                                <label class="form-check-label" for="can-create-tests">
-                                    Can create and manage tests
-                                </label>
-                            </div>
-                        </div>
-                    </form>
-                </div>
-                <div class="modal-footer">
-                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
-                    <button type="button" class="btn btn-primary" id="save-teacher-btn">Add Teacher</button>
-                </div>
-            </div>
-        </div>
-    </div>
+    let allUsers = [], allSchools = [];
+    let currentTab = 'all';
 
-    <!-- Add Student Modal -->
-    <div class="modal fade" id="addStudentModal" tabindex="-1" aria-hidden="true">
-        <div class="modal-dialog">
-            <div class="modal-content">
-                <div class="modal-header">
-                    <h5 class="modal-title">Add New Student</h5>
-                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-                </div>
-                <div class="modal-body">
-                    <form id="add-student-form">
-                        <div class="mb-3">
-                            <label for="student-name" class="form-label">Full Name</label>
-                            <input type="text" class="form-control" id="student-name" required>
-                        </div>
-                        <div class="mb-3">
-                            <label for="student-email" class="form-label">Email</label>
-                            <input type="email" class="form-control" id="student-email" required>
-                        </div>
-                        <div class="mb-3">
-                            <label for="student-grade" class="form-label">Grade</label>
-                            <select class="form-select" id="student-grade" required>
-                                <option value="">Select Grade</option>
-                                <option value="1">Grade 1</option>
-                                <option value="2">Grade 2</option>
-                                <option value="3">Grade 3</option>
-                                <option value="4">Grade 4</option>
-                                <option value="5">Grade 5</option>
-                                <option value="6">Grade 6</option>
-                                <option value="7">Grade 7</option>
-                                <option value="8">Grade 8</option>
-                                <option value="9">Grade 9</option>
-                                <option value="10">Grade 10</option>
-                                <option value="11">Grade 11</option>
-                                <option value="12">Grade 12</option>
-                            </select>
-                        </div>
-                    </form>
-                </div>
-                <div class="modal-footer">
-                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
-                    <button type="button" class="btn btn-primary" id="save-student-btn">Add Student</button>
-                </div>
-            </div>
-        </div>
-    </div>
-
-    <!-- Edit User Modal -->
-    <div class="modal fade" id="editUserModal" tabindex="-1" aria-hidden="true">
-        <div class="modal-dialog">
-            <div class="modal-content">
-                <div class="modal-header">
-                    <h5 class="modal-title">Edit User</h5>
-                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-                </div>
-                <div class="modal-body" id="edit-user-modal-body">
-                    <!-- Content will be loaded dynamically -->
-                </div>
-                <div class="modal-footer">
-                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
-                    <button type="button" class="btn btn-primary" id="save-user-changes">Save Changes</button>
-                </div>
-            </div>
-        </div>
-    </div>
-
-    <!-- jQuery, Bootstrap JS, and other dependencies -->
-    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
-    <script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.10.2/dist/umd/popper.min.js"></script>
-    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/js/bootstrap.bundle.min.js"></script>
-    
-    <!-- Firebase SDK -->
-    <script type="module" src="js/admin-management.js"></script>
-    <!-- Mobile Sidebar Auto-Fix -->
-    <script>
-        document.addEventListener('DOMContentLoaded', () => {
-            const sidebar = document.querySelector('.sidebar');
-            let sidebarOverlay = document.getElementById('sidebar-overlay');
-            const sidebarToggle = document.querySelector('.sidebar-toggle, .menu-toggle, #sidebar-toggle');
-            
-            if (sidebar && !sidebarOverlay) {
-                sidebarOverlay = document.createElement('div');
-                sidebarOverlay.className = 'sidebar-overlay';
-                sidebarOverlay.id = 'sidebar-overlay';
-                sidebar.parentNode.insertBefore(sidebarOverlay, sidebar.nextSibling);
-            }
-            
-            if (sidebarToggle && sidebar && sidebarOverlay) {
-                // Ensure toggle class exists
-                sidebarToggle.classList.add('menu-toggle');
-                sidebarToggle.classList.add('d-lg-none');
-                
-                sidebarToggle.addEventListener('click', (e) => {
-                    if (window.innerWidth <= 1024) {
-                        e.preventDefault();
-                        e.stopPropagation();
-                        sidebar.classList.toggle('active');
-                        sidebarOverlay.classList.toggle('active');
-                    }
-                });
-                
-                sidebarOverlay.addEventListener('click', () => {
-                    sidebar.classList.remove('active');
-                    sidebarOverlay.classList.remove('active');
-                });
-            }
+    function initSidebar() {
+        const sidebar = document.getElementById('sidebar');
+        const toggle = document.getElementById('sidebar-toggle');
+        const overlay = document.getElementById('sidebar-overlay');
+        if (toggle && sidebar) toggle.addEventListener('click', () => {
+            sidebar.classList.toggle('active'); sidebar.classList.toggle('open');
+            overlay?.classList.toggle('active'); overlay?.classList.toggle('open');
         });
-    </script>
+        if (overlay) overlay.addEventListener('click', () => {
+            sidebar.classList.remove('active','open'); overlay.classList.remove('active','open');
+        });
+    }
+
+    function renderUserTable(users, containerId) {
+        const container = document.getElementById(containerId);
+        if (users.length === 0) {
+            container.innerHTML = '<div class="am-empty"><i class="fas fa-inbox"></i> No users found.</div>';
+            return;
+        }
+        const roleColors = { student:'#3b82f6', teacher:'#8b5cf6', parent:'#f59e0b', admin:'#ef4444', school_admin:'#14b8a6' };
+        const roleIcons = { student:'fa-user-graduate', teacher:'fa-chalkboard-teacher', parent:'fa-user-friends', admin:'fa-shield-alt', school_admin:'fa-university' };
+
+        container.innerHTML = `<div class="am-table-wrap"><table class="am-table">
+            <thead><tr><th>User</th><th>Role</th><th>School</th><th>Grade</th><th>Joined</th></tr></thead>
+            <tbody>${users.map(u => {
+                const role = u.role || 'unknown';
+                const color = roleColors[role] || '#64748b';
+                const icon = roleIcons[role] || 'fa-user';
+                const joined = u.createdAt?.seconds ? new Date(u.createdAt.seconds * 1000).toLocaleDateString('en-US', { month:'short', day:'numeric', year:'numeric' }) : '—';
+                const schoolName = u.schoolId ? allSchools.find(s => s.id === u.schoolId)?.name || u.schoolId : '—';
+                return `<tr>
+                    <td><div class="am-user-cell">
+                        <div class="am-avatar" style="background:${color}20;color:${color};"><i class="fas ${icon}"></i></div>
+                        <div><div class="am-user-name">${u.name || (u.firstName||'') + ' ' + (u.lastName||'')}</div><div class="am-user-email">${u.email || '—'}</div></div>
+                    </div></td>
+                    <td><span class="am-badge am-badge-${role}">${role.replace('_',' ')}</span></td>
+                    <td style="font-size:0.78rem;">${schoolName}</td>
+                    <td style="font-size:0.78rem;">${u.grade || '—'}</td>
+                    <td style="font-size:0.72rem; color:var(--sd-text-3);">${joined}</td>
+                </tr>`;
+            }).join('')}</tbody></table></div>`;
+    }
+
+    function renderSchools(schools) {
+        const container = document.getElementById('schools-list');
+        if (schools.length === 0) {
+            container.innerHTML = '<div class="am-empty"><i class="fas fa-university"></i> No schools registered yet.</div>';
+            return;
+        }
+        container.innerHTML = schools.map(s => {
+            const regionLabel = (s.region || '').replace(/-/g,' ').replace(/\b\w/g, c => c.toUpperCase());
+            return `<div class="am-school-card">
+                <div class="am-school-icon"><i class="fas fa-university"></i></div>
+                <div>
+                    <div class="am-school-name">${s.name || 'Unnamed School'}</div>
+                    <div class="am-school-detail">${regionLabel}${s.type ? ' · ' + s.type : ''}</div>
+                </div>
+                <div class="am-school-stats">
+                    <div><div class="am-school-stat-val">${s.studentCount || 0}</div><div class="am-school-stat-label">Students</div></div>
+                    <div><div class="am-school-stat-val">${s.teacherCount || 0}</div><div class="am-school-stat-label">Teachers</div></div>
+                </div>
+            </div>`;
+        }).join('');
+    }
+
+    function filterAndRender() {
+        const q = (document.getElementById('search-input').value || '').toLowerCase();
+        let filtered = allUsers;
+        if (currentTab !== 'all' && currentTab !== 'schools') {
+            const roleMap = { students:'student', teachers:'teacher', parents:'parent' };
+            filtered = allUsers.filter(u => u.role === roleMap[currentTab]);
+        }
+        if (q) {
+            filtered = filtered.filter(u => {
+                const name = (u.name || u.firstName || '').toLowerCase();
+                const email = (u.email || '').toLowerCase();
+                return name.includes(q) || email.includes(q);
+            });
+        }
+
+        if (currentTab === 'schools') {
+            const filteredSchools = q ? allSchools.filter(s => (s.name || '').toLowerCase().includes(q)) : allSchools;
+            renderSchools(filteredSchools);
+        } else if (currentTab === 'all') {
+            renderUserTable(filtered, 'table-all');
+        } else if (currentTab === 'students') {
+            renderUserTable(filtered, 'table-students');
+        } else if (currentTab === 'teachers') {
+            renderUserTable(filtered, 'table-teachers');
+        } else if (currentTab === 'parents') {
+            renderUserTable(filtered, 'table-parents');
+        }
+    }
+
+    document.addEventListener('DOMContentLoaded', async () => {
+        initSidebar();
+
+        try {
+            const { user } = await requireAuth(['admin']);
+
+            let displayName = 'Administrator';
+            try {
+                const adminDoc = await getDoc(doc(db, 'admins', user.uid));
+                displayName = adminDoc.exists() ? adminDoc.data().name || displayName : displayName;
+                if (!adminDoc.exists()) {
+                    const userDoc = await getDoc(doc(db, 'users', user.uid));
+                    if (userDoc.exists()) displayName = userDoc.data().name || userDoc.data().firstName || displayName;
+                }
+            } catch(e) {}
+            document.getElementById('sidebar-admin-name').textContent = displayName;
+            document.getElementById('logout-btn').addEventListener('click', () => signOut(auth).then(() => window.location.href = 'auth/login-fixed.html'));
+
+            // Load all data
+            const [usersSnap, studentsSnap, teachersSnap, parentsSnap, schoolsSnap] = await Promise.all([
+                getDocs(collection(db, 'users')),
+                getDocs(collection(db, 'students')),
+                getDocs(collection(db, 'teachers')),
+                getDocs(collection(db, 'parents')),
+                getDocs(collection(db, 'schools'))
+            ]);
+
+            // Merge all users
+            const usersMap = {};
+            usersSnap.forEach(d => usersMap[d.id] = { id: d.id, ...d.data() });
+            studentsSnap.forEach(d => { if (!usersMap[d.id]) usersMap[d.id] = { id: d.id, role: 'student', ...d.data() }; });
+            teachersSnap.forEach(d => { if (!usersMap[d.id]) usersMap[d.id] = { id: d.id, role: 'teacher', ...d.data() }; });
+            parentsSnap.forEach(d => { if (!usersMap[d.id]) usersMap[d.id] = { id: d.id, role: 'parent', ...d.data() }; });
+
+            allUsers = Object.values(usersMap);
+            allUsers.sort((a, b) => (a.name || a.firstName || '').localeCompare(b.name || b.firstName || ''));
+
+            allSchools = [];
+            schoolsSnap.forEach(d => allSchools.push({ id: d.id, ...d.data() }));
+
+            // Update counts
+            const students = allUsers.filter(u => u.role === 'student');
+            const teachers = allUsers.filter(u => u.role === 'teacher');
+            const parents = allUsers.filter(u => u.role === 'parent');
+
+            document.getElementById('count-all').textContent = allUsers.length;
+            document.getElementById('count-students').textContent = students.length;
+            document.getElementById('count-teachers').textContent = teachers.length;
+            document.getElementById('count-parents').textContent = parents.length;
+            document.getElementById('count-schools').textContent = allSchools.length;
+
+            // Render initial tab
+            filterAndRender();
+
+        } catch (e) { console.error(e); }
+
+        // Tab switching
+        document.querySelectorAll('.am-tab').forEach(tab => {
+            tab.addEventListener('click', () => {
+                document.querySelectorAll('.am-tab').forEach(t => t.classList.remove('active'));
+                document.querySelectorAll('.am-panel').forEach(p => p.style.display = 'none');
+                tab.classList.add('active');
+                currentTab = tab.dataset.tab;
+                document.getElementById(`panel-${currentTab}`).style.display = 'block';
+                filterAndRender();
+            });
+        });
+
+        // Search
+        document.getElementById('search-input').addEventListener('input', filterAndRender);
+    });
+</script>
 </body>
+</html>

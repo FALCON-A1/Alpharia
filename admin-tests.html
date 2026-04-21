@@ -1,931 +1,310 @@
 <!DOCTYPE html>
 <html lang="en">
-
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>All Tests - Alpharia Admin</title>
-    <!-- Favicon -->
-    <link rel="icon" type="image/x-icon" href="favicon.ico">
-    <!-- Font Awesome -->
+    <title>All Tests — Admin — Alpharia</title>
+    <meta name="description" content="Manage all reading assessment tests.">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-    <!-- Google Fonts -->
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
-    <!-- Custom CSS -->
-    <link rel="stylesheet" href="css/teacher-dashboard.css">
+    <link rel="stylesheet" href="css/student-dashboard-clean.css">
+    <link rel="stylesheet" href="css/teacher-dashboard-clean.css">
     <style>
-        /* Main Content Styles */
-        .main-content {
-            padding: 1.5rem 2rem;
-            background-color: #f5f7fb;
-            min-height: 100vh;
+        @keyframes fadeIn { from{opacity:0;transform:translateY(10px)}to{opacity:1;transform:translateY(0)} }
+        @keyframes slideIn { from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:translateY(0)} }
+
+        .at-toolbar { display:flex; gap:0.75rem; margin-bottom:1.5rem; flex-wrap:wrap; align-items:center; }
+        .at-search-wrap { position:relative; flex:1; min-width:220px; }
+        .at-search-wrap i { position:absolute; left:0.85rem; top:50%; transform:translateY(-50%); color:var(--sd-text-3); }
+        .at-search {
+            width:100%; padding:0.6rem 1rem 0.6rem 2.5rem;
+            border:1.5px solid var(--sd-border); border-radius:var(--sd-radius-sm);
+            font-family:inherit; font-size:0.85rem; background:var(--sd-surface); color:var(--sd-text);
         }
-
-        /* Card Styles */
-        .card {
-            border: none;
-            border-radius: 10px;
-            box-shadow: 0 0.125rem 0.25rem rgba(0, 0, 0, 0.075);
-            margin-bottom: 1.5rem;
-            transition: all 0.3s ease;
+        .at-search:focus { outline:none; border-color:var(--sd-primary); }
+        .at-select {
+            padding:0.55rem 1rem; border:1.5px solid var(--sd-border); border-radius:var(--sd-radius-sm);
+            font-family:inherit; font-size:0.82rem; background:var(--sd-surface); color:var(--sd-text); min-width:140px;
         }
-
-        .card:hover {
-            transform: translateY(-2px);
-            box-shadow: 0 0.5rem 1rem rgba(0, 0, 0, 0.1);
+        .at-btn-create {
+            display:inline-flex; align-items:center; gap:0.4rem;
+            padding:0.6rem 1.2rem; background:var(--sd-primary); color:white; border:none;
+            border-radius:var(--sd-radius-sm); font-family:inherit; font-size:0.82rem; font-weight:700;
+            cursor:pointer; transition:0.2s; text-decoration:none;
         }
+        .at-btn-create:hover { opacity:0.9; color:white; }
 
-        .card-header {
-            background-color: #fff;
-            border-bottom: 1px solid rgba(0, 0, 0, 0.05);
-            padding: 1.25rem 1.5rem;
-            display: flex;
-            align-items: center;
-            justify-content: space-between;
+        .at-grid { display:grid; grid-template-columns:repeat(auto-fill, minmax(280px, 1fr)); gap:1rem; }
+        .at-card {
+            background:var(--sd-surface); border:1.5px solid var(--sd-border); border-radius:var(--sd-radius);
+            padding:1.25rem; transition:0.25s; animation:slideIn 0.3s ease-out; position:relative; display:flex; flex-direction:column;
         }
-
-        .card-header h4 {
-            margin: 0;
-            font-size: 1.25rem;
-            font-weight: 600;
-            color: #2d3748;
+        .at-card:hover { border-color:var(--sd-primary); transform:translateY(-3px); box-shadow:var(--sd-shadow-sm); }
+        .at-card-title { font-size:0.92rem; font-weight:800; color:var(--sd-text); margin-bottom:0.4rem; display:flex; justify-content:space-between; align-items:flex-start; gap:0.5rem; }
+        .at-card-meta { font-size:0.72rem; color:var(--sd-text-3); margin-bottom:0.75rem; }
+        .at-card-desc { font-size:0.78rem; color:var(--sd-text-2); line-height:1.5; margin-bottom:0.75rem; flex:1; }
+        .at-card-stats { display:flex; gap:1.5rem; padding:0.75rem 0; border-top:1px solid var(--sd-border); border-bottom:1px solid var(--sd-border); margin-bottom:0.75rem; }
+        .at-stat { text-align:center; }
+        .at-stat-val { font-size:0.95rem; font-weight:800; color:var(--sd-text); }
+        .at-stat-label { font-size:0.6rem; font-weight:700; color:var(--sd-text-3); text-transform:uppercase; letter-spacing:0.04em; }
+        .at-badge {
+            display:inline-flex; align-items:center; gap:0.2rem; padding:0.15rem 0.55rem;
+            border-radius:50px; font-size:0.62rem; font-weight:800; text-transform:uppercase;
         }
-
-        .card-body {
-            padding: 1.5rem;
+        .at-badge-published { background:rgba(16,185,129,0.1); color:#10b981; }
+        .at-badge-draft { background:rgba(79,70,229,0.1); color:#4f46e5; }
+        .at-badge-archived { background:rgba(239,68,68,0.1); color:#ef4444; }
+        .at-card-actions { display:flex; gap:0.5rem; }
+        .at-action {
+            padding:0.4rem 0.7rem; border:1.5px solid var(--sd-border); border-radius:var(--sd-radius-sm);
+            font-family:inherit; font-size:0.72rem; font-weight:700; cursor:pointer; background:var(--sd-surface);
+            color:var(--sd-text-2); transition:0.2s; text-decoration:none; display:inline-flex; align-items:center; gap:0.3rem;
         }
+        .at-action:hover { border-color:var(--sd-primary); color:var(--sd-primary); }
+        .at-action-danger { color:#ef4444; }
+        .at-action-danger:hover { border-color:#ef4444; color:#ef4444; background:rgba(239,68,68,0.05); }
 
-        /* Test Card Styles */
-        .test-card {
-            transition: all 0.3s ease;
-            border: 1px solid #e2e8f0;
-            border-radius: 8px;
-            overflow: hidden;
-            height: 100%;
-            background: #fff;
+        .at-empty { text-align:center; padding:3rem; color:var(--sd-text-3); }
+        .at-empty i { font-size:2rem; margin-bottom:0.75rem; display:block; }
+
+        .at-pagination { display:flex; justify-content:center; gap:0.5rem; margin-top:1.5rem; }
+        .at-page-btn {
+            padding:0.45rem 0.85rem; border:1.5px solid var(--sd-border); border-radius:var(--sd-radius-sm);
+            background:var(--sd-surface); font-family:inherit; font-size:0.8rem; font-weight:700;
+            color:var(--sd-text-2); cursor:pointer; transition:0.2s;
         }
+        .at-page-btn:hover:not(:disabled) { border-color:var(--sd-primary); color:var(--sd-primary); }
+        .at-page-btn:disabled { opacity:0.4; cursor:default; }
 
-        .test-card:hover {
-            transform: translateY(-4px);
-            box-shadow: 0 10px 20px rgba(0, 0, 0, 0.08);
-            border-color: #cbd5e0;
+        .at-toast {
+            position:fixed; top:1rem; left:50%; transform:translateX(-50%); z-index:9999;
+            padding:0.7rem 1.5rem; border-radius:var(--sd-radius-sm); font-size:0.82rem; font-weight:700;
+            color:white; background:#10b981; box-shadow:0 4px 15px rgba(0,0,0,0.15); animation:fadeIn 0.3s;
         }
+        .at-toast.error { background:#ef4444; }
 
-        .test-card .card-body {
-            padding: 1.5rem;
-            display: flex;
-            flex-direction: column;
-            height: 100%;
-        }
-
-        .test-card .card-header {
-            padding: 1rem 1.5rem;
-            background-color: #f8fafc;
-            border-bottom: 1px solid #edf2f7;
-        }
-
-        .test-card .card-title {
-            font-size: 1.1rem;
-            font-weight: 600;
-            margin: 0 0 0.75rem 0;
-            color: #2d3748;
-            display: flex;
-            justify-content: space-between;
-            align-items: flex-start;
-        }
-
-        .test-meta {
-            font-size: 0.85rem;
-            color: #64748b;
-            margin-bottom: 1.25rem;
-            flex-grow: 1;
-        }
-
-        .test-stats {
-            display: flex;
-            gap: 1.5rem;
-            margin: 1.25rem 0;
-            padding: 1rem 0;
-            border-top: 1px solid #edf2f7;
-            border-bottom: 1px solid #edf2f7;
-        }
-
-        .stat-item {
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            gap: 0.25rem;
-        }
-
-        .stat-item i {
-            font-size: 1.25rem;
-            color: #4a6cf7;
-        }
-
-        .stat-item .stat-value {
-            font-weight: 600;
-            color: #2d3748;
-        }
-
-        .stat-item .stat-label {
-            font-size: 0.75rem;
-            color: #64748b;
-            text-transform: uppercase;
-            letter-spacing: 0.05em;
-        }
-
-        .badge-status {
-            font-size: 0.7rem;
-            padding: 0.25rem 0.75rem;
-            border-radius: 1rem;
-            font-weight: 600;
-            text-transform: uppercase;
-            letter-spacing: 0.05em;
-        }
-
-        .badge-status.published {
-            background-color: #e6f7ee;
-            color: #10b981;
-        }
-
-        .badge-status.draft {
-            background-color: #eef2ff;
-            color: #4f46e5;
-        }
-
-        .badge-status.archived {
-            background-color: #fef2f2;
-            color: #ef4444;
-        }
-
-        .actions {
-            display: flex;
-            gap: 0.75rem;
-            margin-top: auto;
-            padding-top: 1rem;
-        }
-
-        .btn {
-            border-radius: 6px;
-            font-weight: 500;
-            padding: 0.5rem 1rem;
-            font-size: 0.85rem;
-            transition: all 0.2s ease;
-        }
-
-        .btn-sm {
-            padding: 0.35rem 0.75rem;
-            font-size: 0.8rem;
-        }
-
-        .btn-outline-primary {
-            border-color: #4a6cf7;
-            color: #4a6cf7;
-        }
-
-        .btn-outline-primary:hover {
-            background-color: #4a6cf7;
-            border-color: #4a6cf7;
-        }
-
-        .btn-outline-danger {
-            border-color: #ef4444;
-            color: #ef4444;
-        }
-
-        .btn-outline-danger:hover {
-            background-color: #ef4444;
-            border-color: #ef4444;
-        }
-
-        /* Search and Filter Styles */
-        .search-filter-container {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            margin-bottom: 1.5rem;
-            flex-wrap: wrap;
-            gap: 1rem;
-        }
-
-        .search-box {
-            max-width: 350px;
-            position: relative;
-            flex: 1;
-            min-width: 250px;
-        }
-
-        .search-box .form-control {
-            padding-left: 2.5rem;
-            border-radius: 6px;
-            border: 1px solid #e2e8f0;
-            height: 42px;
-        }
-
-        .search-box i {
-            position: absolute;
-            left: 1rem;
-            top: 50%;
-            transform: translateY(-50%);
-            color: #94a3b8;
-        }
-
-        .filters {
-            display: flex;
-            gap: 1rem;
-            flex-wrap: wrap;
-        }
-
-        .filter-group {
-            min-width: 180px;
-        }
-
-        .filter-group .form-label {
-            font-size: 0.8rem;
-            font-weight: 500;
-            color: #64748b;
-            margin-bottom: 0.25rem;
-        }
-
-        .form-select {
-            border-radius: 6px;
-            border-color: #e2e8f0;
-            height: 42px;
-            font-size: 0.9rem;
-            padding: 0.5rem 1rem;
-        }
-
-        /* Pagination Styles */
-        .pagination {
-            margin-top: 2rem;
-            justify-content: center;
-        }
-
-        .page-link {
-            border: 1px solid #e2e8f0;
-            color: #4a6cf7;
-            margin: 0 0.25rem;
-            border-radius: 6px !important;
-            min-width: 36px;
-            height: 36px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-        }
-
-        .page-item.active .page-link {
-            background-color: #4a6cf7;
-            border-color: #4a6cf7;
-        }
-
-        .page-item.disabled .page-link {
-            color: #cbd5e0;
-        }
-
-        /* Responsive Adjustments */
-        @media (max-width: 768px) {
-            .main-content {
-                padding: 1rem;
-            }
-
-            .search-filter-container {
-                flex-direction: column;
-                align-items: stretch;
-            }
-
-            .search-box {
-                max-width: 100%;
-            }
-
-            .filters {
-                width: 100%;
-            }
-
-            .filter-group {
-                flex: 1;
-                min-width: 0;
-            }
+        @media(max-width:700px) {
+            .at-grid { grid-template-columns:1fr; }
+            .at-card-stats { gap:1rem; }
         }
     </style>
 </head>
-
-<body class="admin-dashboard">
-    <div class="dashboard-container">
-        <!-- Sidebar -->
-        <aside class="sidebar" id="sidebar">
-            <div class="logo">
-                <div class="logo-icon">
-                    <i class="fas fa-shield-alt"></i>
+<body class="sd-page">
+<div class="sd-shell">
+    <aside class="sd-sidebar" id="sidebar">
+        <div class="sd-sidebar-brand">
+            <div class="sd-brand-icon" style="background:linear-gradient(135deg,#4f46e5,#7c3aed);"><i class="fas fa-shield-alt"></i></div>
+            <span class="sd-brand-text">Alpharia <span style="font-size:0.55rem;background:rgba(245,158,11,0.2);color:#f59e0b;padding:0.1rem 0.4rem;border-radius:4px;margin-left:0.3rem;font-weight:800;">ADMIN</span></span>
+        </div>
+        <nav class="sd-nav">
+            <span class="sd-nav-section-label">Platform</span>
+            <a href="admin-dashboard.html" class="sd-nav-link"><i class="fas fa-chart-pie"></i><span>Dashboard</span></a>
+            <a href="admin-management.html" class="sd-nav-link"><i class="fas fa-users-cog"></i><span>Users & Schools</span></a>
+            <a href="admin-tests.html" class="sd-nav-link active"><i class="fas fa-clipboard-list"></i><span>All Tests</span></a>
+            <a href="admin-create-test.html" class="sd-nav-link"><i class="fas fa-plus-circle"></i><span>Create Test</span></a>
+            <span class="sd-nav-section-label">Analytics</span>
+            <a href="admin-reports.html" class="sd-nav-link"><i class="fas fa-chart-bar"></i><span>Reports</span></a>
+            <span class="sd-nav-section-label">Account</span>
+            <a href="admin-settings.html" class="sd-nav-link"><i class="fas fa-cog"></i><span>Settings</span></a>
+        </nav>
+        <div class="sd-sidebar-footer">
+            <div class="sd-sidebar-user">
+                <div class="sd-sidebar-user-info">
+                    <div class="sd-sidebar-user-name" id="sidebar-admin-name">Loading…</div>
+                    <div class="sd-sidebar-user-role">Platform Owner</div>
                 </div>
-                <h2>Alpharia <span class="admin-badge">Admin</span></h2>
+                <button class="sd-icon-btn" id="logout-btn" title="Sign Out" style="margin-left:auto;color:var(--sd-text-3);"><i class="fas fa-sign-out-alt"></i></button>
+            </div>
+        </div>
+    </aside>
+    <div class="sd-sidebar-overlay" id="sidebar-overlay"></div>
+
+    <div class="sd-main">
+        <header class="sd-topbar">
+            <button class="sd-topbar-toggle menu-toggle d-lg-none" id="sidebar-toggle"><i class="fas fa-bars"></i></button>
+            <div style="font-weight:700; color:var(--sd-text);">All Tests</div>
+            <div class="sd-topbar-actions"></div>
+        </header>
+
+        <main class="sd-body" style="animation:fadeIn 0.4s ease-out;">
+            <div class="at-toolbar">
+                <div class="at-search-wrap">
+                    <i class="fas fa-search"></i>
+                    <input type="text" class="at-search" id="searchInput" placeholder="Search tests…">
+                </div>
+                <select class="at-select" id="statusFilter">
+                    <option value="">All Statuses</option>
+                    <option value="draft">Draft</option>
+                    <option value="published">Published</option>
+                    <option value="archived">Archived</option>
+                </select>
+                <select class="at-select" id="sortBy">
+                    <option value="newest">Newest First</option>
+                    <option value="oldest">Oldest First</option>
+                    <option value="name_asc">Name (A-Z)</option>
+                    <option value="name_desc">Name (Z-A)</option>
+                </select>
+                <a href="admin-create-test.html" class="at-btn-create"><i class="fas fa-plus"></i> Create Test</a>
             </div>
 
-            <nav class="nav-menu">
-                <div class="menu-title">Main Menu</div>
-
-                <div class="nav-item">
-                    <a href="admin-dashboard.html" class="nav-link">
-                        <i class="fas fa-tachometer-alt"></i>
-                        <span>Dashboard</span>
-                    </a>
-                </div>
-
-                <div class="nav-item">
-                    <a href="admin-management.html" class="nav-link">
-                        <i class="fas fa-users-cog"></i>
-                        <span>Management</span>
-                    </a>
-                </div>
-
-                <div class="nav-item">
-                    <a href="admin-tests.html" class="nav-link active">
-                        <i class="fas fa-clipboard-list"></i>
-                        <span>All Tests</span>
-                    </a>
-                </div>
-
-                <div class="nav-item">
-                    <a href="admin-create-test.html" class="nav-link">
-                        <i class="fas fa-plus-circle"></i>
-                        <span>Create Test</span>
-                    </a>
-                </div>
-
-                <div class="menu-title mt-4">Analytics</div>
-
-                <div class="nav-item">
-                    <a href="admin-reports.html" class="nav-link">
-                        <i class="fas fa-chart-bar"></i>
-                        <span>Reports</span>
-                    </a>
-                </div>
-
-                <div class="menu-title mt-4">Account</div>
-
-                <div class="nav-item">
-                    <a href="admin-settings.html" class="nav-link">
-                        <i class="fas fa-cog"></i>
-                        <span>Settings</span>
-                    </a>
-                </div>
-
-                <div class="nav-item">
-                    <a href="help.html" class="nav-link">
-                        <i class="fas fa-question-circle"></i>
-                        <span>Help & Support</span>
-                    </a>
-                </div>
-            </nav>
-
-            <div class="sidebar-footer">
-                <div class="user-profile">
-                    <img src="https://ui-avatars.com/api/?name=Admin&background=4a6cf7&color=fff" alt="User"
-                        class="user-avatar" id="user-avatar-sidebar">
-                    <div class="user-info">
-                        <h4 class="user-name" id="sidebar-admin-name">Admin</h4>
-                        <span class="user-role">Administrator</span>
-                    </div>
-                    <button class="sign-out" id="logout-btn" title="Sign Out">
-                        <i class="fas fa-sign-out-alt"></i>
-                    </button>
-                </div>
+            <div class="at-grid" id="testsContainer">
+                <div class="at-empty"><i class="fas fa-spinner fa-spin"></i> Loading tests…</div>
             </div>
-        </aside>
 
-        <main class="main-content">
-            <!-- Top Bar -->
-            <header class="top-bar">
-                <div class="top-bar-left">
-                    <button class="sidebar-toggle" id="sidebar-toggle" aria-label="Toggle sidebar">
-                        <i class="fas fa-bars"></i>
-                    </button>
-                    <h2>All Tests</h2>
-                </div>
-
-                <div class="top-bar-right">
-                    <div class="user-menu" id="user-menu">
-                        <button class="user-menu-button" id="user-menu-button" aria-expanded="false"
-                            aria-haspopup="true">
-                            <div class="user-avatar">
-                                <i class="fas fa-user-shield"></i>
-                            </div>
-                            <div class="user-info">
-                                <span class="user-name" id="user-name">Admin</span>
-                                <span class="user-role">Administrator</span>
-                            </div>
-                            <i class="fas fa-chevron-down dropdown-arrow"></i>
-                        </button>
-
-                        <div class="dropdown-menu" id="user-dropdown" aria-labelledby="user-menu-button"
-                            style="min-width: 180px; padding: 4px 0; border-radius: 8px; box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1); border: 1px solid rgba(0, 0, 0, 0.05);">
-                            <a href="admin-settings.html" class="dropdown-item"
-                                style="padding: 8px 16px; font-size: 14px; display: flex; align-items: center; gap: 8px;">
-                                <i class="fas fa-user-cog" style="width: 20px; text-align: center;"></i>
-                                <span>Settings</span>
-                            </a>
-                            <div class="dropdown-divider"
-                                style="margin: 4px 0; height: 1px; background-color: #f0f0f0;"></div>
-                            <a href="#" class="dropdown-item text-danger" id="logout-button"
-                                style="padding: 8px 16px; font-size: 14px; display: flex; align-items: center; gap: 8px; color: #dc3545;">
-                                <i class="fas fa-sign-out-alt" style="width: 20px; text-align: center;"></i>
-                                <span>Logout</span>
-                            </a>
-                        </div>
-                    </div>
-                </div>
-            </header>
-
-            <!-- Main Content -->
-            <div class="container-fluid py-4">
-                <div class="card">
-                    <div class="card-header">
-                        <h4>Test Management</h4>
-                        <a href="admin-create-test.html" class="btn btn-primary">
-                            <i class="fas fa-plus me-2"></i>Create New Test
-                        </a>
-                    </div>
-                    <div class="card-body">
-                        <!-- Search and Filters -->
-                        <div class="search-filter-container">
-                            <div class="search-box">
-                                <i class="fas fa-search"></i>
-                                <input type="text" class="form-control" id="searchInput"
-                                    placeholder="Search tests by name or description...">
-                            </div>
-                            <div class="filters">
-                                <div class="filter-group">
-                                    <label class="form-label">Status</label>
-                                    <select class="form-select" id="statusFilter">
-                                        <option value="">All Statuses</option>
-                                        <option value="draft">Draft</option>
-                                        <option value="published">Published</option>
-                                        <option value="archived">Archived</option>
-                                    </select>
-                                </div>
-                                <div class="filter-group">
-                                    <label class="form-label">Sort By</label>
-                                    <select class="form-select" id="sortBy">
-                                        <option value="newest">Newest First</option>
-                                        <option value="oldest">Oldest First</option>
-                                        <option value="name_asc">Name (A-Z)</option>
-                                        <option value="name_desc">Name (Z-A)</option>
-                                    </select>
-                                </div>
-                            </div>
-                        </div>
-
-                        <!-- Tests Grid -->
-                        <div class="row g-4" id="testsContainer">
-                            <!-- Test cards will be dynamically inserted here -->
-                            <div class="col-12 text-center py-5">
-                                <div class="spinner-border text-primary" role="status">
-                                    <span class="visually-hidden">Loading...</span>
-                                </div>
-                                <p class="mt-3 text-muted">Loading tests...</p>
-                            </div>
-                        </div>
-
-                        <!-- Pagination -->
-                        <nav aria-label="Test pagination" class="mt-5">
-                            <ul class="pagination justify-content-center" id="pagination">
-                                <!-- Pagination will be dynamically inserted here -->
-                            </ul>
-                        </nav>
-                    </div>
-                </div>
-            </div>
+            <div class="at-pagination" id="pagination"></div>
         </main>
     </div>
+</div>
 
-    <!-- jQuery and Bootstrap JS -->
-    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
-    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/js/bootstrap.bundle.min.js"></script>
+<script type="module">
+    import { app, auth, db } from './js/firebase-config.js';
+    import { requireAuth } from './js/auth-check.js';
+    import { collection, getDocs, query, orderBy, where, limit, startAfter, doc, deleteDoc, getDoc } from 'https://www.gstatic.com/firebasejs/12.1.0/firebase-firestore.js';
+    import { signOut } from 'https://www.gstatic.com/firebasejs/12.1.0/firebase-auth.js';
 
-    <!-- Sidebar Toggle Script -->
-    <script>
-        document.addEventListener('DOMContentLoaded', function () {
-            const sidebar = document.getElementById('sidebar');
-            const sidebarToggle = document.getElementById('sidebar-toggle');
-            const mainContent = document.querySelector('.main-content');
+    const testsContainer = document.getElementById('testsContainer');
+    const searchInput = document.getElementById('searchInput');
+    const statusFilter = document.getElementById('statusFilter');
+    const sortBy = document.getElementById('sortBy');
+    const pagination = document.getElementById('pagination');
+    const itemsPerPage = 12;
+    let currentPage = 1, lastVisible = null, hasMore = true, searchTerm = '';
 
-            // Toggle sidebar on button click
-            if (sidebarToggle && sidebar) {
-                sidebarToggle.addEventListener('click', () => {
-                    sidebar.classList.toggle('collapsed');
-                    mainContent.classList.toggle('expanded');
-                    // Save state to localStorage
-                    localStorage.setItem('sidebarCollapsed', sidebar.classList.contains('collapsed'));
-                });
-
-                // Load saved state
-                if (localStorage.getItem('sidebarCollapsed') === 'true') {
-                    sidebar.classList.add('collapsed');
-                    mainContent.classList.add('expanded');
-                }
-            }
-
-            // Close dropdown when clicking outside
-            document.addEventListener('click', (e) => {
-                const dropdowns = document.querySelectorAll('.dropdown-menu');
-                dropdowns.forEach(dropdown => {
-                    if (!dropdown.contains(e.target) && !dropdown.previousElementSibling.contains(e.target)) {
-                        dropdown.classList.remove('show');
-                    }
-                });
-            });
-        });
-    </script>
-    <!-- Firebase SDK -->
-    <script type="module">
-        // Import Firebase modules
-        import { app, auth, db } from './js/firebase-config.js';
-        import { requireAuth } from './js/auth-check.js';
-        import {
-            getFirestore,
-            collection,
-            getDocs,
-            query,
-            orderBy,
-            where,
-            limit,
-            startAfter,
-            doc,
-            deleteDoc
-        } from 'https://www.gstatic.com/firebasejs/12.1.0/firebase-firestore.js';
-
-        // Initialize the app
-        document.addEventListener('DOMContentLoaded', () => {
-            console.log('DOM loaded, initializing app...');
-            initApp();
-        });
-
-        // DOM Elements
-        const testsContainer = document.getElementById('testsContainer');
-        const searchInput = document.getElementById('searchInput');
-        const statusFilter = document.getElementById('statusFilter');
-        const sortBy = document.getElementById('sortBy');
-        const pagination = document.getElementById('pagination');
-        const sidebarToggle = document.getElementById('sidebar-toggle');
+    function initSidebar() {
         const sidebar = document.getElementById('sidebar');
-        const mainContent = document.querySelector('.main-content');
-
-        // Pagination
-        const itemsPerPage = 12;
-        let currentPage = 1;
-        let lastVisible = null;
-        let hasMore = true;
-        let currentFilter = {};
-        let searchTerm = '';
-
-        // Initialize the app
-        async function initApp() {
-            try {
-                console.log('Initializing app...');
-                const { user } = await requireAuth(['admin', 'teacher']);
-
-                // Set user display name
-                const displayName = user.displayName || user.email || 'Admin';
-                const userNameEl = document.getElementById('user-name');
-                const sidebarNameEl = document.getElementById('sidebar-admin-name');
-
-                if (userNameEl) userNameEl.textContent = displayName;
-                if (sidebarNameEl) sidebarNameEl.textContent = displayName;
-
-                initEventListeners();
-                loadTests();
-            } catch (error) {
-                console.error("Initialization failed:", error);
-            }
-        }
-
-        // Initialize event listeners
-        function initEventListeners() {
-            // Search input
-            let searchTimeout;
-            searchInput?.addEventListener('input', (e) => {
-                clearTimeout(searchTimeout);
-                searchTerm = e.target.value.trim().toLowerCase();
-                searchTimeout = setTimeout(() => {
-                    currentPage = 1;
-                    lastVisible = null;
-                    loadTests();
-                }, 500);
-            });
-
-            // Filters
-            statusFilter?.addEventListener('change', handleFilterChange);
-            sortBy?.addEventListener('change', handleFilterChange);
-
-            // Sidebar toggle
-            sidebarToggle?.addEventListener('click', () => {
-                sidebar.classList.toggle('collapsed');
-                mainContent.classList.toggle('expanded');
-                localStorage.setItem('sidebarCollapsed', sidebar.classList.contains('collapsed'));
-            });
-
-            // Check for saved sidebar state
-            if (localStorage.getItem('sidebarCollapsed') === 'true') {
-                sidebar.classList.add('collapsed');
-                mainContent.classList.add('expanded');
-            }
-        }
-
-        // Handle filter changes
-        function handleFilterChange() {
-            currentPage = 1;
-            lastVisible = null;
-            loadTests();
-        }
-
-        // Load tests from Firestore
-        async function loadTests() {
-            try {
-                testsContainer.innerHTML = `
-                    <div class="col-12 text-center py-5">
-                        <div class="spinner-border text-primary" role="status">
-                            <span class="visually-hidden">Loading...</span>
-                        </div>
-                        <p class="mt-2 text-muted">Loading tests...</p>
-                    </div>`;
-
-                const status = statusFilter?.value || '';
-                const sortField = sortBy?.value || 'newest';
-
-                // Build the query
-                let testsQuery = collection(db, 'tests');
-                let queryConstraints = [];
-
-                // Apply status filter
-                if (status) {
-                    queryConstraints.push(where('status', '==', status));
-                }
-
-                // Apply search term
-                if (searchTerm) {
-                    // This is a simple search - for production, consider using Algolia or similar
-                    // for better full-text search capabilities
-                    console.log('Search term:', searchTerm);
-                    // We'll filter after fetching for this example
-                }
-
-                // Apply sorting
-                switch (sortField) {
-                    case 'newest':
-                        queryConstraints.push(orderBy('createdAt', 'desc'));
-                        break;
-                    case 'oldest':
-                        queryConstraints.push(orderBy('createdAt', 'asc'));
-                        break;
-                    case 'name_asc':
-                        queryConstraints.push(orderBy('title', 'asc'));
-                        break;
-                    case 'name_desc':
-                        queryConstraints.push(orderBy('title', 'desc'));
-                        break;
-                }
-
-                // Add pagination
-                queryConstraints.push(limit(itemsPerPage));
-                if (lastVisible && currentPage > 1) {
-                    queryConstraints.push(startAfter(lastVisible));
-                }
-
-                // Execute the query
-                const q = query(testsQuery, ...queryConstraints);
-                const querySnapshot = await getDocs(q);
-
-                // Process results
-                const tests = [];
-                querySnapshot.forEach((doc) => {
-                    tests.push({ id: doc.id, ...doc.data() });
-                });
-
-                // Update last visible for pagination
-                if (querySnapshot.docs.length > 0) {
-                    lastVisible = querySnapshot.docs[querySnapshot.docs.length - 1];
-                    hasMore = querySnapshot.docs.length === itemsPerPage;
-                } else {
-                    hasMore = false;
-                }
-
-                // Apply search filter if needed
-                const filteredTests = searchTerm
-                    ? tests.filter(test =>
-                        test.title.toLowerCase().includes(searchTerm) ||
-                        (test.description && test.description.toLowerCase().includes(searchTerm))
-                    )
-                    : tests;
-
-                // Render tests
-                renderTests(filteredTests);
-                renderPagination();
-
-            } catch (error) {
-                console.error('Error loading tests:', error);
-                testsContainer.innerHTML = `
-                    <div class="col-12 text-center py-5">
-                        <div class="alert alert-danger">
-                            <i class="fas fa-exclamation-triangle me-2"></i>
-                            Error loading tests. Please try again later.
-                        </div>
-                    </div>`;
-            }
-        }
-
-        // Render tests in the UI
-        function renderTests(tests) {
-            if (tests.length === 0) {
-                testsContainer.innerHTML = `
-                    <div class="col-12 text-center py-5">
-                        <div class="alert alert-info">
-                            <i class="fas fa-info-circle me-2"></i>
-                            No tests found. Create your first test to get started.
-                        </div>
-                    </div>`;
-                return;
-            }
-
-            testsContainer.innerHTML = tests.map(test => `
-                <div class="col-md-6 col-lg-4 col-xl-3">
-                    <div class="card test-card h-100" data-test-id="${test.id}">
-                        <div class="card-body">
-                            <div class="card-title">
-                                <div class="d-flex justify-content-between align-items-start">
-                                    <h5 class="text-truncate mb-0" title="${test.title}">${test.title}</h5>
-                                    <span class="badge-status ${test.status || 'draft'}">
-                                        <i class="fas ${test.status === 'published' ? 'fa-check-circle' : test.status === 'archived' ? 'fa-archive' : 'fa-edit'} me-1"></i>
-                                        ${test.status || 'draft'}
-                                    </span>
-                                </div>
-                                <div class="text-muted small mt-1">
-                                    <i class="far fa-user me-1"></i> ${test.createdByName || 'Unknown'} • 
-                                    <i class="far fa-calendar-alt ms-2 me-1"></i> ${test.createdAt ? new Date(test.createdAt.seconds * 1000).toLocaleDateString() : 'N/A'}
-                                </div>
-                            </div>
-                            
-                            ${test.description ? `<p class="test-meta">${test.description.substring(0, 120)}${test.description.length > 120 ? '...' : ''}</p>` : ''}
-                            
-                            <div class="test-stats">
-                                <div class="stat-item">
-                                    <i class="fas fa-layer-group"></i>
-                                    <span class="stat-value">${test.sections ? test.sections.length : 0}</span>
-                                    <span class="stat-label">Sections</span>
-                                </div>
-                                <div class="stat-item">
-                                    <i class="fas fa-question-circle"></i>
-                                    <span class="stat-value">${test.totalQuestions || 0}</span>
-                                    <span class="stat-label">Questions</span>
-                                </div>
-                                <div class="stat-item">
-                                    <i class="fas fa-user-graduate"></i>
-                                    <span class="stat-value">${test.attempts || 0}</span>
-                                    <span class="stat-label">Attempts</span>
-                                </div>
-                            </div>
-                            
-                            <div class="actions">
-                                <a href="test-details.html?id=${test.id}" class="btn btn-sm btn-outline-primary">
-                                    <i class="fas fa-eye me-1"></i> View
-                                </a>
-                                <a href="admin-edit-test.html?id=${test.id}" class="btn btn-sm btn-outline-secondary">
-                                    <i class="fas fa-pencil-alt me-1"></i> Edit
-                                </a>
-                                <button class="btn btn-sm btn-outline-danger ms-auto" onclick="confirmDelete('${test.id}')" title="Delete Test">
-                                    <i class="fas fa-trash-alt"></i>
-                                </button>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-            `).join('');
-        }
-
-        // Get badge class based on test status
-        function getStatusBadgeClass(status) {
-            switch (status) {
-                case 'published':
-                    return 'bg-success';
-                case 'draft':
-                    return 'bg-secondary';
-                case 'archived':
-                    return 'bg-warning text-dark';
-                default:
-                    return 'bg-secondary';
-            }
-        }
-
-        // Render pagination
-        function renderPagination() {
-            // For simplicity, we're using a basic pagination
-            // In a real app, you'd calculate the total number of pages
-            pagination.innerHTML = `
-                <li class="page-item ${currentPage === 1 ? 'disabled' : ''}">
-                    <a class="page-link" href="#" ${currentPage === 1 ? 'tabindex="-1" aria-disabled="true"' : ''} data-page="${currentPage - 1}">
-                        <i class="fas fa-chevron-left"></i>
-                    </a>
-                </li>
-                <li class="page-item ${!hasMore ? 'disabled' : ''}">
-                    <a class="page-link" href="#" ${!hasMore ? 'tabindex="-1" aria-disabled="true"' : ''} data-page="${currentPage + 1}">
-                        <i class="fas fa-chevron-right"></i>
-                    </a>
-                </li>`;
-
-            // Add event listeners to pagination buttons
-            document.querySelectorAll('.page-link[data-page]').forEach(link => {
-                link.addEventListener('click', (e) => {
-                    e.preventDefault();
-                    const page = parseInt(link.getAttribute('data-page'));
-                    if (page !== currentPage) {
-                        currentPage = page;
-                        loadTests();
-                    }
-                });
-            });
-        }
-
-        // Delete test function
-        window.confirmDelete = async function (testId) {
-            if (!confirm('Are you sure you want to delete this test? This action cannot be undone.')) {
-                return;
-            }
-
-            try {
-                // Show deleting indicator
-                const testCard = document.querySelector(`[data-test-id="${testId}"]`);
-                if (testCard) {
-                    testCard.style.opacity = '0.5';
-                    testCard.style.pointerEvents = 'none';
-                }
-
-                // Delete from Firestore
-                const testRef = doc(db, 'tests', testId);
-                await deleteDoc(testRef);
-
-                // Show success message
-                showToast('Test deleted successfully!', 'success');
-
-                // Reload tests to refresh the list
-                await loadTests();
-
-            } catch (error) {
-                console.error('Error deleting test:', error);
-                showToast('Failed to delete test: ' + error.message, 'error');
-
-                // Restore card if deletion failed
-                const testCard = document.querySelector(`[data-test-id="${testId}"]`);
-                if (testCard) {
-                    testCard.style.opacity = '1';
-                    testCard.style.pointerEvents = 'auto';
-                }
-            }
-        };
-
-        // Toast notification helper
-        function showToast(message, type = 'info') {
-            const toast = document.createElement('div');
-            toast.className = `alert alert-${type === 'error' ? 'danger' : type} position-fixed top-0 start-50 translate-middle-x mt-3`;
-            toast.style.zIndex = '9999';
-            toast.textContent = message;
-            document.body.appendChild(toast);
-
-            setTimeout(() => {
-                toast.remove();
-            }, 3000);
-        }
-    </script>
-    <!-- Mobile Sidebar Auto-Fix -->
-    <script>
-        document.addEventListener('DOMContentLoaded', () => {
-            const sidebar = document.querySelector('.sidebar');
-            let sidebarOverlay = document.getElementById('sidebar-overlay');
-            const sidebarToggle = document.querySelector('.sidebar-toggle, .menu-toggle, #sidebar-toggle');
-            
-            if (sidebar && !sidebarOverlay) {
-                sidebarOverlay = document.createElement('div');
-                sidebarOverlay.className = 'sidebar-overlay';
-                sidebarOverlay.id = 'sidebar-overlay';
-                sidebar.parentNode.insertBefore(sidebarOverlay, sidebar.nextSibling);
-            }
-            
-            if (sidebarToggle && sidebar && sidebarOverlay) {
-                // Ensure toggle class exists
-                sidebarToggle.classList.add('menu-toggle');
-                sidebarToggle.classList.add('d-lg-none');
-                
-                sidebarToggle.addEventListener('click', (e) => {
-                    if (window.innerWidth <= 1024) {
-                        e.preventDefault();
-                        e.stopPropagation();
-                        sidebar.classList.toggle('active');
-                        sidebarOverlay.classList.toggle('active');
-                    }
-                });
-                
-                sidebarOverlay.addEventListener('click', () => {
-                    sidebar.classList.remove('active');
-                    sidebarOverlay.classList.remove('active');
-                });
-            }
+        const toggle = document.getElementById('sidebar-toggle');
+        const overlay = document.getElementById('sidebar-overlay');
+        if (toggle && sidebar) toggle.addEventListener('click', () => {
+            sidebar.classList.toggle('active'); sidebar.classList.toggle('open');
+            overlay?.classList.toggle('active'); overlay?.classList.toggle('open');
         });
-    </script>
+        if (overlay) overlay.addEventListener('click', () => {
+            sidebar.classList.remove('active','open'); overlay.classList.remove('active','open');
+        });
+    }
+
+    document.addEventListener('DOMContentLoaded', async () => {
+        initSidebar();
+        try {
+            const { user } = await requireAuth(['admin', 'teacher']);
+            let displayName = user.displayName || 'Administrator';
+            try {
+                const ud = await getDoc(doc(db, 'users', user.uid));
+                if (ud.exists()) displayName = ud.data().name || ud.data().firstName || displayName;
+            } catch(e){}
+            document.getElementById('sidebar-admin-name').textContent = displayName;
+            document.getElementById('logout-btn').addEventListener('click', () => signOut(auth).then(() => window.location.href = 'auth/login-fixed.html'));
+
+            let timeout;
+            searchInput.addEventListener('input', (e) => {
+                clearTimeout(timeout);
+                searchTerm = e.target.value.trim().toLowerCase();
+                timeout = setTimeout(() => { currentPage = 1; lastVisible = null; loadTests(); }, 400);
+            });
+            statusFilter.addEventListener('change', () => { currentPage = 1; lastVisible = null; loadTests(); });
+            sortBy.addEventListener('change', () => { currentPage = 1; lastVisible = null; loadTests(); });
+
+            loadTests();
+        } catch (e) { console.error(e); }
+    });
+
+    async function loadTests() {
+        testsContainer.innerHTML = '<div class="at-empty"><i class="fas fa-spinner fa-spin"></i> Loading tests…</div>';
+        try {
+            const status = statusFilter.value;
+            const sort = sortBy.value;
+            let constraints = [];
+            if (status) constraints.push(where('status', '==', status));
+            switch (sort) {
+                case 'newest': constraints.push(orderBy('createdAt', 'desc')); break;
+                case 'oldest': constraints.push(orderBy('createdAt', 'asc')); break;
+                case 'name_asc': constraints.push(orderBy('title', 'asc')); break;
+                case 'name_desc': constraints.push(orderBy('title', 'desc')); break;
+            }
+            constraints.push(limit(itemsPerPage));
+            if (lastVisible && currentPage > 1) constraints.push(startAfter(lastVisible));
+
+            const q = query(collection(db, 'tests'), ...constraints);
+            const snap = await getDocs(q);
+            const tests = [];
+            snap.forEach(d => tests.push({ id: d.id, ...d.data() }));
+
+            if (snap.docs.length > 0) { lastVisible = snap.docs[snap.docs.length - 1]; hasMore = snap.docs.length === itemsPerPage; } else { hasMore = false; }
+
+            const filtered = searchTerm
+                ? tests.filter(t => (t.title||'').toLowerCase().includes(searchTerm) || (t.description||'').toLowerCase().includes(searchTerm))
+                : tests;
+
+            renderTests(filtered);
+            renderPagination();
+        } catch (e) {
+            console.error(e);
+            testsContainer.innerHTML = '<div class="at-empty" style="color:#ef4444;"><i class="fas fa-exclamation-triangle"></i> Error loading tests.</div>';
+        }
+    }
+
+    function renderTests(tests) {
+        if (tests.length === 0) {
+            testsContainer.innerHTML = '<div class="at-empty"><i class="fas fa-clipboard-list"></i> No tests found. Create your first test!</div>';
+            return;
+        }
+        testsContainer.innerHTML = tests.map(t => {
+            const status = t.status || 'draft';
+            const date = t.createdAt?.seconds ? new Date(t.createdAt.seconds * 1000).toLocaleDateString('en-US', { month:'short', day:'numeric', year:'numeric' }) : 'N/A';
+            return `<div class="at-card" data-test-id="${t.id}">
+                <div class="at-card-title">
+                    <span>${t.title || 'Untitled'}</span>
+                    <span class="at-badge at-badge-${status}"><i class="fas ${status==='published'?'fa-check-circle':status==='archived'?'fa-archive':'fa-edit'}"></i> ${status}</span>
+                </div>
+                <div class="at-card-meta"><i class="fas fa-user"></i> ${t.createdByName||'Admin'} · <i class="fas fa-calendar"></i> ${date}</div>
+                ${t.description ? `<div class="at-card-desc">${t.description.substring(0,120)}${t.description.length>120?'…':''}</div>` : ''}
+                <div class="at-card-stats">
+                    <div class="at-stat"><div class="at-stat-val">${t.sections?t.sections.length:0}</div><div class="at-stat-label">Sections</div></div>
+                    <div class="at-stat"><div class="at-stat-val">${t.totalQuestions||0}</div><div class="at-stat-label">Questions</div></div>
+                    <div class="at-stat"><div class="at-stat-val">${t.attempts||0}</div><div class="at-stat-label">Attempts</div></div>
+                </div>
+                <div class="at-card-actions">
+                    <a href="test-details.html?id=${t.id}" class="at-action"><i class="fas fa-eye"></i> View</a>
+                    <a href="admin-edit-test.html?id=${t.id}" class="at-action"><i class="fas fa-pencil-alt"></i> Edit</a>
+                    <button class="at-action at-action-danger" onclick="window.confirmDelete('${t.id}')" style="margin-left:auto;"><i class="fas fa-trash-alt"></i></button>
+                </div>
+            </div>`;
+        }).join('');
+    }
+
+    function renderPagination() {
+        pagination.innerHTML = `
+            <button class="at-page-btn" ${currentPage===1?'disabled':''} id="prev-page"><i class="fas fa-chevron-left"></i></button>
+            <button class="at-page-btn" ${!hasMore?'disabled':''} id="next-page"><i class="fas fa-chevron-right"></i></button>`;
+        document.getElementById('prev-page')?.addEventListener('click', () => { if (currentPage > 1) { currentPage--; loadTests(); } });
+        document.getElementById('next-page')?.addEventListener('click', () => { if (hasMore) { currentPage++; loadTests(); } });
+    }
+
+    window.confirmDelete = async function(testId) {
+        if (!confirm('Delete this test? This cannot be undone.')) return;
+        try {
+            const card = document.querySelector(`[data-test-id="${testId}"]`);
+            if (card) { card.style.opacity = '0.4'; card.style.pointerEvents = 'none'; }
+            await deleteDoc(doc(db, 'tests', testId));
+            showToast('Test deleted successfully!');
+            await loadTests();
+        } catch (e) {
+            console.error(e);
+            showToast('Failed to delete test.', true);
+            const card = document.querySelector(`[data-test-id="${testId}"]`);
+            if (card) { card.style.opacity = '1'; card.style.pointerEvents = 'auto'; }
+        }
+    };
+
+    function showToast(msg, isError) {
+        const el = document.createElement('div');
+        el.className = `at-toast${isError?' error':''}`;
+        el.textContent = msg;
+        document.body.appendChild(el);
+        setTimeout(() => el.remove(), 3000);
+    }
+</script>
 </body>
+</html>

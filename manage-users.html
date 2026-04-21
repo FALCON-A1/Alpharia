@@ -1,0 +1,654 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Manage Users — School Admin — Alpharia</title>
+    <meta name="description" content="Add and manage students and teachers for your school.">
+
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link rel="stylesheet" href="css/student-dashboard-clean.css">
+    <link rel="stylesheet" href="css/teacher-dashboard-clean.css">
+
+    <style>
+        @keyframes fadeIn { from{opacity:0;transform:translateY(10px)}to{opacity:1;transform:translateY(0)} }
+        @keyframes slideIn { from{opacity:0;transform:translateX(10px)}to{opacity:1;transform:translateX(0)} }
+
+        /* Tabs */
+        .mu-tabs { display:flex; gap:0; margin-bottom:1.5rem; border-bottom:2px solid var(--sd-border); }
+        .mu-tab {
+            padding:0.75rem 1.5rem; font-size:0.88rem; font-weight:700; color:var(--sd-text-3);
+            cursor:pointer; border-bottom:2px solid transparent; margin-bottom:-2px; transition:0.2s;
+            background:none; border-left:none; border-top:none; border-right:none; font-family:inherit;
+        }
+        .mu-tab:hover { color:var(--sd-text); }
+        .mu-tab.active { color:var(--sd-primary); border-bottom-color:var(--sd-primary); }
+
+        /* Form */
+        .mu-form-grid { display:grid; grid-template-columns:1fr 1fr; gap:1rem; }
+        @media(max-width:600px){ .mu-form-grid{grid-template-columns:1fr;} }
+        .mu-fg { margin-bottom:1rem; }
+        .mu-label { display:block; font-size:0.78rem; font-weight:700; color:var(--sd-text); margin-bottom:0.35rem; }
+        .mu-input, .mu-select {
+            width:100%; padding:0.65rem 0.9rem; border:1.5px solid var(--sd-border);
+            border-radius:var(--sd-radius-sm); font-family:inherit; font-size:0.85rem;
+            background:var(--sd-surface-2); color:var(--sd-text); box-sizing:border-box;
+        }
+        .mu-input:focus, .mu-select:focus { outline:none; border-color:var(--sd-primary); }
+
+        .mu-btn {
+            display:inline-flex; align-items:center; gap:0.4rem;
+            padding:0.65rem 1.2rem; border-radius:var(--sd-radius-sm);
+            font-size:0.85rem; font-weight:700; font-family:inherit; cursor:pointer;
+            border:1.5px solid var(--sd-border); background:var(--sd-surface); color:var(--sd-text-2);
+            transition:0.2s;
+        }
+        .mu-btn:hover { border-color:var(--sd-primary); color:var(--sd-primary); }
+        .mu-btn-primary { background:var(--sd-primary); color:white; border-color:var(--sd-primary); }
+        .mu-btn-primary:hover { opacity:0.9; color:white; }
+        .mu-btn:disabled { opacity:0.5; cursor:not-allowed; }
+
+        /* CSV upload */
+        .mu-drop-zone {
+            border:2px dashed var(--sd-border); border-radius:var(--sd-radius);
+            padding:2.5rem 1.5rem; text-align:center; cursor:pointer;
+            transition:0.2s; background:var(--sd-surface-2);
+        }
+        .mu-drop-zone:hover, .mu-drop-zone.dragover { border-color:var(--sd-primary); background:var(--sd-primary-lt); }
+        .mu-drop-zone i { font-size:2rem; color:var(--sd-text-3); margin-bottom:0.75rem; }
+        .mu-drop-zone p { color:var(--sd-text-2); font-size:0.88rem; }
+        .mu-drop-zone small { color:var(--sd-text-3); font-size:0.75rem; }
+
+        /* Preview table */
+        .mu-preview { margin-top:1.5rem; overflow-x:auto; }
+        .mu-preview table { width:100%; border-collapse:collapse; font-size:0.8rem; }
+        .mu-preview th { background:var(--sd-surface-2); padding:0.6rem 0.8rem; text-align:left; font-weight:700; color:var(--sd-text); border-bottom:2px solid var(--sd-border); }
+        .mu-preview td { padding:0.5rem 0.8rem; border-bottom:1px solid var(--sd-border); color:var(--sd-text-2); }
+        .mu-preview tr:hover td { background:var(--sd-surface-2); }
+
+        /* Status */
+        .mu-status { font-size:0.78rem; font-weight:600; padding:0.2rem 0.6rem; border-radius:50px; display:inline-flex; align-items:center; gap:0.25rem; }
+        .mu-status-success { background:rgba(16,185,129,0.1); color:#10b981; }
+        .mu-status-error { background:rgba(239,68,68,0.1); color:#ef4444; }
+        .mu-status-pending { background:rgba(245,158,11,0.1); color:#f59e0b; }
+
+        /* User list */
+        .mu-user-card {
+            display:flex; align-items:center; gap:1rem; padding:0.85rem 1rem;
+            border-bottom:1px solid var(--sd-border); animation:slideIn 0.3s ease-out;
+        }
+        .mu-user-card:last-child { border-bottom:none; }
+        .mu-user-avatar {
+            width:40px; height:40px; border-radius:10px; display:flex; align-items:center; justify-content:center;
+            font-size:0.9rem; flex-shrink:0;
+        }
+        .mu-user-info { flex:1; }
+        .mu-user-name { font-size:0.85rem; font-weight:700; color:var(--sd-text); }
+        .mu-user-email { font-size:0.72rem; color:var(--sd-text-3); }
+        .mu-user-role { font-size:0.65rem; font-weight:700; padding:0.15rem 0.5rem; border-radius:50px; text-transform:uppercase; }
+        .mu-role-student { background:rgba(59,130,246,0.1); color:#3b82f6; }
+        .mu-role-teacher { background:rgba(139,92,246,0.1); color:#8b5cf6; }
+
+        /* Toast */
+        .mu-toast {
+            position:fixed; bottom:2rem; right:2rem; padding:1rem 1.5rem;
+            border-radius:var(--sd-radius-sm); font-size:0.85rem; font-weight:700;
+            box-shadow:var(--sd-shadow-md); animation:fadeIn 0.3s ease-out; z-index:9999;
+        }
+        .mu-toast-success { background:#10b981; color:white; }
+        .mu-toast-error { background:#ef4444; color:white; }
+
+        /* Progress bar */
+        .mu-progress { height:6px; background:var(--sd-surface-2); border-radius:3px; margin:1rem 0; overflow:hidden; display:none; }
+        .mu-progress-bar { height:100%; background:linear-gradient(90deg,var(--sd-primary),#14b8a6); border-radius:3px; transition:width 0.3s; }
+
+        .mu-template-info {
+            background: var(--sd-surface-2); border-radius: var(--sd-radius-sm);
+            padding: 1rem; margin-top: 1rem; font-size: 0.78rem; color: var(--sd-text-2);
+            border-left: 3px solid var(--sd-primary);
+        }
+        .mu-template-info code { background: var(--sd-surface); padding: 0.15rem 0.4rem; border-radius: 4px; font-size: 0.72rem; }
+    </style>
+</head>
+
+<body class="sd-page">
+<div class="sd-shell">
+    <!-- SIDEBAR -->
+    <aside class="sd-sidebar" id="sidebar">
+        <div class="sd-sidebar-brand">
+            <div class="sd-brand-icon" style="background:var(--sd-primary);"><i class="fas fa-university"></i></div>
+            <span class="sd-brand-text">Alpharia Admin</span>
+        </div>
+        <nav class="sd-nav">
+            <span class="sd-nav-section-label">Institutional</span>
+            <a href="school-dashboard.html" class="sd-nav-link"><i class="fas fa-chart-pie"></i><span>Overview</span></a>
+            <a href="manage-users.html" class="sd-nav-link active"><i class="fas fa-user-plus"></i><span>Manage Users</span></a>
+            <span class="sd-nav-section-label">Reports</span>
+            <a href="school-reports.html" class="sd-nav-link"><i class="fas fa-file-invoice"></i><span>Reports</span></a>
+            <span class="sd-nav-section-label">Account</span>
+            <a href="school-settings.html" class="sd-nav-link"><i class="fas fa-cog"></i><span>School Settings</span></a>
+        </nav>
+        <div class="sd-sidebar-footer">
+            <div class="sd-sidebar-user">
+                <div class="sd-sidebar-user-info">
+                    <div class="sd-sidebar-user-name" id="admin-name-sidebar">Loading…</div>
+                    <div class="sd-sidebar-user-role">School Administrator</div>
+                </div>
+                <button class="sd-icon-btn" id="logout-btn" title="Sign Out" style="margin-left:auto;color:var(--sd-text-3);"><i class="fas fa-sign-out-alt"></i></button>
+            </div>
+        </div>
+    </aside>
+    <div class="sd-sidebar-overlay" id="sidebar-overlay"></div>
+
+    <!-- MAIN -->
+    <div class="sd-main">
+        <header class="sd-topbar">
+            <button class="sd-topbar-toggle menu-toggle d-lg-none" id="sidebar-toggle"><i class="fas fa-bars"></i></button>
+            <div style="font-weight:700; color:var(--sd-text);">Manage Users</div>
+            <div class="sd-topbar-actions"></div>
+        </header>
+
+        <main class="sd-body" style="animation:fadeIn 0.4s ease-out;">
+            <!-- Tabs -->
+            <div class="mu-tabs">
+                <button class="mu-tab active" data-tab="add">
+                    <i class="fas fa-user-plus"></i> Add Individual
+                </button>
+                <button class="mu-tab" data-tab="csv">
+                    <i class="fas fa-file-csv"></i> Bulk CSV Import
+                </button>
+                <button class="mu-tab" data-tab="list">
+                    <i class="fas fa-users"></i> All Users
+                </button>
+            </div>
+
+            <!-- TAB 1: Add Individual -->
+            <div class="mu-panel" id="panel-add">
+                <div class="td-card">
+                    <div class="td-card-header"><h3><i class="fas fa-user-plus"></i> Add Student or Teacher</h3></div>
+                    <div class="td-card-body">
+                        <div class="mu-form-grid">
+                            <div class="mu-fg">
+                                <label class="mu-label">First Name *</label>
+                                <input type="text" class="mu-input" id="add-first" placeholder="First name">
+                            </div>
+                            <div class="mu-fg">
+                                <label class="mu-label">Last Name *</label>
+                                <input type="text" class="mu-input" id="add-last" placeholder="Last name">
+                            </div>
+                        </div>
+                        <div class="mu-fg">
+                            <label class="mu-label">Email *</label>
+                            <input type="email" class="mu-input" id="add-email" placeholder="student@school.edu">
+                        </div>
+                        <div class="mu-form-grid">
+                            <div class="mu-fg">
+                                <label class="mu-label">Password *</label>
+                                <input type="password" class="mu-input" id="add-pass" placeholder="Min 6 characters">
+                            </div>
+                            <div class="mu-fg">
+                                <label class="mu-label">Role *</label>
+                                <select class="mu-select" id="add-role">
+                                    <option value="student">Student</option>
+                                    <option value="teacher">Teacher</option>
+                                </select>
+                            </div>
+                        </div>
+                        <div class="mu-fg">
+                            <label class="mu-label">Grade / Class (optional)</label>
+                            <input type="text" class="mu-input" id="add-grade" placeholder="e.g. Grade 3, Class A">
+                        </div>
+                        <div id="add-error" class="mu-status mu-status-error" style="display:none; margin-bottom:1rem;"></div>
+                        <button class="mu-btn mu-btn-primary" id="btn-add-user"><i class="fas fa-plus"></i> Create Account</button>
+                    </div>
+                </div>
+            </div>
+
+            <!-- TAB 2: CSV Import -->
+            <div class="mu-panel" id="panel-csv" style="display:none;">
+                <div class="td-card">
+                    <div class="td-card-header"><h3><i class="fas fa-file-csv"></i> Bulk CSV Import</h3></div>
+                    <div class="td-card-body">
+                        <div class="mu-drop-zone" id="csv-drop">
+                            <i class="fas fa-cloud-upload-alt"></i>
+                            <p><strong>Click or drag a CSV file here</strong></p>
+                            <small>Required columns: firstName, lastName, email, password, role</small>
+                            <input type="file" id="csv-file" accept=".csv" style="display:none;">
+                        </div>
+
+                        <div class="mu-template-info">
+                            <strong>CSV Template:</strong><br>
+                            <code>firstName,lastName,email,password,role,grade</code><br>
+                            <code>John,Smith,john@school.edu,pass123,student,Grade 3</code><br>
+                            <code>Mary,Johnson,mary@school.edu,teach456,teacher,</code><br><br>
+                            <button class="mu-btn" id="btn-download-template" style="margin-top:0.5rem;"><i class="fas fa-download"></i> Download Template</button>
+                        </div>
+
+                        <!-- CSV Preview -->
+                        <div class="mu-preview" id="csv-preview" style="display:none;">
+                            <h4 style="font-size:0.88rem; font-weight:700; margin-bottom:0.75rem; color:var(--sd-text);">
+                                <i class="fas fa-eye" style="color:var(--sd-primary);"></i> Preview (<span id="csv-count">0</span> users)
+                            </h4>
+                            <div style="overflow-x:auto;">
+                                <table><thead id="csv-thead"></thead><tbody id="csv-tbody"></tbody></table>
+                            </div>
+                            <div class="mu-progress" id="csv-progress"><div class="mu-progress-bar" id="csv-progress-bar" style="width:0%;"></div></div>
+                            <div style="margin-top:1rem; display:flex; gap:0.75rem;">
+                                <button class="mu-btn" id="btn-csv-cancel"><i class="fas fa-times"></i> Cancel</button>
+                                <button class="mu-btn mu-btn-primary" id="btn-csv-import"><i class="fas fa-upload"></i> Import All Users</button>
+                            </div>
+                        </div>
+
+                        <!-- Import results -->
+                        <div id="csv-results" style="display:none; margin-top:1.5rem;"></div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- TAB 3: User List -->
+            <div class="mu-panel" id="panel-list" style="display:none;">
+                <div class="td-card">
+                    <div class="td-card-header">
+                        <h3><i class="fas fa-users"></i> Registered Users</h3>
+                        <div style="display:flex; gap:0.5rem;">
+                            <select class="mu-select" id="filter-role" style="width:auto; padding:0.35rem 0.7rem; font-size:0.75rem;">
+                                <option value="">All Roles</option>
+                                <option value="student">Students</option>
+                                <option value="teacher">Teachers</option>
+                            </select>
+                        </div>
+                    </div>
+                    <div class="td-card-body" id="user-list-container" style="padding:0;">
+                        <p style="text-align:center; padding:2rem; color:var(--sd-text-3);">Loading users…</p>
+                    </div>
+                </div>
+            </div>
+
+        </main>
+    </div>
+</div>
+
+<script type="module">
+    import { app, auth, db } from './js/firebase-config.js';
+    import { requireAuth } from './js/auth-check.js';
+    import { initializeApp } from 'https://www.gstatic.com/firebasejs/12.1.0/firebase-app.js';
+    import { getAuth, createUserWithEmailAndPassword, signOut } from 'https://www.gstatic.com/firebasejs/12.1.0/firebase-auth.js';
+    import { doc, getDoc, setDoc, collection, getDocs, query, where, serverTimestamp, updateDoc, increment } from 'https://www.gstatic.com/firebasejs/12.1.0/firebase-firestore.js';
+
+    let schoolId = null;
+    let currentUser = null;
+    let csvData = [];
+
+    // Create a secondary Firebase app to create users without logging out the admin
+    const secondaryApp = initializeApp({
+        apiKey: "AIzaSyAtOedXLBC4eigzqmBpYFciN-W5Mi2Cpmc",
+        authDomain: "alpharia-c6a39.firebaseapp.com",
+        projectId: "alpharia-c6a39"
+    }, 'secondary');
+    const secondaryAuth = getAuth(secondaryApp);
+
+    function showToast(msg, type = 'success') {
+        const toast = document.createElement('div');
+        toast.className = `mu-toast mu-toast-${type}`;
+        toast.innerHTML = `<i class="fas fa-${type === 'success' ? 'check-circle' : 'exclamation-circle'}"></i> ${msg}`;
+        document.body.appendChild(toast);
+        setTimeout(() => toast.remove(), 4000);
+    }
+
+    // ── Tabs ──
+    document.querySelectorAll('.mu-tab').forEach(tab => {
+        tab.addEventListener('click', () => {
+            document.querySelectorAll('.mu-tab').forEach(t => t.classList.remove('active'));
+            document.querySelectorAll('.mu-panel').forEach(p => p.style.display = 'none');
+            tab.classList.add('active');
+            document.getElementById(`panel-${tab.dataset.tab}`).style.display = 'block';
+            if (tab.dataset.tab === 'list') loadUserList();
+        });
+    });
+
+    // ── Sidebar ──
+    function initSidebar() {
+        const sidebar = document.getElementById('sidebar');
+        const toggle = document.getElementById('sidebar-toggle');
+        const overlay = document.getElementById('sidebar-overlay');
+        if (toggle && sidebar) toggle.addEventListener('click', () => {
+            sidebar.classList.toggle('active'); sidebar.classList.toggle('open');
+            overlay?.classList.toggle('active'); overlay?.classList.toggle('open');
+        });
+        if (overlay) overlay.addEventListener('click', () => {
+            sidebar.classList.remove('active','open'); overlay.classList.remove('active','open');
+        });
+    }
+
+    // ── Add Individual User ──
+    async function addUser() {
+        const first = document.getElementById('add-first').value.trim();
+        const last = document.getElementById('add-last').value.trim();
+        const email = document.getElementById('add-email').value.trim();
+        const pass = document.getElementById('add-pass').value;
+        const role = document.getElementById('add-role').value;
+        const grade = document.getElementById('add-grade').value.trim();
+        const errEl = document.getElementById('add-error');
+
+        if (!first || !last || !email || !pass) { errEl.textContent = 'All required fields must be filled.'; errEl.style.display = 'inline-flex'; return; }
+        if (pass.length < 6) { errEl.textContent = 'Password must be at least 6 characters.'; errEl.style.display = 'inline-flex'; return; }
+        errEl.style.display = 'none';
+
+        const btn = document.getElementById('btn-add-user');
+        btn.disabled = true;
+        btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Creating…';
+
+        try {
+            const result = await createSingleUser({ firstName: first, lastName: last, email, password: pass, role, grade });
+            if (result.success) {
+                showToast(`${first} ${last} created as ${role}!`);
+                // Clear form
+                ['add-first','add-last','add-email','add-pass','add-grade'].forEach(id => document.getElementById(id).value = '');
+            } else {
+                errEl.textContent = result.error;
+                errEl.style.display = 'inline-flex';
+            }
+        } catch (e) {
+            errEl.textContent = e.message;
+            errEl.style.display = 'inline-flex';
+        }
+
+        btn.disabled = false;
+        btn.innerHTML = '<i class="fas fa-plus"></i> Create Account';
+    }
+
+    async function createSingleUser({ firstName, lastName, email, password, role, grade }) {
+        try {
+            // Create user via secondary auth (doesn't log out admin)
+            const cred = await createUserWithEmailAndPassword(secondaryAuth, email, password);
+            const uid = cred.user.uid;
+            // Sign out the secondary auth immediately
+            await signOut(secondaryAuth);
+
+            const userData = {
+                firstName,
+                lastName,
+                name: firstName + ' ' + lastName,
+                email,
+                role,
+                schoolId: schoolId || 'unknown',
+                grade: grade || '',
+                createdAt: serverTimestamp(),
+                createdBy: currentUser?.uid || 'admin'
+            };
+
+            // Write to users collection
+            await setDoc(doc(db, 'users', uid), userData);
+
+            // Also write to role-specific collection
+            if (role === 'student') {
+                await setDoc(doc(db, 'students', uid), {
+                    name: firstName + ' ' + lastName,
+                    displayName: firstName + ' ' + lastName,
+                    email,
+                    grade: grade || '',
+                    schoolId: schoolId || 'unknown',
+                    createdAt: serverTimestamp()
+                });
+            } else if (role === 'teacher') {
+                await setDoc(doc(db, 'teachers', uid), {
+                    name: firstName + ' ' + lastName,
+                    displayName: firstName + ' ' + lastName,
+                    email,
+                    schoolId: schoolId || 'unknown',
+                    createdAt: serverTimestamp()
+                });
+            }
+
+            // Update school user counts
+            if (schoolId) {
+                try {
+                    const field = role === 'student' ? 'studentCount' : 'teacherCount';
+                    await updateDoc(doc(db, 'schools', schoolId), { [field]: increment(1) });
+                } catch (e) { /* silent */ }
+            }
+
+            return { success: true, uid };
+        } catch (e) {
+            let msg = 'Failed to create account. ';
+            if (e.code === 'auth/email-already-in-use') msg = 'This email is already registered.';
+            else if (e.code === 'auth/invalid-email') msg = 'Invalid email address.';
+            else if (e.code === 'auth/weak-password') msg = 'Password is too weak (min 6 chars).';
+            return { success: false, error: msg };
+        }
+    }
+
+    // ── CSV Import ──
+    function parseCSV(text) {
+        const lines = text.trim().split('\n');
+        if (lines.length < 2) return [];
+        const headers = lines[0].split(',').map(h => h.trim().toLowerCase());
+        return lines.slice(1).filter(l => l.trim()).map(line => {
+            const vals = line.split(',').map(v => v.trim());
+            const obj = {};
+            headers.forEach((h, i) => obj[h] = vals[i] || '');
+            return obj;
+        });
+    }
+
+    function showCSVPreview(data) {
+        csvData = data;
+        const preview = document.getElementById('csv-preview');
+        const results = document.getElementById('csv-results');
+        results.style.display = 'none';
+        preview.style.display = 'block';
+        document.getElementById('csv-count').textContent = data.length;
+
+        const thead = document.getElementById('csv-thead');
+        thead.innerHTML = '<tr><th>#</th><th>First Name</th><th>Last Name</th><th>Email</th><th>Role</th><th>Grade</th><th>Status</th></tr>';
+
+        const tbody = document.getElementById('csv-tbody');
+        tbody.innerHTML = data.map((row, i) => `
+            <tr id="csv-row-${i}">
+                <td>${i + 1}</td>
+                <td>${row.firstname || row.firstName || ''}</td>
+                <td>${row.lastname || row.lastName || ''}</td>
+                <td>${row.email || ''}</td>
+                <td><span class="mu-user-role mu-role-${(row.role||'student').toLowerCase()}">${row.role || 'student'}</span></td>
+                <td>${row.grade || ''}</td>
+                <td><span class="mu-status mu-status-pending" id="csv-status-${i}"><i class="fas fa-clock"></i> Pending</span></td>
+            </tr>
+        `).join('');
+    }
+
+    async function importCSV() {
+        if (csvData.length === 0) return;
+        const btn = document.getElementById('btn-csv-import');
+        const progress = document.getElementById('csv-progress');
+        const progressBar = document.getElementById('csv-progress-bar');
+        btn.disabled = true;
+        btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Importing…';
+        progress.style.display = 'block';
+
+        let success = 0, failed = 0;
+
+        for (let i = 0; i < csvData.length; i++) {
+            const row = csvData[i];
+            const statusEl = document.getElementById(`csv-status-${i}`);
+
+            try {
+                const result = await createSingleUser({
+                    firstName: row.firstname || row.firstName || '',
+                    lastName: row.lastname || row.lastName || '',
+                    email: row.email || '',
+                    password: row.password || '',
+                    role: (row.role || 'student').toLowerCase(),
+                    grade: row.grade || ''
+                });
+
+                if (result.success) {
+                    statusEl.className = 'mu-status mu-status-success';
+                    statusEl.innerHTML = '<i class="fas fa-check"></i> Created';
+                    success++;
+                } else {
+                    statusEl.className = 'mu-status mu-status-error';
+                    statusEl.innerHTML = `<i class="fas fa-times"></i> ${result.error}`;
+                    failed++;
+                }
+            } catch (e) {
+                statusEl.className = 'mu-status mu-status-error';
+                statusEl.innerHTML = '<i class="fas fa-times"></i> Error';
+                failed++;
+            }
+
+            progressBar.style.width = ((i + 1) / csvData.length * 100) + '%';
+            // Small delay to avoid rate limiting
+            await new Promise(r => setTimeout(r, 500));
+        }
+
+        btn.disabled = false;
+        btn.innerHTML = '<i class="fas fa-upload"></i> Import All Users';
+
+        const resultsEl = document.getElementById('csv-results');
+        resultsEl.style.display = 'block';
+        resultsEl.innerHTML = `
+            <div style="display:flex; gap:1rem; flex-wrap:wrap;">
+                <div style="flex:1; min-width:150px; padding:1rem; background:rgba(16,185,129,0.1); border-radius:var(--sd-radius-sm); text-align:center;">
+                    <div style="font-size:1.5rem; font-weight:800; color:#10b981;">${success}</div>
+                    <div style="font-size:0.72rem; font-weight:700; color:#10b981; text-transform:uppercase;">Successful</div>
+                </div>
+                <div style="flex:1; min-width:150px; padding:1rem; background:rgba(239,68,68,0.1); border-radius:var(--sd-radius-sm); text-align:center;">
+                    <div style="font-size:1.5rem; font-weight:800; color:#ef4444;">${failed}</div>
+                    <div style="font-size:0.72rem; font-weight:700; color:#ef4444; text-transform:uppercase;">Failed</div>
+                </div>
+            </div>
+        `;
+
+        showToast(`Import complete: ${success} created, ${failed} failed.`, failed > 0 ? 'error' : 'success');
+    }
+
+    // ── User List ──
+    async function loadUserList() {
+        const container = document.getElementById('user-list-container');
+        container.innerHTML = '<p style="text-align:center; padding:2rem; color:var(--sd-text-3);"><i class="fas fa-spinner fa-spin"></i> Loading…</p>';
+
+        try {
+            const filterRole = document.getElementById('filter-role').value;
+
+            // Fetch from users collection where schoolId matches
+            let usersQuery;
+            if (schoolId) {
+                usersQuery = query(collection(db, 'users'), where('schoolId', '==', schoolId));
+            } else {
+                usersQuery = collection(db, 'users');
+            }
+            const snap = await getDocs(usersQuery);
+
+            let users = [];
+            snap.forEach(d => {
+                const data = d.data();
+                if (data.role === 'student' || data.role === 'teacher') {
+                    if (!filterRole || data.role === filterRole) {
+                        users.push({ id: d.id, ...data });
+                    }
+                }
+            });
+
+            if (users.length === 0) {
+                container.innerHTML = '<p style="text-align:center; padding:2rem; color:var(--sd-text-3);">No users found. Add your first student or teacher above!</p>';
+                return;
+            }
+
+            container.innerHTML = users.map(u => {
+                const roleClass = u.role === 'teacher' ? 'mu-role-teacher' : 'mu-role-student';
+                const avatarBg = u.role === 'teacher' ? 'rgba(139,92,246,0.1)' : 'rgba(59,130,246,0.1)';
+                const avatarColor = u.role === 'teacher' ? '#8b5cf6' : '#3b82f6';
+                const icon = u.role === 'teacher' ? 'fa-chalkboard-teacher' : 'fa-user-graduate';
+                return `
+                    <div class="mu-user-card">
+                        <div class="mu-user-avatar" style="background:${avatarBg}; color:${avatarColor};"><i class="fas ${icon}"></i></div>
+                        <div class="mu-user-info">
+                            <div class="mu-user-name">${u.name || u.firstName + ' ' + (u.lastName||'')}</div>
+                            <div class="mu-user-email">${u.email || '—'} ${u.grade ? '· ' + u.grade : ''}</div>
+                        </div>
+                        <span class="mu-user-role ${roleClass}">${u.role}</span>
+                    </div>
+                `;
+            }).join('');
+        } catch (e) {
+            console.error('Error loading users:', e);
+            container.innerHTML = '<p style="text-align:center; padding:2rem; color:#ef4444;">Error loading users.</p>';
+        }
+    }
+
+    // ── Init ──
+    document.addEventListener('DOMContentLoaded', async () => {
+        initSidebar();
+
+        try {
+            const { user } = await requireAuth(['school_admin', 'admin']);
+            currentUser = user;
+
+            // Get admin's schoolId
+            const adminDoc = await getDoc(doc(db, 'users', user.uid));
+            if (adminDoc.exists()) {
+                const data = adminDoc.data();
+                schoolId = data.schoolId || null;
+                document.getElementById('admin-name-sidebar').textContent = data.name || data.firstName || 'Admin';
+            }
+
+            document.getElementById('logout-btn').addEventListener('click', () => {
+                signOut(auth).then(() => window.location.href = 'auth/login-fixed.html');
+            });
+        } catch (e) { console.error('Auth error:', e); }
+
+        // Add user button
+        document.getElementById('btn-add-user').addEventListener('click', addUser);
+
+        // CSV file handling
+        const dropZone = document.getElementById('csv-drop');
+        const fileInput = document.getElementById('csv-file');
+
+        dropZone.addEventListener('click', () => fileInput.click());
+        dropZone.addEventListener('dragover', (e) => { e.preventDefault(); dropZone.classList.add('dragover'); });
+        dropZone.addEventListener('dragleave', () => dropZone.classList.remove('dragover'));
+        dropZone.addEventListener('drop', (e) => {
+            e.preventDefault();
+            dropZone.classList.remove('dragover');
+            const file = e.dataTransfer.files[0];
+            if (file && file.name.endsWith('.csv')) processCSVFile(file);
+        });
+        fileInput.addEventListener('change', (e) => {
+            if (e.target.files[0]) processCSVFile(e.target.files[0]);
+        });
+
+        function processCSVFile(file) {
+            const reader = new FileReader();
+            reader.onload = (e) => {
+                const data = parseCSV(e.target.result);
+                if (data.length === 0) { showToast('CSV is empty or invalid.', 'error'); return; }
+                showCSVPreview(data);
+            };
+            reader.readAsText(file);
+        }
+
+        document.getElementById('btn-csv-import').addEventListener('click', importCSV);
+        document.getElementById('btn-csv-cancel').addEventListener('click', () => {
+            document.getElementById('csv-preview').style.display = 'none';
+            csvData = [];
+        });
+
+        // Download template
+        document.getElementById('btn-download-template').addEventListener('click', () => {
+            const csv = 'firstName,lastName,email,password,role,grade\nJohn,Smith,john@school.edu,password123,student,Grade 3\nJane,Doe,jane@school.edu,password456,student,Grade 4\nMary,Johnson,mary@school.edu,teacher789,teacher,';
+            const blob = new Blob([csv], { type: 'text/csv' });
+            const url = URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.href = url; a.download = 'alpharia-users-template.csv'; a.click();
+            URL.revokeObjectURL(url);
+        });
+
+        // Role filter
+        document.getElementById('filter-role').addEventListener('change', loadUserList);
+    });
+</script>
+</body>
+</html>

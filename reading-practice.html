@@ -1,0 +1,444 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Reading Practice — Alpharia</title>
+    <meta name="description" content="Practice reading at your own pace. No scoring, no timer — just fun reading!">
+
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link rel="stylesheet" href="css/student-dashboard-clean.css">
+
+    <style>
+        @keyframes fadeIn { from { opacity:0; transform:translateY(10px);} to { opacity:1; transform:translateY(0);} }
+        @keyframes wordPop { 0% { transform: scale(1); } 50% { transform: scale(1.15); } 100% { transform: scale(1); } }
+        @keyframes celebrateIn { from { opacity:0; transform:scale(0.5);} to { opacity:1; transform:scale(1);} }
+
+        body { background: #f0f2f8; }
+
+        .rp-container {
+            max-width: 800px;
+            margin: 0 auto;
+            padding: 2rem 1.5rem;
+            animation: fadeIn 0.4s ease-out;
+        }
+
+        /* Header */
+        .rp-header {
+            display: flex; align-items: center; gap: 1rem; margin-bottom: 2rem;
+        }
+        .rp-back {
+            width: 42px; height: 42px; border-radius: 12px;
+            display: flex; align-items: center; justify-content: center;
+            background: var(--sd-surface); border: 1.5px solid var(--sd-border);
+            color: var(--sd-text-2); text-decoration: none; transition: var(--sd-transition);
+        }
+        .rp-back:hover { border-color: var(--sd-primary); color: var(--sd-primary); }
+        .rp-header-text h1 { font-size: 1.4rem; font-weight: 800; color: var(--sd-text); }
+        .rp-header-text p { font-size: 0.85rem; color: var(--sd-text-3); }
+
+        /* Level selector */
+        .rp-level-grid {
+            display: grid; grid-template-columns: repeat(auto-fill, minmax(140px, 1fr));
+            gap: 0.75rem; margin-bottom: 2rem;
+        }
+        .rp-level-card {
+            background: var(--sd-surface);
+            border: 1.5px solid var(--sd-border);
+            border-radius: var(--sd-radius);
+            padding: 1rem;
+            text-align: center;
+            cursor: pointer;
+            transition: var(--sd-transition);
+        }
+        .rp-level-card:hover { transform: translateY(-3px); border-color: var(--sd-primary); box-shadow: var(--sd-shadow-sm); }
+        .rp-level-card.active { border-color: var(--sd-primary); background: var(--sd-primary-lt); }
+        .rp-level-card-icon { font-size: 1.5rem; margin-bottom: 0.4rem; }
+        .rp-level-card-label { font-size: 0.82rem; font-weight: 700; color: var(--sd-text); }
+
+        /* Passage selector */
+        .rp-passage-list {
+            display: flex; flex-direction: column; gap: 0.75rem; margin-bottom: 2rem;
+        }
+        .rp-passage-item {
+            display: flex; align-items: center; gap: 1rem;
+            padding: 1rem 1.25rem; background: var(--sd-surface);
+            border: 1.5px solid var(--sd-border); border-radius: var(--sd-radius);
+            cursor: pointer; transition: var(--sd-transition);
+        }
+        .rp-passage-item:hover { border-color: var(--sd-primary); transform: translateY(-2px); box-shadow: var(--sd-shadow-sm); }
+        .rp-passage-icon {
+            width: 48px; height: 48px; border-radius: 14px;
+            display: flex; align-items: center; justify-content: center;
+            background: var(--sd-primary-lt); color: var(--sd-primary);
+            font-size: 1.2rem; flex-shrink: 0;
+        }
+        .rp-passage-info { flex: 1; }
+        .rp-passage-title { font-size: 1rem; font-weight: 800; color: var(--sd-text); }
+        .rp-passage-meta { font-size: 0.78rem; color: var(--sd-text-3); margin-top: 0.15rem; }
+
+        /* Reading view */
+        .rp-reader {
+            background: var(--sd-surface);
+            border: 1.5px solid var(--sd-border);
+            border-radius: var(--sd-radius);
+            padding: 2.5rem 2rem;
+            margin-bottom: 1.5rem;
+            display: none;
+        }
+        .rp-reader.active { display: block; animation: fadeIn 0.4s ease-out; }
+        .rp-reader-title {
+            font-size: 1.3rem; font-weight: 800; color: var(--sd-text);
+            text-align: center; margin-bottom: 1.5rem;
+        }
+        .rp-text-area {
+            font-size: 1.35rem; line-height: 2.2; color: var(--sd-text);
+            text-align: left; font-weight: 500;
+        }
+        .rp-word {
+            display: inline; cursor: pointer;
+            padding: 0.1rem 0.15rem; border-radius: 4px;
+            transition: background 0.2s, color 0.2s;
+        }
+        .rp-word:hover { background: var(--sd-primary-lt); color: var(--sd-primary); }
+        .rp-word.highlighted {
+            background: var(--sd-primary);
+            color: white;
+            border-radius: 6px;
+            padding: 0.15rem 0.25rem;
+            animation: wordPop 0.3s ease-out;
+        }
+        .rp-word.read {
+            color: var(--sd-primary);
+        }
+
+        /* Controls */
+        .rp-controls {
+            display: flex; gap: 0.75rem; justify-content: center;
+            flex-wrap: wrap; margin-bottom: 1.5rem;
+        }
+        .rp-ctrl-btn {
+            display: inline-flex; align-items: center; gap: 0.4rem;
+            padding: 0.65rem 1.2rem; border-radius: var(--sd-radius-sm);
+            border: 1.5px solid var(--sd-border); background: var(--sd-surface);
+            color: var(--sd-text-2); font-size: 0.85rem; font-weight: 700;
+            font-family: inherit; cursor: pointer; transition: var(--sd-transition);
+        }
+        .rp-ctrl-btn:hover { border-color: var(--sd-primary); color: var(--sd-primary); }
+        .rp-ctrl-btn.primary { background: var(--sd-primary); color: white; border-color: var(--sd-primary); }
+        .rp-ctrl-btn.primary:hover { opacity: 0.9; color: white; }
+
+        /* Font size slider */
+        .rp-font-control {
+            display: flex; align-items: center; gap: 0.5rem;
+            justify-content: center; margin-bottom: 1rem;
+        }
+        .rp-font-control label { font-size: 0.78rem; font-weight: 600; color: var(--sd-text-3); }
+        .rp-font-slider {
+            width: 120px; cursor: pointer;
+        }
+
+        /* Celebration */
+        .rp-celebrate {
+            display: none; text-align: center; padding: 2rem;
+            animation: celebrateIn 0.5s ease-out;
+        }
+        .rp-celebrate.active { display: block; }
+        .rp-celebrate-emoji { font-size: 4rem; margin-bottom: 1rem; }
+        .rp-celebrate h2 { font-size: 1.5rem; font-weight: 800; color: var(--sd-text); margin-bottom: 0.5rem; }
+        .rp-celebrate p { font-size: 0.95rem; color: var(--sd-text-2); margin-bottom: 1.5rem; }
+
+        /* Progress indicator */
+        .rp-progress {
+            height: 6px; background: var(--sd-surface-2);
+            border-radius: 3px; margin-bottom: 1rem; overflow: hidden;
+        }
+        .rp-progress-bar {
+            height: 100%; background: linear-gradient(90deg, var(--sd-primary), #14b8a6);
+            border-radius: 3px; transition: width 0.5s ease;
+        }
+
+        @media (max-width: 600px) {
+            .rp-container { padding: 1rem; }
+            .rp-reader { padding: 1.5rem 1rem; }
+            .rp-text-area { font-size: 1.1rem; line-height: 2; }
+        }
+    </style>
+</head>
+
+<body class="sd-page" style="background: #f0f2f8;">
+
+<div class="rp-container">
+    <!-- Header -->
+    <div class="rp-header">
+        <a href="student-dashboard.html" class="rp-back"><i class="fas fa-arrow-left"></i></a>
+        <div class="rp-header-text">
+            <h1><i class="fas fa-book-open" style="color:var(--sd-primary);"></i> Reading Practice</h1>
+            <p>Practice at your own pace — no tests, no timer. Just fun reading!</p>
+        </div>
+    </div>
+
+    <!-- STEP 1: Level Selection -->
+    <div id="step-level">
+        <h2 style="font-size:1rem; font-weight:700; color:var(--sd-text); margin-bottom:1rem;">Choose your reading level:</h2>
+        <div class="rp-level-grid" id="level-grid"></div>
+    </div>
+
+    <!-- STEP 2: Passage Selection -->
+    <div id="step-passage" style="display:none;">
+        <div style="display:flex; align-items:center; gap:0.5rem; margin-bottom:1rem;">
+            <button class="rp-ctrl-btn" id="back-to-levels" style="padding:0.4rem 0.8rem;"><i class="fas fa-arrow-left"></i></button>
+            <h2 style="font-size:1rem; font-weight:700; color:var(--sd-text);">Pick a story to read:</h2>
+        </div>
+        <div class="rp-passage-list" id="passage-list"></div>
+    </div>
+
+    <!-- STEP 3: Reading View -->
+    <div id="step-reader" style="display:none;">
+        <div style="display:flex; align-items:center; gap:0.5rem; margin-bottom:1rem;">
+            <button class="rp-ctrl-btn" id="back-to-passages" style="padding:0.4rem 0.8rem;"><i class="fas fa-arrow-left"></i></button>
+            <h2 style="font-size:1rem; font-weight:700; color:var(--sd-text);" id="reader-label">Reading…</h2>
+        </div>
+
+        <div class="rp-progress"><div class="rp-progress-bar" id="progress-bar" style="width:0%;"></div></div>
+
+        <div class="rp-font-control">
+            <label>Aa</label>
+            <input type="range" class="rp-font-slider" id="font-slider" min="16" max="32" value="22">
+            <label style="font-size:1.1rem;">Aa</label>
+        </div>
+
+        <div class="rp-reader active" id="reader-area">
+            <div class="rp-reader-title" id="reader-title"></div>
+            <div class="rp-text-area" id="text-area"></div>
+        </div>
+
+        <div class="rp-controls">
+            <button class="rp-ctrl-btn" id="btn-word-mode"><i class="fas fa-hand-pointer"></i> Tap Each Word</button>
+            <button class="rp-ctrl-btn" id="btn-auto-highlight"><i class="fas fa-play"></i> Auto Highlight</button>
+            <button class="rp-ctrl-btn" id="btn-reset"><i class="fas fa-redo"></i> Start Over</button>
+        </div>
+
+        <!-- Celebration screen -->
+        <div class="rp-celebrate" id="celebrate">
+            <div class="rp-celebrate-emoji">🎉</div>
+            <h2>Great Reading!</h2>
+            <p>You finished the whole passage. Keep up the amazing work!</p>
+            <div class="rp-controls">
+                <button class="rp-ctrl-btn" id="btn-read-again"><i class="fas fa-redo"></i> Read Again</button>
+                <button class="rp-ctrl-btn primary" id="btn-next-story"><i class="fas fa-arrow-right"></i> Next Story</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script type="module">
+    import { PRACTICE_PASSAGES, LEVELS } from './js/intervention-data.js';
+
+    let selectedLevel = null;
+    let selectedPassage = null;
+    let wordIndex = 0;
+    let wordElements = [];
+    let autoTimer = null;
+    let wordMode = false;
+
+    const levelEmojis = { 'pre-primer': '🌱', 'primer': '🌿', 'level-1': '📗', 'level-2': '📘', 'level-3': '📙', 'level-4': '📕', 'level-5': '📓', 'level-6': '🏆' };
+
+    function showStep(step) {
+        document.getElementById('step-level').style.display = step === 'level' ? 'block' : 'none';
+        document.getElementById('step-passage').style.display = step === 'passage' ? 'block' : 'none';
+        document.getElementById('step-reader').style.display = step === 'reader' ? 'block' : 'none';
+    }
+
+    function buildLevelGrid() {
+        const grid = document.getElementById('level-grid');
+        const availableLevels = [...new Set(PRACTICE_PASSAGES.map(p => p.level))];
+        grid.innerHTML = availableLevels.map(lvl => {
+            const label = LEVELS.find(l => l.id === lvl)?.label || lvl;
+            const count = PRACTICE_PASSAGES.filter(p => p.level === lvl).length;
+            return `
+                <div class="rp-level-card" data-level="${lvl}">
+                    <div class="rp-level-card-icon">${levelEmojis[lvl] || '📖'}</div>
+                    <div class="rp-level-card-label">${label}</div>
+                    <div style="font-size:0.7rem; color:var(--sd-text-3); margin-top:0.2rem;">${count} ${count === 1 ? 'story' : 'stories'}</div>
+                </div>
+            `;
+        }).join('');
+
+        grid.querySelectorAll('.rp-level-card').forEach(card => {
+            card.addEventListener('click', () => {
+                selectedLevel = card.dataset.level;
+                showPassageList();
+            });
+        });
+    }
+
+    function showPassageList() {
+        showStep('passage');
+        const list = document.getElementById('passage-list');
+        const passages = PRACTICE_PASSAGES.filter(p => p.level === selectedLevel);
+        list.innerHTML = passages.map(p => `
+            <div class="rp-passage-item" data-id="${p.id}">
+                <div class="rp-passage-icon"><i class="fas fa-book-open"></i></div>
+                <div class="rp-passage-info">
+                    <div class="rp-passage-title">${p.title}</div>
+                    <div class="rp-passage-meta">${p.wordCount} words · ${LEVELS.find(l => l.id === p.level)?.label}</div>
+                </div>
+                <i class="fas fa-chevron-right" style="color:var(--sd-text-3);"></i>
+            </div>
+        `).join('');
+
+        list.querySelectorAll('.rp-passage-item').forEach(item => {
+            item.addEventListener('click', () => {
+                selectedPassage = PRACTICE_PASSAGES.find(p => p.id === item.dataset.id);
+                startReading();
+            });
+        });
+    }
+
+    function startReading() {
+        showStep('reader');
+        stopAutoHighlight();
+        wordIndex = 0;
+        wordMode = false;
+        document.getElementById('celebrate').classList.remove('active');
+        document.getElementById('reader-area').classList.add('active');
+
+        document.getElementById('reader-title').textContent = selectedPassage.title;
+        document.getElementById('reader-label').textContent = selectedPassage.title;
+
+        const textArea = document.getElementById('text-area');
+        const words = selectedPassage.text.split(/\s+/);
+        textArea.innerHTML = words.map((w, i) =>
+            `<span class="rp-word" data-idx="${i}">${w} </span>`
+        ).join('');
+
+        wordElements = [...textArea.querySelectorAll('.rp-word')];
+        updateProgress();
+
+        // Tap mode
+        wordElements.forEach(el => {
+            el.addEventListener('click', () => {
+                if (!wordMode) return;
+                const idx = parseInt(el.dataset.idx);
+                if (idx === wordIndex) {
+                    el.classList.add('highlighted', 'read');
+                    wordIndex++;
+                    updateProgress();
+                    setTimeout(() => el.classList.remove('highlighted'), 600);
+                    if (wordIndex >= wordElements.length) finishReading();
+                }
+            });
+        });
+
+        // Font slider
+        const slider = document.getElementById('font-slider');
+        slider.value = 22;
+        textArea.style.fontSize = '22px';
+    }
+
+    function updateProgress() {
+        const pct = wordElements.length > 0 ? (wordIndex / wordElements.length) * 100 : 0;
+        document.getElementById('progress-bar').style.width = pct + '%';
+    }
+
+    function startAutoHighlight() {
+        stopAutoHighlight();
+        if (wordIndex >= wordElements.length) return;
+
+        autoTimer = setInterval(() => {
+            if (wordIndex >= wordElements.length) {
+                stopAutoHighlight();
+                finishReading();
+                return;
+            }
+            // Remove previous highlight
+            if (wordIndex > 0) wordElements[wordIndex - 1].classList.remove('highlighted');
+            wordElements[wordIndex].classList.add('highlighted', 'read');
+            wordIndex++;
+            updateProgress();
+
+            // Scroll into view
+            wordElements[Math.min(wordIndex, wordElements.length - 1)].scrollIntoView({ behavior: 'smooth', block: 'center' });
+        }, 600);
+    }
+
+    function stopAutoHighlight() {
+        if (autoTimer) { clearInterval(autoTimer); autoTimer = null; }
+    }
+
+    function finishReading() {
+        stopAutoHighlight();
+        document.getElementById('reader-area').classList.remove('active');
+        document.getElementById('celebrate').classList.add('active');
+        document.getElementById('progress-bar').style.width = '100%';
+    }
+
+    function resetReading() {
+        stopAutoHighlight();
+        wordIndex = 0;
+        wordMode = false;
+        wordElements.forEach(el => el.classList.remove('highlighted', 'read'));
+        document.getElementById('celebrate').classList.remove('active');
+        document.getElementById('reader-area').classList.add('active');
+        updateProgress();
+    }
+
+    // Event listeners
+    document.addEventListener('DOMContentLoaded', () => {
+        buildLevelGrid();
+        showStep('level');
+
+        document.getElementById('back-to-levels').addEventListener('click', () => showStep('level'));
+        document.getElementById('back-to-passages').addEventListener('click', () => showPassageList());
+
+        document.getElementById('btn-word-mode').addEventListener('click', () => {
+            wordMode = !wordMode;
+            stopAutoHighlight();
+            const btn = document.getElementById('btn-word-mode');
+            btn.innerHTML = wordMode
+                ? '<i class="fas fa-hand-pointer"></i> Tap Mode ON'
+                : '<i class="fas fa-hand-pointer"></i> Tap Each Word';
+            btn.classList.toggle('primary', wordMode);
+        });
+
+        document.getElementById('btn-auto-highlight').addEventListener('click', () => {
+            wordMode = false;
+            document.getElementById('btn-word-mode').classList.remove('primary');
+            document.getElementById('btn-word-mode').innerHTML = '<i class="fas fa-hand-pointer"></i> Tap Each Word';
+
+            if (autoTimer) {
+                stopAutoHighlight();
+                document.getElementById('btn-auto-highlight').innerHTML = '<i class="fas fa-play"></i> Auto Highlight';
+            } else {
+                startAutoHighlight();
+                document.getElementById('btn-auto-highlight').innerHTML = '<i class="fas fa-pause"></i> Pause';
+            }
+        });
+
+        document.getElementById('btn-reset').addEventListener('click', resetReading);
+        document.getElementById('btn-read-again').addEventListener('click', () => {
+            resetReading();
+            startReading();
+        });
+
+        document.getElementById('btn-next-story').addEventListener('click', () => {
+            // Go to next passage in the same level
+            const passages = PRACTICE_PASSAGES.filter(p => p.level === selectedLevel);
+            const currentIdx = passages.findIndex(p => p.id === selectedPassage.id);
+            const nextIdx = (currentIdx + 1) % passages.length;
+            selectedPassage = passages[nextIdx];
+            startReading();
+        });
+
+        // Font size slider
+        document.getElementById('font-slider').addEventListener('input', (e) => {
+            document.getElementById('text-area').style.fontSize = e.target.value + 'px';
+        });
+    });
+</script>
+</body>
+</html>

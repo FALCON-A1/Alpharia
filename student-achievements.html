@@ -205,7 +205,7 @@
       <a href="take-reading-test.html" class="sd-nav-link"><i class="fas fa-microphone-alt"></i><span>Take a Test</span></a>
 
       <span class="sd-nav-section-label">Library</span>
-      <a href="#" class="sd-nav-link"><i class="fas fa-book-open"></i><span>Resources</span></a>
+      <a href="reading-practice.html" class="sd-nav-link"><i class="fas fa-book-open"></i><span>Reading Practice</span></a>
       <a href="student-achievements.html" class="sd-nav-link active" aria-current="page"><i class="fas fa-trophy"></i><span>Achievements</span></a>
 
       <span class="sd-nav-section-label">Account</span>
@@ -314,6 +314,19 @@
       <!-- Locked Badges -->
       <div class="ach-section-title"><i class="fas fa-lock"></i> Badges to Unlock</div>
       <div class="ach-grid" id="locked-badges"></div>
+
+      <!-- Download Certificate -->
+      <div id="cert-section" style="margin-top:2rem; display:none;">
+        <div class="ach-section-title"><i class="fas fa-certificate"></i> Achievement Certificate</div>
+        <div style="background:var(--sd-surface); border:1.5px solid var(--sd-border); border-radius:var(--sd-radius); padding:1.5rem; text-align:center;">
+          <canvas id="cert-canvas" width="900" height="636" style="max-width:100%; height:auto; border-radius:8px; box-shadow:var(--sd-shadow-sm);"></canvas>
+          <div style="margin-top:1rem;">
+            <button id="btn-download-cert" class="sd-btn sd-btn-primary" style="font-size:0.88rem; padding:0.6rem 1.5rem;">
+              <i class="fas fa-download"></i> Download Certificate
+            </button>
+          </div>
+        </div>
+      </div>
 
     </main>
   </div><!-- /sd-main -->
@@ -476,6 +489,167 @@
       `;
     }
   });
+
+  // ── Certificate Generation ──
+  function generateCertificate(studentName, badgeCount, totalPoints, readingLevel) {
+    const canvas = document.getElementById('cert-canvas');
+    if (!canvas) return;
+    const ctx = canvas.getContext('2d');
+    const W = 900, H = 636;
+
+    // Background
+    const bgGrad = ctx.createLinearGradient(0, 0, W, H);
+    bgGrad.addColorStop(0, '#0f172a');
+    bgGrad.addColorStop(0.5, '#1e293b');
+    bgGrad.addColorStop(1, '#0f172a');
+    ctx.fillStyle = bgGrad;
+    ctx.fillRect(0, 0, W, H);
+
+    // Decorative glow
+    const glow = ctx.createRadialGradient(W/2, H/2, 50, W/2, H/2, 400);
+    glow.addColorStop(0, 'rgba(79,70,229,0.15)');
+    glow.addColorStop(1, 'rgba(79,70,229,0)');
+    ctx.fillStyle = glow;
+    ctx.fillRect(0, 0, W, H);
+
+    // Border
+    ctx.strokeStyle = 'rgba(255,255,255,0.1)';
+    ctx.lineWidth = 2;
+    ctx.roundRect(20, 20, W-40, H-40, 20);
+    ctx.stroke();
+
+    // Inner border
+    ctx.strokeStyle = 'rgba(79,70,229,0.3)';
+    ctx.lineWidth = 1.5;
+    ctx.roundRect(35, 35, W-70, H-70, 16);
+    ctx.stroke();
+
+    // Gold corners
+    const cornerSize = 50;
+    ctx.strokeStyle = '#f59e0b';
+    ctx.lineWidth = 3;
+    // Top-left
+    ctx.beginPath(); ctx.moveTo(40, 90); ctx.lineTo(40, 40); ctx.lineTo(90, 40); ctx.stroke();
+    // Top-right
+    ctx.beginPath(); ctx.moveTo(W-90, 40); ctx.lineTo(W-40, 40); ctx.lineTo(W-40, 90); ctx.stroke();
+    // Bottom-left
+    ctx.beginPath(); ctx.moveTo(40, H-90); ctx.lineTo(40, H-40); ctx.lineTo(90, H-40); ctx.stroke();
+    // Bottom-right
+    ctx.beginPath(); ctx.moveTo(W-90, H-40); ctx.lineTo(W-40, H-40); ctx.lineTo(W-40, H-90); ctx.stroke();
+
+    // Star decoration
+    ctx.font = '30px serif';
+    ctx.textAlign = 'center';
+    ctx.fillStyle = '#f59e0b';
+    ctx.fillText('⭐', W/2-80, 95);
+    ctx.fillText('⭐', W/2+80, 95);
+    ctx.fillText('🏆', W/2, 90);
+
+    // Title
+    ctx.font = '600 14px Inter, sans-serif';
+    ctx.fillStyle = 'rgba(255,255,255,0.5)';
+    ctx.textAlign = 'center';
+    ctx.fillText('ALPHARIA READING PLATFORM', W/2, 130);
+
+    ctx.font = '800 38px Inter, sans-serif';
+    const titleGrad = ctx.createLinearGradient(W/2-150, 160, W/2+150, 160);
+    titleGrad.addColorStop(0, '#818cf8');
+    titleGrad.addColorStop(1, '#14b8a6');
+    ctx.fillStyle = titleGrad;
+    ctx.fillText('Certificate of Achievement', W/2, 175);
+
+    // Divider
+    const divGrad = ctx.createLinearGradient(200, 0, 700, 0);
+    divGrad.addColorStop(0, 'rgba(129,140,248,0)');
+    divGrad.addColorStop(0.5, 'rgba(129,140,248,0.6)');
+    divGrad.addColorStop(1, 'rgba(129,140,248,0)');
+    ctx.strokeStyle = divGrad;
+    ctx.lineWidth = 1;
+    ctx.beginPath(); ctx.moveTo(200, 195); ctx.lineTo(700, 195); ctx.stroke();
+
+    // Presented to
+    ctx.font = '500 16px Inter, sans-serif';
+    ctx.fillStyle = 'rgba(255,255,255,0.6)';
+    ctx.fillText('This certificate is proudly presented to', W/2, 240);
+
+    // Student name
+    ctx.font = '800 48px Inter, sans-serif';
+    ctx.fillStyle = '#ffffff';
+    ctx.fillText(studentName || 'Student', W/2, 300);
+
+    // Underline
+    const nameWidth = ctx.measureText(studentName || 'Student').width;
+    ctx.strokeStyle = 'rgba(245,158,11,0.5)';
+    ctx.lineWidth = 2;
+    ctx.beginPath(); ctx.moveTo(W/2-nameWidth/2-20, 315); ctx.lineTo(W/2+nameWidth/2+20, 315); ctx.stroke();
+
+    // Achievement text
+    ctx.font = '500 16px Inter, sans-serif';
+    ctx.fillStyle = 'rgba(255,255,255,0.7)';
+    ctx.fillText('For outstanding achievement in reading and literacy development', W/2, 360);
+
+    // Stats boxes
+    const boxY = 395;
+    const boxW = 160, boxH = 80;
+    const stats = [
+      { label: 'Reading Level', value: readingLevel || 'N/A', color: '#818cf8' },
+      { label: 'Badges Earned', value: badgeCount + '/10', color: '#14b8a6' },
+      { label: 'Points', value: totalPoints.toLocaleString(), color: '#f59e0b' }
+    ];
+    const startX = W/2 - (stats.length * boxW + (stats.length-1) * 20) / 2;
+
+    stats.forEach((s, i) => {
+      const x = startX + i * (boxW + 20);
+      ctx.fillStyle = 'rgba(255,255,255,0.05)';
+      ctx.roundRect(x, boxY, boxW, boxH, 10);
+      ctx.fill();
+      ctx.strokeStyle = s.color + '40';
+      ctx.lineWidth = 1;
+      ctx.roundRect(x, boxY, boxW, boxH, 10);
+      ctx.stroke();
+
+      ctx.font = '800 22px Inter, sans-serif';
+      ctx.fillStyle = s.color;
+      ctx.fillText(s.value, x + boxW/2, boxY + 38);
+
+      ctx.font = '600 10px Inter, sans-serif';
+      ctx.fillStyle = 'rgba(255,255,255,0.5)';
+      ctx.fillText(s.label.toUpperCase(), x + boxW/2, boxY + 60);
+    });
+
+    // Date
+    const dateStr = new Date().toLocaleDateString('en-US', { year: 'numeric', month: 'long', day: 'numeric' });
+    ctx.font = '500 13px Inter, sans-serif';
+    ctx.fillStyle = 'rgba(255,255,255,0.4)';
+    ctx.fillText('Issued on ' + dateStr, W/2, 530);
+
+    // Signature line
+    ctx.strokeStyle = 'rgba(255,255,255,0.2)';
+    ctx.lineWidth = 1;
+    ctx.beginPath(); ctx.moveTo(W/2-100, 570); ctx.lineTo(W/2+100, 570); ctx.stroke();
+    ctx.font = '500 11px Inter, sans-serif';
+    ctx.fillStyle = 'rgba(255,255,255,0.35)';
+    ctx.fillText('Alpharia Reading Platform', W/2, 590);
+
+    // Show section
+    document.getElementById('cert-section').style.display = 'block';
+
+    // Download button
+    document.getElementById('btn-download-cert').addEventListener('click', () => {
+      const link = document.createElement('a');
+      link.download = `Alpharia-Certificate-${(studentName||'Student').replace(/\s+/g,'-')}.png`;
+      link.href = canvas.toDataURL('image/png');
+      link.click();
+    });
+  }
+
+  // Hook into the achievement data to generate certificate
+  setTimeout(() => {
+    const name = document.getElementById('sidebar-username')?.textContent || 'Student';
+    const badges = parseInt(document.getElementById('badges-earned')?.textContent) || 0;
+    const points = parseInt(document.getElementById('total-points')?.textContent) || 0;
+    generateCertificate(name, badges, points, 'Level 1');
+  }, 2500);
 </script>
 
 </body>

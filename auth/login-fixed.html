@@ -524,6 +524,10 @@
                 userData.userType === 'teacher' ||
                 userData.permissions?.role === 'LIMITED_TEACHER');
 
+            const isSchoolAdmin = (userData.role === 'school_admin' ||
+                userData.role === 'SCHOOL_ADMIN' ||
+                userData.userType === 'school_admin');
+
             const isParent = (userData.role === 'PARENT' ||
                 userData.userType === 'parent' ||
                 userData.role === 'parent');
@@ -531,25 +535,30 @@
             console.log('getUserRole - Role check results:', {
                 isAdmin,
                 isTeacher,
+                isSchoolAdmin,
                 isParent,
                 role: userData.role,
                 userType: userData.userType,
                 permissions: userData.permissions
             });
 
-            return { isAdmin, isTeacher, isParent };
+            return { isAdmin, isTeacher, isSchoolAdmin, isParent };
         }
 
         // Redirect user based on role
         function redirectUser(userData) {
-            const { isAdmin, isTeacher, isParent } = getUserRole(userData);
+            const { isAdmin, isTeacher, isSchoolAdmin, isParent } = getUserRole(userData);
 
-            console.log('User role check:', { isAdmin, isTeacher, isParent, userType: userData?.userType });
+            console.log('User role check:', { isAdmin, isTeacher, isSchoolAdmin, isParent, userType: userData?.userType });
 
             let redirectPath = '../student-dashboard.html';
             let role = 'Student';
 
-            if (isAdmin) {
+            if (isSchoolAdmin) {
+                console.log('User is school admin');
+                redirectPath = '../school-dashboard.html';
+                role = 'School Admin';
+            } else if (isAdmin) {
                 console.log('User is admin');
                 redirectPath = '../admin-dashboard.html';
                 role = 'Admin';
@@ -752,10 +761,15 @@
                         window.location.href = '../teacher-dashboard.html';
                     } else if (isParent) {
                         console.log('Google login: Redirecting to parent dashboard');
-                        window.location.href = '../parent-dashboard.html';
                     } else {
-                        console.log('Google login: Redirecting to student dashboard');
-                        window.location.href = '../student-dashboard.html';
+                        // Check if school_admin before defaulting to student
+                        const { isSchoolAdmin: gSchoolAdmin } = getUserRole(userData);
+                        if (gSchoolAdmin) {
+                            window.location.href = '../school-dashboard.html';
+                        } else {
+                            console.log('Google login: Redirecting to student dashboard');
+                            window.location.href = '../student-dashboard.html';
+                        }
                     }
                 }
 
@@ -794,8 +808,14 @@
                             console.log('Auto-login: Redirecting to parent dashboard');
                             window.location.href = '../parent-dashboard.html';
                         } else {
-                            console.log('Auto-login: Redirecting to student dashboard');
-                            window.location.href = '../student-dashboard.html';
+                            // Check school_admin before defaulting
+                            const { isSchoolAdmin: autoSchoolAdmin } = getUserRole(userData);
+                            if (autoSchoolAdmin) {
+                                window.location.href = '../school-dashboard.html';
+                            } else {
+                                console.log('Auto-login: Redirecting to student dashboard');
+                                window.location.href = '../student-dashboard.html';
+                            }
                         }
                     } else {
                         console.error('Auto-login: No user data found');

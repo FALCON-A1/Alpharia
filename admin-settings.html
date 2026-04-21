@@ -1,955 +1,329 @@
 <!DOCTYPE html>
 <html lang="en">
-
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Admin Settings - Alpharia</title>
-
-    <!-- Google Fonts -->
-    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap"
-        rel="stylesheet">
-
-    <!-- Font Awesome Icons -->
+    <title>Settings — Admin — Alpharia</title>
+    <meta name="description" content="Admin account settings for Alpharia platform.">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-
-    <!-- Custom CSS -->
-    <link rel="stylesheet" href="css/teacher-dashboard.css">
+    <link rel="stylesheet" href="css/student-dashboard-clean.css">
+    <link rel="stylesheet" href="css/teacher-dashboard-clean.css">
     <style>
-        /* Admin-specific overrides */
-        :root {
-            --primary-color: #4a6cf7;
-            --primary-hover: #3a5ce4;
-            --secondary-color: #6c757d;
-            --success-color: #28a745;
-            --danger-color: #dc3545;
-            --warning-color: #ffc107;
-            --info-color: #17a2b8;
-            --light-color: #f8f9fa;
-            --dark-color: #343a40;
-            --sidebar-width: 250px;
-            --header-height: 70px;
-        }
+        @keyframes fadeIn { from{opacity:0;transform:translateY(10px)}to{opacity:1;transform:translateY(0)} }
 
-        .admin-badge {
-            background-color: var(--warning-color);
-            color: #000;
-            padding: 2px 8px;
-            border-radius: 4px;
-            font-size: 0.7rem;
-            font-weight: 600;
-            text-transform: uppercase;
-            margin-left: 8px;
-            vertical-align: middle;
+        .as-container { max-width:720px; }
+        .as-section {
+            background:var(--sd-surface); border:1.5px solid var(--sd-border); border-radius:var(--sd-radius);
+            margin-bottom:1.5rem; overflow:hidden;
         }
+        .as-header {
+            padding:1.1rem 1.5rem; border-bottom:1px solid var(--sd-border);
+            font-size:0.92rem; font-weight:800; color:var(--sd-text); display:flex; align-items:center; gap:0.5rem;
+        }
+        .as-header i { color:var(--sd-primary); }
+        .as-body { padding:1.5rem; }
+        .as-form-row { display:grid; grid-template-columns:1fr 1fr; gap:1rem; }
+        .as-field { margin-bottom:1.25rem; }
+        .as-label { display:block; font-size:0.78rem; font-weight:700; color:var(--sd-text); margin-bottom:0.4rem; }
+        .as-input {
+            width:100%; padding:0.65rem 1rem; border:1.5px solid var(--sd-border); border-radius:var(--sd-radius-sm);
+            font-family:inherit; font-size:0.85rem; background:var(--sd-surface); color:var(--sd-text); transition:0.2s;
+        }
+        .as-input:focus { outline:none; border-color:var(--sd-primary); box-shadow:0 0 0 3px rgba(79,70,229,0.1); }
+        .as-hint { font-size:0.7rem; color:var(--sd-text-3); margin-top:0.3rem; }
+        .as-actions { display:flex; justify-content:flex-end; gap:0.75rem; padding-top:1rem; border-top:1px solid var(--sd-border); margin-top:1.5rem; }
+        .as-btn {
+            padding:0.6rem 1.2rem; border-radius:var(--sd-radius-sm); font-family:inherit;
+            font-size:0.82rem; font-weight:700; cursor:pointer; border:1.5px solid var(--sd-border);
+            background:var(--sd-surface); color:var(--sd-text-2); transition:0.2s;
+        }
+        .as-btn:hover { border-color:var(--sd-primary); color:var(--sd-primary); }
+        .as-btn-primary { background:var(--sd-primary); color:white; border-color:var(--sd-primary); }
+        .as-btn-primary:hover { opacity:0.9; color:white; }
 
-        .settings-container {
-            max-width: 1000px;
-            margin: 0 auto;
-            padding: 2rem;
-        }
+        /* Password strength */
+        .as-strength { height:4px; background:var(--sd-border); border-radius:2px; margin-top:0.4rem; overflow:hidden; }
+        .as-strength-fill { height:100%; width:0%; background:#10b981; transition:0.3s; border-radius:2px; }
 
-        .settings-section {
-            background: white;
-            border-radius: 8px;
-            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
-            margin-bottom: 2rem;
-            overflow: hidden;
+        /* Toggle */
+        .as-toggle-row {
+            display:flex; align-items:center; justify-content:space-between; padding:0.85rem 0;
+            border-bottom:1px solid var(--sd-border);
         }
+        .as-toggle-row:last-child { border-bottom:none; }
+        .as-toggle-title { font-size:0.85rem; font-weight:700; color:var(--sd-text); }
+        .as-toggle-desc { font-size:0.72rem; color:var(--sd-text-3); margin-top:0.1rem; }
+        .as-switch {
+            position:relative; display:inline-block; width:44px; height:24px;
+        }
+        .as-switch input { opacity:0; width:0; height:0; }
+        .as-slider {
+            position:absolute; cursor:pointer; top:0; left:0; right:0; bottom:0;
+            background:var(--sd-border); transition:0.3s; border-radius:24px;
+        }
+        .as-slider:before {
+            position:absolute; content:""; height:18px; width:18px; left:3px; bottom:3px;
+            background:white; transition:0.3s; border-radius:50%;
+        }
+        input:checked + .as-slider { background:var(--sd-primary); }
+        input:checked + .as-slider:before { transform:translateX(20px); }
 
-        .settings-header {
-            padding: 1.5rem;
-            border-bottom: 1px solid #eee;
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
+        /* Danger */
+        .as-danger {
+            border-color:rgba(239,68,68,0.2); background:rgba(239,68,68,0.02);
         }
+        .as-danger .as-header { color:#ef4444; }
+        .as-danger .as-header i { color:#ef4444; }
+        .as-danger-item { margin-bottom:1rem; }
+        .as-danger-item:last-child { margin-bottom:0; }
+        .as-btn-danger { border-color:rgba(239,68,68,0.3); color:#ef4444; }
+        .as-btn-danger:hover { border-color:#ef4444; background:rgba(239,68,68,0.05); }
 
-        .settings-header h2 {
-            margin: 0;
-            font-size: 1.25rem;
-            color: var(--dark-color);
+        .as-toast {
+            position:fixed; top:1rem; left:50%; transform:translateX(-50%); z-index:9999;
+            padding:0.7rem 1.5rem; border-radius:var(--sd-radius-sm); font-size:0.82rem; font-weight:700;
+            color:white; background:#10b981; box-shadow:0 4px 15px rgba(0,0,0,0.15); animation:fadeIn 0.3s;
         }
+        .as-toast.error { background:#ef4444; }
 
-        .settings-body {
-            padding: 1.5rem;
-        }
-
-        .form-group {
-            margin-bottom: 1.5rem;
-        }
-
-        .form-group label {
-            display: block;
-            margin-bottom: 0.5rem;
-            font-weight: 500;
-            color: var(--dark-color);
-        }
-
-        .form-control {
-            width: 100%;
-            padding: 0.75rem 1rem;
-            border: 1px solid #ddd;
-            border-radius: 6px;
-            font-size: 1rem;
-            transition: all 0.3s ease;
-        }
-
-        .form-control:focus {
-            border-color: var(--primary-color);
-            box-shadow: 0 0 0 0.2rem rgba(74, 108, 247, 0.25);
-            outline: none;
-        }
-
-        .btn {
-            display: inline-block;
-            font-weight: 500;
-            text-align: center;
-            white-space: nowrap;
-            vertical-align: middle;
-            user-select: none;
-            border: 1px solid transparent;
-            padding: 0.75rem 1.5rem;
-            font-size: 1rem;
-            line-height: 1.5;
-            border-radius: 6px;
-            transition: all 0.3s ease;
-            cursor: pointer;
-        }
-
-        .btn-primary {
-            background-color: var(--primary-color);
-            color: white;
-        }
-
-        .btn-primary:hover {
-            background-color: var(--primary-hover);
-        }
-
-        .btn-outline-secondary {
-            background-color: transparent;
-            border-color: #ddd;
-            color: var(--secondary-color);
-        }
-
-        .btn-outline-secondary:hover {
-            background-color: #f8f9fa;
-        }
-
-        .profile-avatar {
-            text-align: center;
-            margin-bottom: 2rem;
-        }
-
-        .profile-avatar img {
-            width: 120px;
-            height: 120px;
-            border-radius: 50%;
-            object-fit: cover;
-            border: 4px solid #fff;
-            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
-        }
-
-        .profile-avatar .change-avatar {
-            display: inline-block;
-            margin-top: 1rem;
-            color: var(--primary-color);
-            cursor: pointer;
-            font-weight: 500;
-        }
-
-        .form-actions {
-            display: flex;
-            justify-content: flex-end;
-            gap: 1rem;
-            padding-top: 1rem;
-            border-top: 1px solid #eee;
-            margin-top: 2rem;
-        }
-
-        .password-strength {
-            height: 4px;
-            background: #eee;
-            border-radius: 2px;
-            margin-top: 0.5rem;
-            overflow: hidden;
-        }
-
-        .password-strength-fill {
-            height: 100%;
-            width: 0%;
-            background: #28a745;
-            transition: width 0.3s ease, background 0.3s ease;
-        }
-
-        .notification-settings .form-group {
-            display: flex;
-            align-items: center;
-            justify-content: space-between;
-            padding: 0.75rem 0;
-            border-bottom: 1px solid #f0f0f0;
-        }
-
-        .notification-settings .form-group:last-child {
-            border-bottom: none;
-        }
-
-        .switch {
-            position: relative;
-            display: inline-block;
-            width: 50px;
-            height: 24px;
-        }
-
-        .switch input {
-            opacity: 0;
-            width: 0;
-            height: 0;
-        }
-
-        .slider {
-            position: absolute;
-            cursor: pointer;
-            top: 0;
-            left: 0;
-            right: 0;
-            bottom: 0;
-            background-color: #ccc;
-            transition: .4s;
-            border-radius: 24px;
-        }
-
-        .slider:before {
-            position: absolute;
-            content: "";
-            height: 16px;
-            width: 16px;
-            left: 4px;
-            bottom: 4px;
-            background-color: white;
-            transition: .4s;
-            border-radius: 50%;
-        }
-
-        input:checked+.slider {
-            background-color: var(--primary-color);
-        }
-
-        input:focus+.slider {
-            box-shadow: 0 0 1px var(--primary-color);
-        }
-
-        input:checked+.slider:before {
-            transform: translateX(26px);
-        }
-
-        .danger-zone {
-            border: 1px solid #ffebee;
-            border-left: 4px solid #f44336;
-            background-color: #fff5f5;
-            border-radius: 6px;
-            padding: 1.5rem;
-            margin-top: 2rem;
-        }
-
-        .danger-zone h3 {
-            color: #d32f2f;
-            margin-top: 0;
-        }
-
-        .danger-zone p {
-            color: #5c5c5c;
-            margin-bottom: 1.5rem;
-        }
-
-        .btn-danger {
-            background-color: #dc3545;
-            color: white;
-        }
-
-        .btn-danger:hover {
-            background-color: #c82333;
-        }
+        @media(max-width:600px) { .as-form-row { grid-template-columns:1fr; } }
     </style>
 </head>
-
-<body class="teacher-dashboard">
-    <div class="dashboard-container">
-        <!-- Sidebar -->
-        <aside class="sidebar" id="sidebar">
-            <div class="logo">
-                <div class="logo-icon">
-                    <i class="fas fa-shield-alt"></i>
+<body class="sd-page">
+<div class="sd-shell">
+    <aside class="sd-sidebar" id="sidebar">
+        <div class="sd-sidebar-brand">
+            <div class="sd-brand-icon" style="background:linear-gradient(135deg,#4f46e5,#7c3aed);"><i class="fas fa-shield-alt"></i></div>
+            <span class="sd-brand-text">Alpharia <span style="font-size:0.55rem;background:rgba(245,158,11,0.2);color:#f59e0b;padding:0.1rem 0.4rem;border-radius:4px;margin-left:0.3rem;font-weight:800;">ADMIN</span></span>
+        </div>
+        <nav class="sd-nav">
+            <span class="sd-nav-section-label">Platform</span>
+            <a href="admin-dashboard.html" class="sd-nav-link"><i class="fas fa-chart-pie"></i><span>Dashboard</span></a>
+            <a href="admin-management.html" class="sd-nav-link"><i class="fas fa-users-cog"></i><span>Users & Schools</span></a>
+            <a href="admin-tests.html" class="sd-nav-link"><i class="fas fa-clipboard-list"></i><span>All Tests</span></a>
+            <a href="admin-create-test.html" class="sd-nav-link"><i class="fas fa-plus-circle"></i><span>Create Test</span></a>
+            <span class="sd-nav-section-label">Analytics</span>
+            <a href="admin-reports.html" class="sd-nav-link"><i class="fas fa-chart-bar"></i><span>Reports</span></a>
+            <span class="sd-nav-section-label">Account</span>
+            <a href="admin-settings.html" class="sd-nav-link active"><i class="fas fa-cog"></i><span>Settings</span></a>
+        </nav>
+        <div class="sd-sidebar-footer">
+            <div class="sd-sidebar-user">
+                <div class="sd-sidebar-user-info">
+                    <div class="sd-sidebar-user-name" id="sidebar-admin-name">Loading…</div>
+                    <div class="sd-sidebar-user-role">Platform Owner</div>
                 </div>
-                <h2>Alpharia <span class="admin-badge">Admin</span></h2>
+                <button class="sd-icon-btn" id="logout-btn" title="Sign Out" style="margin-left:auto;color:var(--sd-text-3);"><i class="fas fa-sign-out-alt"></i></button>
+            </div>
+        </div>
+    </aside>
+    <div class="sd-sidebar-overlay" id="sidebar-overlay"></div>
+
+    <div class="sd-main">
+        <header class="sd-topbar">
+            <button class="sd-topbar-toggle menu-toggle d-lg-none" id="sidebar-toggle"><i class="fas fa-bars"></i></button>
+            <div style="font-weight:700; color:var(--sd-text);">Settings</div>
+            <div class="sd-topbar-actions"></div>
+        </header>
+
+        <main class="sd-body as-container" style="animation:fadeIn 0.4s ease-out;">
+            <!-- Profile -->
+            <div class="as-section">
+                <div class="as-header"><i class="fas fa-user-circle"></i> Profile Information</div>
+                <div class="as-body">
+                    <form id="profile-form">
+                        <div class="as-form-row">
+                            <div class="as-field">
+                                <label class="as-label" for="first-name">First Name</label>
+                                <input class="as-input" type="text" id="first-name" value="">
+                            </div>
+                            <div class="as-field">
+                                <label class="as-label" for="last-name">Last Name</label>
+                                <input class="as-input" type="text" id="last-name" value="">
+                            </div>
+                        </div>
+                        <div class="as-field">
+                            <label class="as-label" for="email">Email Address</label>
+                            <input class="as-input" type="email" id="email" value="">
+                        </div>
+                        <div class="as-field">
+                            <label class="as-label" for="phone">Phone Number</label>
+                            <input class="as-input" type="tel" id="phone" value="">
+                        </div>
+                        <div class="as-actions">
+                            <button type="button" class="as-btn" onclick="window.location.reload();">Cancel</button>
+                            <button type="submit" class="as-btn as-btn-primary">Save Changes</button>
+                        </div>
+                    </form>
+                </div>
             </div>
 
-            <nav class="nav-menu">
-                <div class="menu-title">Main Menu</div>
-
-                <div class="nav-item">
-                    <a href="admin-dashboard.html" class="nav-link">
-                        <i class="fas fa-tachometer-alt"></i>
-                        <span>Dashboard</span>
-                    </a>
-                </div>
-
-                <div class="nav-item">
-                    <a href="admin-management.html" class="nav-link">
-                        <i class="fas fa-users-cog"></i>
-                        <span>Management</span>
-                    </a>
-                </div>
-
-                <div class="nav-item">
-                    <a href="admin-tests.html" class="nav-link">
-                        <i class="fas fa-clipboard-list"></i>
-                        <span>All Tests</span>
-                    </a>
-                </div>
-
-                <div class="nav-item">
-                    <a href="admin-create-test.html" class="nav-link">
-                        <i class="fas fa-plus-circle"></i>
-                        <span>Create Test</span>
-                    </a>
-                </div>
-
-                <div class="menu-title mt-4">Analytics</div>
-
-                <div class="nav-item">
-                    <a href="admin-reports.html" class="nav-link">
-                        <i class="fas fa-chart-bar"></i>
-                        <span>Reports</span>
-                    </a>
-                </div>
-
-                <div class="menu-title mt-4">Account</div>
-
-                <div class="nav-item">
-                    <a href="admin-settings.html" class="nav-link active">
-                        <i class="fas fa-cog"></i>
-                        <span>Settings</span>
-                    </a>
-                </div>
-
-                <div class="nav-item">
-                    <a href="help.html" class="nav-link">
-                        <i class="fas fa-question-circle"></i>
-                        <span>Help & Support</span>
-                    </a>
-                </div>
-            </nav>
-
-            <div class="sidebar-footer">
-                <div class="user-profile">
-                    <img src="https://ui-avatars.com/api/?name=Admin&background=4a6cf7&color=fff" alt="Admin"
-                        class="user-avatar" id="user-avatar-sidebar">
-                    <div class="user-info">
-                        <h4 class="user-name" id="sidebar-admin-name">Loading...</h4>
-                        <span class="user-role">Administrator</span>
-                    </div>
-                    <button class="sign-out" id="logout-btn" title="Sign Out">
-                        <i class="fas fa-sign-out-alt"></i>
-                    </button>
+            <!-- Password -->
+            <div class="as-section">
+                <div class="as-header"><i class="fas fa-lock"></i> Change Password</div>
+                <div class="as-body">
+                    <form id="password-form">
+                        <div class="as-field">
+                            <label class="as-label" for="current-password">Current Password</label>
+                            <input class="as-input" type="password" id="current-password">
+                        </div>
+                        <div class="as-field">
+                            <label class="as-label" for="new-password">New Password</label>
+                            <input class="as-input" type="password" id="new-password">
+                            <div class="as-strength"><div class="as-strength-fill" id="password-strength"></div></div>
+                            <div class="as-hint">Use 8+ characters with letters, numbers & symbols</div>
+                        </div>
+                        <div class="as-field">
+                            <label class="as-label" for="confirm-password">Confirm New Password</label>
+                            <input class="as-input" type="password" id="confirm-password">
+                        </div>
+                        <div class="as-actions">
+                            <button type="button" class="as-btn" onclick="document.getElementById('password-form').reset();">Cancel</button>
+                            <button type="submit" class="as-btn as-btn-primary">Update Password</button>
+                        </div>
+                    </form>
                 </div>
             </div>
-        </aside>
 
-        <!-- Main Content -->
-        <main class="main-content">
-            <!-- Top Bar -->
-            <header class="top-bar">
-                <div class="top-bar-left">
-                    <button class="sidebar-toggle" id="sidebar-toggle">
-                        <i class="fas fa-bars"></i>
-                    </button>
-                    <h1>Settings</h1>
-                </div>
-                <div class="top-bar-right">
-                    <div class="user-menu">
-                        <div class="user-avatar">
-                            <img src="https://ui-avatars.com/api/?name=Admin" alt="Admin" id="topbar-admin-avatar">
-                        </div>
-                        <span class="user-name" id="topbar-admin-name">Admin</span>
+            <!-- Notifications -->
+            <div class="as-section">
+                <div class="as-header"><i class="fas fa-bell"></i> Notification Preferences</div>
+                <div class="as-body">
+                    <div class="as-toggle-row">
+                        <div><div class="as-toggle-title">Email Notifications</div><div class="as-toggle-desc">Receive email notifications about important updates</div></div>
+                        <label class="as-switch"><input type="checkbox" checked><span class="as-slider"></span></label>
                     </div>
-                </div>
-            </header>
-
-            <!-- Settings Content -->
-            <div class="settings-container">
-                <!-- Profile Section -->
-                <div class="settings-section">
-                    <div class="settings-header">
-                        <h2><i class="fas fa-user-circle"></i> Profile Information</h2>
+                    <div class="as-toggle-row">
+                        <div><div class="as-toggle-title">Test Results</div><div class="as-toggle-desc">Get notified when students complete tests</div></div>
+                        <label class="as-switch"><input type="checkbox" checked><span class="as-slider"></span></label>
                     </div>
-                    <div class="settings-body">
-                        <div class="profile-avatar">
-                            <img src="https://ui-avatars.com/api/?name=Admin" alt="Admin" id="admin-avatar">
-                            <div class="change-avatar">Change Profile Picture</div>
-                            <input type="file" id="avatar-upload" accept="image/*" style="display: none;">
-                        </div>
-
-                        <form id="profile-form">
-                            <div class="row">
-                                <div class="col-md-6">
-                                    <div class="form-group">
-                                        <label for="first-name">First Name</label>
-                                        <input type="text" id="first-name" class="form-control" value="Admin">
-                                    </div>
-                                </div>
-                                <div class="col-md-6">
-                                    <div class="form-group">
-                                        <label for="last-name">Last Name</label>
-                                        <input type="text" id="last-name" class="form-control" value="User">
-                                    </div>
-                                </div>
-                            </div>
-
-                            <div class="form-group">
-                                <label for="email">Email Address</label>
-                                <input type="email" id="email" class="form-control" value="admin@example.com">
-                            </div>
-
-                            <div class="form-group">
-                                <label for="phone">Phone Number</label>
-                                <input type="tel" id="phone" class="form-control" value="+1 (555) 123-4567">
-                            </div>
-
-                            <div class="form-actions">
-                                <button type="button" class="btn btn-outline-secondary">Cancel</button>
-                                <button type="submit" class="btn btn-primary">Save Changes</button>
-                            </div>
-                        </form>
+                    <div class="as-toggle-row">
+                        <div><div class="as-toggle-title">System Updates</div><div class="as-toggle-desc">Receive updates about new features and improvements</div></div>
+                        <label class="as-switch"><input type="checkbox" checked><span class="as-slider"></span></label>
                     </div>
-                </div>
-
-                <!-- Change Password Section -->
-                <div class="settings-section">
-                    <div class="settings-header">
-                        <h2><i class="fas fa-lock"></i> Change Password</h2>
-                    </div>
-                    <div class="settings-body">
-                        <form id="password-form">
-                            <div class="form-group">
-                                <label for="current-password">Current Password</label>
-                                <input type="password" id="current-password" class="form-control">
-                            </div>
-
-                            <div class="form-group">
-                                <label for="new-password">New Password</label>
-                                <input type="password" id="new-password" class="form-control">
-                                <div class="password-strength">
-                                    <div class="password-strength-fill" id="password-strength"></div>
-                                </div>
-                                <small class="text-muted">Use 8 or more characters with a mix of letters, numbers &
-                                    symbols</small>
-                            </div>
-
-                            <div class="form-group">
-                                <label for="confirm-password">Confirm New Password</label>
-                                <input type="password" id="confirm-password" class="form-control">
-                            </div>
-
-                            <div class="form-actions">
-                                <button type="button" class="btn btn-outline-secondary">Cancel</button>
-                                <button type="submit" class="btn btn-primary">Update Password</button>
-                            </div>
-                        </form>
-                    </div>
-                </div>
-
-                <!-- Notification Settings -->
-                <div class="settings-section">
-                    <div class="settings-header">
-                        <h2><i class="fas fa-bell"></i> Notification Preferences</h2>
-                    </div>
-                    <div class="settings-body">
-                        <div class="notification-settings">
-                            <div class="form-group">
-                                <div>
-                                    <h4>Email Notifications</h4>
-                                    <p class="text-muted">Receive email notifications about important updates</p>
-                                </div>
-                                <label class="switch">
-                                    <input type="checkbox" checked>
-                                    <span class="slider"></span>
-                                </label>
-                            </div>
-
-                            <div class="form-group">
-                                <div>
-                                    <h4>Test Results</h4>
-                                    <p class="text-muted">Get notified when students complete tests</p>
-                                </div>
-                                <label class="switch">
-                                    <input type="checkbox" checked>
-                                    <span class="slider"></span>
-                                </label>
-                            </div>
-
-                            <div class="form-group">
-                                <div>
-                                    <h4>System Updates</h4>
-                                    <p class="text-muted">Receive updates about new features and improvements</p>
-                                </div>
-                                <label class="switch">
-                                    <input type="checkbox" checked>
-                                    <span class="slider"></span>
-                                </label>
-                            </div>
-
-                            <div class="form-actions">
-                                <button type="button" class="btn btn-outline-secondary">Reset to Default</button>
-                                <button type="button" class="btn btn-primary">Save Preferences</button>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-
-                <!-- Danger Zone -->
-                <div class="settings-section danger-zone">
-                    <h3><i class="fas fa-exclamation-triangle"></i> Danger Zone</h3>
-                    <p>These actions are irreversible. Please proceed with caution.</p>
-
-                    <div class="form-group">
-                        <button class="btn btn-outline-secondary">
-                            <i class="fas fa-download"></i> Export All Data
-                        </button>
-                        <small class="d-block text-muted mt-1">Download a copy of all your data</small>
-                    </div>
-
-                    <div class="form-group">
-                        <button class="btn btn-outline-secondary">
-                            <i class="fas fa-trash-alt"></i> Delete Account
-                        </button>
-                        <small class="d-block text-muted mt-1">Permanently delete your account and all associated
-                            data</small>
+                    <div class="as-toggle-row">
+                        <div><div class="as-toggle-title">School Registrations</div><div class="as-toggle-desc">Get notified when new schools register on the platform</div></div>
+                        <label class="as-switch"><input type="checkbox" checked><span class="as-slider"></span></label>
                     </div>
                 </div>
             </div>
 
-
+            <!-- Danger -->
+            <div class="as-section as-danger">
+                <div class="as-header"><i class="fas fa-exclamation-triangle"></i> Danger Zone</div>
+                <div class="as-body">
+                    <div class="as-danger-item">
+                        <button class="as-btn"><i class="fas fa-download"></i> Export All Data</button>
+                        <div class="as-hint">Download a copy of all platform data</div>
+                    </div>
+                    <div class="as-danger-item">
+                        <button class="as-btn as-btn-danger"><i class="fas fa-trash-alt"></i> Delete Account</button>
+                        <div class="as-hint">Permanently delete your account and all associated data</div>
+                    </div>
+                </div>
+            </div>
         </main>
     </div>
+</div>
 
-    <!-- jQuery and Bootstrap JS -->
-    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
-    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/js/bootstrap.bundle.min.js"></script>
+<script type="module">
+    import { app, db, auth } from './js/firebase-config.js';
+    import { requireAuth } from './js/auth-check.js';
+    import { signOut, updateProfile, updatePassword, reauthenticateWithCredential, EmailAuthProvider } from 'https://www.gstatic.com/firebasejs/12.1.0/firebase-auth.js';
+    import { doc, getDoc, updateDoc } from 'https://www.gstatic.com/firebasejs/12.1.0/firebase-firestore.js';
 
-    <!-- Firebase -->
-    <script type="module">
-        // Import the shared Firebase configuration and initialization
-        import { app, db, auth, storage } from './js/firebase-config.js';
-        import { requireAuth } from './js/auth-check.js';
-        import { getStorage, ref, uploadBytes, getDownloadURL } from 'https://www.gstatic.com/firebasejs/12.1.0/firebase-storage.js';
-        import {
-            signOut,
-            updateProfile,
-            updateEmail,
-            updatePassword,
-            reauthenticateWithCredential,
-            EmailAuthProvider
-        } from 'https://www.gstatic.com/firebasejs/12.1.0/firebase-auth.js';
-        import {
-            doc,
-            getDoc,
-            setDoc,
-            updateDoc,
-            collection,
-            query,
-            where,
-            getDocs,
-            addDoc,
-            deleteDoc,
-            serverTimestamp
-        } from 'https://www.gstatic.com/firebasejs/12.1.0/firebase-firestore.js';
+    function initSidebar() {
+        const sidebar = document.getElementById('sidebar');
+        const toggle = document.getElementById('sidebar-toggle');
+        const overlay = document.getElementById('sidebar-overlay');
+        if (toggle && sidebar) toggle.addEventListener('click', () => {
+            sidebar.classList.toggle('active'); sidebar.classList.toggle('open');
+            overlay?.classList.toggle('active'); overlay?.classList.toggle('open');
+        });
+        if (overlay) overlay.addEventListener('click', () => {
+            sidebar.classList.remove('active','open'); overlay.classList.remove('active','open');
+        });
+    }
 
-        // Initialize Firebase Storage (already exported from config)
-        // const storage = getStorage(app); // No longer needed as we import it
+    function showToast(msg, isError) {
+        const el = document.createElement('div');
+        el.className = `as-toast${isError?' error':''}`;
+        el.textContent = msg;
+        document.body.appendChild(el);
+        setTimeout(() => el.remove(), 3500);
+    }
 
-        // DOM Elements
-        const sidebarToggle = document.getElementById('sidebar-toggle');
-        const logoutBtn = document.getElementById('logout-btn');
-        const adminNameElements = document.querySelectorAll('.user-name');
-        const adminAvatarElements = document.querySelectorAll('.user-avatar img');
-        const profileForm = document.getElementById('profile-form');
-        const passwordForm = document.getElementById('password-form');
-        const avatarUpload = document.getElementById('avatar-upload');
-        const changeAvatarBtn = document.querySelector('.change-avatar');
+    document.addEventListener('DOMContentLoaded', async () => {
+        initSidebar();
+        try {
+            const { user } = await requireAuth(['admin']);
+            document.getElementById('logout-btn').addEventListener('click', () => signOut(auth).then(() => window.location.href = 'auth/login-fixed.html'));
 
-        // Toggle sidebar
-        if (sidebarToggle) {
-            sidebarToggle.addEventListener('click', () => {
-                document.body.classList.toggle('sidebar-collapsed');
-            });
-        }
+            // Load profile
+            const userDoc = await getDoc(doc(db, 'users', user.uid));
+            const d = userDoc.exists() ? userDoc.data() : {};
+            document.getElementById('first-name').value = d.firstName || user.displayName?.split(' ')[0] || '';
+            document.getElementById('last-name').value = d.lastName || user.displayName?.split(' ').slice(1).join(' ') || '';
+            document.getElementById('email').value = user.email || '';
+            document.getElementById('phone').value = d.phone || '';
+            const displayName = (d.firstName || '') + ' ' + (d.lastName || '') || user.displayName || 'Administrator';
+            document.getElementById('sidebar-admin-name').textContent = displayName.trim();
 
-        // Logout function
-        if (logoutBtn) {
-            logoutBtn.addEventListener('click', async () => {
-                try {
-                    await signOut(auth);
-                    window.location.href = 'index.html';
-                } catch (error) {
-                    console.error('Error signing out:', error);
-                    alert('Error signing out. Please try again.');
-                }
-            });
-        }
-
-        // Update profile information
-        if (profileForm) {
-            profileForm.addEventListener('submit', async (e) => {
+            // Profile form
+            document.getElementById('profile-form').addEventListener('submit', async (e) => {
                 e.preventDefault();
-
-                const firstName = document.getElementById('first-name').value;
-                const lastName = document.getElementById('last-name').value;
-                const email = document.getElementById('email').value;
-                const phone = document.getElementById('phone').value;
-
-                const user = auth.currentUser;
-
-                try {
-                    // Update user profile in Firebase Auth
-                    await updateProfile(user, {
-                        displayName: `${firstName} ${lastName}`.trim(),
-                        photoURL: user.photoURL || ''
-                    });
-
-                    // Update user data in Firestore
-                    const userDocRef = doc(db, 'users', user.uid);
-                    await updateDoc(userDocRef, {
-                        firstName,
-                        lastName,
-                        email,
-                        phone,
-                        updatedAt: new Date()
-                    });
-
-                    showNotification('Profile updated successfully!', 'success');
-                    updateUI(user);
-                } catch (error) {
-                    console.error('Error updating profile:', error);
-                    showNotification('Error updating profile. Please try again.', 'error');
-                }
-            });
-        }
-
-        // Change password
-        if (passwordForm) {
-            passwordForm.addEventListener('submit', async (e) => {
-                e.preventDefault();
-
-                const currentPassword = document.getElementById('current-password').value;
-                const newPassword = document.getElementById('new-password').value;
-                const confirmPassword = document.getElementById('confirm-password').value;
-
-                if (newPassword !== confirmPassword) {
-                    showNotification('New passwords do not match.', 'error');
-                    return;
-                }
-
-                const user = auth.currentUser;
-                const credential = EmailAuthProvider.credential(user.email, currentPassword);
-
-                try {
-                    // Re-authenticate user
-                    await reauthenticateWithCredential(user, credential);
-
-                    // Update password
-                    await updatePassword(user, newPassword);
-
-                    // Clear form
-                    passwordForm.reset();
-
-                    showNotification('Password updated successfully!', 'success');
-                } catch (error) {
-                    console.error('Error updating password:', error);
-                    let errorMessage = 'Error updating password. Please try again.';
-
-                    if (error.code === 'auth/wrong-password') {
-                        errorMessage = 'Current password is incorrect.';
-                    } else if (error.code === 'auth/weak-password') {
-                        errorMessage = 'Password is too weak. Please choose a stronger password.';
-                    }
-
-                    showNotification(errorMessage, 'error');
-                }
-            });
-        }
-
-        // Handle avatar upload
-        if (changeAvatarBtn && avatarUpload) {
-            changeAvatarBtn.addEventListener('click', () => {
-                avatarUpload.click();
-            });
-
-            avatarUpload.addEventListener('change', async (e) => {
-                const file = e.target.files[0];
-                if (!file) return;
-
-                const user = auth.currentUser;
-                const storageRef = ref(storage, `avatars/${user.uid}/${file.name}`);
-
-                try {
-                    // Upload file to Firebase Storage
-                    const snapshot = await uploadBytes(storageRef, file);
-                    const downloadURL = await getDownloadURL(snapshot.ref);
-
-                    // Update user profile with new photo URL
-                    await updateProfile(user, {
-                        photoURL: downloadURL
-                    });
-
-                    // Update user data in Firestore
-                    const userDocRef = doc(db, 'admins', user.uid);
-                    await updateDoc(userDocRef, {
-                        photoURL: downloadURL,
-                        updatedAt: new Date()
-                    });
-
-                    // Update UI
-                    updateUI(user);
-                    showNotification('Profile picture updated successfully!', 'success');
-                } catch (error) {
-                    console.error('Error uploading avatar:', error);
-                    showNotification('Error updating profile picture. Please try again.', 'error');
-                }
-            });
-        }
-
-        // Password strength indicator
-        const passwordInput = document.getElementById('new-password');
-        if (passwordInput) {
-            passwordInput.addEventListener('input', (e) => {
-                const password = e.target.value;
-                const strengthBar = document.getElementById('password-strength');
-
-                // Simple password strength calculation
-                let strength = 0;
-                if (password.length >= 8) strength += 25;
-                if (password.match(/[a-z]+/)) strength += 25;
-                if (password.match(/[A-Z]+/)) strength += 25;
-                if (password.match(/[0-9]+/)) strength += 15;
-                if (password.match(/[!@#$%^&*(),.?":{}|<>]+/)) strength += 10;
-
-                // Update strength bar
-                strengthBar.style.width = `${Math.min(strength, 100)}%`;
-
-                // Update color based on strength
-                if (strength < 50) {
-                    strengthBar.style.backgroundColor = '#dc3545'; // Red
-                } else if (strength < 75) {
-                    strengthBar.style.backgroundColor = '#ffc107'; // Yellow
-                } else {
-                    strengthBar.style.backgroundColor = '#28a745'; // Green
-                }
-            });
-        }
-
-        // Update UI with user data
-        function updateUI(user, userData = {}) {
-            if (!user) return;
-
-            // Get display name from user data or auth
-            let displayName = user.displayName || 'Administrator';
-            const firstName = document.getElementById('first-name').value || displayName.split(' ')[0];
-            const lastName = document.getElementById('last-name').value || displayName.split(' ').slice(1).join(' ');
-
-            // Update display name if we have first and last name
-            if (firstName || lastName) {
-                displayName = `${firstName} ${lastName}`.trim();
-            }
-
-            // Update name in all locations
-            adminNameElements.forEach(el => {
-                el.textContent = displayName.split(' ')[0]; // Show only first name
-            });
-
-            // Update avatar in all locations
-            const photoURL = user.photoURL || userData.photoURL || `https://ui-avatars.com/api/?name=${encodeURIComponent(displayName)}&background=4a6cf7&color=fff`;
-            adminAvatarElements.forEach(img => {
-                img.src = photoURL;
-                img.alt = displayName;
-            });
-        }
-
-        // Get the profile form element if it exists
-        const profileFormElement = document.getElementById('profile-form');
-
-        // Handle profile form submission
-        if (profileFormElement) {
-            profileFormElement.addEventListener('submit', async (e) => {
-                e.preventDefault();
-
-                const user = auth.currentUser;
-                if (!user) {
-                    showNotification('You must be logged in to update your profile', 'error');
-                    return;
-                }
-
                 const firstName = document.getElementById('first-name').value.trim();
                 const lastName = document.getElementById('last-name').value.trim();
                 const email = document.getElementById('email').value.trim();
                 const phone = document.getElementById('phone').value.trim();
-
-                if (!firstName) {
-                    showNotification('First name is required', 'error');
-                    return;
-                }
-
-                // Show loading state
-                const submitBtn = e.target.querySelector('button[type="submit"]');
-                let originalBtnText = '';
-
                 try {
-                    if (submitBtn) {
-                        originalBtnText = submitBtn.innerHTML;
-                        submitBtn.disabled = true;
-                        submitBtn.innerHTML = '<span class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span> Saving...';
-                    }
-
-                    // Update user profile in Firebase Auth
-                    const displayName = `${firstName} ${lastName}`.trim();
-                    await updateProfile(user, { displayName });
-
-                    // Update user data in Firestore
-                    const userRef = doc(db, 'users', user.uid);
-                    await updateDoc(userRef, {
-                        firstName,
-                        lastName,
-                        email,
-                        phone,
-                        updatedAt: new Date().toISOString()
-                    });
-
-                    // Update UI
-                    updateUI(user, { firstName, lastName, email, phone });
-
-                    showNotification('Profile updated successfully', 'success');
-
-                } catch (error) {
-                    console.error('Error updating profile:', error);
-                    showNotification(`Failed to update profile: ${error.message}`, 'error');
-                } finally {
-                    // Reset button state
-                    if (submitBtn) {
-                        submitBtn.disabled = false;
-                        submitBtn.innerHTML = originalBtnText;
-                    }
-                }
-            });
-        }
-
-        // Show notification
-        function showNotification(message, type = 'info') {
-            // You can implement a more sophisticated notification system here
-            alert(`${type.toUpperCase()}: ${message}`);
-        }
-
-        // Check auth state and verify admin role
-        async function initApp() {
-            try {
-                const { user } = await requireAuth(['admin']);
-
-                // Get additional user data from Firestore (from users collection)
-                const userDoc = await getDoc(doc(db, 'users', user.uid));
-
-                if (userDoc.exists()) {
-                    const userData = userDoc.data();
-
-                    // Update form fields with user data
-                    const firstName = userData.firstName || '';
-                    const lastName = userData.lastName || '';
-                    const email = user.email || '';
-                    const phone = userData.phone || '';
-
-                    // Set form values
-                    const firstNameInput = document.getElementById('first-name');
-                    const lastNameInput = document.getElementById('last-name');
-                    const emailInput = document.getElementById('email');
-                    const phoneInput = document.getElementById('phone');
-
-                    if (firstNameInput) firstNameInput.value = firstName;
-                    if (lastNameInput) lastNameInput.value = lastName;
-                    if (emailInput) emailInput.value = email;
-                    if (phoneInput) phoneInput.value = phone;
-
-                    // Update UI with user data
-                    updateUI(user, {
-                        firstName,
-                        lastName,
-                        email,
-                        phone
-                    });
-                } else {
-                    // Fallback if no user doc but authenticated as admin (via admins collection)
-                    updateUI(user);
-                    const emailInput = document.getElementById('email');
-                    if (emailInput) emailInput.value = user.email || '';
-                }
-
-            } catch (error) {
-                console.error("Initialization failed:", error);
-                // Redirect handled by requireAuth
-            }
-        }
-
-        initApp();
-    </script>
-
-    <script>
-        // Simple sidebar toggle for demo purposes
-        document.addEventListener('DOMContentLoaded', function () {
-            const sidebarToggle = document.getElementById('sidebar-toggle');
-            if (sidebarToggle) {
-                sidebarToggle.addEventListener('click', function () {
-                    document.body.classList.toggle('sidebar-collapsed');
-                });
-            }
-
-            // Initialize tooltips
-            const tooltipTriggerList = [].slice.call(document.querySelectorAll('[data-bs-toggle="tooltip"]'));
-            tooltipTriggerList.map(function (tooltipTriggerEl) {
-                return new bootstrap.Tooltip(tooltipTriggerEl);
+                    await updateProfile(user, { displayName: `${firstName} ${lastName}`.trim() });
+                    await updateDoc(doc(db, 'users', user.uid), { firstName, lastName, email, phone, updatedAt: new Date().toISOString() });
+                    showToast('Profile updated!');
+                    document.getElementById('sidebar-admin-name').textContent = `${firstName} ${lastName}`.trim();
+                } catch (err) { showToast('Error: ' + err.message, true); }
             });
 
-        });
-    </script>
-    <!-- Mobile Sidebar Auto-Fix -->
-    <script>
-        document.addEventListener('DOMContentLoaded', () => {
-            const sidebar = document.querySelector('.sidebar');
-            let sidebarOverlay = document.getElementById('sidebar-overlay');
-            const sidebarToggle = document.querySelector('.sidebar-toggle, .menu-toggle, #sidebar-toggle');
-            
-            if (sidebar && !sidebarOverlay) {
-                sidebarOverlay = document.createElement('div');
-                sidebarOverlay.className = 'sidebar-overlay';
-                sidebarOverlay.id = 'sidebar-overlay';
-                sidebar.parentNode.insertBefore(sidebarOverlay, sidebar.nextSibling);
-            }
-            
-            if (sidebarToggle && sidebar && sidebarOverlay) {
-                // Ensure toggle class exists
-                sidebarToggle.classList.add('menu-toggle');
-                sidebarToggle.classList.add('d-lg-none');
-                
-                sidebarToggle.addEventListener('click', (e) => {
-                    if (window.innerWidth <= 1024) {
-                        e.preventDefault();
-                        e.stopPropagation();
-                        sidebar.classList.toggle('active');
-                        sidebarOverlay.classList.toggle('active');
-                    }
-                });
-                
-                sidebarOverlay.addEventListener('click', () => {
-                    sidebar.classList.remove('active');
-                    sidebarOverlay.classList.remove('active');
-                });
-            }
-        });
-    </script>
+            // Password form
+            document.getElementById('password-form').addEventListener('submit', async (e) => {
+                e.preventDefault();
+                const curr = document.getElementById('current-password').value;
+                const newP = document.getElementById('new-password').value;
+                const conf = document.getElementById('confirm-password').value;
+                if (newP !== conf) { showToast('Passwords do not match.', true); return; }
+                try {
+                    const cred = EmailAuthProvider.credential(user.email, curr);
+                    await reauthenticateWithCredential(user, cred);
+                    await updatePassword(user, newP);
+                    document.getElementById('password-form').reset();
+                    document.getElementById('password-strength').style.width = '0%';
+                    showToast('Password updated!');
+                } catch (err) {
+                    let msg = 'Error updating password.';
+                    if (err.code === 'auth/wrong-password') msg = 'Current password is incorrect.';
+                    else if (err.code === 'auth/weak-password') msg = 'Password is too weak.';
+                    showToast(msg, true);
+                }
+            });
+
+            // Password strength
+            document.getElementById('new-password').addEventListener('input', (e) => {
+                const p = e.target.value;
+                let s = 0;
+                if (p.length >= 8) s += 25;
+                if (/[a-z]/.test(p)) s += 25;
+                if (/[A-Z]/.test(p)) s += 25;
+                if (/[0-9]/.test(p)) s += 15;
+                if (/[^a-zA-Z0-9]/.test(p)) s += 10;
+                const bar = document.getElementById('password-strength');
+                bar.style.width = Math.min(s, 100) + '%';
+                bar.style.background = s < 50 ? '#ef4444' : s < 75 ? '#f59e0b' : '#10b981';
+            });
+        } catch (e) { console.error(e); }
+    });
+</script>
 </body>
+</html>

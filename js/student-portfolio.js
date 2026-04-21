@@ -14,10 +14,18 @@ let growthChart = null;
 
 document.addEventListener('DOMContentLoaded', async () => {
     try {
-        await requireAuth(['teacher', 'admin']);
-        loadTeacherProfile();
-        
+        // Allow teachers, admins, AND parents to view portfolios
         const urlParams = new URLSearchParams(window.location.search);
+        const isParentView = urlParams.get('view') === 'parent';
+        
+        await requireAuth(isParentView ? ['teacher', 'admin', 'parent'] : ['teacher', 'admin']);
+        
+        if (isParentView) {
+            loadParentProfile();
+        } else {
+            loadTeacherProfile();
+        }
+        
         const studentId = urlParams.get('id');
         if (!studentId) {
             document.getElementById('pfName').textContent = 'No student selected';
@@ -25,6 +33,11 @@ document.addEventListener('DOMContentLoaded', async () => {
         }
         await loadPortfolio(studentId);
         initSidebar();
+        
+        // If parent view, adjust the sidebar and back button
+        if (isParentView) {
+            adaptForParentView();
+        }
     } catch (e) {
         console.error('Portfolio init error:', e);
     }
@@ -45,6 +58,52 @@ async function loadTeacherProfile() {
         }
         document.getElementById('sidebar-teacher-name').textContent = name;
     } catch (e) { /* silent */ }
+}
+
+async function loadParentProfile() {
+    try {
+        const { user } = await requireAuth(['parent', 'teacher', 'admin']);
+        const userDoc = await getDoc(doc(db, 'users', user.uid));
+        let name = 'Parent';
+        if (userDoc.exists()) {
+            const d = userDoc.data();
+            name = d.name || d.firstName || 'Parent';
+        }
+        const nameEl = document.getElementById('sidebar-teacher-name');
+        if (nameEl) nameEl.textContent = name;
+        const roleEl = document.querySelector('.sd-sidebar-user-role');
+        if (roleEl) roleEl.textContent = 'Parent';
+    } catch (e) { /* silent */ }
+}
+
+function adaptForParentView() {
+    // Change sidebar brand
+    const brandText = document.querySelector('.sd-brand-text');
+    if (brandText) brandText.textContent = 'Alpharia Parent';
+    const brandLink = document.querySelector('.sd-sidebar-brand');
+    if (brandLink) brandLink.href = 'parent-dashboard.html';
+
+    // Update sidebar nav for parent context
+    const nav = document.querySelector('.sd-nav');
+    if (nav) {
+        nav.innerHTML = `
+            <span class="sd-nav-section-label">Home</span>
+            <a href="parent-dashboard.html" class="sd-nav-link"><i class="fas fa-tachometer-alt"></i><span>Dashboard</span></a>
+            <span class="sd-nav-section-label">Services</span>
+            <a href="assessment-booking.html" class="sd-nav-link"><i class="fas fa-calendar-check"></i><span>Book Assessment</span></a>
+            <a href="parent-assessments.html" class="sd-nav-link"><i class="fas fa-calendar-alt"></i><span>My Bookings</span></a>
+            <a href="parent-invite.html" class="sd-nav-link"><i class="fas fa-link"></i><span>Link Child Account</span></a>
+            <span class="sd-nav-section-label">Account</span>
+            <a href="parent-settings.html" class="sd-nav-link"><i class="fas fa-cog"></i><span>Settings</span></a>
+        `;
+    }
+
+    // Change back button to go to parent dashboard
+    const backBtn = document.querySelector('a[href="teacher-progress.html"]');
+    if (backBtn) {
+        backBtn.href = 'parent-dashboard.html';
+        backBtn.innerHTML = '<i class="fas fa-arrow-left"></i> Back to Dashboard';
+    }
 }
 
 async function loadPortfolio(studentId) {

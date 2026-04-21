@@ -1,0 +1,381 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Register Your School — Alpharia</title>
+    <meta name="description" content="Register your school on Alpharia to manage students, teachers, and reading assessments.">
+
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link rel="stylesheet" href="css/student-dashboard-clean.css">
+
+    <style>
+        @keyframes fadeIn { from { opacity:0; transform:translateY(10px);} to { opacity:1; transform:translateY(0);} }
+        body { background: linear-gradient(135deg, #0f172a 0%, #1e293b 50%, #0f172a 100%); min-height: 100vh; display: flex; align-items: center; justify-content: center; padding: 2rem 1rem; }
+
+        .sr-container { width: 100%; max-width: 620px; animation: fadeIn 0.5s ease-out; }
+
+        .sr-brand { text-align: center; margin-bottom: 2rem; }
+        .sr-brand-icon { width: 56px; height: 56px; border-radius: 16px; background: var(--sd-primary); display: inline-flex; align-items: center; justify-content: center; font-size: 1.5rem; color: white; margin-bottom: 0.75rem; }
+        .sr-brand h1 { color: white; font-size: 1.6rem; font-weight: 800; }
+        .sr-brand p { color: rgba(255,255,255,0.6); font-size: 0.9rem; }
+
+        .sr-card {
+            background: var(--sd-surface);
+            border: 1.5px solid var(--sd-border);
+            border-radius: var(--sd-radius);
+            padding: 2.5rem 2rem;
+        }
+        @media (max-width: 600px) { .sr-card { padding: 1.5rem 1rem; } }
+
+        .sr-step-indicator {
+            display: flex; align-items: center; justify-content: center;
+            gap: 0.5rem; margin-bottom: 2rem;
+        }
+        .sr-step-dot {
+            width: 36px; height: 36px; border-radius: 50%;
+            display: flex; align-items: center; justify-content: center;
+            font-size: 0.78rem; font-weight: 800;
+            border: 2px solid var(--sd-border); color: var(--sd-text-3); background: var(--sd-surface);
+            transition: 0.3s;
+        }
+        .sr-step-dot.active { background: var(--sd-primary); color: white; border-color: var(--sd-primary); }
+        .sr-step-dot.done { background: #10b981; color: white; border-color: #10b981; }
+        .sr-step-line { width: 40px; height: 2px; background: var(--sd-border); }
+        .sr-step-line.done { background: #10b981; }
+
+        .sr-title { font-size: 1.2rem; font-weight: 800; color: var(--sd-text); margin-bottom: 0.3rem; }
+        .sr-sub { font-size: 0.85rem; color: var(--sd-text-3); margin-bottom: 1.5rem; }
+
+        .sr-form-group { margin-bottom: 1.25rem; }
+        .sr-label { display: block; font-size: 0.78rem; font-weight: 700; color: var(--sd-text); margin-bottom: 0.4rem; }
+        .sr-input, .sr-select {
+            width: 100%; padding: 0.7rem 1rem; border: 1.5px solid var(--sd-border);
+            border-radius: var(--sd-radius-sm); font-family: inherit; font-size: 0.88rem;
+            background: var(--sd-surface-2); color: var(--sd-text); transition: 0.2s;
+            box-sizing: border-box;
+        }
+        .sr-input:focus, .sr-select:focus { outline: none; border-color: var(--sd-primary); }
+        .sr-input::placeholder { color: var(--sd-text-3); }
+
+        .sr-row { display: grid; grid-template-columns: 1fr 1fr; gap: 1rem; }
+        @media (max-width: 500px) { .sr-row { grid-template-columns: 1fr; } }
+
+        .sr-actions { display: flex; gap: 0.75rem; margin-top: 1.5rem; }
+        .sr-btn {
+            flex: 1; padding: 0.75rem; border-radius: var(--sd-radius-sm);
+            font-family: inherit; font-size: 0.88rem; font-weight: 700;
+            cursor: pointer; transition: 0.2s; border: 1.5px solid var(--sd-border);
+            background: var(--sd-surface); color: var(--sd-text-2);
+            display: flex; align-items: center; justify-content: center; gap: 0.4rem;
+        }
+        .sr-btn:hover { border-color: var(--sd-primary); color: var(--sd-primary); }
+        .sr-btn-primary { background: var(--sd-primary); color: white; border-color: var(--sd-primary); }
+        .sr-btn-primary:hover { opacity: 0.9; color: white; }
+        .sr-btn:disabled { opacity: 0.5; cursor: not-allowed; }
+
+        .sr-error { color: #ef4444; font-size: 0.78rem; margin-top: 0.5rem; display: none; }
+        .sr-success {
+            text-align: center; padding: 2rem;
+        }
+        .sr-success-icon { font-size: 3.5rem; color: #10b981; margin-bottom: 1rem; }
+        .sr-success h2 { font-size: 1.3rem; font-weight: 800; color: var(--sd-text); margin-bottom: 0.5rem; }
+        .sr-success p { color: var(--sd-text-2); margin-bottom: 1.5rem; font-size: 0.9rem; }
+
+        .sr-login-link { text-align: center; margin-top: 1.5rem; }
+        .sr-login-link a { color: var(--sd-primary); font-weight: 700; text-decoration: none; font-size: 0.85rem; }
+    </style>
+</head>
+<body>
+
+<div class="sr-container">
+    <div class="sr-brand">
+        <div class="sr-brand-icon"><i class="fas fa-university"></i></div>
+        <h1>Register Your School</h1>
+        <p>Set up your school on Alpharia to manage literacy assessments</p>
+    </div>
+
+    <div class="sr-card">
+        <!-- Step Indicator -->
+        <div class="sr-step-indicator">
+            <div class="sr-step-dot active" id="dot-1">1</div>
+            <div class="sr-step-line" id="line-1"></div>
+            <div class="sr-step-dot" id="dot-2">2</div>
+            <div class="sr-step-line" id="line-2"></div>
+            <div class="sr-step-dot" id="dot-3">3</div>
+        </div>
+
+        <!-- STEP 1: School Info -->
+        <div id="step-1">
+            <div class="sr-title">School Information</div>
+            <div class="sr-sub">Enter your school's details to get started.</div>
+
+            <div class="sr-form-group">
+                <label class="sr-label">School Name *</label>
+                <input type="text" class="sr-input" id="school-name" placeholder="e.g. Greenwood Primary Academy" required>
+            </div>
+            <div class="sr-row">
+                <div class="sr-form-group">
+                    <label class="sr-label">Province / Region *</label>
+                    <select class="sr-select" id="school-region">
+                        <option value="">Select region…</option>
+                        <option value="gauteng">Gauteng</option>
+                        <option value="western-cape">Western Cape</option>
+                        <option value="kwazulu-natal">KwaZulu-Natal</option>
+                        <option value="eastern-cape">Eastern Cape</option>
+                        <option value="free-state">Free State</option>
+                        <option value="limpopo">Limpopo</option>
+                        <option value="mpumalanga">Mpumalanga</option>
+                        <option value="north-west">North West</option>
+                        <option value="northern-cape">Northern Cape</option>
+                        <option value="other">Other</option>
+                    </select>
+                </div>
+                <div class="sr-form-group">
+                    <label class="sr-label">School Type</label>
+                    <select class="sr-select" id="school-type">
+                        <option value="primary">Primary School</option>
+                        <option value="combined">Combined School</option>
+                        <option value="special">Special Needs School</option>
+                        <option value="private">Private Institution</option>
+                    </select>
+                </div>
+            </div>
+            <div class="sr-form-group">
+                <label class="sr-label">School Address</label>
+                <input type="text" class="sr-input" id="school-address" placeholder="123 Main Street, City">
+            </div>
+
+            <div class="sr-actions">
+                <button class="sr-btn sr-btn-primary" id="btn-next-1"><i class="fas fa-arrow-right"></i> Next</button>
+            </div>
+        </div>
+
+        <!-- STEP 2: Admin Account -->
+        <div id="step-2" style="display:none;">
+            <div class="sr-title">Administrator Account</div>
+            <div class="sr-sub">Create the school admin login that will manage students and teachers.</div>
+
+            <div class="sr-row">
+                <div class="sr-form-group">
+                    <label class="sr-label">Admin First Name *</label>
+                    <input type="text" class="sr-input" id="admin-first" placeholder="First name">
+                </div>
+                <div class="sr-form-group">
+                    <label class="sr-label">Admin Last Name *</label>
+                    <input type="text" class="sr-input" id="admin-last" placeholder="Last name">
+                </div>
+            </div>
+            <div class="sr-form-group">
+                <label class="sr-label">Admin Email *</label>
+                <input type="email" class="sr-input" id="admin-email" placeholder="admin@school.edu">
+            </div>
+            <div class="sr-row">
+                <div class="sr-form-group">
+                    <label class="sr-label">Password *</label>
+                    <input type="password" class="sr-input" id="admin-pass" placeholder="Min 6 characters">
+                </div>
+                <div class="sr-form-group">
+                    <label class="sr-label">Confirm Password *</label>
+                    <input type="password" class="sr-input" id="admin-pass2" placeholder="Re-enter password">
+                </div>
+            </div>
+            <div class="sr-error" id="step2-error"></div>
+
+            <div class="sr-actions">
+                <button class="sr-btn" id="btn-back-2"><i class="fas fa-arrow-left"></i> Back</button>
+                <button class="sr-btn sr-btn-primary" id="btn-next-2"><i class="fas fa-arrow-right"></i> Next</button>
+            </div>
+        </div>
+
+        <!-- STEP 3: Confirm -->
+        <div id="step-3" style="display:none;">
+            <div class="sr-title">Confirm & Register</div>
+            <div class="sr-sub">Review your details and register your school.</div>
+
+            <div style="background:var(--sd-surface-2); padding:1.25rem; border-radius:var(--sd-radius-sm); margin-bottom:1rem;">
+                <div style="font-size:0.72rem; font-weight:700; color:var(--sd-text-3); text-transform:uppercase; margin-bottom:0.5rem;">School</div>
+                <div style="font-weight:700; color:var(--sd-text);" id="confirm-school"></div>
+                <div style="font-size:0.82rem; color:var(--sd-text-2); margin-top:0.15rem;" id="confirm-region"></div>
+            </div>
+            <div style="background:var(--sd-surface-2); padding:1.25rem; border-radius:var(--sd-radius-sm); margin-bottom:1rem;">
+                <div style="font-size:0.72rem; font-weight:700; color:var(--sd-text-3); text-transform:uppercase; margin-bottom:0.5rem;">Administrator</div>
+                <div style="font-weight:700; color:var(--sd-text);" id="confirm-name"></div>
+                <div style="font-size:0.82rem; color:var(--sd-text-2); margin-top:0.15rem;" id="confirm-email"></div>
+            </div>
+
+            <div class="sr-error" id="step3-error"></div>
+
+            <div class="sr-actions">
+                <button class="sr-btn" id="btn-back-3"><i class="fas fa-arrow-left"></i> Back</button>
+                <button class="sr-btn sr-btn-primary" id="btn-register"><i class="fas fa-check-circle"></i> Register School</button>
+            </div>
+        </div>
+
+        <!-- SUCCESS -->
+        <div id="step-success" style="display:none;">
+            <div class="sr-success">
+                <div class="sr-success-icon"><i class="fas fa-check-circle"></i></div>
+                <h2>School Registered!</h2>
+                <p>Your school is now on Alpharia. Log in to your admin dashboard to start adding students and teachers.</p>
+                <a href="auth/login-fixed.html" class="sr-btn sr-btn-primary" style="display:inline-flex; text-decoration:none;">
+                    <i class="fas fa-sign-in-alt"></i> Go to Login
+                </a>
+            </div>
+        </div>
+    </div>
+
+    <div class="sr-login-link">
+        <a href="auth/login-fixed.html">Already registered? <strong>Log in →</strong></a>
+    </div>
+</div>
+
+<script type="module">
+    import { initializeApp } from 'https://www.gstatic.com/firebasejs/12.1.0/firebase-app.js';
+    import { getAuth, createUserWithEmailAndPassword } from 'https://www.gstatic.com/firebasejs/12.1.0/firebase-auth.js';
+    import { getFirestore, doc, setDoc, serverTimestamp } from 'https://www.gstatic.com/firebasejs/12.1.0/firebase-firestore.js';
+    import { app, db } from './js/firebase-config.js';
+
+    // Step navigation
+    let currentStep = 1;
+
+    function showStep(step) {
+        currentStep = step;
+        [1,2,3].forEach(s => {
+            document.getElementById(`step-${s}`).style.display = s === step ? 'block' : 'none';
+        });
+        document.getElementById('step-success').style.display = 'none';
+
+        [1,2,3].forEach(s => {
+            const dot = document.getElementById(`dot-${s}`);
+            dot.className = 'sr-step-dot' + (s < step ? ' done' : s === step ? ' active' : '');
+            dot.innerHTML = s < step ? '<i class="fas fa-check"></i>' : s;
+        });
+        [1,2].forEach(s => {
+            document.getElementById(`line-${s}`).className = 'sr-step-line' + (s < step ? ' done' : '');
+        });
+    }
+
+    function showSuccess() {
+        [1,2,3].forEach(s => document.getElementById(`step-${s}`).style.display = 'none');
+        document.getElementById('step-success').style.display = 'block';
+        [1,2,3].forEach(s => {
+            document.getElementById(`dot-${s}`).className = 'sr-step-dot done';
+            document.getElementById(`dot-${s}`).innerHTML = '<i class="fas fa-check"></i>';
+        });
+        [1,2].forEach(s => document.getElementById(`line-${s}`).className = 'sr-step-line done');
+    }
+
+    document.addEventListener('DOMContentLoaded', () => {
+        // Step 1 → 2
+        document.getElementById('btn-next-1').addEventListener('click', () => {
+            const name = document.getElementById('school-name').value.trim();
+            const region = document.getElementById('school-region').value;
+            if (!name || !region) { alert('Please enter school name and region.'); return; }
+            showStep(2);
+        });
+
+        // Step 2 → 3
+        document.getElementById('btn-next-2').addEventListener('click', () => {
+            const first = document.getElementById('admin-first').value.trim();
+            const last = document.getElementById('admin-last').value.trim();
+            const email = document.getElementById('admin-email').value.trim();
+            const pass = document.getElementById('admin-pass').value;
+            const pass2 = document.getElementById('admin-pass2').value;
+            const errEl = document.getElementById('step2-error');
+
+            if (!first || !last || !email || !pass) { errEl.textContent = 'All fields are required.'; errEl.style.display = 'block'; return; }
+            if (pass.length < 6) { errEl.textContent = 'Password must be at least 6 characters.'; errEl.style.display = 'block'; return; }
+            if (pass !== pass2) { errEl.textContent = 'Passwords do not match.'; errEl.style.display = 'block'; return; }
+            errEl.style.display = 'none';
+
+            // Fill confirm step
+            document.getElementById('confirm-school').textContent = document.getElementById('school-name').value;
+            document.getElementById('confirm-region').textContent = document.getElementById('school-region').selectedOptions[0].text + ' · ' + document.getElementById('school-type').selectedOptions[0].text;
+            document.getElementById('confirm-name').textContent = first + ' ' + last;
+            document.getElementById('confirm-email').textContent = email;
+
+            showStep(3);
+        });
+
+        // Back buttons
+        document.getElementById('btn-back-2').addEventListener('click', () => showStep(1));
+        document.getElementById('btn-back-3').addEventListener('click', () => showStep(2));
+
+        // Register
+        document.getElementById('btn-register').addEventListener('click', async () => {
+            const btn = document.getElementById('btn-register');
+            const errEl = document.getElementById('step3-error');
+            btn.disabled = true;
+            btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Registering…';
+            errEl.style.display = 'none';
+
+            try {
+                const email = document.getElementById('admin-email').value.trim();
+                const pass = document.getElementById('admin-pass').value;
+                const firstName = document.getElementById('admin-first').value.trim();
+                const lastName = document.getElementById('admin-last').value.trim();
+                const schoolName = document.getElementById('school-name').value.trim();
+                const region = document.getElementById('school-region').value;
+                const schoolType = document.getElementById('school-type').value;
+                const address = document.getElementById('school-address').value.trim();
+
+                // Create the admin user with Firebase Auth
+                const auth = getAuth(app);
+                const cred = await createUserWithEmailAndPassword(auth, email, pass);
+                const uid = cred.user.uid;
+
+                // Create school document
+                const schoolId = 'school_' + uid;
+                await setDoc(doc(db, 'schools', schoolId), {
+                    name: schoolName,
+                    region,
+                    type: schoolType,
+                    address,
+                    adminUid: uid,
+                    createdAt: serverTimestamp(),
+                    studentCount: 0,
+                    teacherCount: 0
+                });
+
+                // Create user doc with school_admin role
+                await setDoc(doc(db, 'users', uid), {
+                    firstName,
+                    lastName,
+                    name: firstName + ' ' + lastName,
+                    email,
+                    role: 'school_admin',
+                    schoolId,
+                    createdAt: serverTimestamp()
+                });
+
+                // Also create school_admins doc for fast lookup
+                await setDoc(doc(db, 'school_admins', uid), {
+                    name: firstName + ' ' + lastName,
+                    email,
+                    schoolId,
+                    createdAt: serverTimestamp()
+                });
+
+                showSuccess();
+            } catch (e) {
+                console.error('Registration error:', e);
+                let msg = 'Registration failed. ';
+                if (e.code === 'auth/email-already-in-use') msg += 'This email is already registered.';
+                else if (e.code === 'auth/invalid-email') msg += 'Invalid email address.';
+                else if (e.code === 'auth/weak-password') msg += 'Password is too weak.';
+                else msg += e.message;
+                errEl.textContent = msg;
+                errEl.style.display = 'block';
+            }
+
+            btn.disabled = false;
+            btn.innerHTML = '<i class="fas fa-check-circle"></i> Register School';
+        });
+    });
+</script>
+</body>
+</html>

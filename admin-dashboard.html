@@ -1,877 +1,357 @@
 <!DOCTYPE html>
 <html lang="en">
-
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Admin Dashboard - Alpharia</title>
+    <title>Admin Dashboard — Alpharia</title>
+    <meta name="description" content="Platform administration dashboard for Alpharia.">
 
-    <!-- Google Fonts -->
-    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap"
-        rel="stylesheet">
-
-    <!-- Font Awesome Icons -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link rel="stylesheet" href="css/student-dashboard-clean.css">
+    <link rel="stylesheet" href="css/teacher-dashboard-clean.css">
 
-    <!-- Custom CSS -->
-    <link rel="stylesheet" href="css/teacher-dashboard.css">
     <style>
-        /* Admin-specific overrides */
-        :root {
-            --primary-color: #4a6cf7;
-            --primary-hover: #3a5ce4;
-            --secondary-color: #6c757d;
-            --success-color: #28a745;
-            --danger-color: #dc3545;
-            --warning-color: #ffc107;
-            --info-color: #17a2b8;
-            --light-color: #f8f9fa;
-            --dark-color: #343a40;
-            --sidebar-width: 250px;
-            --header-height: 70px;
-            --dropdown-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
-            --transition-speed: 0.3s;
+        @keyframes fadeIn { from{opacity:0;transform:translateY(10px)}to{opacity:1;transform:translateY(0)} }
+        @keyframes pulse { 0%,100%{opacity:1} 50%{opacity:0.6} }
+
+        .adm-hero {
+            background: linear-gradient(135deg, #1e293b 0%, #0f172a 100%);
+            color: white; padding: 2.5rem 2rem; border-radius: var(--sd-radius);
+            margin-bottom: 2rem; position: relative; overflow: hidden;
+        }
+        .adm-hero::after {
+            content:''; position:absolute; top:-30%; right:-8%; width:350px; height:350px;
+            background:rgba(79,70,229,0.12); filter:blur(80px); border-radius:50%;
+        }
+        .adm-hero-title { font-size:1.8rem; font-weight:800; margin-bottom:0.25rem; position:relative; z-index:1; }
+        .adm-hero-sub { opacity:0.7; font-size:0.92rem; position:relative; z-index:1; }
+        .adm-hero-badge {
+            display:inline-flex; align-items:center; gap:0.3rem;
+            background:rgba(245,158,11,0.2); color:#f59e0b; padding:0.2rem 0.6rem;
+            border-radius:50px; font-size:0.68rem; font-weight:700; text-transform:uppercase;
+            margin-left:0.5rem; letter-spacing:0.04em;
         }
 
-        .admin-badge {
-            background-color: var(--warning-color);
-            color: #000;
-            padding: 2px 8px;
-            border-radius: 4px;
-            font-size: 0.7rem;
-            font-weight: 600;
-            text-transform: uppercase;
-            margin-left: 8px;
-            vertical-align: middle;
+        /* Metric cards */
+        .adm-metrics { display:grid; grid-template-columns:repeat(auto-fit, minmax(170px, 1fr)); gap:1rem; margin-bottom:2rem; }
+        .adm-metric {
+            background:var(--sd-surface); border:1.5px solid var(--sd-border); border-radius:var(--sd-radius);
+            padding:1.25rem; display:flex; align-items:center; gap:1rem; transition:0.2s;
         }
-
-        /* Enhanced User Menu Styles */
-        .user-menu {
-            position: relative;
-            z-index: 1000;
+        .adm-metric:hover { transform:translateY(-3px); border-color:var(--sd-primary); box-shadow:var(--sd-shadow-sm); }
+        .adm-metric-icon {
+            width:48px; height:48px; border-radius:12px; display:flex; align-items:center; justify-content:center;
+            font-size:1.2rem; flex-shrink:0;
         }
+        .adm-metric-val { font-size:1.6rem; font-weight:800; color:var(--sd-text); line-height:1; }
+        .adm-metric-label { font-size:0.68rem; font-weight:700; color:var(--sd-text-3); text-transform:uppercase; letter-spacing:0.04em; }
 
-        .user-menu-button {
-            display: flex;
-            align-items: center;
-            background: none;
-            border: none;
-            padding: 8px 12px;
-            border-radius: 8px;
-            cursor: pointer;
-            transition: background-color var(--transition-speed) ease;
+        /* Quick actions */
+        .adm-actions { display:grid; grid-template-columns:repeat(auto-fit, minmax(200px, 1fr)); gap:1rem; margin-bottom:2rem; }
+        .adm-action {
+            display:flex; align-items:center; gap:1rem; padding:1.1rem 1.25rem;
+            background:var(--sd-surface); border:1.5px solid var(--sd-border); border-radius:var(--sd-radius);
+            text-decoration:none; color:var(--sd-text); transition:0.2s; cursor:pointer;
         }
-
-        .user-menu-button:hover {
-            background-color: rgba(0, 0, 0, 0.05);
+        .adm-action:hover { border-color:var(--sd-primary); transform:translateY(-2px); box-shadow:var(--sd-shadow-sm); }
+        .adm-action-icon {
+            width:42px; height:42px; border-radius:10px; display:flex; align-items:center; justify-content:center;
+            font-size:1.1rem; flex-shrink:0;
         }
+        .adm-action-text { font-size:0.85rem; font-weight:700; }
+        .adm-action-sub { font-size:0.7rem; color:var(--sd-text-3); font-weight:500; }
 
-        .user-menu-button[aria-expanded="true"] .dropdown-arrow {
-            transform: rotate(180deg);
+        /* Activity feed */
+        .adm-activity-item {
+            display:flex; align-items:flex-start; gap:0.85rem; padding:0.85rem 0;
+            border-bottom:1px solid var(--sd-border);
         }
-
-        .user-avatar {
-            width: 36px;
-            height: 36px;
-            background-color: var(--primary-color);
-            color: white;
-            border-radius: 50%;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            margin-right: 10px;
-            font-size: 16px;
+        .adm-activity-item:last-child { border-bottom:none; }
+        .adm-activity-dot {
+            width:10px; height:10px; border-radius:50%; flex-shrink:0; margin-top:5px;
         }
+        .adm-activity-text { font-size:0.82rem; color:var(--sd-text-2); line-height:1.4; }
+        .adm-activity-text strong { color:var(--sd-text); }
+        .adm-activity-time { font-size:0.68rem; color:var(--sd-text-3); margin-top:0.15rem; }
 
-        .user-info {
-            text-align: left;
-            margin-right: 10px;
+        /* At-risk */
+        .adm-risk-item {
+            display:flex; align-items:center; gap:0.85rem; padding:0.75rem 0.85rem;
+            background:rgba(239,68,68,0.04); border:1px solid rgba(239,68,68,0.1);
+            border-radius:var(--sd-radius-sm); margin-bottom:0.5rem;
         }
+        .adm-risk-dot { width:10px; height:10px; border-radius:50%; background:#ef4444; box-shadow:0 0 8px rgba(239,68,68,0.4); flex-shrink:0; }
+        .adm-risk-name { font-size:0.82rem; font-weight:700; color:var(--sd-text); }
+        .adm-risk-detail { font-size:0.7rem; color:var(--sd-text-3); }
+        .adm-risk-badge { font-size:0.65rem; font-weight:700; padding:0.15rem 0.5rem; border-radius:50px; background:rgba(239,68,68,0.1); color:#ef4444; margin-left:auto; flex-shrink:0; }
 
-        .user-name {
-            display: block;
-            font-weight: 600;
-            color: var(--dark-color);
-        }
+        .adm-loading { text-align:center; padding:2rem; color:var(--sd-text-3); animation:pulse 1.5s infinite; }
 
-        .user-role {
-            display: block;
-            font-size: 0.8rem;
-            color: var(--secondary-color);
-        }
-
-        .dropdown-arrow {
-            transition: transform var(--transition-speed) ease;
-            font-size: 0.8rem;
-            color: var(--secondary-color);
-        }
-
-        .dropdown-menu {
-            position: absolute;
-            top: calc(100% + 5px);
-            right: 0;
-            min-width: 200px;
-            background: white;
-            border-radius: 8px;
-            box-shadow: var(--dropdown-shadow);
-            padding: 8px 0;
-            opacity: 0;
-            visibility: hidden;
-            transform: translateY(10px);
-            transition: all var(--transition-speed) ease;
-            z-index: 1001;
-            display: none;
-            /* Start hidden */
-        }
-
-        .dropdown-menu[data-visible="true"] {
-            opacity: 1;
-            visibility: visible;
-            transform: translateY(0);
-        }
-
-        .dropdown-item {
-            display: flex;
-            align-items: center;
-            padding: 8px 16px;
-            color: var(--dark-color);
-            text-decoration: none;
-            transition: background-color var(--transition-speed) ease;
-        }
-
-        .dropdown-item:hover {
-            background-color: var(--light-color);
-            color: var(--primary-color);
-        }
-
-        .dropdown-item i {
-            width: 24px;
-            margin-right: 10px;
-            text-align: center;
-        }
-
-        .dropdown-divider {
-            height: 1px;
-            background-color: rgba(0, 0, 0, 0.1);
-            margin: 6px 0;
-        }
-
-        .text-danger {
-            color: var(--danger-color) !important;
-        }
-
-        .text-danger:hover {
-            color: #c82333 !important;
+        @media(max-width:768px) {
+            .adm-hero { padding:1.5rem; }
+            .adm-hero-title { font-size:1.3rem; }
+            .adm-metrics { grid-template-columns:repeat(2, 1fr); }
         }
     </style>
 </head>
 
-<body class="teacher-dashboard">
-    <div class="dashboard-container">
-        <!-- Sidebar -->
-        <aside class="sidebar" id="sidebar">
-            <div class="logo">
-                <div class="logo-icon">
-                    <i class="fas fa-shield-alt"></i>
+<body class="sd-page">
+<div class="sd-shell">
+    <!-- SIDEBAR -->
+    <aside class="sd-sidebar" id="sidebar">
+        <div class="sd-sidebar-brand">
+            <div class="sd-brand-icon" style="background:linear-gradient(135deg,#4f46e5,#7c3aed);"><i class="fas fa-shield-alt"></i></div>
+            <span class="sd-brand-text">Alpharia <span style="font-size:0.55rem;background:rgba(245,158,11,0.2);color:#f59e0b;padding:0.1rem 0.4rem;border-radius:4px;margin-left:0.3rem;font-weight:800;">ADMIN</span></span>
+        </div>
+        <nav class="sd-nav">
+            <span class="sd-nav-section-label">Platform</span>
+            <a href="admin-dashboard.html" class="sd-nav-link active"><i class="fas fa-chart-pie"></i><span>Dashboard</span></a>
+            <a href="admin-management.html" class="sd-nav-link"><i class="fas fa-users-cog"></i><span>Users & Schools</span></a>
+            <a href="admin-tests.html" class="sd-nav-link"><i class="fas fa-clipboard-list"></i><span>All Tests</span></a>
+            <a href="admin-create-test.html" class="sd-nav-link"><i class="fas fa-plus-circle"></i><span>Create Test</span></a>
+
+            <span class="sd-nav-section-label">Analytics</span>
+            <a href="admin-reports.html" class="sd-nav-link"><i class="fas fa-chart-bar"></i><span>Reports</span></a>
+
+            <span class="sd-nav-section-label">Account</span>
+            <a href="admin-settings.html" class="sd-nav-link"><i class="fas fa-cog"></i><span>Settings</span></a>
+        </nav>
+        <div class="sd-sidebar-footer">
+            <div class="sd-sidebar-user">
+                <div class="sd-sidebar-user-info">
+                    <div class="sd-sidebar-user-name" id="sidebar-admin-name">Loading…</div>
+                    <div class="sd-sidebar-user-role">Platform Owner</div>
                 </div>
-                <h2>Alpharia <span class="admin-badge">Admin</span></h2>
+                <button class="sd-icon-btn" id="logout-btn" title="Sign Out" style="margin-left:auto;color:var(--sd-text-3);"><i class="fas fa-sign-out-alt"></i></button>
+            </div>
+        </div>
+    </aside>
+    <div class="sd-sidebar-overlay" id="sidebar-overlay"></div>
+
+    <!-- MAIN -->
+    <div class="sd-main">
+        <header class="sd-topbar">
+            <button class="sd-topbar-toggle menu-toggle d-lg-none" id="sidebar-toggle"><i class="fas fa-bars"></i></button>
+            <div style="font-weight:700; color:var(--sd-text);">Admin Dashboard</div>
+            <div class="sd-topbar-actions">
+                <div class="sd-avatar-btn"><img id="user-avatar" src="https://ui-avatars.com/api/?name=Admin&background=4f46e5&color=fff" width="38" height="38"></div>
+            </div>
+        </header>
+
+        <main class="sd-body" style="animation:fadeIn 0.4s ease-out;">
+            <!-- Hero -->
+            <div class="adm-hero">
+                <div class="adm-hero-title">
+                    Welcome, <span id="admin-name">Administrator</span>
+                    <span class="adm-hero-badge"><i class="fas fa-crown"></i> Owner</span>
+                </div>
+                <div class="adm-hero-sub">Here's a full overview of the Alpharia platform.</div>
             </div>
 
-            <nav class="nav-menu">
-                <div class="menu-title">Main Menu</div>
-
-                <div class="nav-item">
-                    <a href="admin-dashboard.html" class="nav-link active">
-                        <i class="fas fa-tachometer-alt"></i>
-                        <span>Dashboard</span>
-                    </a>
+            <!-- Metrics -->
+            <div class="adm-metrics">
+                <div class="adm-metric">
+                    <div class="adm-metric-icon" style="background:rgba(79,70,229,0.1);color:#4f46e5;"><i class="fas fa-users"></i></div>
+                    <div><div class="adm-metric-val" id="m-users">—</div><div class="adm-metric-label">Total Users</div></div>
                 </div>
-
-                <div class="nav-item">
-                    <a href="admin-management.html" class="nav-link">
-                        <i class="fas fa-users-cog"></i>
-                        <span>Management</span>
-                    </a>
+                <div class="adm-metric">
+                    <div class="adm-metric-icon" style="background:rgba(59,130,246,0.1);color:#3b82f6;"><i class="fas fa-user-graduate"></i></div>
+                    <div><div class="adm-metric-val" id="m-students">—</div><div class="adm-metric-label">Students</div></div>
                 </div>
-
-                <div class="nav-item">
-                    <a href="admin-tests.html" class="nav-link">
-                        <i class="fas fa-clipboard-list"></i>
-                        <span>All Tests</span>
-                    </a>
+                <div class="adm-metric">
+                    <div class="adm-metric-icon" style="background:rgba(139,92,246,0.1);color:#8b5cf6;"><i class="fas fa-chalkboard-teacher"></i></div>
+                    <div><div class="adm-metric-val" id="m-teachers">—</div><div class="adm-metric-label">Teachers</div></div>
                 </div>
-
-                <div class="nav-item">
-                    <a href="admin-create-test.html" class="nav-link">
-                        <i class="fas fa-plus-circle"></i>
-                        <span>Create Test</span>
-                    </a>
+                <div class="adm-metric">
+                    <div class="adm-metric-icon" style="background:rgba(20,184,166,0.1);color:#14b8a6;"><i class="fas fa-university"></i></div>
+                    <div><div class="adm-metric-val" id="m-schools">—</div><div class="adm-metric-label">Schools</div></div>
                 </div>
-
-                <div class="menu-title mt-4">Analytics</div>
-
-                <div class="nav-item">
-                    <a href="admin-reports.html" class="nav-link">
-                        <i class="fas fa-chart-bar"></i>
-                        <span>Reports</span>
-                    </a>
+                <div class="adm-metric">
+                    <div class="adm-metric-icon" style="background:rgba(245,158,11,0.1);color:#f59e0b;"><i class="fas fa-clipboard-list"></i></div>
+                    <div><div class="adm-metric-val" id="m-tests">—</div><div class="adm-metric-label">Tests</div></div>
                 </div>
-
-                <div class="menu-title mt-4">Account</div>
-
-                <div class="nav-item">
-                    <a href="admin-settings.html" class="nav-link">
-                        <i class="fas fa-cog"></i>
-                        <span>Settings</span>
-                    </a>
-                </div>
-
-                <div class="nav-item">
-                    <a href="help.html" class="nav-link">
-                        <i class="fas fa-question-circle"></i>
-                        <span>Help & Support</span>
-                    </a>
-                </div>
-            </nav>
-
-            <div class="sidebar-footer">
-                <div class="user-profile">
-                    <img src="https://ui-avatars.com/api/?name=Admin&background=4a6cf7&color=fff" alt="User"
-                        class="user-avatar" id="user-avatar-sidebar">
-                    <div class="user-info">
-                        <h4 class="user-name" id="sidebar-admin-name">Loading...</h4>
-                        <span class="user-role">Administrator</span>
-                    </div>
-                    <button class="sign-out" id="logout-btn" title="Sign Out">
-                        <i class="fas fa-sign-out-alt"></i>
-                    </button>
+                <div class="adm-metric">
+                    <div class="adm-metric-icon" style="background:rgba(236,72,153,0.1);color:#ec4899;"><i class="fas fa-chart-line"></i></div>
+                    <div><div class="adm-metric-val" id="m-results">—</div><div class="adm-metric-label">Assessments</div></div>
                 </div>
             </div>
-        </aside>
 
-        <div class="sidebar-overlay" id="sidebar-overlay"></div>
+            <!-- Quick Actions -->
+            <div class="adm-actions">
+                <a href="admin-management.html" class="adm-action">
+                    <div class="adm-action-icon" style="background:rgba(79,70,229,0.1);color:#4f46e5;"><i class="fas fa-users-cog"></i></div>
+                    <div><div class="adm-action-text">Users & Schools</div><div class="adm-action-sub">View all users, students, teachers, schools</div></div>
+                </a>
+                <a href="admin-reports.html" class="adm-action">
+                    <div class="adm-action-icon" style="background:rgba(20,184,166,0.1);color:#14b8a6;"><i class="fas fa-chart-bar"></i></div>
+                    <div><div class="adm-action-text">Platform Reports</div><div class="adm-action-sub">Performance analytics & exports</div></div>
+                </a>
+                <a href="admin-tests.html" class="adm-action">
+                    <div class="adm-action-icon" style="background:rgba(245,158,11,0.1);color:#f59e0b;"><i class="fas fa-clipboard-check"></i></div>
+                    <div><div class="adm-action-text">All Tests</div><div class="adm-action-sub">Manage reading tests</div></div>
+                </a>
+                <a href="admin-create-test.html" class="adm-action">
+                    <div class="adm-action-icon" style="background:rgba(236,72,153,0.1);color:#ec4899;"><i class="fas fa-plus-circle"></i></div>
+                    <div><div class="adm-action-text">Create Test</div><div class="adm-action-sub">Build a new reading assessment</div></div>
+                </a>
+            </div>
 
-        <main class="main-content">
-            <!-- Top Bar -->
-            <header class="top-bar">
-                <div class="top-bar-left">
-                    <button class="sidebar-toggle" id="sidebar-toggle">
-                        <i class="fas fa-bars"></i>
-                    </button>
-                    <h2>Admin Dashboard</h2>
-                </div>
-
-                <div class="top-bar-right">
-                    <div class="user-menu" id="user-menu">
-                        <button class="user-menu-button" id="user-menu-button" aria-expanded="false"
-                            aria-haspopup="true">
-                            <div class="user-avatar">
-                                <i class="fas fa-user-shield"></i>
-                            </div>
-                            <div class="user-info">
-                                <span class="user-name">Admin</span>
-                                <span class="user-role">Administrator</span>
-                            </div>
-                            <i class="fas fa-chevron-down dropdown-arrow"></i>
-                        </button>
-
-                        <div class="dropdown-menu" id="user-dropdown" aria-labelledby="user-menu-button">
-                            <a href="admin-settings.html" class="dropdown-item">
-                                <i class="fas fa-user-cog"></i> Settings
-                            </a>
-                            <div class="dropdown-divider"></div>
-                            <a href="#" class="dropdown-item text-danger" id="admin-logout-btn">
-                                <i class="fas fa-sign-out-alt"></i> Logout
-                            </a>
-                        </div>
+            <!-- Grid: Activity + At-Risk -->
+            <div class="td-grid-2">
+                <div class="td-card">
+                    <div class="td-card-header"><h3><i class="fas fa-stream"></i> Recent Activity</h3></div>
+                    <div class="td-card-body" id="activity-feed">
+                        <div class="adm-loading"><i class="fas fa-spinner fa-spin"></i> Loading activity…</div>
                     </div>
                 </div>
-            </header>
-
-            <!-- Dashboard Content -->
-            <div class="dashboard-content">
-                <div class="welcome-section">
-                    <div class="card">
-                        <div class="card-body">
-                            <h3>Welcome, <span id="admin-name">Administrator</span>!</h3>
-                            <p class="text-muted">Here's what's happening with your platform today.</p>
-                        </div>
-                    </div>
-                </div>
-
-                <!-- Stats Cards -->
-                <div class="row stats-row stats-container">
-                    <div class="col-md-3">
-                        <div class="stat-card">
-                            <div class="stat-icon bg-primary">
-                                <i class="fas fa-users"></i>
-                            </div>
-                            <div class="stat-info">
-                                <h3 id="total-teachers">0</h3>
-                                <p>Total Teachers</p>
-                            </div>
-                        </div>
-                    </div>
-
-                    <div class="col-md-3">
-                        <div class="stat-card">
-                            <div class="stat-icon bg-success">
-                                <i class="fas fa-user-graduate"></i>
-                            </div>
-                            <div class="stat-info">
-                                <h3 id="total-students">0</h3>
-                                <p>Total Students</p>
-                            </div>
-                        </div>
-                    </div>
-
-                    <div class="col-md-3">
-                        <div class="stat-card">
-                            <div class="stat-icon bg-warning">
-                                <i class="fas fa-clipboard-list"></i>
-                            </div>
-                            <div class="stat-info">
-                                <h3 id="total-tests">0</h3>
-                                <p>Total Tests</p>
-                            </div>
-                        </div>
-                    </div>
-
-                    <div class="col-md-3">
-                        <div class="stat-card">
-                            <div class="stat-icon bg-info">
-                                <i class="fas fa-chart-line"></i>
-                            </div>
-                            <div class="stat-info">
-                                <h3 id="avg-score">0%</h3>
-                                <p>Avg. Test Score</p>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-
-                <!-- Recent Activity and Quick Actions -->
-                <div class="row">
-                    <div class="col-md-8">
-                        <div class="card">
-                            <div class="card-header">
-                                <h4>Recent Activity</h4>
-                                <div class="card-actions">
-                                    <button class="btn btn-sm btn-outline-secondary">View All</button>
-                                </div>
-                            </div>
-                            <div class="card-body">
-                                <div class="activity-list" id="recent-activity">
-                                    <div class="activity-item">
-                                        <div class="activity-icon">
-                                            <i class="fas fa-info-circle text-info"></i>
-                                        </div>
-                                        <div class="activity-details">
-                                            <p>Welcome to your admin dashboard. Start by exploring the management
-                                                section.</p>
-                                            <span class="activity-time">Just now</span>
-                                        </div>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-
-                    <div class="col-md-4">
-                        <div class="card">
-                            <div class="card-header">
-                                <h4>Quick Actions</h4>
-                            </div>
-                            <div class="card-body">
-                                <a href="admin-management.html" class="btn btn-primary btn-block mb-2">
-                                    <i class="fas fa-users-cog"></i> Manage Users
-                                </a>
-                                <a href="admin-tests.html" class="btn btn-success btn-block mb-2">
-                                    <i class="fas fa-clipboard-check"></i> View All Tests
-                                </a>
-                                <a href="admin-reports.html" class="btn btn-info btn-block mb-2">
-                                    <i class="fas fa-chart-pie"></i> View Reports
-                                </a>
-                                <a href="#" class="btn btn-warning btn-block" id="admin-settings-btn">
-                                    <i class="fas fa-cog"></i> System Settings
-                                </a>
-                            </div>
-                        </div>
+                <div class="td-card">
+                    <div class="td-card-header"><h3><i class="fas fa-exclamation-triangle" style="color:#ef4444;"></i> At-Risk Students</h3></div>
+                    <div class="td-card-body" id="at-risk-panel">
+                        <div class="adm-loading"><i class="fas fa-spinner fa-spin"></i> Loading…</div>
                     </div>
                 </div>
             </div>
+
         </main>
     </div>
+</div>
 
-    <!-- jQuery and Bootstrap JS -->
-    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
-    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/js/bootstrap.bundle.min.js"></script>
+<script type="module">
+    import { app, auth, db } from './js/firebase-config.js';
+    import { requireAuth } from './js/auth-check.js';
+    import { doc, getDoc, collection, getDocs, query, orderBy, limit } from 'https://www.gstatic.com/firebasejs/12.1.0/firebase-firestore.js';
+    import { signOut } from 'https://www.gstatic.com/firebasejs/12.1.0/firebase-auth.js';
 
-    <!-- Firebase SDK and Admin Dashboard Scripts -->
-    <script type="module">
-        import { app, auth, db } from './js/firebase-config.js';
-        import { requireAuth } from './js/auth-check.js';
-        import {
-            getFirestore, collection, getDocs, query, where, doc, getDoc,
-            orderBy, limit, Timestamp, setDoc, updateDoc
-        } from 'https://www.gstatic.com/firebasejs/12.1.0/firebase-firestore.js';
-        import { signOut } from 'https://www.gstatic.com/firebasejs/12.1.0/firebase-auth.js';
+    function initSidebar() {
+        const sidebar = document.getElementById('sidebar');
+        const toggle = document.getElementById('sidebar-toggle');
+        const overlay = document.getElementById('sidebar-overlay');
+        if (toggle && sidebar) toggle.addEventListener('click', () => {
+            sidebar.classList.toggle('active'); sidebar.classList.toggle('open');
+            overlay?.classList.toggle('active'); overlay?.classList.toggle('open');
+        });
+        if (overlay) overlay.addEventListener('click', () => {
+            sidebar.classList.remove('active','open'); overlay.classList.remove('active','open');
+        });
+    }
 
-        // Make auth and db available globally
-        window.auth = auth;
-        window.db = db;
+    document.addEventListener('DOMContentLoaded', async () => {
+        initSidebar();
+        try {
+            const { user } = await requireAuth(['admin']);
 
-        // Initialize dashboard
-        async function initDashboard() {
+            // Load admin name
+            let displayName = user.displayName || 'Administrator';
             try {
-                const { user } = await requireAuth(['admin']);
-
-                // Update UI with user info
-                const adminNameEl = document.getElementById('admin-name');
-                const userNameEl = document.querySelector('.user-name');
-                const sidebarNameEl = document.getElementById('sidebar-admin-name');
-
-                // Fetch admin profile if needed
-                let displayName = user.displayName || 'Administrator';
-                try {
-                    const adminDoc = await getDoc(doc(db, 'admins', user.uid));
-                    if (adminDoc.exists()) {
-                        displayName = adminDoc.data().name || displayName;
-                    } else {
-                        // Check users collection
-                        const userDoc = await getDoc(doc(db, 'users', user.uid));
-                        if (userDoc.exists()) {
-                            displayName = userDoc.data().firstName
-                                ? `${userDoc.data().firstName} ${userDoc.data().lastName || ''}`
-                                : (userDoc.data().displayName || displayName);
-                        }
-                    }
-                } catch (e) { console.error("Error fetching profile", e); }
-
-                if (adminNameEl) adminNameEl.textContent = displayName;
-                if (userNameEl) userNameEl.textContent = displayName;
-                if (sidebarNameEl) sidebarNameEl.textContent = displayName;
-
-                initSidebar();
-                initUserMenu();
-                loadDashboardStats();
-
-                // Logout handler
-                const logoutBtn = document.getElementById('admin-logout-btn');
-                if (logoutBtn) {
-                    logoutBtn.addEventListener('click', async (e) => {
-                        e.preventDefault();
-                        await signOut(auth);
-                        window.location.href = '/auth/login-fixed.html';
-                    });
+                const adminDoc = await getDoc(doc(db, 'admins', user.uid));
+                if (adminDoc.exists()) displayName = adminDoc.data().name || displayName;
+                else {
+                    const userDoc = await getDoc(doc(db, 'users', user.uid));
+                    if (userDoc.exists()) displayName = userDoc.data().name || userDoc.data().firstName || displayName;
                 }
+            } catch(e) {}
 
-                // Also handle sidebar logout button
-                const sidebarLogout = document.getElementById('logout-btn');
-                if (sidebarLogout) {
-                    sidebarLogout.addEventListener('click', async (e) => {
-                        e.preventDefault();
-                        await signOut(auth);
-                        window.location.href = '/auth/login-fixed.html';
-                    });
-                }
+            document.getElementById('admin-name').textContent = displayName;
+            document.getElementById('sidebar-admin-name').textContent = displayName;
 
-            } catch (e) {
-                console.error("Dashboard init failed", e);
-            }
-        }
+            document.getElementById('logout-btn').addEventListener('click', () => signOut(auth).then(() => window.location.href = 'auth/login-fixed.html'));
 
-        window.addEventListener('load', initDashboard);
+            // Load all metrics in parallel
+            const [usersSnap, studentsSnap, teachersSnap, schoolsSnap, testsSnap, resultsSnap] = await Promise.all([
+                getDocs(collection(db, 'users')),
+                getDocs(collection(db, 'students')),
+                getDocs(collection(db, 'teachers')),
+                getDocs(collection(db, 'schools')),
+                getDocs(collection(db, 'tests')),
+                getDocs(collection(db, 'results'))
+            ]);
 
-        // Initialize sidebar functionality
-        function initSidebar() {
-            const sidebar = document.getElementById('sidebar');
-            const sidebarToggle = document.getElementById('sidebar-toggle');
-            const mainContent = document.querySelector('.main-content');
-            const sidebarOverlay = document.getElementById('sidebar-overlay');
+            document.getElementById('m-users').textContent = usersSnap.size.toLocaleString();
+            document.getElementById('m-students').textContent = studentsSnap.size.toLocaleString();
+            document.getElementById('m-teachers').textContent = teachersSnap.size.toLocaleString();
+            document.getElementById('m-schools').textContent = schoolsSnap.size.toLocaleString();
+            document.getElementById('m-tests').textContent = testsSnap.size.toLocaleString();
+            document.getElementById('m-results').textContent = resultsSnap.size.toLocaleString();
 
-            // Toggle sidebar on button click
-            if (sidebarToggle && sidebar) {
-                sidebarToggle.addEventListener('click', (e) => {
-                    e.preventDefault();
-                    if (window.innerWidth <= 1024) {
-                        sidebar.classList.toggle('active');
-                        if (sidebarOverlay) sidebarOverlay.classList.toggle('active');
-                    } else {
-                        sidebar.classList.toggle('collapsed');
-                        mainContent.classList.toggle('expanded');
-                        // Save sidebar state to localStorage
-                        const isCollapsed = sidebar.classList.contains('collapsed');
-                        localStorage.setItem('sidebarCollapsed', isCollapsed);
-                    }
-                });
+            // Build activity feed from results (latest assessments)
+            const results = [];
+            resultsSnap.forEach(d => results.push({ id: d.id, ...d.data() }));
+            results.sort((a, b) => (b.timestamp?.seconds || 0) - (a.timestamp?.seconds || 0));
 
-                // Close sidebar when clicking outside on mobile
-                if (sidebarOverlay) {
-                    sidebarOverlay.addEventListener('click', () => {
-                        sidebar.classList.remove('active');
-                        sidebarOverlay.classList.remove('active');
-                    });
-                }
-                
-                document.addEventListener('click', (e) => {
-                    if (window.innerWidth <= 1024 &&
-                        !sidebar.contains(e.target) &&
-                        !sidebarToggle.contains(e.target) &&
-                        sidebar.classList.contains('active')) {
-                        sidebar.classList.remove('active');
-                        if (sidebarOverlay) sidebarOverlay.classList.remove('active');
-                    }
-                });
-
-                // Load saved sidebar state (desktop only)
-                if (window.innerWidth > 1024) {
-                    const isCollapsed = localStorage.getItem('sidebarCollapsed') === 'true';
-                    if (isCollapsed) {
-                        sidebar.classList.add('collapsed');
-                        mainContent.classList.add('expanded');
-                    }
-                }
-            }
-
-            // Handle sidebar menu items
-            const menuItems = document.querySelectorAll('.sidebar-nav .nav-link, .nav-menu .nav-link');
-            menuItems.forEach(item => {
-                item.addEventListener('click', (e) => {
-                    // Remove active class from all items
-                    menuItems.forEach(i => i.classList.remove('active'));
-                    // Add active class to clicked item
-                    item.classList.add('active');
-
-                    // Close sidebar on mobile after clicking a menu item
-                    if (window.innerWidth <= 1024) {
-                        sidebar.classList.remove('active');
-                        if (sidebarOverlay) sidebarOverlay.classList.remove('active');
-                    }
-                });
-            });
-        }
-
-        // Initialize user menu dropdown
-        function initUserMenu() {
-            const userMenu = document.getElementById('user-menu');
-            const userMenuButton = document.getElementById('user-menu-button');
-
-            if (!userMenu || !userMenuButton) return;
-
-            let menuOpen = false;
-
-            // Toggle menu on button click
-            userMenuButton.addEventListener('click', (e) => {
-                e.stopPropagation();
-                menuOpen = !menuOpen;
-                const dropdownMenu = userMenu.querySelector('.dropdown-menu');
-                if (menuOpen) {
-                    dropdownMenu.style.display = 'block';
-                    setTimeout(() => {
-                        dropdownMenu.setAttribute('data-visible', 'true');
-                    }, 10);
-                } else {
-                    dropdownMenu.setAttribute('data-visible', 'false');
-                    setTimeout(() => {
-                        dropdownMenu.style.display = 'none';
-                    }, 200); // Match this with CSS transition time
-                }
-                userMenuButton.setAttribute('aria-expanded', menuOpen);
-            });
-
-            // Close menu when clicking outside
-            document.addEventListener('click', (e) => {
-                if (menuOpen && !userMenu.contains(e.target)) {
-                    menuOpen = false;
-                    const dropdownMenu = userMenu.querySelector('.dropdown-menu');
-                    dropdownMenu.setAttribute('data-visible', 'false');
-                    userMenuButton.setAttribute('aria-expanded', 'false');
-                    setTimeout(() => {
-                        dropdownMenu.style.display = 'none';
-                    }, 200); // Match this with CSS transition time
-                }
-            });
-
-            // Close menu when pressing Escape
-            document.addEventListener('keydown', (e) => {
-                if (e.key === 'Escape' && menuOpen) {
-                    menuOpen = false;
-                    const dropdownMenu = userMenu.querySelector('.dropdown-menu');
-                    dropdownMenu.setAttribute('data-visible', 'false');
-                    userMenuButton.setAttribute('aria-expanded', 'false');
-                    setTimeout(() => {
-                        dropdownMenu.style.display = 'none';
-                    }, 200); // Match this with CSS transition time
-                }
-            });
-        }
-
-        // Load dashboard statistics
-        async function loadDashboardStats() {
-            // Wait a small amount of time to ensure all elements are in the DOM
-            await new Promise(resolve => setTimeout(resolve, 100));
-
-            const statsContainer = document.querySelector('.stats-container');
-            const loadingHTML = '<div class="text-center py-4"><div class="spinner-border text-primary" role="status"><span class="visually-hidden">Loading...</span></div></div>';
-
-            // Debug: Log all elements with the expected IDs
-            console.log('Looking for stats elements:', {
-                'total-teachers': document.getElementById('total-teachers'),
-                'total-students': document.getElementById('total-students'),
-                'total-tests': document.getElementById('total-tests'),
-                'avg-score': document.getElementById('avg-score')
-            });
-
-            // Show loading state if container exists
-            if (statsContainer) {
-                // Store the original content
-                const originalContent = statsContainer.innerHTML;
-
-                // Add loading class and spinner
-                statsContainer.classList.add('loading');
-                const spinner = document.createElement('div');
-                spinner.className = 'loading-spinner';
-                spinner.innerHTML = '<div class="spinner-border text-primary" role="status"><span class="visually-hidden">Loading...</span></div>';
-                statsContainer.appendChild(spinner);
-
-                // Restore original content after loading
-                const restoreContent = () => {
-                    statsContainer.classList.remove('loading');
-                    if (spinner.parentNode === statsContainer) {
-                        statsContainer.removeChild(spinner);
-                    }
-                    return originalContent;
-                };
-
-                // Store the restore function for later use
-                statsContainer._restoreContent = restoreContent;
+            const actFeed = document.getElementById('activity-feed');
+            const recentResults = results.slice(0, 8);
+            if (recentResults.length === 0) {
+                actFeed.innerHTML = '<p style="text-align:center; padding:1rem; color:var(--sd-text-3);">No recent activity.</p>';
             } else {
-                console.warn('Stats container not found. Make sure an element with class "stats-container" exists in the DOM.');
-                return; // Exit if no container found
-            }
-
-            try {
-
-                // Fetch all necessary data in parallel
-                const [teachersSnapshot, studentsSnapshot, testsSnapshot] = await Promise.all([
-                    getDocs(collection(db, 'teachers')),
-                    getDocs(collection(db, 'students')),
-                    getDocs(collection(db, 'tests'))
-                ]);
-
-                // Process the data
-                const totalTeachers = teachersSnapshot.size;
-                const totalStudents = studentsSnapshot.size;
-                const activeTests = testsSnapshot.size;
-
-                // Calculate average score (example: get from student test results)
-                let totalScore = 0;
-                let scoreCount = 0;
-
-                studentsSnapshot.forEach(doc => {
-                    const student = doc.data();
-                    if (student.averageScore) {
-                        totalScore += student.averageScore;
-                        scoreCount++;
-                    }
-                });
-
-                const avgScore = scoreCount > 0 ? Math.round((totalScore / scoreCount) * 100) / 100 : 0;
-
-                // Update the UI with real data - safely update each element if it exists
-                // Update the stats cards with proper null checks
-                const updateIfExists = (id, value) => {
-                    const el = document.getElementById(id);
-                    if (el) el.textContent = value;
-                };
-
-                updateIfExists('total-teachers', totalTeachers);
-                updateIfExists('total-students', totalStudents);
-                updateIfExists('total-tests', activeTests);
-                updateIfExists('avg-score', `${avgScore}%`);
-
-                // Update the admin's name
-                const adminName = document.getElementById('admin-name');
-                const user = auth.currentUser;
-                if (user) {
-                    const userDoc = await getDoc(doc(db, 'admins', user.uid));
-                    if (userDoc.exists()) {
-                        const userData = userDoc.data();
-                        const displayName = userData.name || user.displayName || 'Administrator';
-                        adminName.textContent = displayName;
-
-                        // Also update the name in the top bar
-                        const topBarName = document.querySelector('.user-name');
-                        if (topBarName) {
-                            topBarName.textContent = displayName;
-                        }
-                    }
-                }
-
-                // Load recent activity
-                await loadRecentActivity();
-
-                // Update the welcome message with the current time
-                updateWelcomeMessage();
-
-            } catch (error) {
-                console.error('Error loading dashboard stats:', error);
-                // Show error message
-                const statsContainer = document.querySelector('.stats-container');
-                if (statsContainer) {
-                    statsContainer.innerHTML = `
-                        <div class="alert alert-danger">
-                            <i class="fas fa-exclamation-triangle me-2"></i>
-                            Error loading dashboard data. Please refresh the page or try again later.
+                actFeed.innerHTML = recentResults.map(r => {
+                    const name = r.studentName || r.userName || 'A student';
+                    const wpm = r.wpm ? Math.round(r.wpm) + ' WPM' : '';
+                    const acc = r.accuracy ? Math.round(r.accuracy) + '% accuracy' : '';
+                    const detail = [wpm, acc].filter(Boolean).join(', ');
+                    const ts = r.timestamp?.seconds ? timeAgo(r.timestamp.seconds * 1000) : 'Recently';
+                    const colors = ['#4f46e5','#3b82f6','#14b8a6','#f59e0b','#ec4899','#8b5cf6'];
+                    const color = colors[Math.floor(Math.random() * colors.length)];
+                    return `<div class="adm-activity-item">
+                        <div class="adm-activity-dot" style="background:${color};"></div>
+                        <div>
+                            <div class="adm-activity-text"><strong>${name}</strong> completed an assessment${detail ? ' — ' + detail : ''}</div>
+                            <div class="adm-activity-time">${ts}</div>
                         </div>
-                    `;
-                }
-            }
-        }
-
-        // Load recent activity
-        async function loadRecentActivity() {
-            try {
-                const activityContainer = document.getElementById('recent-activity');
-                if (!activityContainer) return;
-
-                // Show loading state
-                activityContainer.innerHTML = '<div class="text-center py-4"><div class="spinner-border text-primary" role="status"><span class="visually-hidden">Loading...</span></div></div>';
-
-                // Fetch recent tests and sort by date
-                const testsQuery = query(collection(db, 'tests'), orderBy('createdAt', 'desc'), limit(5));
-                const testsSnapshot = await getDocs(testsQuery);
-
-                if (testsSnapshot.empty) {
-                    activityContainer.innerHTML = '<div class="text-muted text-center py-4">No recent activity found.</div>';
-                    return;
-                }
-
-                // Process and display recent activity
-                let activityHTML = '';
-                const now = new Date();
-
-                testsSnapshot.forEach(doc => {
-                    const test = doc.data();
-                    const testDate = test.createdAt ? test.createdAt.toDate() : now;
-                    const timeAgo = formatTimeAgo(testDate, now);
-
-                    activityHTML += `
-                        <div class="activity-item" data-test-id="${doc.id}" style="cursor: pointer;">
-                            <div class="activity-icon">
-                                <i class="fas fa-file-alt"></i>
-                            </div>
-                            <div class="activity-details">
-                                <h5>New Test Created</h5>
-                                <p class="mb-0 text-primary">${test.testName || 'Untitled Test'}</p>
-                                <div class="d-flex justify-content-between align-items-center">
-                                    <small class="text-muted">${timeAgo}</small>
-                                    <small class="text-primary">View Details <i class="fas fa-chevron-right ms-1"></i></small>
-                                </div>
-                            </div>
-                        </div>
-                    `;
-                });
-
-                activityContainer.innerHTML = activityHTML;
-
-                // Add click event listeners to activity items
-                document.querySelectorAll('.activity-item').forEach(item => {
-                    item.addEventListener('click', (e) => {
-                        const testId = item.getAttribute('data-test-id');
-                        if (testId) {
-                            window.location.href = `test-details.html?id=${testId}`;
-                        }
-                    });
-
-                    // Add hover effect
-                    item.addEventListener('mouseenter', () => {
-                        item.style.backgroundColor = '#f8f9fa';
-                    });
-                    item.addEventListener('mouseleave', () => {
-                        item.style.backgroundColor = '';
-                    });
-                });
-
-            } catch (error) {
-                console.error('Error loading recent activity:', error);
-                const activityContainer = document.getElementById('recent-activity');
-                if (activityContainer) {
-                    activityContainer.innerHTML = `
-                        <div class="text-danger">
-                            <i class="fas fa-exclamation-circle me-2"></i>
-                            Failed to load recent activity
-                        </div>
-                    `;
-                }
-            }
-        }
-
-        // Helper function to format time ago
-        function formatTimeAgo(date, now) {
-            const seconds = Math.floor((now - date) / 1000);
-
-            const intervals = {
-                year: 31536000,
-                month: 2592000,
-                week: 604800,
-                day: 86400,
-                hour: 3600,
-                minute: 60
-            };
-
-            for (const [unit, secondsInUnit] of Object.entries(intervals)) {
-                const interval = Math.floor(seconds / secondsInUnit);
-                if (interval >= 1) {
-                    return interval === 1 ? `1 ${unit} ago` : `${interval} ${unit}s ago`;
-                }
+                    </div>`;
+                }).join('');
             }
 
-            return 'Just now';
-        }
+            // At-risk students (low WPM or accuracy)
+            const studentMap = {};
+            studentsSnap.forEach(d => studentMap[d.id] = d.data());
 
-        // Update welcome message based on time of day
-        function updateWelcomeMessage() {
-            const hour = new Date().getHours();
-            let greeting = 'Welcome';
+            const riskStudents = {};
+            results.forEach(r => {
+                const uid = r.userId || r.studentId;
+                if (!uid || riskStudents[uid]) return;
+                const wpm = r.wpm || r.fluency?.wordsPerMinute;
+                const acc = r.accuracy || r.fluency?.accuracyRate;
+                if ((wpm != null && wpm < 30) || (acc != null && acc < 70)) {
+                    const sData = studentMap[uid] || {};
+                    riskStudents[uid] = {
+                        name: r.studentName || sData.name || sData.displayName || 'Student',
+                        wpm: wpm != null ? Math.round(wpm) : null,
+                        acc: acc != null ? Math.round(acc) : null
+                    };
+                }
+            });
 
-            if (hour < 12) {
-                greeting = 'Good morning';
-            } else if (hour < 18) {
-                greeting = 'Good afternoon';
+            const riskPanel = document.getElementById('at-risk-panel');
+            const riskArr = Object.values(riskStudents).slice(0, 8);
+            if (riskArr.length === 0) {
+                riskPanel.innerHTML = '<p style="text-align:center; padding:1.5rem; color:var(--sd-text-3);"><i class="fas fa-check-circle" style="color:#10b981;font-size:1.3rem;"></i><br>No at-risk students detected.</p>';
             } else {
-                greeting = 'Good evening';
+                riskPanel.innerHTML = riskArr.map(s => {
+                    const detail = [s.wpm != null ? s.wpm + ' WPM' : null, s.acc != null ? s.acc + '%' : null].filter(Boolean).join(' · ');
+                    return `<div class="adm-risk-item">
+                        <div class="adm-risk-dot"></div>
+                        <div><div class="adm-risk-name">${s.name}</div><div class="adm-risk-detail">${detail}</div></div>
+                        <div class="adm-risk-badge">NEEDS HELP</div>
+                    </div>`;
+                }).join('');
             }
 
-            const welcomeElement = document.querySelector('.welcome-section h3');
-            if (welcomeElement) {
-                const name = document.getElementById('admin-name').textContent;
-                welcomeElement.textContent = `${greeting}, ${name}!`;
-            }
-        }
+        } catch (e) { console.error('Admin init error:', e); }
+    });
 
-        // Handle logout
-        async function handleLogout(e) {
-            e.preventDefault();
-
-            try {
-                // Clear admin session
-                sessionStorage.removeItem('isAdmin');
-
-                // Sign out from Firebase
-                await signOut(auth);
-
-                // Redirect to login page
-                window.location.href = '/auth/login-fixed.html';
-            } catch (error) {
-                console.error('Error signing out:', error);
-                alert('Error signing out. Please try again.');
-            }
-        }
-
-        // (End of script)
-    </script>
+    function timeAgo(ms) {
+        const diff = Date.now() - ms;
+        const mins = Math.floor(diff / 60000);
+        if (mins < 1) return 'Just now';
+        if (mins < 60) return mins + 'm ago';
+        const hrs = Math.floor(mins / 60);
+        if (hrs < 24) return hrs + 'h ago';
+        const days = Math.floor(hrs / 24);
+        return days + 'd ago';
+    }
+</script>
 </body>
-
 </html>

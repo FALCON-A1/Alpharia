@@ -1,0 +1,428 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Intervention Lesson Builder — Alpharia</title>
+    <meta name="description" content="Build custom intervention lessons by selecting activities for phonics, fluency, vocabulary, and comprehension.">
+
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link rel="stylesheet" href="css/student-dashboard-clean.css">
+    <link rel="stylesheet" href="css/teacher-dashboard-clean.css">
+
+    <style>
+        @keyframes fadeIn { from { opacity:0; transform:translateY(10px);} to { opacity:1; transform:translateY(0);} }
+
+        .lb-layout {
+            display: grid;
+            grid-template-columns: 1fr 380px;
+            gap: 1.5rem;
+            align-items: start;
+        }
+        @media (max-width: 900px) {
+            .lb-layout { grid-template-columns: 1fr; }
+        }
+
+        /* Activity picker */
+        .lb-picker-header {
+            display: flex; flex-wrap: wrap; gap: 0.5rem; margin-bottom: 1rem; align-items: center;
+        }
+        .lb-pill {
+            padding: 0.4rem 0.85rem; border-radius: 50px; font-size: 0.75rem; font-weight: 700;
+            cursor: pointer; border: 1.5px solid var(--sd-border); background: var(--sd-surface);
+            color: var(--sd-text-2); transition: var(--sd-transition);
+        }
+        .lb-pill:hover { border-color: var(--sd-primary); color: var(--sd-primary); }
+        .lb-pill.active { background: var(--sd-primary); color: white; border-color: var(--sd-primary); }
+
+        .lb-act-list {
+            display: flex; flex-direction: column; gap: 0.6rem;
+            max-height: 60vh; overflow-y: auto; padding-right: 0.25rem;
+        }
+        .lb-act-item {
+            display: flex; align-items: center; gap: 0.75rem;
+            padding: 0.85rem 1rem; background: var(--sd-surface);
+            border: 1.5px solid var(--sd-border); border-radius: var(--sd-radius-sm);
+            cursor: pointer; transition: var(--sd-transition);
+        }
+        .lb-act-item:hover { border-color: var(--sd-primary); background: var(--sd-primary-lt); }
+        .lb-act-item.added { opacity: 0.5; pointer-events: none; }
+        .lb-act-item-icon {
+            width: 36px; height: 36px; border-radius: 10px;
+            display: flex; align-items: center; justify-content: center; font-size: 0.85rem; flex-shrink: 0;
+        }
+        .lb-act-item-info { flex: 1; min-width: 0; }
+        .lb-act-item-title { font-size: 0.82rem; font-weight: 700; color: var(--sd-text); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+        .lb-act-item-meta { font-size: 0.68rem; color: var(--sd-text-3); }
+        .lb-act-item-add { color: var(--sd-primary); font-size: 1rem; }
+
+        /* Lesson plan panel */
+        .lb-plan {
+            background: var(--sd-surface);
+            border: 1.5px solid var(--sd-border);
+            border-radius: var(--sd-radius);
+            padding: 1.5rem;
+            position: sticky; top: 1rem;
+        }
+        .lb-plan-title { font-size: 1.1rem; font-weight: 800; color: var(--sd-text); margin-bottom: 0.25rem; }
+        .lb-plan-sub { font-size: 0.78rem; color: var(--sd-text-3); margin-bottom: 1rem; }
+
+        .lb-plan-input {
+            width: 100%; padding: 0.6rem 0.85rem; border: 1.5px solid var(--sd-border);
+            border-radius: var(--sd-radius-sm); font-family: inherit; font-size: 0.85rem;
+            background: var(--sd-surface-2); color: var(--sd-text); margin-bottom: 1rem;
+        }
+        .lb-plan-input:focus { outline: none; border-color: var(--sd-primary); }
+
+        .lb-plan-list {
+            min-height: 120px;
+            display: flex; flex-direction: column; gap: 0.5rem;
+            margin-bottom: 1rem;
+        }
+        .lb-plan-empty {
+            display: flex; flex-direction: column; align-items: center; justify-content: center;
+            padding: 2rem; color: var(--sd-text-3); font-size: 0.82rem; text-align: center;
+            border: 2px dashed var(--sd-border); border-radius: var(--sd-radius-sm);
+        }
+        .lb-plan-empty i { font-size: 1.5rem; margin-bottom: 0.5rem; opacity: 0.3; }
+
+        .lb-plan-item {
+            display: flex; align-items: center; gap: 0.6rem;
+            padding: 0.7rem 0.85rem; background: var(--sd-surface-2);
+            border: 1px solid var(--sd-border); border-radius: var(--sd-radius-sm);
+            animation: fadeIn 0.3s ease-out;
+        }
+        .lb-plan-item-num {
+            width: 24px; height: 24px; border-radius: 50%;
+            display: flex; align-items: center; justify-content: center;
+            background: var(--sd-primary); color: white; font-size: 0.65rem; font-weight: 800; flex-shrink: 0;
+        }
+        .lb-plan-item-info { flex: 1; min-width: 0; }
+        .lb-plan-item-title { font-size: 0.78rem; font-weight: 700; color: var(--sd-text); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+        .lb-plan-item-cat { font-size: 0.65rem; color: var(--sd-text-3); }
+        .lb-plan-item-remove {
+            background: none; border: none; color: var(--sd-text-3);
+            cursor: pointer; font-size: 0.85rem; padding: 0.2rem;
+        }
+        .lb-plan-item-remove:hover { color: #ef4444; }
+
+        .lb-plan-stats {
+            display: flex; gap: 1rem; padding: 0.75rem 0; border-top: 1px solid var(--sd-border);
+            margin-bottom: 1rem;
+        }
+        .lb-plan-stat { text-align: center; flex: 1; }
+        .lb-plan-stat-val { font-size: 1.1rem; font-weight: 800; color: var(--sd-primary); }
+        .lb-plan-stat-label { font-size: 0.6rem; font-weight: 700; color: var(--sd-text-3); text-transform: uppercase; }
+
+        .lb-save-btn {
+            width: 100%; padding: 0.75rem; border-radius: var(--sd-radius-sm);
+            background: var(--sd-primary); color: white; border: none;
+            font-size: 0.88rem; font-weight: 700; font-family: inherit;
+            cursor: pointer; transition: var(--sd-transition);
+            display: flex; align-items: center; justify-content: center; gap: 0.4rem;
+        }
+        .lb-save-btn:hover { opacity: 0.9; }
+        .lb-save-btn:disabled { opacity: 0.5; cursor: not-allowed; }
+
+        .lb-toast {
+            position: fixed; bottom: 2rem; right: 2rem; padding: 1rem 1.5rem;
+            background: #10b981; color: white; border-radius: var(--sd-radius-sm);
+            font-size: 0.85rem; font-weight: 700; box-shadow: var(--sd-shadow-md);
+            animation: fadeIn 0.3s ease-out; z-index: 9999;
+        }
+    </style>
+</head>
+
+<body class="sd-page">
+<div class="sd-shell">
+    <!-- SIDEBAR -->
+    <aside class="sd-sidebar" id="sidebar">
+        <a href="teacher-dashboard.html" class="sd-sidebar-brand">
+            <div class="sd-brand-icon"><i class="fas fa-book-open"></i></div>
+            <span class="sd-brand-text">Alpharia</span>
+        </a>
+        <nav class="sd-nav">
+            <span class="sd-nav-section-label">Main Menu</span>
+            <a href="teacher-dashboard.html" class="sd-nav-link"><i class="fas fa-tachometer-alt"></i><span>Dashboard</span></a>
+            <a href="create-test.html" class="sd-nav-link"><i class="fas fa-plus-circle"></i><span>Create Test</span></a>
+            <a href="my-tests.html" class="sd-nav-link"><i class="fas fa-clipboard-list"></i><span>My Tests</span></a>
+            <span class="sd-nav-section-label">Analytics</span>
+            <a href="teacher-progress.html" class="sd-nav-link"><i class="fas fa-chart-line"></i><span>Progress</span></a>
+            <a href="teacher-reports.html" class="sd-nav-link"><i class="fas fa-file-pdf"></i><span>Reports</span></a>
+            <a href="resources.html" class="sd-nav-link"><i class="fas fa-book"></i><span>Resources</span></a>
+            <span class="sd-nav-section-label">Tools</span>
+            <a href="lesson-builder.html" class="sd-nav-link active"><i class="fas fa-hammer"></i><span>Lesson Builder</span></a>
+            <span class="sd-nav-section-label">Account</span>
+            <a href="teacher-settings.html" class="sd-nav-link"><i class="fas fa-cog"></i><span>Settings</span></a>
+        </nav>
+        <div class="sd-sidebar-footer">
+            <div class="sd-sidebar-user">
+                <img src="" alt="" class="sd-sidebar-avatar" id="user-avatar-sidebar">
+                <div class="sd-sidebar-user-info">
+                    <div class="sd-sidebar-user-name" id="sidebar-teacher-name">Loading…</div>
+                    <div class="sd-sidebar-user-role">Teacher</div>
+                </div>
+                <button class="sd-icon-btn" id="logout-btn" title="Sign Out" style="margin-left:auto; color:var(--sd-text-3);"><i class="fas fa-sign-out-alt"></i></button>
+            </div>
+        </div>
+    </aside>
+    <div class="sd-sidebar-overlay" id="sidebar-overlay"></div>
+
+    <!-- MAIN -->
+    <div class="sd-main">
+        <header class="sd-topbar">
+            <button class="sd-topbar-toggle menu-toggle d-lg-none" id="sidebar-toggle"><i class="fas fa-bars"></i></button>
+            <div style="font-weight:700; color:var(--sd-text);">Intervention Lesson Builder</div>
+            <div class="sd-topbar-actions">
+                <a href="resources.html" class="sd-btn sd-btn-outline" style="font-size:0.78rem; padding:0.35rem 0.85rem; text-decoration:none;">
+                    <i class="fas fa-book"></i> Library
+                </a>
+            </div>
+        </header>
+
+        <main class="sd-body" style="animation: fadeIn 0.4s ease-out;">
+            <div class="lb-layout">
+                <!-- LEFT: Activity Picker -->
+                <div>
+                    <div class="td-card">
+                        <div class="td-card-header">
+                            <h3><i class="fas fa-puzzle-piece"></i> Activity Library</h3>
+                        </div>
+                        <div class="td-card-body">
+                            <div class="lb-picker-header" id="cat-pills"></div>
+                            <div class="lb-act-list" id="activity-list"></div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- RIGHT: Lesson Plan -->
+                <div class="lb-plan" id="lesson-plan">
+                    <div class="lb-plan-title"><i class="fas fa-clipboard-list" style="color:var(--sd-primary); margin-right:0.4rem;"></i> Your Lesson Plan</div>
+                    <div class="lb-plan-sub">Add activities from the left to build a custom lesson.</div>
+
+                    <input type="text" class="lb-plan-input" id="lesson-name" placeholder="Lesson name (e.g. Week 3 Phonics Focus)" maxlength="80">
+
+                    <div class="lb-plan-list" id="plan-list">
+                        <div class="lb-plan-empty">
+                            <i class="fas fa-plus-circle"></i>
+                            Click activities to add them here
+                        </div>
+                    </div>
+
+                    <div class="lb-plan-stats" id="plan-stats" style="display:none;">
+                        <div class="lb-plan-stat">
+                            <div class="lb-plan-stat-val" id="stat-count">0</div>
+                            <div class="lb-plan-stat-label">Activities</div>
+                        </div>
+                        <div class="lb-plan-stat">
+                            <div class="lb-plan-stat-val" id="stat-time">0 min</div>
+                            <div class="lb-plan-stat-label">Total Time</div>
+                        </div>
+                        <div class="lb-plan-stat">
+                            <div class="lb-plan-stat-val" id="stat-skills">0</div>
+                            <div class="lb-plan-stat-label">Skills</div>
+                        </div>
+                    </div>
+
+                    <button class="lb-save-btn" id="save-btn" disabled>
+                        <i class="fas fa-save"></i> Save Lesson Plan
+                    </button>
+                </div>
+            </div>
+        </main>
+    </div>
+</div>
+
+<script type="module">
+    import { auth, db } from './js/firebase-config.js';
+    import { requireAuth } from './js/auth-check.js';
+    import { doc, getDoc, collection, addDoc, serverTimestamp } from 'https://www.gstatic.com/firebasejs/12.1.0/firebase-firestore.js';
+    import { signOut } from 'https://www.gstatic.com/firebasejs/12.1.0/firebase-auth.js';
+    import { ACTIVITIES, CATEGORIES, getCategoryMeta } from './js/intervention-data.js';
+
+    let activeCat = null;
+    let lessonPlan = [];
+    let currentUser = null;
+
+    function initSidebar() {
+        const sidebar = document.getElementById('sidebar');
+        const toggle = document.getElementById('sidebar-toggle');
+        const overlay = document.getElementById('sidebar-overlay');
+        if (toggle && sidebar) toggle.addEventListener('click', () => {
+            sidebar.classList.toggle('active'); sidebar.classList.toggle('open');
+            overlay?.classList.toggle('active'); overlay?.classList.toggle('open');
+        });
+        if (overlay) overlay.addEventListener('click', () => {
+            sidebar.classList.remove('active', 'open'); overlay.classList.remove('active', 'open');
+        });
+    }
+
+    function buildCatPills() {
+        const container = document.getElementById('cat-pills');
+        let html = `<button class="lb-pill ${!activeCat ? 'active' : ''}" data-cat="">All</button>`;
+        CATEGORIES.forEach(c => {
+            html += `<button class="lb-pill ${activeCat === c.id ? 'active' : ''}" data-cat="${c.id}">
+                <i class="fas ${c.icon}" style="font-size:0.7rem;"></i> ${c.label}
+            </button>`;
+        });
+        container.innerHTML = html;
+        container.querySelectorAll('.lb-pill').forEach(btn => {
+            btn.addEventListener('click', () => {
+                activeCat = btn.dataset.cat || null;
+                buildCatPills();
+                renderActivityList();
+            });
+        });
+    }
+
+    function renderActivityList() {
+        const list = document.getElementById('activity-list');
+        const filtered = activeCat ? ACTIVITIES.filter(a => a.category === activeCat) : ACTIVITIES;
+        const addedIds = new Set(lessonPlan.map(a => a.id));
+
+        list.innerHTML = filtered.map(act => {
+            const cat = getCategoryMeta(act.category);
+            const isAdded = addedIds.has(act.id);
+            return `
+                <div class="lb-act-item ${isAdded ? 'added' : ''}" data-id="${act.id}">
+                    <div class="lb-act-item-icon" style="background:${cat.bg}; color:${cat.color};"><i class="fas ${cat.icon}"></i></div>
+                    <div class="lb-act-item-info">
+                        <div class="lb-act-item-title">${act.title}</div>
+                        <div class="lb-act-item-meta">${cat.label} · ${act.duration} · ${act.difficulty}</div>
+                    </div>
+                    <div class="lb-act-item-add">${isAdded ? '<i class="fas fa-check"></i>' : '<i class="fas fa-plus-circle"></i>'}</div>
+                </div>
+            `;
+        }).join('');
+
+        list.querySelectorAll('.lb-act-item:not(.added)').forEach(item => {
+            item.addEventListener('click', () => {
+                const act = ACTIVITIES.find(a => a.id === item.dataset.id);
+                if (act && !lessonPlan.find(a => a.id === act.id)) {
+                    lessonPlan.push(act);
+                    renderPlan();
+                    renderActivityList();
+                }
+            });
+        });
+    }
+
+    function renderPlan() {
+        const planList = document.getElementById('plan-list');
+        const statsEl = document.getElementById('plan-stats');
+        const saveBtn = document.getElementById('save-btn');
+
+        if (lessonPlan.length === 0) {
+            planList.innerHTML = `<div class="lb-plan-empty"><i class="fas fa-plus-circle"></i>Click activities to add them here</div>`;
+            statsEl.style.display = 'none';
+            saveBtn.disabled = true;
+            return;
+        }
+
+        planList.innerHTML = lessonPlan.map((act, i) => {
+            const cat = getCategoryMeta(act.category);
+            return `
+                <div class="lb-plan-item">
+                    <div class="lb-plan-item-num">${i + 1}</div>
+                    <div class="lb-plan-item-info">
+                        <div class="lb-plan-item-title">${act.title}</div>
+                        <div class="lb-plan-item-cat">${cat.label} · ${act.duration}</div>
+                    </div>
+                    <button class="lb-plan-item-remove" data-id="${act.id}" title="Remove"><i class="fas fa-times"></i></button>
+                </div>
+            `;
+        }).join('');
+
+        // Remove handlers
+        planList.querySelectorAll('.lb-plan-item-remove').forEach(btn => {
+            btn.addEventListener('click', (e) => {
+                e.stopPropagation();
+                lessonPlan = lessonPlan.filter(a => a.id !== btn.dataset.id);
+                renderPlan();
+                renderActivityList();
+            });
+        });
+
+        // Stats
+        const totalTime = lessonPlan.reduce((sum, a) => sum + parseInt(a.duration) || 0, 0);
+        const allSkills = new Set(lessonPlan.flatMap(a => a.skills || []));
+        document.getElementById('stat-count').textContent = lessonPlan.length;
+        document.getElementById('stat-time').textContent = totalTime + ' min';
+        document.getElementById('stat-skills').textContent = allSkills.size;
+        statsEl.style.display = 'flex';
+        saveBtn.disabled = false;
+    }
+
+    async function saveLessonPlan() {
+        const name = document.getElementById('lesson-name').value.trim() || 'Untitled Lesson';
+        const saveBtn = document.getElementById('save-btn');
+        saveBtn.disabled = true;
+        saveBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Saving…';
+
+        try {
+            await addDoc(collection(db, 'lessonPlans'), {
+                name,
+                teacherId: currentUser?.uid || 'unknown',
+                activities: lessonPlan.map(a => ({
+                    id: a.id,
+                    title: a.title,
+                    category: a.category,
+                    level: a.level,
+                    duration: a.duration,
+                    type: a.type
+                })),
+                totalDuration: lessonPlan.reduce((s, a) => s + (parseInt(a.duration) || 0), 0),
+                activityCount: lessonPlan.length,
+                createdAt: serverTimestamp()
+            });
+
+            // Show toast
+            const toast = document.createElement('div');
+            toast.className = 'lb-toast';
+            toast.innerHTML = '<i class="fas fa-check-circle"></i> Lesson plan saved!';
+            document.body.appendChild(toast);
+            setTimeout(() => toast.remove(), 3000);
+
+            // Reset
+            lessonPlan = [];
+            document.getElementById('lesson-name').value = '';
+            renderPlan();
+            renderActivityList();
+        } catch (e) {
+            console.error('Error saving lesson plan:', e);
+            alert('Error saving lesson plan. Please try again.');
+        }
+
+        saveBtn.disabled = false;
+        saveBtn.innerHTML = '<i class="fas fa-save"></i> Save Lesson Plan';
+    }
+
+    document.addEventListener('DOMContentLoaded', async () => {
+        initSidebar();
+        buildCatPills();
+        renderActivityList();
+        renderPlan();
+
+        document.getElementById('save-btn').addEventListener('click', saveLessonPlan);
+
+        try {
+            const { user } = await requireAuth(['teacher', 'admin']);
+            currentUser = user;
+            const teacherDoc = await getDoc(doc(db, 'teachers', user.uid));
+            let name = 'Teacher';
+            if (teacherDoc.exists()) name = teacherDoc.data().name || name;
+            else {
+                const userDoc = await getDoc(doc(db, 'users', user.uid));
+                if (userDoc.exists()) { const d = userDoc.data(); name = d.firstName ? `${d.firstName} ${d.lastName || ''}`.trim() : (d.name || 'Teacher'); }
+            }
+            document.getElementById('sidebar-teacher-name').textContent = name;
+            document.getElementById('user-avatar-sidebar').src = user.photoURL || `https://ui-avatars.com/api/?name=${encodeURIComponent(name)}&background=4f46e5&color=fff`;
+            document.getElementById('logout-btn')?.addEventListener('click', () => { signOut(auth).then(() => window.location.href = 'auth/login-fixed.html'); });
+        } catch (e) { console.error('Auth error:', e); }
+    });
+</script>
+</body>
+</html>

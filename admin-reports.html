@@ -1,233 +1,147 @@
 <!DOCTYPE html>
 <html lang="en">
-
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Admin Reports - Alpharia</title>
-    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap"
-        rel="stylesheet">
+    <title>Platform Reports — Admin — Alpharia</title>
+    <meta name="description" content="Platform-wide analytics and performance reports.">
+
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
-    <link rel="stylesheet" href="css/teacher-dashboard.css">
+    <link rel="stylesheet" href="css/student-dashboard-clean.css">
+    <link rel="stylesheet" href="css/teacher-dashboard-clean.css">
+
     <style>
-        .reports-container {
-            max-width: 1400px;
-            margin: 0 auto;
-            padding: 2rem;
-        }
+        @keyframes fadeIn { from{opacity:0;transform:translateY(10px)}to{opacity:1;transform:translateY(0)} }
 
-        .stats-grid {
-            display: grid;
-            grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
-            gap: 1.5rem;
-            margin: 2rem 0;
+        .ar-stats { display:grid; grid-template-columns:repeat(auto-fit, minmax(160px, 1fr)); gap:1rem; margin-bottom:2rem; }
+        .ar-stat {
+            background:var(--sd-surface); border:1.5px solid var(--sd-border); border-radius:var(--sd-radius);
+            padding:1.25rem; text-align:center; transition:0.2s;
         }
+        .ar-stat:hover { transform:translateY(-2px); box-shadow:var(--sd-shadow-sm); }
+        .ar-stat-icon { font-size:1.4rem; margin-bottom:0.5rem; }
+        .ar-stat-val { font-size:1.7rem; font-weight:800; color:var(--sd-text); }
+        .ar-stat-label { font-size:0.65rem; font-weight:700; color:var(--sd-text-3); text-transform:uppercase; letter-spacing:0.05em; }
 
-        .card {
-            background: white;
-            border-radius: 10px;
-            padding: 1.5rem;
-            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.05);
-            margin-bottom: 2rem;
+        .ar-export { display:flex; gap:0.75rem; margin-bottom:1.5rem; flex-wrap:wrap; align-items:center; }
+        .ar-btn {
+            display:inline-flex; align-items:center; gap:0.4rem;
+            padding:0.55rem 1rem; border-radius:var(--sd-radius-sm);
+            font-size:0.8rem; font-weight:700; font-family:inherit; cursor:pointer;
+            border:1.5px solid var(--sd-border); background:var(--sd-surface); color:var(--sd-text-2); transition:0.2s;
         }
+        .ar-btn:hover { border-color:var(--sd-primary); color:var(--sd-primary); }
+        .ar-btn-primary { background:var(--sd-primary); color:white; border-color:var(--sd-primary); }
+        .ar-btn-primary:hover { opacity:0.9; color:white; }
 
-        .card h2 {
-            margin-top: 0;
-            color: #333;
+        .ar-table-wrap { overflow-x:auto; }
+        .ar-table { width:100%; border-collapse:collapse; font-size:0.8rem; }
+        .ar-table th {
+            background:var(--sd-surface-2); padding:0.7rem 1rem; text-align:left;
+            font-weight:700; color:var(--sd-text); border-bottom:2px solid var(--sd-border);
+            font-size:0.68rem; text-transform:uppercase; letter-spacing:0.05em;
         }
+        .ar-table td { padding:0.6rem 1rem; border-bottom:1px solid var(--sd-border); color:var(--sd-text-2); }
+        .ar-table tr:hover td { background:var(--sd-surface-2); }
 
-        table {
-            width: 100%;
-            border-collapse: collapse;
-            margin-top: 1rem;
-        }
+        .ar-badge { display:inline-block; padding:0.15rem 0.5rem; border-radius:50px; font-size:0.65rem; font-weight:700; }
+        .ar-risk-high { background:rgba(239,68,68,0.1); color:#ef4444; }
+        .ar-risk-medium { background:rgba(245,158,11,0.1); color:#f59e0b; }
+        .ar-risk-low { background:rgba(16,185,129,0.1); color:#10b981; }
+        .ar-level-badge { background:var(--sd-primary-lt); color:var(--sd-primary); }
 
-        th,
-        td {
-            padding: 0.75rem;
-            text-align: left;
-            border-bottom: 1px solid #eee;
-        }
+        .ar-school-row { display:flex; align-items:center; gap:0.75rem; }
+        .ar-school-icon { width:32px; height:32px; border-radius:8px; display:flex; align-items:center; justify-content:center; font-size:0.85rem; background:rgba(20,184,166,0.1); color:#14b8a6; flex-shrink:0; }
 
-        .progress-bar {
-            height: 8px;
-            background: #e9ecef;
-            border-radius: 4px;
-            overflow: hidden;
-        }
-
-        .progress {
-            height: 100%;
-            background: #4a6cf7;
-            border-radius: 4px;
+        @media(max-width:768px) {
+            .ar-table th:nth-child(n+5), .ar-table td:nth-child(n+5) { display:none; }
         }
     </style>
 </head>
 
-<body class="teacher-dashboard">
-    <div class="dashboard-container">
-        <!-- Sidebar -->
-        <aside class="sidebar" id="sidebar">
-            <div class="logo">
-                <div class="logo-icon">
-                    <i class="fas fa-shield-alt"></i>
+<body class="sd-page">
+<div class="sd-shell">
+    <aside class="sd-sidebar" id="sidebar">
+        <div class="sd-sidebar-brand">
+            <div class="sd-brand-icon" style="background:linear-gradient(135deg,#4f46e5,#7c3aed);"><i class="fas fa-shield-alt"></i></div>
+            <span class="sd-brand-text">Alpharia <span style="font-size:0.55rem;background:rgba(245,158,11,0.2);color:#f59e0b;padding:0.1rem 0.4rem;border-radius:4px;margin-left:0.3rem;font-weight:800;">ADMIN</span></span>
+        </div>
+        <nav class="sd-nav">
+            <span class="sd-nav-section-label">Platform</span>
+            <a href="admin-dashboard.html" class="sd-nav-link"><i class="fas fa-chart-pie"></i><span>Dashboard</span></a>
+            <a href="admin-management.html" class="sd-nav-link"><i class="fas fa-users-cog"></i><span>Users & Schools</span></a>
+            <a href="admin-tests.html" class="sd-nav-link"><i class="fas fa-clipboard-list"></i><span>All Tests</span></a>
+            <a href="admin-create-test.html" class="sd-nav-link"><i class="fas fa-plus-circle"></i><span>Create Test</span></a>
+            <span class="sd-nav-section-label">Analytics</span>
+            <a href="admin-reports.html" class="sd-nav-link active"><i class="fas fa-chart-bar"></i><span>Reports</span></a>
+            <span class="sd-nav-section-label">Account</span>
+            <a href="admin-settings.html" class="sd-nav-link"><i class="fas fa-cog"></i><span>Settings</span></a>
+        </nav>
+        <div class="sd-sidebar-footer">
+            <div class="sd-sidebar-user">
+                <div class="sd-sidebar-user-info">
+                    <div class="sd-sidebar-user-name" id="sidebar-admin-name">Loading…</div>
+                    <div class="sd-sidebar-user-role">Platform Owner</div>
                 </div>
-                <h2>Alpharia <span class="admin-badge">Admin</span></h2>
+                <button class="sd-icon-btn" id="logout-btn" title="Sign Out" style="margin-left:auto;color:var(--sd-text-3);"><i class="fas fa-sign-out-alt"></i></button>
+            </div>
+        </div>
+    </aside>
+    <div class="sd-sidebar-overlay" id="sidebar-overlay"></div>
+
+    <div class="sd-main">
+        <header class="sd-topbar">
+            <button class="sd-topbar-toggle menu-toggle d-lg-none" id="sidebar-toggle"><i class="fas fa-bars"></i></button>
+            <div style="font-weight:700; color:var(--sd-text);">Platform Reports</div>
+            <div class="sd-topbar-actions"></div>
+        </header>
+
+        <main class="sd-body" style="animation:fadeIn 0.4s ease-out;">
+            <!-- Export -->
+            <div class="ar-export">
+                <button class="ar-btn ar-btn-primary" id="btn-export"><i class="fas fa-download"></i> Export CSV</button>
+                <button class="ar-btn" id="btn-print"><i class="fas fa-print"></i> Print Report</button>
+                <div style="flex:1;"></div>
+                <span style="font-size:0.75rem; color:var(--sd-text-3); font-weight:600;" id="report-date"></span>
             </div>
 
-            <nav class="nav-menu">
-                <div class="menu-title">Main Menu</div>
+            <!-- Summary -->
+            <div class="ar-stats">
+                <div class="ar-stat"><div class="ar-stat-icon">👥</div><div class="ar-stat-val" id="r-users">—</div><div class="ar-stat-label">Total Users</div></div>
+                <div class="ar-stat"><div class="ar-stat-icon">🏫</div><div class="ar-stat-val" id="r-schools">—</div><div class="ar-stat-label">Schools</div></div>
+                <div class="ar-stat"><div class="ar-stat-icon">📝</div><div class="ar-stat-val" id="r-assessments">—</div><div class="ar-stat-label">Assessments</div></div>
+                <div class="ar-stat"><div class="ar-stat-icon">📊</div><div class="ar-stat-val" id="r-avg-wpm">—</div><div class="ar-stat-label">Avg WPM</div></div>
+                <div class="ar-stat"><div class="ar-stat-icon">🎯</div><div class="ar-stat-val" id="r-avg-acc">—</div><div class="ar-stat-label">Avg Accuracy</div></div>
+                <div class="ar-stat"><div class="ar-stat-icon">📖</div><div class="ar-stat-val" id="r-tests">—</div><div class="ar-stat-label">Tests Created</div></div>
+            </div>
 
-                <div class="nav-item">
-                    <a href="admin-dashboard.html" class="nav-link">
-                        <i class="fas fa-tachometer-alt"></i>
-                        <span>Dashboard</span>
-                    </a>
-                </div>
-
-                <div class="nav-item">
-                    <a href="admin-management.html" class="nav-link">
-                        <i class="fas fa-users-cog"></i>
-                        <span>Management</span>
-                    </a>
-                </div>
-
-                <div class="nav-item">
-                    <a href="admin-tests.html" class="nav-link">
-                        <i class="fas fa-clipboard-list"></i>
-                        <span>All Tests</span>
-                    </a>
-                </div>
-
-                <div class="nav-item">
-                    <a href="admin-create-test.html" class="nav-link">
-                        <i class="fas fa-plus-circle"></i>
-                        <span>Create Test</span>
-                    </a>
-                </div>
-
-                <div class="menu-title mt-4">Analytics</div>
-
-                <div class="nav-item">
-                    <a href="admin-reports.html" class="nav-link active">
-                        <i class="fas fa-chart-bar"></i>
-                        <span>Reports</span>
-                    </a>
-                </div>
-
-                <div class="menu-title mt-4">Account</div>
-
-                <div class="nav-item">
-                    <a href="admin-settings.html" class="nav-link">
-                        <i class="fas fa-cog"></i>
-                        <span>Settings</span>
-                    </a>
-                </div>
-
-                <div class="nav-item">
-                    <a href="#" id="logout" class="nav-link">
-                        <i class="fas fa-sign-out-alt"></i>
-                        <span>Logout</span>
-                    </a>
-                </div>
-            </nav>
-        </aside>
-
-        <main class="main-content">
-            <header class="top-bar">
-                <div class="top-bar-left">
-                    <button class="sidebar-toggle" id="sidebar-toggle">
-                        <i class="fas fa-bars"></i>
-                    </button>
-                    <h1>Admin Reports</h1>
-                </div>
-                <div class="top-bar-right">
-                    <div class="user-menu">
-                        <img id="admin-avatar" src="https://ui-avatars.com/api/?name=Admin" alt="Admin">
-                        <span id="admin-name">Admin</span>
-                    </div>
-                </div>
-            </header>
-
-            <div class="reports-container">
-                <!-- Quick Stats -->
-                <div class="stats-grid">
-                    <div class="card">
-                        <h3>Total Teachers</h3>
-                        <div class="value" id="total-teachers">0</div>
-                    </div>
-                    <div class="card">
-                        <h3>Total Students</h3>
-                        <div class="value" id="total-students">0</div>
-                    </div>
-                    <div class="card">
-                        <h3>Active Tests</h3>
-                        <div class="value" id="active-tests">0</div>
-                    </div>
-                    <div class="card">
-                        <h3>Avg. Student Score</h3>
-                        <div class="value" id="avg-score">0%</div>
-                    </div>
-                </div>
-
-                <!-- Teacher Performance -->
-                <div class="card">
-                    <h2>Teacher Performance</h2>
-                    <div class="filters">
-                        <select id="time-period" class="form-control">
-                            <option value="week">This Week</option>
-                            <option value="month" selected>This Month</option>
-                            <option value="year">This Year</option>
-                        </select>
-                    </div>
-                    <div class="table-responsive">
-                        <table id="teacher-performance">
-                            <thead>
-                                <tr>
-                                    <th>Teacher</th>
-                                    <th>Students</th>
-                                    <th>Avg. Score</th>
-                                    <th>Tests Created</th>
-                                    <th>Progress</th>
-                                </tr>
-                            </thead>
-                            <tbody id="teacher-performance-body">
-                                <!-- Will be populated by JavaScript -->
+            <!-- School Comparison -->
+            <div class="td-card" style="margin-bottom:1.5rem;">
+                <div class="td-card-header"><h3><i class="fas fa-university"></i> School Comparison</h3></div>
+                <div class="td-card-body" style="padding:0;">
+                    <div class="ar-table-wrap">
+                        <table class="ar-table">
+                            <thead><tr><th>School</th><th>Students</th><th>Teachers</th><th>Assessments</th><th>Avg WPM</th><th>Avg Accuracy</th></tr></thead>
+                            <tbody id="school-table-body">
+                                <tr><td colspan="6" style="text-align:center; padding:2rem; color:var(--sd-text-3);">Loading…</td></tr>
                             </tbody>
                         </table>
                     </div>
                 </div>
+            </div>
 
-                <!-- Student Progress -->
-                <div class="card">
-                    <h2>Student Progress</h2>
-                    <div class="filters">
-                        <select id="teacher-filter" class="form-control">
-                            <option value="">All Teachers</option>
-                        </select>
-                        <select id="grade-filter" class="form-control">
-                            <option value="">All Grades</option>
-                            <option value="9">Grade 9</option>
-                            <option value="10">Grade 10</option>
-                            <option value="11">Grade 11</option>
-                            <option value="12">Grade 12</option>
-                        </select>
-                    </div>
-                    <div class="table-responsive">
-                        <table id="student-progress">
-                            <thead>
-                                <tr>
-                                    <th>Student</th>
-                                    <th>Grade</th>
-                                    <th>Teacher</th>
-                                    <th>Points</th>
-                                    <th>Last Test Score</th>
-                                    <th>Progress</th>
-                                </tr>
-                            </thead>
-                            <tbody id="student-progress-body">
-                                <!-- Will be populated by JavaScript -->
+            <!-- Student Performance -->
+            <div class="td-card">
+                <div class="td-card-header"><h3><i class="fas fa-table"></i> Student Performance Detail</h3></div>
+                <div class="td-card-body" style="padding:0;">
+                    <div class="ar-table-wrap">
+                        <table class="ar-table">
+                            <thead><tr><th>Student</th><th>School</th><th>Level</th><th>WPM</th><th>Accuracy</th><th>Tests</th><th>Risk</th></tr></thead>
+                            <tbody id="student-table-body">
+                                <tr><td colspan="7" style="text-align:center; padding:2rem; color:var(--sd-text-3);">Loading…</td></tr>
                             </tbody>
                         </table>
                     </div>
@@ -235,476 +149,179 @@
             </div>
         </main>
     </div>
+</div>
 
-    <script type="module">
-        import { app, auth, db } from './js/firebase-config.js';
-        import { requireAuth } from './js/auth-check.js';
-        import {
-            getFirestore, collection, getDocs, query, where, orderBy, getDoc,
-            doc as firestoreDoc, limit
-        } from 'https://www.gstatic.com/firebasejs/12.1.0/firebase-firestore.js';
-        import { signOut } from 'https://www.gstatic.com/firebasejs/12.1.0/firebase-auth.js';
+<script type="module">
+    import { auth, db } from './js/firebase-config.js';
+    import { requireAuth } from './js/auth-check.js';
+    import { doc, getDoc, collection, getDocs } from 'https://www.gstatic.com/firebasejs/12.1.0/firebase-firestore.js';
+    import { signOut } from 'https://www.gstatic.com/firebasejs/12.1.0/firebase-auth.js';
 
-        // Global variables to store data
-        let allStudentsData = [];
-        let allTeachersData = [];
-        let gradeOptions = new Set();
+    let reportData = [];
 
-        // Notification function
-        function showNotification(message, type = 'info') {
-            const notification = document.createElement('div');
-            notification.className = `notification ${type}`;
-            notification.textContent = message;
+    function initSidebar() {
+        const sidebar = document.getElementById('sidebar');
+        const toggle = document.getElementById('sidebar-toggle');
+        const overlay = document.getElementById('sidebar-overlay');
+        if (toggle && sidebar) toggle.addEventListener('click', () => {
+            sidebar.classList.toggle('active'); sidebar.classList.toggle('open');
+            overlay?.classList.toggle('active'); overlay?.classList.toggle('open');
+        });
+        if (overlay) overlay.addEventListener('click', () => {
+            sidebar.classList.remove('active','open'); overlay.classList.remove('active','open');
+        });
+    }
 
-            // Add to the page
-            document.body.appendChild(notification);
+    document.addEventListener('DOMContentLoaded', async () => {
+        initSidebar();
+        document.getElementById('report-date').textContent = `Generated: ${new Date().toLocaleDateString('en-US', { year:'numeric', month:'long', day:'numeric' })}`;
 
-            // Auto-remove after 5 seconds
-            setTimeout(() => {
-                notification.classList.add('fade-out');
-                setTimeout(() => notification.remove(), 300);
-            }, 5000);
-        }
-
-        // Add some basic styles for notifications
-        const style = document.createElement('style');
-        style.textContent = `
-            .notification {
-                position: fixed;
-                top: 20px;
-                right: 20px;
-                padding: 12px 24px;
-                border-radius: 4px;
-                color: white;
-                z-index: 1000;
-                box-shadow: 0 2px 10px rgba(0,0,0,0.2);
-                transform: translateX(120%);
-                transition: transform 0.3s ease-in-out;
-            }
-            .notification.show {
-                transform: translateX(0);
-            }
-            .notification.fade-out {
-                opacity: 0;
-                transition: opacity 0.3s ease-in-out;
-            }
-            .notification.error { background-color: #f44336; }
-            .notification.success { background-color: #4CAF50; }
-            .notification.info { background-color: #2196F3; }
-            .notification.warning { background-color: #ff9800; }
-        `;
-        document.head.appendChild(style);
-
-        // Check authentication and load data
-        async function initApp() {
+        try {
+            const { user } = await requireAuth(['admin']);
+            let displayName = 'Administrator';
             try {
-                await requireAuth(['admin', 'teacher']); // Allow both for reports
-                await loadReportsData();
-            } catch (error) {
-                console.error("Initialization failed:", error);
-            }
-        }
-
-        initApp();
-
-        async function loadReportsData() {
-            try {
-                // Show loading state
-                const loadingIndicator = document.createElement('div');
-                loadingIndicator.className = 'loading';
-                loadingIndicator.textContent = 'Loading data...';
-                document.querySelector('.reports-container').prepend(loadingIndicator);
-
-                // Load all teachers from the 'teachers' collection
-                const teachersQuery = collection(db, 'teachers');
-                const teachersSnapshot = await getDocs(teachersQuery);
-                const teachersData = [];
-
-                // Process each teacher's data
-                for (const doc of teachersSnapshot.docs) {
-                    const teacher = doc.data();
-                    teacher.id = doc.id;
-                    // Ensure name fields are properly set
-                    if (!teacher.firstName && teacher.name) {
-                        // If name is stored in a single 'name' field
-                        const nameParts = teacher.name.split(' ');
-                        teacher.firstName = nameParts[0] || '';
-                        teacher.lastName = nameParts.slice(1).join(' ') || '';
-                    }
-
-                    // Get teacher's students
-                    const studentsQuery = query(
-                        collection(db, 'students'),
-                        where('teacherId', '==', doc.id)
-                    );
-                    const studentsSnapshot = await getDocs(studentsQuery);
-                    teacher.studentCount = studentsSnapshot.size;
-
-                    // Get teacher's tests
-                    const testsQuery = query(
-                        collection(db, 'tests'),
-                        where('createdBy', '==', doc.id)
-                    );
-                    const testsSnapshot = await getDocs(testsQuery);
-                    teacher.testsCreated = testsSnapshot.size;
-
-                    // Calculate average score for teacher's students
-                    let totalScore = 0;
-                    let scoreCount = 0;
-
-                    for (const studentDoc of studentsSnapshot.docs) {
-                        const studentData = studentDoc.data();
-                        if (studentData.averageScore) {
-                            totalScore += studentData.averageScore;
-                            scoreCount++;
-                        }
-                    }
-
-                    teacher.avgScore = scoreCount > 0 ? (totalScore / scoreCount) : 0;
-                    teachersData.push(teacher);
+                const ad = await getDoc(doc(db, 'admins', user.uid));
+                displayName = ad.exists() ? ad.data().name || displayName : displayName;
+                if (!ad.exists()) {
+                    const ud = await getDoc(doc(db, 'users', user.uid));
+                    if (ud.exists()) displayName = ud.data().name || ud.data().firstName || displayName;
                 }
+            } catch(e){}
+            document.getElementById('sidebar-admin-name').textContent = displayName;
+            document.getElementById('logout-btn').addEventListener('click', () => signOut(auth).then(() => window.location.href = 'auth/login-fixed.html'));
 
-                // Update teacher stats
-                document.getElementById('total-teachers').textContent = teachersData.length;
+            await generateReport();
+        } catch (e) { console.error(e); }
 
-                // Load all students from the 'students' collection
-                const studentsQuery = collection(db, 'students');
-                const studentsSnapshot = await getDocs(studentsQuery);
-                const studentsData = [];
+        document.getElementById('btn-export').addEventListener('click', exportCSV);
+        document.getElementById('btn-print').addEventListener('click', () => window.print());
+    });
 
-                // Process each student's data
-                for (const doc of studentsSnapshot.docs) {
-                    const student = doc.data();
-                    student.id = doc.id;
+    async function generateReport() {
+        const [usersSnap, studentsSnap, teachersSnap, schoolsSnap, testsSnap, resultsSnap] = await Promise.all([
+            getDocs(collection(db, 'users')),
+            getDocs(collection(db, 'students')),
+            getDocs(collection(db, 'teachers')),
+            getDocs(collection(db, 'schools')),
+            getDocs(collection(db, 'tests')),
+            getDocs(collection(db, 'results'))
+        ]);
 
-                    // Handle different name field formats
-                    if (!student.firstName && student.name) {
-                        // If name is stored in a single 'name' field
-                        const nameParts = student.name.split(' ');
-                        student.firstName = nameParts[0] || '';
-                        student.lastName = nameParts.slice(1).join(' ') || '';
-                    }
+        // Schools map
+        const schoolsMap = {};
+        schoolsSnap.forEach(d => schoolsMap[d.id] = { ...d.data(), id: d.id, results: [], studentIds: new Set() });
 
-                    // Get student's teacher info
-                    if (student.teacherId) {
-                        try {
-                            const teacherRef = firestoreDoc(db, 'teachers', student.teacherId);
-                            const teacherDoc = await getDoc(teacherRef);
-                            if (teacherDoc.exists()) {
-                                const teacherData = teacherDoc.data();
-                                // Try different possible name field combinations
-                                if (teacherData.firstName || teacherData.lastName) {
-                                    student.teacherName = `${teacherData.firstName || ''} ${teacherData.lastName || ''}`.trim();
-                                } else if (teacherData.name) {
-                                    student.teacherName = teacherData.name;
-                                } else if (teacherData.displayName) {
-                                    student.teacherName = teacherData.displayName;
-                                } else {
-                                    student.teacherName = 'Teacher ' + student.teacherId.substring(0, 6);
-                                }
-                            } else {
-                                student.teacherName = 'Teacher not found';
-                                console.warn(`Teacher with ID ${student.teacherId} not found`);
-                            }
-                        } catch (error) {
-                            console.error('Error fetching teacher data:', error);
-                            student.teacherName = 'Error loading teacher';
-                        }
-                    } else {
-                        student.teacherName = 'Unassigned';
-                    }
+        // Students map  
+        const studentsMap = {};
+        studentsSnap.forEach(d => {
+            const data = d.data();
+            studentsMap[d.id] = { id: d.id, name: data.name || data.displayName || 'Student', schoolId: data.schoolId, grade: data.grade || '', results: [] };
+        });
 
-                    // Get student's test results (using a simpler query to avoid index requirements)
-                    const resultsRef = collection(db, 'testResults');
-                    const resultsQuery = where('studentId', '==', doc.id);
-                    const resultsSnapshot = await getDocs(query(resultsRef, resultsQuery));
-
-                    if (!resultsSnapshot.empty) {
-                        // Find the latest result manually in memory
-                        let latestResult = null;
-                        resultsSnapshot.forEach(doc => {
-                            const result = doc.data();
-                            if (!latestResult ||
-                                (result.completedAt &&
-                                    (!latestResult.completedAt ||
-                                        result.completedAt.toDate() > latestResult.completedAt.toDate()))) {
-                                latestResult = result;
-                            }
-                        });
-
-                        if (latestResult) {
-                            student.lastTestScore = latestResult.score;
-                            student.lastTestDate = latestResult.completedAt?.toDate() || new Date();
-                        }
-                    }
-
-                    studentsData.push(student);
-                }
-
-                // Update student stats
-                document.getElementById('total-students').textContent = studentsData.length;
-
-                // Calculate average score across all students
-                const validScores = studentsData
-                    .map(s => s.averageScore)
-                    .filter(score => typeof score === 'number');
-
-                const avgScore = validScores.length > 0
-                    ? (validScores.reduce((a, b) => a + b, 0) / validScores.length)
-                    : 0;
-
-                document.getElementById('avg-score').textContent = `${Math.round(avgScore)}%`;
-
-                // Load active tests
-                const testsQuery = query(
-                    collection(db, 'tests'),
-                    where('isActive', '==', true)
-                );
-
-                const testsSnapshot = await getDocs(testsQuery);
-                document.getElementById('active-tests').textContent = testsSnapshot.size;
-
-                // Store the data globally
-                allStudentsData = studentsData;
-                allTeachersData = teachersData;
-
-                // Extract unique grades from students
-                gradeOptions = new Set(studentsData
-                    .map(s => s.grade)
-                    .filter(grade => grade && grade.trim() !== '')
-                    .sort((a, b) => a.localeCompare(b, undefined, { numeric: true }))
-                );
-
-                // Populate teacher filter
-                const teacherFilter = document.getElementById('teacher-filter');
-                teacherFilter.innerHTML = '<option value="">All Teachers</option>';
-
-                // Create a map of teacher IDs to their display names
-                const teacherMap = new Map();
-                allTeachersData.forEach(teacher => {
-                    const teacherName = teacher.name || `${teacher.firstName || ''} ${teacher.lastName || ''}`.trim() || `Teacher ${teacher.id.substring(0, 6)}`;
-                    teacherMap.set(teacher.id, teacherName);
-
-                    const option = document.createElement('option');
-                    option.value = teacher.id;
-                    option.textContent = teacherName;
-                    teacherFilter.appendChild(option);
-                });
-
-                // Populate grade filter
-                const gradeFilter = document.getElementById('grade-filter');
-                gradeFilter.innerHTML = '<option value="">All Grades</option>';
-                gradeOptions.forEach(grade => {
-                    const option = document.createElement('option');
-                    option.value = grade;
-                    option.textContent = `Grade ${grade}`;
-                    gradeFilter.appendChild(option);
-                });
-
-                // Add event listeners
-                teacherFilter.addEventListener('change', applyFilters);
-                gradeFilter.addEventListener('change', applyFilters);
-
-                // Store teacher map for later use
-                window.teacherMap = teacherMap;
-
-                // Initial UI update
-                updateTeacherPerformance(teachersData);
-                updateStudentProgress(studentsData);
-
-                // Remove loading indicator
-                if (loadingIndicator.parentNode) {
-                    loadingIndicator.remove();
-                }
-
-            } catch (error) {
-                console.error('Error loading reports data:', {
-                    message: error.message,
-                    stack: error.stack,
-                    name: error.name,
-                    code: error.code,
-                    details: error.details || 'No additional details'
-                });
-
-                // Show detailed error to user for debugging
-                showNotification(`Error: ${error.message || 'Failed to load reports data. Please check console for details.'}`, 'error');
-
-                // Re-throw the error for further debugging if needed
-                throw error;
+        // Users with schoolId (catch students via users collection too)
+        usersSnap.forEach(d => {
+            const data = d.data();
+            if (data.role === 'student' && !studentsMap[d.id]) {
+                studentsMap[d.id] = { id: d.id, name: data.name || data.firstName || 'Student', schoolId: data.schoolId, grade: data.grade || '', results: [] };
             }
-        }
-
-        function updateTeacherPerformance(teachersData) {
-            const tbody = document.getElementById('teacher-performance-body');
-            tbody.innerHTML = '';
-
-            if (teachersData.length === 0) {
-                tbody.innerHTML = `
-                    <tr>
-                        <td colspan="5" class="text-center py-4 text-muted">
-                            No teacher data available
-                        </td>
-                    </tr>
-                `;
-                return;
-            }
-
-            // Sort teachers by average score (descending)
-            teachersData.sort((a, b) => (b.avgScore || 0) - (a.avgScore || 0));
-
-            teachersData.forEach(teacher => {
-                const avgScore = teacher.avgScore || 0;
-                const scorePercentage = Math.round(avgScore * 100);
-
-                const row = `
-                    <tr>
-                        <td>${teacher.firstName || ''} ${teacher.lastName || ''}</td>
-                        <td>${teacher.studentCount || 0}</td>
-                        <td>${scorePercentage}%</td>
-                        <td>${teacher.testsCreated || 0}</td>
-                        <td>
-                            <div class="progress-bar">
-                                <div class="progress" style="width: ${scorePercentage}%"></div>
-                            </div>
-                            <small class="text-muted">${scorePercentage}%</small>
-                        </td>
-                    </tr>
-                `;
-                tbody.innerHTML += row;
-            });
-        }
-
-        // Apply filters and sorting to student data
-        function applyFilters() {
-            const teacherFilter = document.getElementById('teacher-filter').value;
-            const gradeFilter = document.getElementById('grade-filter').value;
-
-            let filteredStudents = [...allStudentsData];
-
-            // Apply teacher filter
-            if (teacherFilter) {
-                filteredStudents = filteredStudents.filter(student =>
-                    student.teacherId === teacherFilter
-                );
-            }
-
-            // Apply grade filter
-            if (gradeFilter) {
-                filteredStudents = filteredStudents.filter(student =>
-                    student.grade === gradeFilter
-                );
-            }
-
-            // Update the UI with filtered data
-            updateStudentProgress(filteredStudents);
-        }
-
-        function updateStudentProgress(studentsData) {
-            const tbody = document.getElementById('student-progress-body');
-            tbody.innerHTML = '';
-
-            if (studentsData.length === 0) {
-                tbody.innerHTML = `
-                    <tr>
-                        <td colspan="6" class="text-center py-4 text-muted">
-                            No student data available
-                        </td>
-                    </tr>
-                `;
-                return;
-            }
-
-            // Default sort by last test date (most recent first)
-            let sortedStudents = [...studentsData].sort((a, b) => {
-                const dateA = a.lastTestDate ? new Date(a.lastTestDate) : new Date(0);
-                const dateB = b.lastTestDate ? new Date(b.lastTestDate) : new Date(0);
-                return dateB - dateA;
-            });
-
-            // Update student count in the UI
-            document.getElementById('total-students').textContent = sortedStudents.length;
-
-            sortedStudents.forEach(student => {
-                const progress = student.progress || 0;
-                const lastScore = student.lastTestScore ?
-                    `${Math.round(student.lastTestScore * 100)}%` : 'N/A';
-
-                // Determine progress color based on score
-                let progressClass = '';
-                if (student.lastTestScore) {
-                    if (student.lastTestScore >= 0.8) progressClass = 'bg-success';
-                    else if (student.lastTestScore >= 0.5) progressClass = 'bg-warning';
-                    else progressClass = 'bg-danger';
-                }
-
-                const row = `
-                    <tr>
-                        <td>${student.firstName || ''} ${student.lastName || ''}</td>
-                        <td>${student.grade || 'N/A'}</td>
-                        <td>${student.teacherName || 'Unassigned'}</td>
-                        <td class="text-center">${student.points || 0}</td>
-                        <td>${lastScore}</td>
-                        <td>
-                            <div class="progress-bar">
-                                <div class="progress ${progressClass}" style="width: ${progress}%"></div>
-                            </div>
-                            <small class="text-muted">${progress}%</small>
-                        </td>
-                    </tr>
-                `;
-                tbody.innerHTML += row;
-            });
-        }
-
-        // Logout functionality
-        document.getElementById('logout').addEventListener('click', async (e) => {
-            e.preventDefault();
-            try {
-                await signOut(auth);
-                window.location.href = 'auth/login-fixed.html';
-            } catch (error) {
-                console.error('Error signing out:', error);
+            if (data.schoolId && studentsMap[d.id]) {
+                studentsMap[d.id].schoolId = data.schoolId;
             }
         });
 
-        // Sidebar toggle
-        document.getElementById('sidebar-toggle').addEventListener('click', () => {
-            document.body.classList.toggle('sidebar-collapsed');
-        });
-    </script>
-    <!-- Mobile Sidebar Auto-Fix -->
-    <script>
-        document.addEventListener('DOMContentLoaded', () => {
-            const sidebar = document.querySelector('.sidebar');
-            let sidebarOverlay = document.getElementById('sidebar-overlay');
-            const sidebarToggle = document.querySelector('.sidebar-toggle, .menu-toggle, #sidebar-toggle');
-            
-            if (sidebar && !sidebarOverlay) {
-                sidebarOverlay = document.createElement('div');
-                sidebarOverlay.className = 'sidebar-overlay';
-                sidebarOverlay.id = 'sidebar-overlay';
-                sidebar.parentNode.insertBefore(sidebarOverlay, sidebar.nextSibling);
-            }
-            
-            if (sidebarToggle && sidebar && sidebarOverlay) {
-                // Ensure toggle class exists
-                sidebarToggle.classList.add('menu-toggle');
-                sidebarToggle.classList.add('d-lg-none');
-                
-                sidebarToggle.addEventListener('click', (e) => {
-                    if (window.innerWidth <= 1024) {
-                        e.preventDefault();
-                        e.stopPropagation();
-                        sidebar.classList.toggle('active');
-                        sidebarOverlay.classList.toggle('active');
-                    }
-                });
-                
-                sidebarOverlay.addEventListener('click', () => {
-                    sidebar.classList.remove('active');
-                    sidebarOverlay.classList.remove('active');
-                });
+        // Process results
+        const allResults = [];
+        resultsSnap.forEach(d => {
+            const data = d.data();
+            allResults.push(data);
+            const uid = data.userId || data.studentId;
+            if (uid && studentsMap[uid]) {
+                studentsMap[uid].results.push(data);
+                const sid = studentsMap[uid].schoolId;
+                if (sid && schoolsMap[sid]) {
+                    schoolsMap[sid].results.push(data);
+                    schoolsMap[sid].studentIds.add(uid);
+                }
             }
         });
-    </script>
+
+        // Summary stats
+        document.getElementById('r-users').textContent = usersSnap.size;
+        document.getElementById('r-schools').textContent = schoolsSnap.size;
+        document.getElementById('r-assessments').textContent = resultsSnap.size;
+        document.getElementById('r-tests').textContent = testsSnap.size;
+
+        const allWpm = allResults.filter(r => r.wpm != null).map(r => r.wpm);
+        const allAcc = allResults.filter(r => r.accuracy != null).map(r => r.accuracy);
+        document.getElementById('r-avg-wpm').textContent = allWpm.length ? Math.round(allWpm.reduce((a,b)=>a+b,0)/allWpm.length) : '—';
+        document.getElementById('r-avg-acc').textContent = allAcc.length ? Math.round(allAcc.reduce((a,b)=>a+b,0)/allAcc.length) + '%' : '—';
+
+        // School comparison table
+        const schoolTbody = document.getElementById('school-table-body');
+        const schoolArr = Object.values(schoolsMap);
+        if (schoolArr.length === 0) {
+            schoolTbody.innerHTML = '<tr><td colspan="6" style="text-align:center; padding:2rem; color:var(--sd-text-3);">No school data available.</td></tr>';
+        } else {
+            schoolTbody.innerHTML = schoolArr.map(s => {
+                const sWpm = s.results.filter(r => r.wpm != null).map(r => r.wpm);
+                const sAcc = s.results.filter(r => r.accuracy != null).map(r => r.accuracy);
+                const avgWpm = sWpm.length ? Math.round(sWpm.reduce((a,b)=>a+b,0)/sWpm.length) : '—';
+                const avgAcc = sAcc.length ? Math.round(sAcc.reduce((a,b)=>a+b,0)/sAcc.length) + '%' : '—';
+                return `<tr>
+                    <td><div class="ar-school-row"><div class="ar-school-icon"><i class="fas fa-university"></i></div><div style="font-weight:700; color:var(--sd-text);">${s.name || 'School'}</div></div></td>
+                    <td style="font-weight:700;">${s.studentCount || s.studentIds.size || 0}</td>
+                    <td>${s.teacherCount || 0}</td>
+                    <td>${s.results.length}</td>
+                    <td style="font-weight:700;">${avgWpm}</td>
+                    <td>${avgAcc}</td>
+                </tr>`;
+            }).join('');
+        }
+
+        // Student performance table
+        reportData = Object.values(studentsMap).map(s => {
+            s.results.sort((a,b) => (b.timestamp?.seconds||0) - (a.timestamp?.seconds||0));
+            const latest = s.results[0] || {};
+            const wpm = latest.wpm || latest.fluency?.wordsPerMinute || null;
+            const acc = latest.accuracy || latest.fluency?.accuracyRate || null;
+            const level = latest.placedLevel || latest.readingLevel || '—';
+            const risk = (acc != null && acc < 80) || (wpm != null && wpm < 30) ? 'high' : (acc != null && acc < 90) || (wpm != null && wpm < 60) ? 'medium' : 'low';
+            const schoolName = s.schoolId && schoolsMap[s.schoolId] ? schoolsMap[s.schoolId].name : '—';
+            return { name: s.name, school: schoolName, level, wpm, acc, tests: s.results.length, risk };
+        });
+        reportData.sort((a,b) => a.name.localeCompare(b.name));
+
+        const sTbody = document.getElementById('student-table-body');
+        if (reportData.length === 0) {
+            sTbody.innerHTML = '<tr><td colspan="7" style="text-align:center; padding:2rem; color:var(--sd-text-3);">No student data available.</td></tr>';
+        } else {
+            sTbody.innerHTML = reportData.map(r => {
+                const lvl = String(r.level).replace(/_/g,' ').replace(/\b\w/g,c=>c.toUpperCase());
+                return `<tr>
+                    <td style="font-weight:700; color:var(--sd-text);">${r.name}</td>
+                    <td style="font-size:0.75rem;">${r.school}</td>
+                    <td><span class="ar-badge ar-level-badge">${lvl}</span></td>
+                    <td style="font-weight:700;">${r.wpm != null ? Math.round(r.wpm) : '—'}</td>
+                    <td>${r.acc != null ? Math.round(r.acc) + '%' : '—'}</td>
+                    <td>${r.tests}</td>
+                    <td><span class="ar-badge ar-risk-${r.risk}">${r.risk.toUpperCase()}</span></td>
+                </tr>`;
+            }).join('');
+        }
+    }
+
+    function exportCSV() {
+        if (reportData.length === 0) return;
+        let csv = 'Student,School,Reading Level,WPM,Accuracy,Tests,Risk\n';
+        reportData.forEach(r => {
+            csv += `"${r.name}","${r.school}","${r.level}",${r.wpm||''},${r.acc||''},${r.tests},${r.risk}\n`;
+        });
+        const blob = new Blob([csv], { type: 'text/csv' });
+        const url = URL.createObjectURL(blob);
+        const a = document.createElement('a');
+        a.href = url; a.download = `alpharia-platform-report-${new Date().toISOString().slice(0,10)}.csv`; a.click();
+        URL.revokeObjectURL(url);
+    }
+</script>
 </body>
+</html>

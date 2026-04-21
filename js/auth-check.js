@@ -36,29 +36,35 @@ export function requireAuth(allowedRoles = []) {
                         const data = userSnap.data();
                         const r = (data.role || '').toLowerCase();
                         if (r === 'admin') role = 'admin';
+                        else if (r === 'school_admin') role = 'school_admin';
                         else if (r === 'teacher') role = 'teacher';
                         else if (r === 'student') role = 'student';
                         else if (r === 'parent') role = 'parent';
                     }
 
-                    // If still unknown, check 'students' collection (common for pure students)
+                    // If still unknown, check dedicated collections
                     if (role === 'unknown') {
                         const studentRef = doc(db, 'students', user.uid);
                         const studentSnap = await getDoc(studentRef);
                         if (studentSnap.exists()) {
                             role = 'student';
                         } else {
-                            // Check 'teachers' collection
                             const teacherRef = doc(db, 'teachers', user.uid);
                             const teacherSnap = await getDoc(teacherRef);
                             if (teacherSnap.exists()) {
                                 role = 'teacher';
                             } else {
-                                // Check 'parents' collection
                                 const parentRef = doc(db, 'parents', user.uid);
                                 const parentSnap = await getDoc(parentRef);
                                 if (parentSnap.exists()) {
                                     role = 'parent';
+                                } else {
+                                    // Check school_admins collection
+                                    const schoolAdminRef = doc(db, 'school_admins', user.uid);
+                                    const schoolAdminSnap = await getDoc(schoolAdminRef);
+                                    if (schoolAdminSnap.exists()) {
+                                        role = 'school_admin';
+                                    }
                                 }
                             }
                         }
@@ -68,10 +74,8 @@ export function requireAuth(allowedRoles = []) {
                 // If specific roles are required, verify
                 if (allowedRoles.length > 0 && !allowedRoles.includes(role)) {
                     console.warn(`User role '${role}' is not in allowed roles: [${allowedRoles.join(', ')}]`);
-                    // Optional: Redirect to unauthorized page or dashboard
-                    // Optional: Redirect to unauthorized page or dashboard
                     if (role === 'student') window.location.href = '/student-dashboard.html';
-                    else if (role === 'admin') window.location.href = '/admin-dashboard.html';
+                    else if (role === 'admin' || role === 'school_admin') window.location.href = '/school-dashboard.html';
                     else if (role === 'teacher') window.location.href = '/teacher-dashboard.html';
                     else if (role === 'parent') window.location.href = '/parent-dashboard.html';
                     else window.location.href = '/unauthorized.html';

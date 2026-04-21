@@ -1,0 +1,493 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Resources & Intervention Library — Alpharia</title>
+    <meta name="description" content="Access phonics activities, fluency passages, and comprehension exercises to support student reading growth.">
+
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link rel="stylesheet" href="css/student-dashboard-clean.css">
+    <link rel="stylesheet" href="css/teacher-dashboard-clean.css">
+
+    <style>
+        @keyframes fadeIn { from { opacity:0; transform:translateY(10px);} to { opacity:1; transform:translateY(0);} }
+        @keyframes slideUp { from { opacity:0; transform:translateY(20px);} to { opacity:1; transform:translateY(0);} }
+
+        /* Filter bar */
+        .res-filters {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 0.75rem;
+            margin-bottom: 1.5rem;
+            align-items: center;
+        }
+        .res-filter-btn {
+            display: inline-flex;
+            align-items: center;
+            gap: 0.4rem;
+            padding: 0.5rem 1rem;
+            border: 1.5px solid var(--sd-border);
+            border-radius: 50px;
+            background: var(--sd-surface);
+            color: var(--sd-text-2);
+            font-size: 0.8rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: var(--sd-transition);
+        }
+        .res-filter-btn:hover { border-color: var(--sd-primary); color: var(--sd-primary); }
+        .res-filter-btn.active {
+            background: var(--sd-primary);
+            color: white;
+            border-color: var(--sd-primary);
+        }
+        .res-filter-select {
+            padding: 0.5rem 0.9rem;
+            border: 1.5px solid var(--sd-border);
+            border-radius: var(--sd-radius-sm);
+            background: var(--sd-surface);
+            color: var(--sd-text);
+            font-size: 0.8rem;
+            font-weight: 600;
+            font-family: inherit;
+            cursor: pointer;
+        }
+        .res-search-box {
+            flex: 1;
+            min-width: 200px;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            padding: 0.5rem 1rem;
+            border: 1.5px solid var(--sd-border);
+            border-radius: var(--sd-radius-sm);
+            background: var(--sd-surface);
+            transition: var(--sd-transition);
+        }
+        .res-search-box:focus-within { border-color: var(--sd-primary); }
+        .res-search-box input {
+            border: none; background: none; outline: none; flex: 1;
+            font-size: 0.82rem; font-family: inherit; color: var(--sd-text);
+        }
+        .res-search-box i { color: var(--sd-text-3); font-size: 0.85rem; }
+
+        /* Category stat cards */
+        .res-cat-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+            gap: 1rem;
+            margin-bottom: 2rem;
+        }
+        .res-cat-card {
+            background: var(--sd-surface);
+            border: 1.5px solid var(--sd-border);
+            border-radius: var(--sd-radius);
+            padding: 1.25rem;
+            cursor: pointer;
+            transition: var(--sd-transition);
+            position: relative;
+            overflow: hidden;
+        }
+        .res-cat-card:hover, .res-cat-card.active {
+            transform: translateY(-3px);
+            box-shadow: var(--sd-shadow-md);
+            border-color: var(--cat-color, var(--sd-primary));
+        }
+        .res-cat-card.active::after {
+            content: ''; position: absolute; bottom: 0; left: 0; right: 0;
+            height: 3px; background: var(--cat-color, var(--sd-primary));
+        }
+        .res-cat-icon {
+            width: 44px; height: 44px; border-radius: 12px;
+            display: flex; align-items: center; justify-content: center;
+            font-size: 1.1rem; margin-bottom: 0.75rem;
+        }
+        .res-cat-title { font-size: 0.95rem; font-weight: 800; color: var(--sd-text); }
+        .res-cat-count { font-size: 0.72rem; font-weight: 700; color: var(--sd-text-3); margin-top: 0.2rem; }
+
+        /* Activity grid */
+        .res-act-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
+            gap: 1.25rem;
+        }
+        @media (max-width: 700px) {
+            .res-act-grid { grid-template-columns: 1fr; }
+        }
+        .res-act-card {
+            background: var(--sd-surface);
+            border: 1.5px solid var(--sd-border);
+            border-radius: var(--sd-radius);
+            padding: 1.5rem;
+            transition: var(--sd-transition);
+            animation: slideUp 0.4s ease-out;
+            display: flex;
+            flex-direction: column;
+        }
+        .res-act-card:hover {
+            transform: translateY(-3px);
+            box-shadow: var(--sd-shadow-md);
+            border-color: var(--sd-primary);
+        }
+        .res-act-top { display: flex; align-items: flex-start; gap: 1rem; margin-bottom: 0.75rem; }
+        .res-act-icon {
+            width: 44px; height: 44px; border-radius: 12px;
+            display: flex; align-items: center; justify-content: center;
+            font-size: 1rem; flex-shrink: 0;
+        }
+        .res-act-header { flex: 1; }
+        .res-act-title { font-size: 1rem; font-weight: 800; color: var(--sd-text); margin-bottom: 0.2rem; }
+        .res-act-desc { font-size: 0.8rem; color: var(--sd-text-2); line-height: 1.5; margin-bottom: 0.75rem; flex: 1; }
+        .res-act-meta {
+            display: flex; flex-wrap: wrap; gap: 0.5rem; align-items: center;
+            padding-top: 0.75rem; border-top: 1px solid var(--sd-border);
+        }
+        .res-act-tag {
+            display: inline-flex; align-items: center; gap: 0.25rem;
+            padding: 0.2rem 0.6rem; border-radius: 50px;
+            font-size: 0.68rem; font-weight: 700;
+        }
+        .res-act-tag-level { background: var(--sd-primary-lt); color: var(--sd-primary); }
+        .res-act-tag-time { background: rgba(20,184,166,0.1); color: #14b8a6; }
+        .res-act-tag-type { background: rgba(245,158,11,0.1); color: #f59e0b; }
+        .res-act-tag-diff-easy { background: rgba(16,185,129,0.1); color: #10b981; }
+        .res-act-tag-diff-medium { background: rgba(245,158,11,0.1); color: #f59e0b; }
+        .res-act-tag-diff-hard { background: rgba(239,68,68,0.1); color: #ef4444; }
+
+        /* Skills chips */
+        .res-act-skills { display: flex; flex-wrap: wrap; gap: 0.35rem; margin-bottom: 0.75rem; }
+        .res-skill-chip {
+            font-size: 0.65rem; font-weight: 600; padding: 0.15rem 0.5rem;
+            border-radius: 50px; background: var(--sd-surface-2); color: var(--sd-text-3);
+            border: 1px solid var(--sd-border);
+        }
+
+        /* Expand section */
+        .res-act-expand {
+            display: none;
+            margin-top: 1rem;
+            padding-top: 1rem;
+            border-top: 1px solid var(--sd-border);
+        }
+        .res-act-expand.open { display: block; }
+        .res-act-expand h4 { font-size: 0.8rem; font-weight: 700; margin-bottom: 0.5rem; color: var(--sd-text); }
+        .res-act-expand ol, .res-act-expand ul {
+            padding-left: 1.2rem; margin: 0 0 0.75rem;
+        }
+        .res-act-expand li {
+            font-size: 0.78rem; color: var(--sd-text-2); line-height: 1.6; margin-bottom: 0.25rem;
+        }
+        .res-word-chips { display: flex; flex-wrap: wrap; gap: 0.35rem; margin-bottom: 0.5rem; }
+        .res-word-chip {
+            padding: 0.25rem 0.6rem; border-radius: var(--sd-radius-sm);
+            background: var(--sd-primary-lt); color: var(--sd-primary);
+            font-size: 0.75rem; font-weight: 700; font-family: monospace;
+        }
+
+        .res-act-actions {
+            display: flex; gap: 0.5rem; margin-top: 0.75rem;
+        }
+        .res-act-btn {
+            display: inline-flex; align-items: center; gap: 0.35rem;
+            padding: 0.45rem 0.9rem; border-radius: var(--sd-radius-sm);
+            font-size: 0.75rem; font-weight: 700; cursor: pointer;
+            border: 1.5px solid var(--sd-border); background: var(--sd-surface);
+            color: var(--sd-text-2); transition: var(--sd-transition);
+        }
+        .res-act-btn:hover { border-color: var(--sd-primary); color: var(--sd-primary); }
+        .res-act-btn-primary {
+            background: var(--sd-primary); color: white; border-color: var(--sd-primary);
+        }
+        .res-act-btn-primary:hover { opacity: 0.9; color: white; }
+
+        /* Results count */
+        .res-count { font-size: 0.82rem; color: var(--sd-text-3); font-weight: 600; margin-bottom: 1rem; }
+
+        /* Empty state */
+        .res-empty {
+            text-align: center; padding: 3rem; color: var(--sd-text-3);
+        }
+        .res-empty i { font-size: 2.5rem; opacity: 0.2; margin-bottom: 1rem; }
+    </style>
+</head>
+
+<body class="sd-page">
+<div class="sd-shell">
+    <!-- SIDEBAR -->
+    <aside class="sd-sidebar" id="sidebar" aria-label="Main navigation">
+        <a href="teacher-dashboard.html" class="sd-sidebar-brand" aria-label="Alpharia home">
+            <div class="sd-brand-icon"><i class="fas fa-book-open"></i></div>
+            <span class="sd-brand-text">Alpharia</span>
+        </a>
+        <nav class="sd-nav" aria-label="Dashboard navigation">
+            <span class="sd-nav-section-label">Main Menu</span>
+            <a href="teacher-dashboard.html" class="sd-nav-link"><i class="fas fa-tachometer-alt"></i><span>Dashboard</span></a>
+            <a href="create-test.html" class="sd-nav-link"><i class="fas fa-plus-circle"></i><span>Create Test</span></a>
+            <a href="my-tests.html" class="sd-nav-link"><i class="fas fa-clipboard-list"></i><span>My Tests</span></a>
+            <span class="sd-nav-section-label">Analytics</span>
+            <a href="teacher-progress.html" class="sd-nav-link"><i class="fas fa-chart-line"></i><span>Progress</span></a>
+            <a href="teacher-reports.html" class="sd-nav-link"><i class="fas fa-file-pdf"></i><span>Reports</span></a>
+            <a href="resources.html" class="sd-nav-link active" aria-current="page"><i class="fas fa-book"></i><span>Resources</span></a>
+            <span class="sd-nav-section-label">Tools</span>
+            <a href="lesson-builder.html" class="sd-nav-link"><i class="fas fa-hammer"></i><span>Lesson Builder</span></a>
+            <span class="sd-nav-section-label">Account</span>
+            <a href="teacher-settings.html" class="sd-nav-link"><i class="fas fa-cog"></i><span>Settings</span></a>
+        </nav>
+        <div class="sd-sidebar-footer">
+            <div class="sd-sidebar-user">
+                <img src="" alt="User" class="sd-sidebar-avatar" id="user-avatar-sidebar">
+                <div class="sd-sidebar-user-info">
+                    <div class="sd-sidebar-user-name" id="sidebar-teacher-name">Loading…</div>
+                    <div class="sd-sidebar-user-role">Teacher</div>
+                </div>
+                <button class="sd-icon-btn" id="logout-btn" title="Sign Out" style="margin-left:auto; color:var(--sd-text-3);"><i class="fas fa-sign-out-alt"></i></button>
+            </div>
+        </div>
+    </aside>
+    <div class="sd-sidebar-overlay" id="sidebar-overlay"></div>
+
+    <!-- MAIN -->
+    <div class="sd-main">
+        <header class="sd-topbar" role="banner">
+            <button class="sd-topbar-toggle menu-toggle d-lg-none" id="sidebar-toggle"><i class="fas fa-bars"></i></button>
+            <div style="font-weight:700; color:var(--sd-text); font-size: 1rem;">Intervention Library</div>
+            <div class="sd-topbar-actions">
+                <a href="lesson-builder.html" class="sd-btn sd-btn-primary" style="font-size:0.8rem; padding:0.4rem 1rem; text-decoration:none;">
+                    <i class="fas fa-hammer"></i> Lesson Builder
+                </a>
+            </div>
+        </header>
+
+        <main class="sd-body" id="main-content" style="animation: fadeIn 0.4s ease-out;">
+            <!-- Category cards -->
+            <div class="res-cat-grid" id="category-cards"></div>
+
+            <!-- Filter bar -->
+            <div class="res-filters" id="filter-bar">
+                <div class="res-search-box">
+                    <i class="fas fa-search"></i>
+                    <input type="text" id="search-input" placeholder="Search activities by name or skill…" aria-label="Search activities">
+                </div>
+                <select class="res-filter-select" id="level-filter">
+                    <option value="">All Levels</option>
+                </select>
+                <select class="res-filter-select" id="difficulty-filter">
+                    <option value="">All Difficulties</option>
+                    <option value="easy">Easy</option>
+                    <option value="medium">Medium</option>
+                    <option value="hard">Hard</option>
+                </select>
+            </div>
+
+            <!-- Results count -->
+            <div class="res-count" id="results-count"></div>
+
+            <!-- Activity grid -->
+            <div class="res-act-grid" id="activity-grid"></div>
+        </main>
+    </div>
+</div>
+
+<script type="module">
+    import { auth, db } from './js/firebase-config.js';
+    import { requireAuth } from './js/auth-check.js';
+    import { doc, getDoc } from 'https://www.gstatic.com/firebasejs/12.1.0/firebase-firestore.js';
+    import { signOut } from 'https://www.gstatic.com/firebasejs/12.1.0/firebase-auth.js';
+    import { ACTIVITIES, CATEGORIES, LEVELS, filterActivities, getCategoryMeta } from './js/intervention-data.js';
+
+    let activeCategory = null;
+
+    function initSidebar() {
+        const sidebar = document.getElementById('sidebar');
+        const toggle = document.getElementById('sidebar-toggle');
+        const overlay = document.getElementById('sidebar-overlay');
+        if (toggle && sidebar) {
+            toggle.addEventListener('click', () => {
+                sidebar.classList.toggle('active');
+                sidebar.classList.toggle('open');
+                overlay?.classList.toggle('active');
+                overlay?.classList.toggle('open');
+            });
+        }
+        if (overlay) overlay.addEventListener('click', () => {
+            sidebar.classList.remove('active', 'open');
+            overlay.classList.remove('active', 'open');
+        });
+    }
+
+    function buildCategoryCards() {
+        const container = document.getElementById('category-cards');
+        const allCard = `
+            <div class="res-cat-card ${!activeCategory ? 'active' : ''}" data-cat="" style="--cat-color: var(--sd-primary);">
+                <div class="res-cat-icon" style="background: var(--sd-primary-lt); color: var(--sd-primary);"><i class="fas fa-th-large"></i></div>
+                <div class="res-cat-title">All Activities</div>
+                <div class="res-cat-count">${ACTIVITIES.length} activities</div>
+            </div>
+        `;
+        const catCards = CATEGORIES.map(c => {
+            const count = ACTIVITIES.filter(a => a.category === c.id).length;
+            return `
+                <div class="res-cat-card ${activeCategory === c.id ? 'active' : ''}" data-cat="${c.id}" style="--cat-color: ${c.color};">
+                    <div class="res-cat-icon" style="background: ${c.bg}; color: ${c.color};"><i class="fas ${c.icon}"></i></div>
+                    <div class="res-cat-title">${c.label}</div>
+                    <div class="res-cat-count">${count} activities</div>
+                </div>
+            `;
+        }).join('');
+        container.innerHTML = allCard + catCards;
+
+        container.querySelectorAll('.res-cat-card').forEach(card => {
+            card.addEventListener('click', () => {
+                activeCategory = card.dataset.cat || null;
+                buildCategoryCards();
+                renderActivities();
+            });
+        });
+    }
+
+    function buildLevelFilter() {
+        const select = document.getElementById('level-filter');
+        LEVELS.forEach(l => {
+            const opt = document.createElement('option');
+            opt.value = l.id;
+            opt.textContent = l.label;
+            select.appendChild(opt);
+        });
+    }
+
+    function renderActivities() {
+        const search = document.getElementById('search-input').value;
+        const level = document.getElementById('level-filter').value;
+        const difficulty = document.getElementById('difficulty-filter').value;
+
+        const filtered = filterActivities({
+            category: activeCategory,
+            level: level || undefined,
+            search: search || undefined,
+            difficulty: difficulty || undefined
+        });
+
+        const countEl = document.getElementById('results-count');
+        countEl.textContent = `Showing ${filtered.length} of ${ACTIVITIES.length} activities`;
+
+        const grid = document.getElementById('activity-grid');
+        if (filtered.length === 0) {
+            grid.innerHTML = `
+                <div class="res-empty" style="grid-column: 1 / -1;">
+                    <i class="fas fa-search"></i>
+                    <p>No activities match your filters. Try broadening your search.</p>
+                </div>
+            `;
+            return;
+        }
+
+        grid.innerHTML = filtered.map(act => {
+            const cat = getCategoryMeta(act.category);
+            const levelLabel = LEVELS.find(l => l.id === act.level)?.label || act.level;
+            const diffClass = `res-act-tag-diff-${act.difficulty || 'medium'}`;
+
+            const skillsHtml = (act.skills || []).map(s =>
+                `<span class="res-skill-chip">${s}</span>`
+            ).join('');
+
+            // Expandable content
+            let expandHtml = '';
+            if (act.instructions?.length) {
+                expandHtml += `<h4><i class="fas fa-list-ol" style="color:var(--sd-primary); margin-right:0.3rem;"></i> Instructions</h4>
+                    <ol>${act.instructions.map(i => `<li>${i}</li>`).join('')}</ol>`;
+            }
+            if (act.wordList?.length) {
+                expandHtml += `<h4><i class="fas fa-font" style="color:var(--sd-primary); margin-right:0.3rem;"></i> Word List</h4>
+                    <div class="res-word-chips">${act.wordList.map(w => `<span class="res-word-chip">${w}</span>`).join('')}</div>`;
+            }
+            if (act.passages?.length) {
+                expandHtml += `<h4><i class="fas fa-book-open" style="color:var(--sd-primary); margin-right:0.3rem;"></i> Passage</h4>
+                    ${act.passages.map(p => `<p style="font-size:0.8rem; color:var(--sd-text-2); line-height:1.7; background:var(--sd-surface); padding:0.75rem; border-radius:var(--sd-radius-sm); border:1px solid var(--sd-border);">${p}</p>`).join('')}`;
+            }
+            if (act.questions?.length) {
+                expandHtml += `<h4><i class="fas fa-question-circle" style="color:var(--sd-primary); margin-right:0.3rem;"></i> Questions</h4>
+                    <ul>${act.questions.map(q => `<li><strong>${q.q}</strong><br><em style="color:var(--sd-text-3);">Answer: ${q.a}</em></li>`).join('')}</ul>`;
+            }
+
+            return `
+                <div class="res-act-card" data-id="${act.id}">
+                    <div class="res-act-top">
+                        <div class="res-act-icon" style="background: ${cat.bg}; color: ${cat.color};"><i class="fas ${cat.icon}"></i></div>
+                        <div class="res-act-header">
+                            <div class="res-act-title">${act.title}</div>
+                        </div>
+                    </div>
+                    <div class="res-act-desc">${act.description}</div>
+                    ${skillsHtml ? `<div class="res-act-skills">${skillsHtml}</div>` : ''}
+                    <div class="res-act-meta">
+                        <span class="res-act-tag res-act-tag-level"><i class="fas fa-layer-group"></i> ${levelLabel}</span>
+                        <span class="res-act-tag res-act-tag-time"><i class="fas fa-clock"></i> ${act.duration}</span>
+                        <span class="res-act-tag res-act-tag-type"><i class="fas fa-tag"></i> ${act.type}</span>
+                        <span class="res-act-tag ${diffClass}">${act.difficulty}</span>
+                    </div>
+                    ${expandHtml ? `
+                        <div class="res-act-expand" id="expand-${act.id}">${expandHtml}</div>
+                        <div class="res-act-actions">
+                            <button class="res-act-btn" onclick="toggleExpand('${act.id}')"><i class="fas fa-chevron-down"></i> Details</button>
+                        </div>
+                    ` : ''}
+                </div>
+            `;
+        }).join('');
+    }
+
+    // Toggle expand
+    window.toggleExpand = function(id) {
+        const el = document.getElementById(`expand-${id}`);
+        if (!el) return;
+        el.classList.toggle('open');
+        const btn = el.nextElementSibling?.querySelector('.res-act-btn');
+        if (btn) {
+            const isOpen = el.classList.contains('open');
+            btn.innerHTML = isOpen
+                ? '<i class="fas fa-chevron-up"></i> Less'
+                : '<i class="fas fa-chevron-down"></i> Details';
+        }
+    };
+
+    document.addEventListener('DOMContentLoaded', async () => {
+        initSidebar();
+        buildCategoryCards();
+        buildLevelFilter();
+        renderActivities();
+
+        // Live filter listeners
+        document.getElementById('search-input').addEventListener('input', renderActivities);
+        document.getElementById('level-filter').addEventListener('change', renderActivities);
+        document.getElementById('difficulty-filter').addEventListener('change', renderActivities);
+
+        try {
+            const { user } = await requireAuth(['teacher', 'admin']);
+            const teacherDoc = await getDoc(doc(db, 'teachers', user.uid));
+            let name = 'Teacher';
+            if (teacherDoc.exists()) name = teacherDoc.data().name || name;
+            else {
+                const userDoc = await getDoc(doc(db, 'users', user.uid));
+                if (userDoc.exists()) {
+                    const d = userDoc.data();
+                    name = d.firstName ? `${d.firstName} ${d.lastName || ''}`.trim() : (d.name || 'Teacher');
+                }
+            }
+            document.getElementById('sidebar-teacher-name').textContent = name;
+            const avatarUrl = user.photoURL || `https://ui-avatars.com/api/?name=${encodeURIComponent(name)}&background=4f46e5&color=fff`;
+            document.getElementById('user-avatar-sidebar').src = avatarUrl;
+
+            document.getElementById('logout-btn')?.addEventListener('click', () => {
+                signOut(auth).then(() => window.location.href = 'auth/login-fixed.html');
+            });
+        } catch (e) {
+            console.error('Auth init error:', e);
+        }
+    });
+</script>
+</body>
+</html>
